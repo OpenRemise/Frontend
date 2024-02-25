@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake Frontend",
+      "type": "shell",
+      "isBackground": true,
+      "command": "cmake -Bbuild -GNinja"
+    },
+    {
+      "label": "Ninja Frontend",
+      "type": "shell",
+      "isBackground": true,
+      "command": "ninja -C build Frontend"
+    },
+    {
+      "label": "Run build_runner",
+      "type": "shell",
+      "isBackground": true,
+      "command": "dart run build_runner build --delete-conflicting-outputs"
+    },
+    {
+      "label": "Frontend chrome",
+      "type": "shell",
+      "isBackground": true,
+      // https://stackoverflow.com/a/74783428/5840652
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=WIDTH=640 --web-browser-flag \"--disable-web-security\""
+    }
+  ]
+}

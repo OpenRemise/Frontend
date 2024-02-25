@@ -1,0 +1,44 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Frontend (debug mode) WIDTH=640",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": [
+        "--dart-define",
+        "WIDTH=640"
+      ]
+    },
+    {
+      "name": "Frontend (debug mode) DOMAIN=wulf.local WIDTH=640",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": [
+        "--dart-define",
+        "DOMAIN=wulf.local",
+        "--dart-define",
+        "WIDTH=640"
+      ]
+    },
+    {
+      "name": "Frontend (debug mode) DOMAIN=wulf.local FAKE_SERVICES=true WIDTH=640",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": [
+        "--dart-define",
+        "DOMAIN=wulf.local",
+        "--dart-define",
+        "FAKE_SERVICES=true",
+        "--dart-define",
+        "WIDTH=640"
+      ]
+    }
+  ]
+}
