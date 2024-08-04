@@ -1,13 +1,15 @@
-import 'package:Frontend/models/setting.dart';
+import 'package:Frontend/models/config.dart';
 import 'package:Frontend/services/settings_service.dart';
 
 class FakeSettingsService implements SettingsService {
-  Setting _setting = Setting(
+  Config _config = Config(
     mdns: 'wulf',
     ssid: 'Klettermaxl',
     password: '********',
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
+    usbReceiveTimeout: 1,
+    currentLimit: 3,
     dccPreambleCount: 21,
     dccBit1Duration: 58,
     dccBit0Duration: 100,
@@ -15,25 +17,31 @@ class FakeSettingsService implements SettingsService {
   );
 
   @override
-  Future<Setting> fetch() async {
-    return _setting;
+  Future<Config> fetch() {
+    return Future.delayed(const Duration(milliseconds: 500), () => _config);
   }
 
   @override
-  Future<void> update(Setting setting) async {
-    _setting = Setting(
-      mdns: setting.mdns ?? _setting.mdns,
-      ssid: setting.ssid ?? _setting.ssid,
-      password: setting.password ?? _setting.password,
-      httpReceiveTimeout:
-          setting.httpReceiveTimeout ?? _setting.httpReceiveTimeout,
-      httpTransmitTimeout:
-          setting.httpTransmitTimeout ?? _setting.httpTransmitTimeout,
-      dccPreambleCount: setting.dccPreambleCount ?? _setting.dccPreambleCount,
-      dccBit1Duration: setting.dccBit1Duration ?? _setting.dccBit1Duration,
-      dccBit0Duration: setting.dccBit0Duration ?? _setting.dccBit0Duration,
-      dccBiDiBitDuration:
-          setting.dccBiDiBitDuration ?? _setting.dccBiDiBitDuration,
+  Future<void> update(Config config) {
+    return Future.delayed(
+      const Duration(milliseconds: 500),
+      () => _config = Config(
+        mdns: config.mdns ?? _config.mdns,
+        ssid: config.ssid ?? _config.ssid,
+        password: config.password ?? _config.password,
+        httpReceiveTimeout:
+            config.httpReceiveTimeout ?? _config.httpReceiveTimeout,
+        httpTransmitTimeout:
+            config.httpTransmitTimeout ?? _config.httpTransmitTimeout,
+        usbReceiveTimeout:
+            config.usbReceiveTimeout ?? _config.usbReceiveTimeout,
+        currentLimit: config.currentLimit ?? _config.currentLimit,
+        dccPreambleCount: config.dccPreambleCount ?? _config.dccPreambleCount,
+        dccBit1Duration: config.dccBit1Duration ?? _config.dccBit1Duration,
+        dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,
+        dccBiDiBitDuration:
+            config.dccBiDiBitDuration ?? _config.dccBiDiBitDuration,
+      ),
     );
   }
 }

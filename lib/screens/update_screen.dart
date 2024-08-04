@@ -1,10 +1,9 @@
-import 'package:Frontend/models/ms_database.dart';
-import 'package:Frontend/providers/ms_database.dart';
+import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
+import 'package:Frontend/widgets/zusi_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UpdateScreen extends ConsumerStatefulWidget {
@@ -16,20 +15,8 @@ class UpdateScreen extends ConsumerStatefulWidget {
 
 class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    debugPrint('UpdateScreen dispose');
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Locale locale = Locales.currentLocale(context)!;
-    final msDatabase = ref.watch(msDatabaseProvider(locale));
+    final z21Status = ref.watch(z21StatusProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -43,58 +30,21 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             ),
             actions: [
               IconButton(
-                onPressed: () async => ref.refresh(msDatabaseProvider(locale)),
-                tooltip: 'Refresh',
-                icon: const Icon(Icons.sync_outlined),
-              ),
-              IconButton(
-                onPressed: _loadFromFile,
-                tooltip: Locales.string(context, 'load_local_bin_zsu'),
+                onPressed: z21Status.hasValue
+                    ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                        ? _loadFromFile
+                        : null)
+                    : null,
+                tooltip: 'Load local .bin/.zpp/.zsu',
                 icon: const Icon(Icons.file_open_outlined),
               ),
             ],
             floating: true,
           ),
-          msDatabase.when(
-            skipLoadingOnRefresh: false,
-            data: (data) => SliverList.list(
-              children: [
-                for (final MapEntry<String, MsDatabaseInfo> entry
-                    in msDatabase.value!.entries)
-                  Card(
-                    child: ExpansionTile(
-                      leading: IconButton(
-                        onPressed: () => _loadFromUri(
-                          Uri.http(
-                            'www.zimo.at',
-                            '/web2010/clicks/click.php',
-                            {'id': 'MS_${entry.key}'},
-                          ),
-                        ),
-                        tooltip: 'Download',
-                        icon: const Icon(Icons.download_outlined),
-                      ),
-                      title: Text('MS/N decoder ${entry.key}.0'),
-                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                      expandedAlignment: Alignment.centerLeft,
-                      children: [
-                        for (final bulletPoint in entry.value.changelog)
-                          Text('- $bulletPoint'),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-            error: (error, stackTrace) => const SliverToBoxAdapter(
-              child: Text('error'),
-            ),
-            loading: () => SliverFillRemaining(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/loading.gif'),
-                  const Text('loading...'),
-                ],
+          const SliverToBoxAdapter(
+            child: Center(
+              child: Text(
+                "ZIMO won't let me show shit here",
               ),
             ),
           ),
@@ -107,7 +57,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     return FilePicker.platform
         .pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['bin', 'zsu'],
+      allowedExtensions: ['bin', 'zpp', 'zsu'],
       withData: true,
     )
         .then((FilePickerResult? result) {
@@ -117,6 +67,12 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         showDialog(
           context: context,
           builder: (_) => OtaDialog.fromFile(result.files.first.bytes!),
+          barrierDismissible: false,
+        );
+      } else if (result.files[0].extension == 'zpp') {
+        showDialog(
+          context: context,
+          builder: (_) => ZusiDialog.fromFile(result.files.first.bytes!),
           barrierDismissible: false,
         );
       } else if (result.files[0].extension == 'zsu') {
@@ -130,6 +86,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     });
   }
 
+  /*
   Future<void> _loadFromUri(Uri uri) async {
     showDialog(
       context: context,
@@ -137,4 +94,5 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       barrierDismissible: false,
     );
   }
+  */
 }

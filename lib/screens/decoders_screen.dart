@@ -1,12 +1,13 @@
-import 'package:Frontend/models/info.dart';
+import 'package:Frontend/constants/small_screen_width.dart';
+import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
-import 'package:Frontend/providers/sys.dart';
-import 'package:Frontend/widgets/cab.dart';
+import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/controller.dart';
 import 'package:Frontend/widgets/delete_loco_dialog.dart';
 import 'package:Frontend/widgets/edit_loco_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DecodersScreen extends ConsumerStatefulWidget {
@@ -17,21 +18,22 @@ class DecodersScreen extends ConsumerStatefulWidget {
 }
 
 class _DecodersScreenState extends ConsumerState<DecodersScreen> {
-  static final int _minWidth = int.parse(const String.fromEnvironment('WIDTH'));
-
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
 
-    // On small screens show only either locos or cab
+    // On small screens show only either locos or controller
     if (selectedIndex != null &&
-        MediaQuery.of(context).size.width < _minWidth) {
+        MediaQuery.of(context).size.width < smallScreenWidth) {
       return const Padding(
         padding: EdgeInsets.all(8.0),
-        child: Cab(),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Controller(),
+        ),
       );
     }
-    // On big screens show locos and cab side by side
+    // On big screens show locos and controller side by side
     else {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -41,9 +43,11 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
   }
 
   Widget _locos() {
-    final sys = ref.watch(sysProvider);
+    final dcc = ref.watch(dccProvider);
     final locos = ref.watch(locosProvider);
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
+    final z21 = ref.watch(z21ServiceProvider);
+    final z21Status = ref.watch(z21StatusProvider);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,19 +57,21 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
             slivers: [
               SliverAppBar(
                 leading: IconButton(
-                  onPressed: sys.value?.mode == 'Suspended' ||
-                          sys.value?.mode == 'DCCOperations'
-                      ? _powerAction
+                  onPressed: z21Status.hasValue
+                      ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                          ? z21.lanXSetTrackPowerOn
+                          : z21.lanXSetTrackPowerOff)
                       : null,
-                  tooltip: Locales.string(context, 'on_off'),
-                  isSelected: sys.value?.mode == 'DCCOperations',
+                  tooltip: 'On/off',
+                  isSelected: z21Status.hasValue &&
+                      z21Status.requireValue.centralState & 0x02 == 0x00,
                   selectedIcon: const Icon(Icons.power_off_outlined),
                   icon: const Icon(Icons.power_outlined),
                 ),
-                title: IconButton(
+                title: const IconButton(
                   onPressed: null,
-                  tooltip: Locales.string(context, 'search'),
-                  icon: const Icon(Icons.search),
+                  tooltip: 'Search',
+                  icon: Icon(Icons.search),
                 ),
                 actions: [
                   IconButton(
@@ -74,50 +80,43 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       ref
                           .read(selectedLocoIndexProvider.notifier)
                           .update((state) => null);
-                      ref.read(locosProvider.notifier).fetchLocos();
+                      ref.read(dccProvider.notifier).fetchLocos();
                     },
                     tooltip: 'Refresh',
                     icon: const Icon(Icons.sync_outlined),
                   ),
                   IconButton(
                     onPressed: () => showEditLocoDialog(context: context),
-                    tooltip: Locales.string(context, 'add'),
+                    tooltip: 'Add',
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                   IconButton(
                     onPressed: () => showDeleteLocoDialog(context: context),
-                    tooltip: Locales.string(context, 'delete_all'),
+                    tooltip: 'Delete all',
                     icon: const Icon(Icons.delete_outline),
                   ),
                 ],
                 floating: true,
               ),
-              locos.when(
+              dcc.when(
                 data: (data) => SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) =>
-                        index < data.length ? _tile(index) : null,
-                    childCount: locos.value?.length,
+                        index < locos.length ? _tile(index) : null,
+                    childCount: locos.length,
                   ),
                 ),
                 error: (error, stackTrace) =>
-                    const SliverToBoxAdapter(child: Text('error')),
-                loading: () => SliverFillRemaining(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/loading.gif'),
-                      const Text('loading...'),
-                    ],
-                  ),
-                ),
+                    const SliverToBoxAdapter(child: Icon(Icons.error_outline)),
+                loading: () =>
+                    const SliverFillRemaining(child: Text('loading')),
               ),
             ],
           ),
         ),
         if (selectedIndex != null &&
-            MediaQuery.of(context).size.width >= _minWidth)
-          const Cab(),
+            MediaQuery.of(context).size.width >= smallScreenWidth)
+          const Controller(),
       ],
     );
   }
@@ -129,9 +128,9 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.train_outlined),
-        title: Text(locos.requireValue[index].name),
+        title: Text(locos[index].name),
         subtitle: Text(
-          '${Locales.string(context, 'address')} ${locos.requireValue[index].address}',
+          'Address ${locos[index].address}',
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -154,16 +153,5 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
         selected: selectedIndex == index,
       ),
     );
-  }
-
-  void _powerAction() async {
-    final sys = ref.watch(sysProvider);
-    await ref.read(sysProvider.notifier).updateInfo(
-          Info(
-            mode: sys.requireValue.mode == 'Suspended'
-                ? 'DCCOperations'
-                : 'Suspended',
-          ),
-        );
   }
 }

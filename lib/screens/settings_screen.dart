@@ -1,11 +1,14 @@
-import 'package:Frontend/models/setting.dart';
+import 'package:Frontend/models/config.dart';
 import 'package:Frontend/providers/settings.dart';
+import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsScreen extends ConsumerWidget {
+  static const List<double> _currentLimitValues = [0.5, 1.6, 3, 4.1];
+  static const List<int> _dccBidibitDurValues = [0, 57, 58, 59, 60, 61];
   final _formKey = GlobalKey<FormBuilderState>();
 
   SettingsScreen({super.key});
@@ -13,6 +16,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
+    final z21 = ref.watch(z21ServiceProvider);
+    final z21Status = ref.watch(z21StatusProvider);
 
     return settings.when(
       data: (data) {
@@ -20,175 +25,248 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: FormBuilder(
             key: _formKey,
-            child: ListView(
-              children: [
-                FormBuilderTextField(
-                  name: 'sta_mdns',
-                  validator: (String? value) {
-                    return null;
-                  },
-                  initialValue: data.mdns,
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.wifi_outlined),
-                    labelText: 'mDNS',
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  leading: IconButton(
+                    onPressed: z21Status.hasValue
+                        ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                            ? z21.lanXSetTrackPowerOn
+                            : z21.lanXSetTrackPowerOff)
+                        : null,
+                    tooltip: 'On/off',
+                    isSelected: z21Status.hasValue &&
+                        z21Status.requireValue.centralState & 0x02 == 0x00,
+                    selectedIcon: const Icon(Icons.power_off_outlined),
+                    icon: const Icon(Icons.power_outlined),
                   ),
+                  floating: true,
                 ),
-                FormBuilderTextField(
-                  name: 'sta_ssid',
-                  validator: (String? value) {
-                    return null;
-                  },
-                  initialValue: data.ssid,
-                  decoration: const InputDecoration(
-                    icon: Icon(null),
-                    labelText: 'SSID',
-                  ),
-                ),
-                FormBuilderTextField(
-                  name: 'sta_pass',
-                  validator: (String? value) {
-                    return null;
-                  },
-                  initialValue: data.password,
-                  decoration: InputDecoration(
-                    icon: const Icon(null),
-                    labelText: Locales.string(context, 'password'),
-                  ),
-                ),
-                const Divider(),
-                FormBuilderSlider(
-                  name: 'http_rx_timeout',
-                  initialValue: data.httpReceiveTimeout!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(Icons.http_outlined),
-                    labelText: Locales.string(context, 'http_receive_timeout'),
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 5,
-                  max: 60,
-                  divisions: 60 - 5,
-                  displayValues: DisplayValues.current,
-                ),
-                FormBuilderSlider(
-                  name: 'http_tx_timeout',
-                  initialValue: data.httpTransmitTimeout!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(null),
-                    labelText: Locales.string(context, 'http_transmit_timeout'),
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 5,
-                  max: 60,
-                  divisions: 60 - 5,
-                  displayValues: DisplayValues.current,
-                ),
-                const Divider(),
-                FormBuilderSlider(
-                  name: 'dcc_preamble',
-                  initialValue: data.dccPreambleCount!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(Icons.train_outlined),
-                    labelText: Locales.string(context, 'dcc_preamble'),
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 17,
-                  max: 30,
-                  divisions: 30 - 17,
-                  displayValues: DisplayValues.current,
-                ),
-                FormBuilderSlider(
-                  name: 'dcc_bit1_dur',
-                  initialValue: data.dccBit1Duration!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(null),
-                    labelText:
-                        '${Locales.string(context, 'dcc_bit1_dur')} [µs]',
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 56,
-                  max: 60,
-                  divisions: 60 - 56,
-                  displayValues: DisplayValues.current,
-                ),
-                FormBuilderSlider(
-                  name: 'dcc_bit0_dur',
-                  initialValue: data.dccBit0Duration!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(null),
-                    labelText:
-                        '${Locales.string(context, 'dcc_bit0_dur')} [µs]',
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 97,
-                  max: 114,
-                  divisions: 114 - 97,
-                  displayValues: DisplayValues.current,
-                ),
-                FormBuilderSlider(
-                  name: 'dcc_bidibit_dur',
-                  initialValue: data.dccBiDiBitDuration!.toDouble(),
-                  decoration: InputDecoration(
-                    icon: const Icon(null),
-                    labelText:
-                        '${Locales.string(context, 'dcc_bidibit_dur')} [µs]',
-                  ),
-                  valueTransformer: (value) => value!.toInt(),
-                  min: 57,
-                  max: 61,
-                  divisions: 61 - 57,
-                  displayValues: DisplayValues.current,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          // Remove sta_pass if it only contains *
-                          var map = Map.of(_formKey.currentState!.value);
-                          final String staPass = map['sta_pass']!;
-                          if (staPass == '*' * staPass.length) {
-                            map.remove('sta_pass');
-                          }
-                          ref
-                              .read(settingsProvider.notifier)
-                              .updateSettings(Setting.fromJson(map));
-                        }
-                      },
-                      child: const Text('OK'),
+                SliverToBoxAdapter(
+                  child: FormBuilderTextField(
+                    name: 'sta_mdns',
+                    validator: (String? value) {
+                      return null;
+                    },
+                    initialValue: data.mdns,
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.wifi_outlined),
+                      labelText: 'mDNS',
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState == null) return;
-                        _formKey.currentState!.reset();
-                      },
-                      child: const LocaleText('cancel'),
-                    ),
-                  ],
+                  ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                SliverToBoxAdapter(
+                  child: FormBuilderTextField(
+                    name: 'sta_ssid',
+                    validator: (String? value) {
+                      return null;
+                    },
+                    initialValue: data.ssid,
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'SSID',
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderTextField(
+                    name: 'sta_pass',
+                    validator: (String? value) {
+                      return null;
+                    },
+                    initialValue: data.password,
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'Password',
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'http_rx_timeout',
+                    initialValue: data.httpReceiveTimeout!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.http_outlined),
+                      labelText: 'HTTP receive timeout [s]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 5,
+                    max: 60,
+                    divisions: 60 - 5,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'http_tx_timeout',
+                    initialValue: data.httpTransmitTimeout!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'HTTP transmit timeout [s]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 5,
+                    max: 60,
+                    divisions: 60 - 5,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'usb_rx_timeout',
+                    initialValue: data.usbReceiveTimeout!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.usb_outlined),
+                      labelText: 'USB receive timeout [s]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 1,
+                    max: 10,
+                    divisions: 10 - 1,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'current_limit',
+                    initialValue: data.currentLimit!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.power_outlined),
+                      labelText: 'Current limit [A]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 0,
+                    max: 3,
+                    divisions: 3 - 0,
+                    displayValues: DisplayValues.current,
+                    valueWidget: (value) =>
+                        Text(_currentLimitValues[int.parse(value)].toString()),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_preamble',
+                    initialValue: data.dccPreambleCount!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.train_outlined),
+                      labelText: 'DCC preamble',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 17,
+                    max: 30,
+                    divisions: 30 - 17,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_bit1_dur',
+                    initialValue: data.dccBit1Duration!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC 1 bit duration [µs]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 56,
+                    max: 60,
+                    divisions: 60 - 56,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_bit0_dur',
+                    initialValue: data.dccBit0Duration!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC 0 bit duration [µs]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 97,
+                    max: 114,
+                    divisions: 114 - 97,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_bidibit_dur',
+                    initialValue: _dccBidibitDurValues
+                        .indexOf(data.dccBiDiBitDuration!)
+                        .toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC BiDi bit duration [µs]',
+                    ),
+                    valueTransformer: (value) =>
+                        _dccBidibitDurValues[value!.toInt()],
+                    min: 0,
+                    max: 61 - 57 + 1,
+                    divisions: 61 - 57 + 1,
+                    displayValues: DisplayValues.current,
+                    valueWidget: (value) =>
+                        Text(_dccBidibitDurValues[int.parse(value)].toString()),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              // Remove sta_pass if it only contains *
+                              var map = Map.of(_formKey.currentState!.value);
+                              final String staPass = map['sta_pass']!;
+                              if (staPass == '*' * staPass.length) {
+                                map.remove('sta_pass');
+                              }
+                              ref
+                                  .read(settingsProvider.notifier)
+                                  .updateSettings(Config.fromJson(map));
+
+                              debugPrint(map.toString());
+                            }
+                          },
+                          child: const Text('OK'),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState == null) return;
+                            _formKey.currentState!.reset();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         );
       },
-      error: (error, stackTrace) {
-        return const Text('error');
-      },
-      loading: () => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/loading.gif'),
-            const Text('loading...'),
-          ],
-        ),
-      ),
+      error: (error, stackTrace) =>
+          const Center(child: Icon(Icons.error_outline)),
+      loading: () => const Center(child: Text('loading')),
     );
   }
 }

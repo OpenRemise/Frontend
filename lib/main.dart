@@ -1,22 +1,22 @@
 import 'dart:async';
 
+import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/providers/sys.dart';
+import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
 import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/service_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
-import 'package:Frontend/screens/sound_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
 import 'package:Frontend/widgets/domain_dialog.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -25,7 +25,6 @@ void main() async {
     await DesktopWindow.setMinWindowSize(const Size(480, 800));
   }
   prefs = await SharedPreferences.getInstance();
-  await Locales.init(['de', 'en']);
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -34,48 +33,73 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lightTheme = ThemeData(
-      colorScheme: const ColorScheme.highContrastLight(
-        primary: Colors.red,
-        secondary: Colors.red,
-      ),
+    final lightThemeBW = ThemeData(
       useMaterial3: true,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: Colors.black,
+        onPrimary: Colors.white,
+        secondary: Colors.white,
+        onSecondary: Colors.black,
+        error: Colors.red,
+        onError: Colors.white,
+        surface: Colors.white,
+        onSurface: Colors.black,
+      ),
+      fontFamily: 'GlacialIndifference',
     );
 
-    final darkTheme = ThemeData(
-      colorScheme: const ColorScheme.highContrastDark(
-        primary: Colors.red,
-        secondary: Colors.red,
-      ),
+    final darkThemeBW = ThemeData(
       useMaterial3: true,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.dark,
+        primary: Colors.white,
+        onPrimary: Colors.black,
+        secondary: Colors.black,
+        onSecondary: Colors.white,
+        error: Colors.red,
+        onError: Colors.black,
+        surface: Colors.black,
+        onSurface: Colors.white,
+      ),
+      fontFamily: 'GlacialIndifference',
     );
 
-    return LocaleBuilder(
-      builder: (locale) => MaterialApp(
-        home: const HomeView(),
-        title: 'Alpha',
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode:
-            ref.watch(darkModeProvider) ? ThemeMode.dark : ThemeMode.light,
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: Locales.delegates,
-        supportedLocales: Locales.supportedLocales,
-        locale: locale,
-      ),
+    return MaterialApp(
+      home: kIsWeb ? const WebHomeView() : const NativeHomeView(),
+      title: 'OpenRemise',
+      theme: lightThemeBW,
+      darkTheme: darkThemeBW,
+      themeMode: ref.watch(darkModeProvider) ? ThemeMode.dark : ThemeMode.light,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class HomeView extends ConsumerStatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+class NativeHomeView extends ConsumerWidget {
+  const NativeHomeView({super.key});
 
   @override
-  ConsumerState<HomeView> createState() => _HomeViewState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final String domain = ref.watch(domainProvider);
+    if (domain.isEmpty) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => showDomainDialog(context: context));
+      return const Placeholder();
+    } else {
+      return const WebHomeView();
+    }
+  }
 }
 
-class _HomeViewState extends ConsumerState<HomeView> {
-  static final int _minWidth = int.parse(const String.fromEnvironment('WIDTH'));
+class WebHomeView extends ConsumerStatefulWidget {
+  const WebHomeView({super.key});
+
+  @override
+  ConsumerState<WebHomeView> createState() => _WebHomeViewState();
+}
+
+class _WebHomeViewState extends ConsumerState<WebHomeView> {
   late final Timer _timer;
   int _index = 0;
 
@@ -83,7 +107,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     const InfoScreen(),
     const DecodersScreen(),
     const ServiceScreen(),
-    const SoundScreen(),
     const UpdateScreen(),
     SettingsScreen(),
   ];
@@ -104,36 +127,40 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final String domain = ref.watch(domainProvider);
-    if (domain.isEmpty) {
-      Future.delayed(Duration.zero, () => showDomainDialog(context: context));
-      return Placeholder(); // TODO return a nice looking thing while domain is picked
-    }
-
-    final Locale? locale = Locales.currentLocale(context);
+    final status = ref.watch(z21StatusProvider);
+    debugPrint('$status');
 
     return Scaffold(
       appBar: AppBar(
-        leading: const Image(
-          image: Svg('assets/head.svg'),
-        ),
-        title: const Text('OpenRemise'),
+        leading: MediaQuery.of(context).size.width < smallScreenWidth
+            ? SvgPicture.asset(
+                'data/icons/icon.svg',
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
+              )
+            : null,
+        title: MediaQuery.of(context).size.width < smallScreenWidth
+            ? const Text('Open|Remise')
+            : SvgPicture.asset(
+                'data/images/logo.svg',
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
         actions: [
+          /*
           IconButton(
-            icon: Image(
+            icon: SvgPicture.asset(
+              'data/gb.svg',
               width: 20,
               height: 20,
-              image: Svg(
-                locale == const Locale('en')
-                    ? 'assets/gb.svg'
-                    : 'assets/de.svg',
-              ),
             ),
-            onPressed: () => Locales.change(
-              context,
-              locale == const Locale('en') ? 'de' : 'en',
-            ),
+            onPressed: null,
           ),
+          */
           IconButton(
             icon: Icon(
               ref.watch(darkModeProvider) ? Icons.light_mode : Icons.dark_mode,
@@ -144,7 +171,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
         ],
       ),
-      body: MediaQuery.of(context).size.width < _minWidth
+      body: MediaQuery.of(context).size.width < smallScreenWidth
           ? _children[_index]
           : Row(
               children: <Widget>[
@@ -168,11 +195,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       label: Text('Service'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.music_note_outlined),
-                      selectedIcon: Icon(Icons.music_note),
-                      label: Text('Sound'),
-                    ),
-                    NavigationRailDestination(
                       icon: Icon(Icons.cloud_upload_outlined),
                       selectedIcon: Icon(Icons.cloud_upload),
                       label: Text('Update'),
@@ -180,7 +202,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     NavigationRailDestination(
                       icon: Icon(Icons.settings_outlined),
                       selectedIcon: Icon(Icons.settings),
-                      label: LocaleText('settings'),
+                      label: Text('Settings'),
                     ),
                   ],
                   selectedIndex: _index,
@@ -197,39 +219,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ],
             ),
-      bottomNavigationBar: MediaQuery.of(context).size.width < _minWidth
+      bottomNavigationBar: MediaQuery.of(context).size.width < smallScreenWidth
           ? NavigationBar(
               selectedIndex: _index,
-              destinations: [
-                const NavigationDestination(
+              destinations: const [
+                NavigationDestination(
                   icon: Icon(Icons.info_outline),
                   selectedIcon: Icon(Icons.info),
                   label: 'Info',
                 ),
-                const NavigationDestination(
+                NavigationDestination(
                   icon: Icon(Icons.subtitles_outlined),
                   selectedIcon: Icon(Icons.subtitles),
                   label: 'Decoders',
                 ),
-                const NavigationDestination(
+                NavigationDestination(
                   icon: Icon(Icons.build_circle_outlined),
                   selectedIcon: Icon(Icons.build_circle),
                   label: 'Service',
                 ),
-                const NavigationDestination(
-                  icon: Icon(Icons.music_note_outlined),
-                  selectedIcon: Icon(Icons.music_note),
-                  label: 'Sound',
-                ),
-                const NavigationDestination(
+                NavigationDestination(
                   icon: Icon(Icons.cloud_upload_outlined),
                   selectedIcon: Icon(Icons.cloud_upload),
                   label: 'Update',
                 ),
                 NavigationDestination(
-                  icon: const Icon(Icons.settings_outlined),
-                  selectedIcon: const Icon(Icons.settings),
-                  label: Locales.string(context, 'settings'),
+                  icon: Icon(Icons.settings_outlined),
+                  selectedIcon: Icon(Icons.settings),
+                  label: 'Settings',
                 ),
               ],
               onDestinationSelected: (index) => setState(() {
@@ -241,6 +258,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _heartbeat(_) {
-    ref.read(sysProvider.notifier).fetchInfo();
+    ref.read(z21ServiceProvider).lanXGetStatus();
   }
 }

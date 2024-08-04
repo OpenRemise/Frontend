@@ -1,4 +1,4 @@
-import 'package:Frontend/models/setting.dart';
+import 'package:Frontend/models/config.dart';
 import 'package:Frontend/providers/settings_service.dart';
 import 'package:Frontend/services/settings_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -10,7 +10,7 @@ class Settings extends _$Settings {
   late final SettingsService _service;
 
   @override
-  FutureOr<Setting> build() async {
+  FutureOr<Config> build() async {
     _service = ref.read(settingsServiceProvider);
     return _service.fetch(); // TODO this can potentially still fail
   }
@@ -20,10 +20,10 @@ class Settings extends _$Settings {
     state = await AsyncValue.guard(() async => _service.fetch());
   }
 
-  Future<void> updateSettings(Setting setting) async {
+  Future<void> updateSettings(Config config) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await _service.update(setting);
+      await _service.update(config);
       return _service.fetch();
     });
   }

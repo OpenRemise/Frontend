@@ -1,55 +1,68 @@
+import 'dart:async';
+
+import 'package:Frontend/constants/ack.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeZusiService implements ZusiService {
-  @override
-  Future<void> ready() async {
-    await Future.delayed(const Duration(seconds: 2));
-  }
+  final _controller = StreamController<Uint8List>();
 
   @override
-  void close() {
-    debugPrint('FakeZusiService close');
-  }
+  Future<void> get ready => Future.delayed(const Duration(seconds: 1));
 
   @override
-  Future<Uint8List> readCv(int address) async {
+  Stream<Uint8List> get stream => _controller.stream;
+
+  @override
+  Future close([int? closeCode, String? closeReason]) =>
+      Future.delayed(Duration.zero);
+
+  @override
+  void readCv(int address) {
     // TODO: implement readCv
     throw UnimplementedError();
   }
 
   @override
-  Future<Uint8List> writeCv(int address, int value) async {
+  void writeCv(int address, int value) {
     // TODO: implement writeCv
     throw UnimplementedError();
   }
 
   @override
-  Future<Uint8List> eraseZpp() async {
-    await Future.delayed(const Duration(seconds: 10));
-    return Uint8List.fromList([ZusiService.ack]);
+  void eraseZpp() async {
+    await Future.delayed(const Duration(seconds: 10), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([ack]));
+    });
   }
 
   @override
-  Future<Uint8List> writeZpp(int address, Uint8List chunk) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return Uint8List.fromList([ZusiService.ack]);
+  void writeZpp(int address, Uint8List chunk) async {
+    await Future.delayed(const Duration(milliseconds: 100), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([ack]));
+    });
   }
 
   @override
-  Future<Uint8List> features() async {
-    await Future.delayed(const Duration(seconds: 2));
-    return Uint8List.fromList([6, 251, 255, 255, 127, 147]);
+  void features() async {
+    await Future.delayed(const Duration(seconds: 2), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([6, 251, 255, 255, 127, 147]));
+    });
   }
 
   @override
-  Future<Uint8List> exit(int flags) async {
-    await Future.delayed(const Duration(seconds: 2));
-    return Uint8List.fromList([ZusiService.ack]);
+  void exit(int flags) async {
+    await Future.delayed(const Duration(seconds: 2), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([ack]));
+    });
   }
 
   @override
-  Future<Uint8List> encrypt() async {
+  void encrypt() {
     // TODO: implement encrypt
     throw UnimplementedError();
   }

@@ -16,7 +16,7 @@ void main() {
       0x6F,
       0x72,
       0x6C,
-      0x64
+      0x64,
     ];
 
     test('List<int>', () {

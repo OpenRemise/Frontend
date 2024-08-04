@@ -14,17 +14,23 @@
       "command": "ninja -C build Frontend"
     },
     {
-      "label": "Run build_runner",
+      "label": "build_runner build",
       "type": "shell",
       "isBackground": true,
       "command": "dart run build_runner build --delete-conflicting-outputs"
+    },
+    {
+      "label": "build_runner clean",
+      "type": "shell",
+      "isBackground": true,
+      "command": "rm -rf build && find . -type f \\( -name \"*.*.dart\" \\) -delete"
     },
     {
       "label": "Frontend chrome",
       "type": "shell",
       "isBackground": true,
       // https://stackoverflow.com/a/74783428/5840652
-      "command": ". chromium.fish && flutter run -d chrome --dart-define=WIDTH=640 --web-browser-flag \"--disable-web-security\""
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
     }
   ]
 }

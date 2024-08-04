@@ -20,17 +20,4 @@ class HttpSysService implements SysService {
       throw Exception('Failed to fetch sys');
     }
   }
-
-  @override
-  Future<void> update(Info info) async {
-    final uri = Uri.http(_domain, 'sys/');
-    final response = await _client.post(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(info.toJson()),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update sys');
-    }
-  }
 }
