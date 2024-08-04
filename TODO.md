@@ -10,6 +10,9 @@ https://wiki.archlinux.org/title/avahi
 Replacing mdns_minimal with mdns4_minimal did the trick so far
 
 ## Packages
+- [dartdoc](https://pub.dev/packages/dartdoc)
+- [animated_toggle_switch](https://pub.dev/packages/animated_toggle_switch)
+- [easy_localization](https://pub.dev/packages/easy_localization)
 - [sliver_tools](https://pub.dev/packages/sliver_tools)
 - [flutter_slidable](https://pub.dev/packages/flutter_slidable)
 - [radial_button](https://pub.dev/packages/radial_button)
@@ -17,49 +20,44 @@ Replacing mdns_minimal with mdns4_minimal did the trick so far
 - [pie_menu](https://pub.dev/packages/pie_menu)
 - [flutter_xslider](https://pub.dev/packages/flutter_xlider)
 - [sleek_circular_slider](https://pub.dev/packages/sleek_circular_slider)
-- [flutter_locales](https://pub.dev/packages/flutter_locales)
 - [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)
-
-## Theme
-Flutter can create a theme from an image, although that doesn't seem to work on the web...?  
-https://www.youtube.com/watch?v=CfOlY36GWYU
 
 ## Android
 Gradle version clusterfuck  
 https://docs.gradle.org/current/userguide/compatibility.html
-
 Emulator needs to be launched from within /opt/android-sdk/tools/emulator and with -feature -Vulkan
-
-## Material design
-https://m3.material.io/
 
 ## Z21 app
 Maybe we should take a look at how the Z21 app imports/exports locos? It seems to be some sq3lite thing?
 
-## Partitions
-Currently I use the following partitions.csv
-ota_0 4M  
-ota_1 4M  
-nvs 8M  
-storage rest  
-
-Maybe 4M OTA ain't enough for future app stuff? Also there is no room for images. Maybe create an 8MB "data" partition and an 8MB "frontend" one?
-
-## Update screen
-Update screen needs
-- MDU update
-- Frontend update
-
 ## Service screen
+Look how Z21 does it, probably a good idea to split between some large display screen and small display screen
+Have just a single CV read/write button on small screen
+And an entire table on larger ones?
+Also, how about JMRI import?
 - re-read and re-write button?
 
 ## Setting base-href from the command line
 flutter build web --base-href "/path/"
 
-## Better constant names
-WIDTH -> MAX_NAV_RAIL_WIDTH (or MIN_NAV_BAR_WIDTH)
-
 ## Cab
 Option for left-handers to have slider left?
 LinearGradiant for Sliders CustomCurve would be great... (would be a PR)
 There is currently a data race when switching locos while the cab is still open, no clue how we can prevent that?
+
+## Make use of collections
+Instead of manually creating chunks of X bytes do this
+
+```dart
+import 'package:collection/collection.dart';
+
+void main() {
+  List<dynamic> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  Iterable<List<dynamic>> chunksCollection = numbers.slices(3);
+  print(chunksCollection);
+}
+```
+
+## svgcleaner
+Use this tool to clean up fucked up .svg files  
+https://github.com/RazrFalcon/svgcleaner

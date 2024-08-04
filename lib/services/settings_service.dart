@@ -1,6 +1,6 @@
-import 'package:Frontend/models/setting.dart';
+import 'package:Frontend/models/config.dart';
 
-abstract class SettingsService {
-  Future<Setting> fetch();
-  Future<void> update(Setting setting);
+abstract interface class SettingsService {
+  Future<Config> fetch();
+  Future<void> update(Config setting);
 }

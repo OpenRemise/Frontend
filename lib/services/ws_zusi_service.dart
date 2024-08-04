@@ -1,32 +1,28 @@
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:Frontend/utilities/crc8.dart';
-import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsZusiService implements ZusiService {
   late final WebSocketChannel _channel;
-  late final StreamQueue<Uint8List> _queue;
 
   WsZusiService(String domain) {
     debugPrint('WsZusiService ctor');
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zusi/'));
-    _queue = StreamQueue(_channel.stream.cast<Uint8List>());
   }
 
   @override
-  Future<void> ready() async {
-    return _channel.ready;
-  }
+  Future<void> get ready => _channel.ready;
 
   @override
-  void close() {
-    debugPrint('WsZusiService close');
-    _channel.sink.close();
-  }
+  Stream<Uint8List> get stream => _channel.stream.cast<Uint8List>();
 
   @override
-  Future<Uint8List> readCv(int address) async {
+  Future close([int? closeCode, String? closeReason]) =>
+      _channel.sink.close(closeCode, closeReason);
+
+  @override
+  void readCv(int address) async {
     List<int> data = [
       0x01, // Command
       0x00, // Count
@@ -37,11 +33,10 @@ class WsZusiService implements ZusiService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> writeCv(int address, int value) async {
+  void writeCv(int address, int value) async {
     List<int> data = [
       0x02, // Command
       0x00, // Count
@@ -53,11 +48,10 @@ class WsZusiService implements ZusiService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> eraseZpp() async {
+  void eraseZpp() async {
     List<int> data = [
       0x04, // Command
       0x55,
@@ -65,11 +59,10 @@ class WsZusiService implements ZusiService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> writeZpp(int address, Uint8List chunk) async {
+  void writeZpp(int address, Uint8List chunk) async {
     assert(chunk.length <= 256);
     List<int> data = [
       0x05, // Command
@@ -82,26 +75,24 @@ class WsZusiService implements ZusiService {
     data.addAll(chunk);
 
     // this should normally be zero?
-    debugPrint('${268 - 1 - data.length}'); // TODO remove
+    // debugPrint('${268 - 1 - data.length}'); // TODO remove
 
     data.addAll(List<int>.filled(268 - 1 - data.length, 0xFF));
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> features() async {
+  void features() async {
     List<int> data = [
       0x06, // Command
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> exit(int flags) async {
+  void exit(int flags) async {
     List<int> data = [
       0x07, // Command
       0x55,
@@ -110,11 +101,10 @@ class WsZusiService implements ZusiService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> encrypt() async {
+  void encrypt() async {
     // TODO: implement encrypt
     throw UnimplementedError();
   }

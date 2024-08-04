@@ -8,9 +8,6 @@ class HttpDccService implements DccService {
   final http.Client _client;
   final String _domain;
 
-  http.Client get client => _client;
-  String get domain => _domain;
-
   HttpDccService(this._client, this._domain);
 
   @override
@@ -64,27 +61,5 @@ class HttpDccService implements DccService {
     final uri = Uri.http(_domain, 'dcc/locos/$address');
     final response = await _client.delete(uri);
     if (response.statusCode != 200) throw Exception('Failed to delete loco');
-  }
-
-  @override
-  Future<Map<String, int?>> fetchCVs() async {
-    final uri = Uri.http(_domain, 'dcc/service/');
-    final response = await _client.get(uri);
-    if (response.statusCode == 200) {
-      return Map<String, int?>.from(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to fetch CVs');
-    }
-  }
-
-  @override
-  Future<void> updateCVs(Map<String, int?> cvs) async {
-    final uri = Uri.http(_domain, 'dcc/service/');
-    final response = await _client.put(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(cvs),
-    );
-    if (response.statusCode != 200) throw Exception('Failed to update CVs');
   }
 }

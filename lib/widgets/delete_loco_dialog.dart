@@ -1,15 +1,13 @@
+import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DeleteLocoDialog extends ConsumerStatefulWidget {
   final int? _index;
 
-  const DeleteLocoDialog(int? index, {Key? key})
-      : _index = index,
-        super(key: key);
+  const DeleteLocoDialog(int? index, {super.key}) : _index = index;
 
   @override
   ConsumerState<DeleteLocoDialog> createState() => _DeleteLocoDialogState();
@@ -21,18 +19,17 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
     // Don't watch provider here, otherwise this widget might get rebuilt with an invalid index
     // Please be aware that this contradicts the documentation
     final locos = ref.read(locosProvider);
-    final loco =
-        widget._index != null ? locos.requireValue[widget._index!] : null;
+    final loco = widget._index != null ? locos[widget._index!] : null;
 
     return AlertDialog(
-      title: Text('Delete ${loco == null ? 'all' : '${loco.name}'}'),
+      title: Text('Delete ${loco == null ? 'all' : loco.name}'),
       actions: <Widget>[
         TextButton(
           onPressed: () {
             if (loco != null) {
-              ref.read(locosProvider.notifier).deleteLoco(loco.address);
+              ref.read(dccProvider.notifier).deleteLoco(loco.address);
             } else {
-              ref.read(locosProvider.notifier).deleteLocos();
+              ref.read(dccProvider.notifier).deleteLocos();
             }
 
             // Deselect
@@ -49,7 +46,7 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const LocaleText('cancel'),
+          child: const Text('Cancel'),
         ),
       ],
     );

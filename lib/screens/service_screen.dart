@@ -1,23 +1,14 @@
-import 'dart:async';
-
-import 'package:Frontend/models/info.dart';
-import 'package:Frontend/providers/dcc_service.dart';
-import 'package:Frontend/providers/sys.dart';
+import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/services/z21_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef _FormBuilderFieldType = ({
-  String number,
-  String value,
+typedef _Cv = ({
+  String? number,
+  String? value,
 });
-
-class _Cv {
-  final TextEditingController numberController = TextEditingController();
-  final TextEditingController valueController = TextEditingController();
-  IconData statusIcon = Icons.circle_outlined;
-}
 
 class ServiceScreen extends ConsumerStatefulWidget {
   const ServiceScreen({super.key});
@@ -28,325 +19,195 @@ class ServiceScreen extends ConsumerStatefulWidget {
 
 class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final List<_Cv> _cvs = [];
-  late final Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), _timerCallack);
-  }
-
-  @override
-  void dispose() {
-    debugPrint('ServiceScreen dispose');
-    _timer.cancel();
-    super.dispose();
-  }
+  bool _serviceMode = false;
 
   @override
   Widget build(BuildContext context) {
-    final sys = ref.watch(sysProvider);
+    final z21 = ref.watch(z21ServiceProvider);
+    final z21Status = ref.watch(z21StatusProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: FormBuilder(
-        key: _formKey,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              leading: IconButton(
-                onPressed: sys.value?.mode == 'Suspended' ||
-                        sys.value?.mode == 'DCCService'
-                    ? _powerAction
-                    : null,
-                tooltip: Locales.string(context, 'on_off'),
-                isSelected: sys.value?.mode == 'DCCService',
-                selectedIcon: const Icon(Icons.power_off_outlined),
-                icon: const Icon(Icons.power_outlined),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: _formAction,
-                  tooltip: Locales.string(context, 'save'),
-                  icon: const Icon(Icons.save_outlined),
-                ),
-                IconButton(
-                  onPressed: _clearAction,
-                  tooltip: Locales.string(context, 'clear'),
-                  icon: const Icon(Icons.clear_outlined),
-                ),
-              ],
-              floating: true,
-              snap: true,
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index >= _cvs.length) {
-                    _cvs.add(_Cv());
-                  }
-                  return _tile(index);
-                },
-                addAutomaticKeepAlives: true,
-              ),
-            ),
-          ],
-        ),
+    return StreamBuilder(
+      stream: z21.stream.where(
+        (command) => switch (command) {
+          LanXCvNackSc() || LanXCvNack() || LanXCvResult() => true,
+          _ => false
+        },
       ),
-    );
-  }
-
-  Widget _tile(int index) {
-    return FormBuilderField<_FormBuilderFieldType>(
-      name: '$index',
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      validator: (_) {
-        // If number is not empty
-        if (_cvs[index].numberController.text.isNotEmpty) {
-          // It must be a valid integer
-          if (int.tryParse(_cvs[index].numberController.text) == null) {
-            return 'Number invalid';
-          }
-          // And unique
-          final equalCount = _cvs
-              .where(
-                (e) =>
-                    e.numberController.text ==
-                    _cvs[index].numberController.text,
-              )
-              .length;
-          final lastIndex = _cvs.lastIndexWhere(
-            (cv) =>
-                cv.numberController.text == _cvs[index].numberController.text,
-          );
-          if (equalCount > 1 && index == lastIndex) return 'Number not unique';
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          debugPrint('${snapshot.data!}');
         }
 
-        // If value is not empty
-        if (_cvs[index].valueController.text.isNotEmpty) {
-          final value = int.tryParse(_cvs[index].valueController.text);
-          // It must be a valid integer
-          if (value == null) return 'Value invalid';
-          // Between 0 and 255
-          if (value < 0 || value > 255) return 'Value out of range';
-          // And if value is set, number must be as well
-          if (_cvs[index].numberController.text.isEmpty) {
-            return 'Number required';
-          }
-        }
-
-        return null;
-      },
-      builder: (FormFieldState field) {
-        return Card(
-          child: ListTile(
-            leading: const Icon(Icons.tag),
-            title: Row(
-              children: [
-                Flexible(
-                  flex: 1,
-                  child: TextField(
-                    controller: _cvs[index].numberController,
-                    decoration: InputDecoration(
-                      hintText: index == 0
-                          ? Locales.string(context, 'cv_number')
-                          : null,
-                      border: const OutlineInputBorder(),
-                      errorText: field.hasError
-                          ? field.errorText!.toLowerCase().contains('number')
-                              ? field.errorText
-                              : ''
-                          : null,
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FormBuilder(
+            key: _formKey,
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  leading: IconButton(
+                    onPressed: z21Status.hasValue
+                        ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                            ? z21.lanXSetTrackPowerOn
+                            : z21.lanXSetTrackPowerOff)
+                        : null,
+                    tooltip: 'On/off',
+                    isSelected: z21Status.hasValue &&
+                        z21Status.requireValue.centralState & 0x02 == 0x00,
+                    selectedIcon: const Icon(Icons.power_off_outlined),
+                    icon: const Icon(Icons.power_outlined),
+                  ),
+                  title: IconButton(
+                    onPressed: () => setState(() {
+                      _serviceMode = !_serviceMode;
+                    }),
+                    tooltip: 'Service mode',
+                    isSelected: _serviceMode,
+                    selectedIcon: const Icon(Icons.build_circle),
+                    icon: const Icon(Icons.build_circle_outlined),
+                  ),
+                  actions: [
+                    IconButton(
+                      onPressed: () {},
+                      tooltip: 'Load local JMRI',
+                      icon: const Icon(Icons.file_open_outlined),
                     ),
-                    onChanged: (number) {
-                      field.didChange(
-                        (
-                          number: number,
-                          value: _cvs[index].valueController.text
-                        ),
-                      );
-                      // Put CV in pending or idle state
-                      setState(
-                        () => _cvs[index].statusIcon =
-                            _cvs[index].numberController.text.isNotEmpty ||
-                                    _cvs[index].valueController.text.isNotEmpty
-                                ? Icons.pending_outlined
-                                : Icons.circle_outlined,
+                  ],
+                  floating: true,
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderTextField(
+                    name: 'address',
+                    validator: (String? value) {
+                      if (_serviceMode) return null;
+                      if (value == null) return 'Address invalid';
+                      final number = int.tryParse(value);
+                      if (number == null) {
+                        return 'Address invalid';
+                      } else if (number > 9999) {
+                        return 'Address out of range';
+                      } else {
+                        return null;
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.alternate_email_outlined),
+                      labelText: 'Address',
+                    ),
+                    enabled: !_serviceMode,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderField<_Cv>(
+                    name: 'cv',
+                    initialValue: (number: null, value: null),
+                    validator: (_Cv? cv) {
+                      if (cv!.number == null) return 'Number invalid';
+                      final number = int.tryParse(cv.number!);
+                      if (number == null) return 'Number invalid';
+                      if (number < 1 || number > 1024) {
+                        return 'Number out of range';
+                      }
+                      if (cv.value == null || cv.value!.isEmpty) return null;
+                      final value = int.tryParse(cv.value!);
+                      if (value == null) return 'Value invalid';
+                      if (value > 255) return 'Value out of range';
+                      return null;
+                    },
+                    builder: (FormFieldState<_Cv> cv) {
+                      return Row(
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                icon: const Icon(Icons.numbers_outlined),
+                                labelText: 'CV number',
+                                errorText: cv.hasError
+                                    ? cv.errorText!
+                                            .toLowerCase()
+                                            .contains('number')
+                                        ? cv.errorText
+                                        : ''
+                                    : null,
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (number) => cv.didChange(
+                                (number: number, value: cv.value?.value),
+                              ),
+                            ),
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                icon: const Icon(Icons.onetwothree_outlined),
+                                labelText: 'CV value',
+                                errorText: cv.hasError
+                                    ? cv.errorText!
+                                            .toLowerCase()
+                                            .contains('value')
+                                        ? cv.errorText
+                                        : ''
+                                    : null,
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) => cv.didChange(
+                                (number: cv.value?.number, value: value),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(
-                    right: 8.0,
-                  ),
-                ),
-                Flexible(
-                  flex: 1,
-                  child: TextField(
-                    controller: _cvs[index].valueController,
-                    decoration: InputDecoration(
-                      hintText: index == 0
-                          ? Locales.string(context, 'cv_value')
-                          : null,
-                      border: const OutlineInputBorder(),
-                      errorText: field.hasError
-                          ? field.errorText!.toLowerCase().contains('value')
-                              ? field.errorText
-                              : ''
-                          : null,
-                    ),
-                    onChanged: (value) {
-                      field.didChange(
-                        (
-                          number: _cvs[index].numberController.text,
-                          value: value
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              final number = int.parse(
+                                _formKey.currentState?.value['cv'].number,
+                              );
+                              z21.lanXCvRead(number - 1);
+                            }
+                          },
+                          child: const Text('Read'),
                         ),
-                      );
-                      // Put CV in pending or idle state
-                      setState(
-                        () => _cvs[index].statusIcon =
-                            _cvs[index].numberController.text.isNotEmpty ||
-                                    _cvs[index].valueController.text.isNotEmpty
-                                ? Icons.pending_outlined
-                                : Icons.circle_outlined,
-                      );
-                    },
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              final number = int.parse(
+                                _formKey.currentState?.value['cv'].number,
+                              );
+                              final value = int.parse(
+                                _formKey.currentState?.value['cv'].value,
+                              );
+                              z21.lanXCvWrite(number - 1, value);
+                            }
+                          },
+                          child: const Text('Write'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-            trailing: Tooltip(
-              message: _tooltipMessage(index),
-              child: Icon(_cvs[index].statusIcon),
-            ),
           ),
         );
-      },
-      onChanged: (_FormBuilderFieldType? r) {
-        if (r == null) return;
-
-        // Only update CV if it's not pending
-        final bool updateCv = _cvs[index].statusIcon != Icons.pending_outlined;
-        if (!updateCv) return;
-
-        final String newNumber = r.number;
-        final String newValue = r.value;
-
-        setState(() {
-          // Error
-          if (newValue == 'null') {
-            _cvs[index].statusIcon = Icons.error_outline;
-          }
-          // Success
-          else {
-            _cvs[index].statusIcon = Icons.check_circle_outline;
-            _cvs[index].numberController.text = newNumber;
-            _cvs[index].valueController.text = newValue;
-          }
-        });
       },
     );
-  }
-
-  void _powerAction() async {
-    final sys = ref.watch(sysProvider);
-    await ref.read(sysProvider.notifier).updateInfo(
-          Info(
-            mode: sys.requireValue.mode == 'Suspended'
-                ? 'DCCService'
-                : 'Suspended',
-          ),
-        );
-  }
-
-  void _formAction() {
-    final bool? valid = _formKey.currentState?.saveAndValidate();
-    if (valid == null || !valid) {
-      debugPrint('validation failed');
-      return;
-    }
-
-    // Put all CVs we're touching in 'scheduled' state
-    setState(() {
-      for (final cv in _cvs) {
-        if (cv.numberController.text.isNotEmpty) {
-          cv.statusIcon = Icons.schedule_outlined;
-        }
-      }
-    });
-
-    // Prepare data for request
-    Map<String, int?> updateCvs = {};
-    _formKey.currentState!.value.forEach((i, r) {
-      if (r == null) return;
-      final String number = r.number;
-      final int? value = int.tryParse(r.value);
-      if (number.isNotEmpty) updateCvs[number] = value;
-    });
-    debugPrint('Request $updateCvs');
-    ref.read(dccServiceProvider).updateCVs(updateCvs);
-  }
-
-  void _clearAction() {
-    setState(() {
-      for (final cv in _cvs) {
-        cv.numberController.clear();
-        cv.valueController.clear();
-        cv.statusIcon = Icons.circle_outlined;
-        _formKey.currentState?.reset();
-      }
-    });
-  }
-
-  String _tooltipMessage(int index) {
-    switch (_cvs[index].statusIcon) {
-      case Icons.pending_outlined:
-        return 'Pending';
-      case Icons.schedule_outlined:
-        return 'Scheduled';
-      case Icons.error_outline:
-        return 'Error';
-      case Icons.check_circle_outline:
-        return 'Success';
-      default:
-        return '';
-    }
-  }
-
-  void _timerCallack(_) {
-    // Fetch CVs
-    ref
-        .read(dccServiceProvider)
-        .fetchCVs()
-        .then((Map<String, int?> fetchedCvs) {
-      if (_formKey.currentState == null) return;
-
-      // Iterate over form fields
-      _formKey.currentState!.fields.forEach((String key, state) {
-        // State isn't initialized and might be empty
-        if (state.value == null) return;
-
-        // CV number of the current form field
-        final String number = state.value.number;
-
-        // Find index of that CV
-        final int index =
-            _cvs.indexWhere((cv) => cv.numberController.text == number);
-        if (index == -1) return;
-
-        // Only update CV if it's not pending
-        final bool updateCv = _cvs[index].statusIcon != Icons.pending_outlined;
-        if (!updateCv) return;
-
-        // Finally, update CV
-        if (fetchedCvs.containsKey(number)) {
-          _formKey.currentState?.fields[key]?.didChange(
-            (number: number, value: fetchedCvs[number].toString()),
-          );
-        }
-      });
-    });
   }
 }

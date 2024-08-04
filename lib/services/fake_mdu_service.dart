@@ -1,75 +1,111 @@
+import 'dart:async';
+
+import 'package:Frontend/constants/ack.dart';
+import 'package:Frontend/constants/nak.dart';
 import 'package:Frontend/services/mdu_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeMduService implements MduService {
-  @override
-  Future<void> ready() async {
-    await Future.delayed(const Duration(seconds: 2));
-  }
+  final _decoderIds = Set.of({
+    0x06043202, // MS450-2
+    0x09093201, // MS950-1
+    0x7E031E00 | 0x00100000, // MN330-0
+    0x7F015000 | 0x00100000, // MN180-0
+  });
+  final _controller = StreamController<Uint8List>();
 
   @override
-  void close() {
-    debugPrint('FakeMduService close');
-  }
+  Future<void> get ready => Future.delayed(const Duration(seconds: 1));
 
   @override
-  Future<Uint8List> ping(int serialNumber, int decoderId) async {
-    return Uint8List.fromList([MduService.nak, MduService.ack]);
-  }
+  Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future<Uint8List> configTransferRate(int transferRate) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return Uint8List.fromList(
-      [MduService.nak, transferRate < 3 ? MduService.ack : MduService.nak],
+  Future close([int? closeCode, String? closeReason]) =>
+      Future.delayed(Duration.zero);
+
+  @override
+  void ping(int serialNumber, int decoderId) async {
+    await Future.delayed(
+      const Duration(milliseconds: 100),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(
+          Uint8List.fromList(
+            [nak, _decoderIds.contains(decoderId) ? ack : nak],
+          ),
+        );
+      },
     );
   }
 
   @override
-  Future<Uint8List> binaryTreeSearch(int byte) async {
+  void configTransferRate(int transferRate) async {
+    await Future.delayed(
+      const Duration(milliseconds: 100),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(
+          Uint8List.fromList(
+            [nak, transferRate < 3 ? ack : nak],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void binaryTreeSearch(int byte) {
     throw UnimplementedError();
   }
 
   @override
-  Future<Uint8List> busy() async {
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+  void busy() {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 
   @override
-  Future<Uint8List> firmwareSalsa20IV(Uint8List iv) async {
+  void firmwareSalsa20IV(Uint8List iv) {
     assert(iv.length == 8);
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 
   @override
-  Future<Uint8List> firmwareErase(int beginAddress, int endAddress) async {
-    await Future.delayed(const Duration(seconds: 5));
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+  void firmwareErase(int beginAddress, int endAddress) {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 
   @override
-  Future<Uint8List> firmwareUpdate(int address, Uint8List chunk) async {
+  void firmwareUpdate(int address, Uint8List chunk) async {
     assert(chunk.length == 64);
-    await Future.delayed(const Duration(milliseconds: 5));
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+    await Future.delayed(const Duration(milliseconds: 5), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([nak, nak]));
+    });
   }
 
   @override
-  Future<Uint8List> firmwareCrc32Start(
+  void firmwareCrc32Start(
     int beginAddress,
     int endAddress,
     int crc32,
-  ) async {
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+  ) {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 
   @override
-  Future<Uint8List> firmwareCrc32Result() async {
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+  void firmwareCrc32Result() {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 
   @override
-  Future<Uint8List> firmwareCrc32ResultExit() async {
-    return Uint8List.fromList([MduService.nak, MduService.nak]);
+  void firmwareCrc32ResultExit() {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([nak, nak]));
   }
 }

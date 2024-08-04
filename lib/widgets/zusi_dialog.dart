@@ -1,7 +1,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:Frontend/providers/http_client.dart';
+import 'package:Frontend/constants/ack.dart';
+import 'package:Frontend/constants/nak.dart';
 import 'package:Frontend/providers/zusi_service.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:async/async.dart';
@@ -20,20 +21,23 @@ class ZusiDialog extends ConsumerStatefulWidget {
 }
 
 class _ZusiDialogState extends ConsumerState<ZusiDialog> {
-  static const int _repeat = 10;
   late final Uint8List _bytes;
   late final Uint8List _flash;
   late final ZusiService _zusi;
-  String _status = 'Downloading';
+  late final StreamQueue<Uint8List> _events;
+  String _status = '';
   String _option = 'Cancel';
-  int? _index;
+  double? _progress;
 
   @override
   void initState() {
     super.initState();
     _zusi = ref.read(zusiServiceProvider);
+    _events = StreamQueue(_zusi.stream);
     if (widget._bytes != null) _bytes = widget._bytes!;
-    _execute();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _execute().catchError((_) {}),
+    );
   }
 
   @override
@@ -41,11 +45,19 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     return SimpleDialog(
       title: const Text('ZUSI'),
       children: [
-        _statusWidget(),
         SimpleDialogOption(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LinearProgressIndicator(
+                value: _progress,
+              ),
+              Text(_status),
+            ],
+          ),
+        ),
+        SimpleDialogOption(
+          onPressed: () => Navigator.pop(context),
           child: Align(
             alignment: Alignment.centerRight,
             child: Text(_option),
@@ -62,36 +74,24 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     super.dispose();
   }
 
-  Widget _statusWidget() {
-    return SimpleDialogOption(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LinearProgressIndicator(
-            value: _index != null ? _index! / _flash.length : null,
-          ),
-          Text(_status),
-        ],
-      ),
-    );
-  }
-
   Future<void> _execute() async {
     await _download();
-    // TODO error handling
     await _connect();
-    // TODO error handling
-    await _features();
-    // TODO error handling
-    await _erase();
-    // TODO error handling
-    await _write();
-    // TODO error handling
+
+    var msg = await _features();
+    if (msg.contains(nak)) return;
+
+    msg = await _erase();
+    if (msg.contains(nak)) return;
+
+    msg = await _write();
+    if (msg.contains(nak)) return;
+
     await _exit();
-    // TODO error handling
   }
 
   Future<void> _download() async {
+    /*
     setState(() {
       _status = 'Downloading';
     });
@@ -104,6 +104,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       debugPrint('finished Download ${response.bodyBytes.length}');
       _bytes = response.bodyBytes;
     }
+    */
 
     final int flashStart =
         _bytes[5] << 24 | _bytes[6] << 16 | _bytes[7] << 8 | _bytes[8] << 0;
@@ -117,83 +118,78 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     setState(() {
       _status = 'Connecting';
     });
-    debugPrint('connect');
-    await _zusi.ready();
-    debugPrint('connected');
+    await _zusi.ready;
   }
 
-  Future<void> _features() async {
+  Future<Uint8List> _features() async {
     final msg = await _repeatOnFailure(() => _zusi.features());
-    // TODO error handling
     debugPrint('features $msg');
+    return msg;
   }
 
-  Future<void> _erase() async {
+  Future<Uint8List> _erase() async {
     setState(() {
       _status = 'Erasing';
     });
     final msg = await _repeatOnFailure(() => _zusi.eraseZpp());
-    // TODO error handling
     debugPrint('erase $msg');
+    return msg;
   }
 
-  Future<void> _write() async {
+  Future<Uint8List> _write() async {
     setState(() {
       _status = 'Writing';
     });
-    debugPrint('write');
 
-    _index = 0;
-    while (_index! < _flash.length) {
-      final List<Future<Uint8List>> futs = List.generate(
-        64,
-        (index) {
-          final start = _index! + 256 * index;
-          final end = start + 256;
-          final chunk = _flash.sublist(
-              min(start, _flash.length), min(end, _flash.length));
-          return chunk.isNotEmpty
-              ? _zusi.writeZpp(start, chunk)
-              : Future.value(Uint8List.fromList([ZusiService.ack]));
-        },
-      );
-      FutureGroup<Uint8List> futureGroup = FutureGroup();
-      for (final Future<Uint8List> fut in futs) {
-        futureGroup.add(fut);
+    int index = 0;
+    while (index < _flash.length) {
+      // Prepare up to 64 chunks
+      int i = 0;
+      for (; i < 64; ++i) {
+        final start = index + 256 * i;
+        final end = start + 256;
+        final chunk = _flash.sublist(
+          min(start, _flash.length),
+          min(end, _flash.length),
+        );
+        if (chunk.isEmpty) break;
+        _zusi.writeZpp(start, chunk);
       }
-      futureGroup.close();
-      final List<Uint8List> results = await futureGroup.future;
-      for (final msg in results) {
-        if (msg[0] == ZusiService.ack) {
-          setState(() {
-            final done = _index! ~/ 1024;
-            final total = _flash.length ~/ 1024;
-            _status = 'Writing $done / $total kB';
-            _index = _index! + 256;
-          });
-        } else {
-          break;
-        }
+
+      // Wait for all responses
+      final msgs = await _events.take(i);
+      for (final msg in msgs) {
+        if (msg[0] == nak) break;
+        index += 256;
+        final done = index ~/ 1024;
+        final total = _flash.length ~/ 1024;
+        setState(() {
+          _status = 'Writing $done / $total kB';
+          _progress = index / _flash.length;
+        });
       }
-      debugPrint('$_index / ${_flash.length}');
     }
+
+    return Uint8List.fromList([ack]);
   }
 
-  Future<void> _exit() async {
+  Future<Uint8List> _exit() async {
     setState(() {
       _status = 'Done';
       _option = 'OK';
     });
     final msg = await _repeatOnFailure(() => _zusi.exit(0x00));
-    // TODO error handling
     debugPrint('exit $msg');
+    return msg;
   }
 
-  Future<Uint8List> _repeatOnFailure(Future<Uint8List> Function() f) async {
-    for (int i = 0; i < _repeat; i++) {
-      final msg = await f();
-      if (msg[0] == ZusiService.ack) return msg;
+  Future<Uint8List> _repeatOnFailure(Function() f, {int repeat = 10}) async {
+    var msg = Uint8List.fromList([nak]);
+    for (int i = 0; i < repeat; i++) {
+      f();
+      msg = await _events.next;
+      if (msg[0] == ack) return msg;
     }
-    return Uint8List.fromList([ZusiService.nak]);
+    return msg;
   }
 }

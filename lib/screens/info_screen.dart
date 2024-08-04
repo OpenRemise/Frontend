@@ -1,7 +1,8 @@
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/sys.dart';
+import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_status.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
@@ -14,8 +15,10 @@ class InfoScreen extends ConsumerStatefulWidget {
 class _InfoScreenState extends ConsumerState<InfoScreen> {
   @override
   Widget build(BuildContext context) {
-    final sys = ref.watch(sysProvider);
     final domain = ref.watch(domainProvider);
+    final sys = ref.watch(sysProvider);
+    final z21 = ref.watch(z21ServiceProvider);
+    final z21Status = ref.watch(z21StatusProvider);
 
     return sys.when(
       data: (data) {
@@ -23,24 +26,39 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           padding: const EdgeInsets.all(8.0),
           child: CustomScrollView(
             slivers: [
+              SliverAppBar(
+                leading: IconButton(
+                  onPressed: z21Status.hasValue
+                      ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                          ? z21.lanXSetTrackPowerOn
+                          : z21.lanXSetTrackPowerOff)
+                      : null,
+                  tooltip: 'On/off',
+                  isSelected: z21Status.hasValue &&
+                      z21Status.requireValue.centralState & 0x02 == 0x00,
+                  selectedIcon: const Icon(Icons.power_off_outlined),
+                  icon: const Icon(Icons.power_outlined),
+                ),
+                floating: true,
+              ),
               SliverGrid.count(
                 crossAxisCount: 2,
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
                   const Text('Version'),
-                  Text(sys.requireValue.version!),
+                  Text(sys.requireValue.version),
                   const Text('IDF version'),
-                  Text(sys.requireValue.idfVersion!),
-                  const Text('Alpha version'),
+                  Text(sys.requireValue.idfVersion),
+                  const Text('Frontend version'),
                   const Text(
                     String.fromEnvironment('VERSION', defaultValue: 'debug'),
                   ),
-                  const LocaleText('mode'),
+                  const Text('Mode'),
                   Text(sys.requireValue.mode),
-                  const LocaleText('heap'),
+                  const Text('Heap memory'),
                   Text('${sys.requireValue.heap}'),
-                  const LocaleText('internal_heap'),
+                  const Text('Internal heap memory'),
                   Text('${sys.requireValue.internalHeap}'),
                 ],
               ),
@@ -57,9 +75,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('mDNS'),
                   Text(domain),
                   const Text('IP'),
-                  Text(sys.requireValue.ip!),
+                  Text(sys.requireValue.ip),
                   const Text('MAC'),
-                  Text(sys.requireValue.mac!),
+                  Text(sys.requireValue.mac),
                 ],
               ),
               SliverList.list(
@@ -72,17 +90,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
-                  const LocaleText('voltage'),
+                  const Text('Voltage'),
                   Text(
-                    '${(sys.requireValue.voltage! / 1000).toStringAsFixed(2)}V',
+                    '${(sys.requireValue.voltage / 1000).toStringAsFixed(2)}V',
                   ),
-                  const LocaleText('current'),
+                  const Text('Current'),
                   Text(
-                    '${(sys.requireValue.current! / 1000).toStringAsFixed(2)}A',
+                    '${(sys.requireValue.current / 1000).toStringAsFixed(2)}A',
                   ),
-                  const LocaleText('temperature'),
+                  const Text('Temperature'),
                   Text(
-                    '${sys.requireValue.temperature!.toStringAsFixed(0)}°C',
+                    '${sys.requireValue.temperature.toStringAsFixed(0)}°C',
                   ),
                 ],
               ),
@@ -90,16 +108,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           ),
         );
       },
-      error: (error, stackTrace) => const Text('Error...'),
-      loading: () => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/loading.gif'),
-            const Text('loading...'),
-          ],
-        ),
-      ),
+      error: (error, stackTrace) =>
+          const Center(child: Icon(Icons.error_outline)),
+      loading: () => const Center(child: Text('loading')),
     );
   }
 }
