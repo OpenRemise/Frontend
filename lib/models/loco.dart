@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'loco.freezed.dart';
@@ -8,9 +10,9 @@ class Loco with _$Loco {
   factory Loco({
     required int address,
     @Default('') String name,
-    @Default(0) int functions, // TODO 53bit width my become an issue?
-    @Default(0) int speed,
-    @Default(1) int dir,
+    @Default(0) int f31_0, // TODO 53bit width my become an issue?
+    @Default(0x80) int rvvvvvvv,
+    @JsonKey(name: 'speed_steps', defaultValue: 2) int speedSteps,
   }) = _Loco;
 
   factory Loco.fromJson(Map<String, Object?> json) => _$LocoFromJson(json);

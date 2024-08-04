@@ -1,16 +1,14 @@
 import 'package:Frontend/models/loco.dart';
+import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_locales/flutter_locales.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EditLocoDialog extends ConsumerStatefulWidget {
   final int? _index;
 
-  const EditLocoDialog(int? index, {Key? key})
-      : _index = index,
-        super(key: key);
+  const EditLocoDialog(int? index, {super.key}) : _index = index;
 
   @override
   ConsumerState<EditLocoDialog> createState() => _EditLocoDialogState();
@@ -22,13 +20,10 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
   @override
   Widget build(BuildContext context) {
     final locos = ref.watch(locosProvider);
-    final loco =
-        widget._index != null ? locos.requireValue[widget._index!] : null;
+    final loco = widget._index != null ? locos[widget._index!] : null;
 
     return AlertDialog(
-      title: loco == null
-          ? const LocaleText('add_loco')
-          : const LocaleText('edit_loco'),
+      title: loco == null ? const Text('Add loco') : const Text('Edit loco'),
       content: FormBuilder(
         key: _formKey,
         child: Column(
@@ -37,7 +32,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               name: 'name',
               validator: (String? value) {
                 if (value == null || value.isEmpty) {
-                  return Locales.string(context, 'name_missing');
+                  return 'Please enter a name';
                 }
                 return null;
               },
@@ -51,26 +46,24 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               name: 'address',
               validator: (String? value) {
                 if (value == null || value.isEmpty) {
-                  return Locales.string(context, 'address_missing');
+                  return 'Please enter an address';
                 }
                 final address = int.tryParse(value);
                 // Address can be 1-10239
                 if (address == null || address < 1 || address > 10239) {
-                  return Locales.string(context, 'address_invalid');
+                  return 'Address invalid';
                 }
                 // Only allow new address if it's not already in use
                 else if (loco?.address != address &&
-                    locos.requireValue
-                            .indexWhere((l) => l.address == address) >=
-                        0) {
-                  return Locales.string(context, 'address_already_in_use');
+                    locos.indexWhere((l) => l.address == address) >= 0) {
+                  return 'Address already in use"';
                 }
                 return null;
               },
               initialValue: loco?.address.toString(),
-              decoration: InputDecoration(
-                icon: const Icon(Icons.alternate_email_outlined),
-                labelText: Locales.string(context, 'address'),
+              decoration: const InputDecoration(
+                icon: Icon(Icons.alternate_email_outlined),
+                labelText: 'Address',
               ),
               valueTransformer: (value) =>
                   value != null ? int.tryParse(value) : null,
@@ -84,7 +77,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               debugPrint(_formKey.currentState?.value.toString());
               final map = _formKey.currentState!.value;
-              ref.read(locosProvider.notifier).updateLoco(
+              ref.read(dccProvider.notifier).updateLoco(
                     loco?.address ?? map['address'],
                     Loco(address: map['address'], name: map['name']),
                   );
@@ -98,7 +91,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const LocaleText('cancel'),
+          child: const Text('Cancel'),
         ),
       ],
     );

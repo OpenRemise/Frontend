@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:csv/csv.dart';
 import 'package:fixnum/fixnum.dart';
 
-typedef ZsuDecoder = ({
+typedef ZsuFirmware = ({
   Uint8List bin,
   String name,
   String majorVersion,
@@ -14,28 +14,24 @@ typedef ZsuDecoder = ({
 });
 
 class Zsu {
-  late final Uint8List _bytes;
-  late final int _version;
-  final Map<int, ZsuDecoder> _entries = {};
+  late final Uint8List bytes;
+  late final int version;
+  final Map<int, ZsuFirmware> firmwares = {};
 
-  Uint8List get bytes => _bytes;
-  int get version => _version;
-  Map<int, ZsuDecoder> get entries => _entries;
-
-  Zsu(this._bytes) {
+  Zsu(this.bytes) {
     // .zsu files start with "DF\t"
-    if (String.fromCharCodes(_bytes.sublist(0, 3)) != 'DF\t') {
+    if (String.fromCharCodes(bytes.sublist(0, 3)) != 'DF\t') {
       throw Exception('Not a .zsu file');
     }
 
     // Version must be 1
-    _version = int.parse(String.fromCharCode(_bytes[3]));
-    if (_version != 1) throw Exception('.zsu file version unknown');
+    version = int.parse(String.fromCharCode(bytes[3]));
+    if (version != 1) throw Exception('.zsu file version unknown');
 
     // Decoder info can be found between first ';' and ':'
-    final decoderInfo = _bytes.sublist(
-      _bytes.indexOf(';'.codeUnitAt(0)) + 1,
-      _bytes.indexOf(':'.codeUnitAt(0)),
+    final decoderInfo = bytes.sublist(
+      bytes.indexOf(';'.codeUnitAt(0)) + 1,
+      bytes.indexOf(':'.codeUnitAt(0)),
     );
 
     List<List<String>> csv = const CsvToListConverter(
@@ -51,8 +47,8 @@ class Zsu {
       final binStart = int.parse(row[1]) + 1; // Legacy bug
       final binLength = type >= 3 ? int.parse(row[2]) : int.parse(row[2]) - 2;
       final binEnd = binStart + binLength;
-      _entries[id] = (
-        bin: _bytes.sublist(binStart, binEnd),
+      firmwares[id] = (
+        bin: bytes.sublist(binStart, binEnd),
         name: row[3],
         majorVersion: row[4],
         minorVersion: row[5],

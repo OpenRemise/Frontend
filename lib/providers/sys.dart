@@ -18,12 +18,4 @@ class Sys extends _$Sys {
   Future<void> fetchInfo() async {
     state = await AsyncValue.guard(() async => _service.fetch());
   }
-
-  Future<void> updateInfo(Info info) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      await _service.update(info);
-      return _service.fetch();
-    });
-  }
 }

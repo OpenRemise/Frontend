@@ -5,17 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Frontend (debug mode) WIDTH=640",
+      "name": "Frontend (debug mode) SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "WIDTH=640"
+        "SMALL_SCREEN_WIDTH=800"
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=wulf.local WIDTH=640",
+      "name": "Frontend (debug mode) DOMAIN=wulf.local SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
@@ -23,11 +23,11 @@
         "--dart-define",
         "DOMAIN=wulf.local",
         "--dart-define",
-        "WIDTH=640"
+        "SMALL_SCREEN_WIDTH=800"
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=wulf.local FAKE_SERVICES=true WIDTH=640",
+      "name": "Frontend (debug mode) DOMAIN=wulf.local FAKE_SERVICES=true SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
@@ -37,7 +37,7 @@
         "--dart-define",
         "FAKE_SERVICES=true",
         "--dart-define",
-        "WIDTH=640"
+        "SMALL_SCREEN_WIDTH=800"
       ]
     }
   ]

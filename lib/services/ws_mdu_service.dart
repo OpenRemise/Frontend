@@ -1,34 +1,29 @@
 import 'package:Frontend/services/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:Frontend/utilities/crc8.dart';
-import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsMduService implements MduService {
   late final WebSocketChannel _channel;
-  late final StreamQueue<Uint8List> _queue;
 
   WsMduService(String domain) {
-    debugPrint('WsMduService ctor');
     _channel =
         WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/firmware/'));
-    _queue = StreamQueue(_channel.stream.cast<Uint8List>());
   }
 
   @override
-  Future<void> ready() async {
-    return _channel.ready;
-  }
+  Future<void> get ready => _channel.ready;
 
   @override
-  void close() {
-    debugPrint('WsMduService close');
-    _channel.sink.close();
-  }
+  Stream<Uint8List> get stream => _channel.stream.cast<Uint8List>();
 
   @override
-  Future<Uint8List> ping(int serialNumber, int decoderId) async {
+  Future close([int? closeCode, String? closeReason]) =>
+      _channel.sink.close(closeCode, closeReason);
+
+  @override
+  void ping(int serialNumber, int decoderId) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -45,11 +40,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> configTransferRate(int transferRate) async {
+  void configTransferRate(int transferRate) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -59,11 +53,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> binaryTreeSearch(int byte) async {
+  void binaryTreeSearch(int byte) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -73,11 +66,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> busy() async {
+  void busy() {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -86,11 +78,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareSalsa20IV(Uint8List iv) async {
+  void firmwareSalsa20IV(Uint8List iv) {
     assert(iv.length == 8);
     List<int> data = [
       0xFF, // Command
@@ -101,11 +92,10 @@ class WsMduService implements MduService {
     data.addAll(iv);
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareErase(int beginAddress, int endAddress) async {
+  void firmwareErase(int beginAddress, int endAddress) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -122,11 +112,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareUpdate(int address, Uint8List chunk) async {
+  void firmwareUpdate(int address, Uint8List chunk) {
     assert(chunk.length == 64);
     List<int> data = [
       0xFF, // Command
@@ -147,15 +136,10 @@ class WsMduService implements MduService {
       (crc >> 0) & 0xFF,
     ]);
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareCrc32Start(
-    int beginAddress,
-    int endAddress,
-    int crc32,
-  ) async {
+  void firmwareCrc32Start(int beginAddress, int endAddress, int crc32) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -176,11 +160,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareCrc32Result() async {
+  void firmwareCrc32Result() {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -189,11 +172,10 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 
   @override
-  Future<Uint8List> firmwareCrc32ResultExit() async {
+  void firmwareCrc32ResultExit() {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -202,6 +184,5 @@ class WsMduService implements MduService {
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
-    return await _queue.next;
   }
 }

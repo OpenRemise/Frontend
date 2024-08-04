@@ -1,81 +1,66 @@
 import 'package:Frontend/models/loco.dart';
-import 'package:Frontend/providers/dcc_service.dart';
-import 'package:Frontend/services/dcc_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'locos.g.dart';
 
 @Riverpod(keepAlive: true)
 class Locos extends _$Locos {
-  late final DccService _service;
-
   @override
-  FutureOr<List<Loco>> build() async {
-    debugPrint('Locos build');
-    _service = ref.read(dccServiceProvider);
-    return _service.fetchLocos(); // TODO this can potentially still fail
+  List<Loco> build() {
+    return const String.fromEnvironment('FAKE_SERVICES') == 'true'
+        ? [
+            Loco(address: 42, name: 'BR 85'),
+            Loco(address: 3, name: 'Vectron'),
+            Loco(address: 100, name: 'BR 247'),
+            Loco(address: 1337, name: 'Reihe 498'),
+            Loco(address: 14, name: 'BR 248'),
+            Loco(address: 130, name: 'Mh6'),
+            Loco(address: 98, name: 'L45H'),
+            Loco(address: 6, name: 'E2'),
+            Loco(address: 75, name: 'Litra F'),
+            Loco(address: 1400, name: 'Reihe 5022'),
+            Loco(address: 10, name: 'V 36'),
+            Loco(address: 167, name: 'BR E 77'),
+            Loco(address: 2811, name: 'ASF EL 16'),
+            Loco(address: 208, name: 'Gruppo 740'),
+            Loco(address: 2, name: 'ET22'),
+            Loco(address: 49, name: 'ST44'),
+            Loco(address: 330, name: 'Rad 710'),
+            Loco(address: 726, name: 'Gem 4/4'),
+          ]
+        : List.empty();
   }
 
-  Future<void> fetchLocos() async {
-    // GET /locos/
-    debugPrint('Locos fetchLocos');
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async => _service.fetchLocos());
+  void updateLocos(List<Loco> locos) {
+    state = locos;
   }
 
-  Future<void> fetchLoco(int address) async {
-    // GET /locos/$address
-    debugPrint('Locos fetchLoco');
-    state = await AsyncValue.guard(() async {
-      final loco = await _service.fetchLoco(address);
-      return [
-        for (final previousLoco in state.requireValue)
-          if (previousLoco.address == address) loco else previousLoco,
+  void updateLoco(int address, Loco loco) {
+    final index =
+        state.indexWhere((previousLoco) => previousLoco.address == address);
+    // Update
+    if (index >= 0) {
+      state = [
+        for (var i = 0; i < state.length; ++i)
+          if (i == index) loco else state[i],
       ];
-    });
+    }
+    // Create
+    else {
+      state = [...state, loco];
+    }
   }
 
-  Future<void> updateLoco(int address, Loco loco) async {
-    // PUT /locos/$address
-    // debugPrint('Locos updateLoco');
-    // debugPrint(loco.toString());
-    state = await AsyncValue.guard(() async {
-      await _service.updateLoco(address, loco);
-      final index = state.requireValue
-          .indexWhere((previousLoco) => previousLoco.address == address);
-      // Update
-      if (index >= 0) {
-        return [
-          for (var i = 0; i < state.requireValue.length; ++i)
-            if (i == index) loco else state.requireValue[i],
-        ];
-      }
-      // Create
-      else {
-        return [...state.requireValue, loco];
-      }
-    });
-  }
-
-  Future<void> deleteLocos() async {
+  void deleteLocos() {
     // DELETE /locos/
-    debugPrint('Locos deleteLocos');
-    state = await AsyncValue.guard(() async {
-      await _service.deleteLocos();
-      return [];
-    });
+    state = List.empty();
   }
 
-  Future<void> deleteLoco(int address) async {
+  void deleteLoco(int address) {
     // DELETE /locos/$address
-    debugPrint('Locos deleteLoco');
-    state = await AsyncValue.guard(() async {
-      await _service.deleteLoco(address);
-      return [
-        for (final previousLoco in state.requireValue)
-          if (previousLoco.address != address) previousLoco,
-      ];
-    });
+    state = [
+      for (final loco in state)
+        if (loco.address != address) loco,
+    ];
   }
 }
