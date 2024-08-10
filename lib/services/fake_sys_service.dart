@@ -13,7 +13,7 @@ enum Mode {
   // USB protocols
   DCC_EIN,
   DECUP_EIN,
-  MDUSNDPREP,
+  MDU_EIN,
   SUSIV2,
 
   //

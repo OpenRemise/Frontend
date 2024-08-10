@@ -1,3 +1,4 @@
+import 'package:Frontend/providers/service_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/services/z21_service.dart';
@@ -19,10 +20,10 @@ class ServiceScreen extends ConsumerStatefulWidget {
 
 class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _serviceMode = false;
 
   @override
   Widget build(BuildContext context) {
+    final serviceMode = ref.watch(serviceModeProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
@@ -58,11 +59,11 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                     icon: const Icon(Icons.power_outlined),
                   ),
                   title: IconButton(
-                    onPressed: () => setState(() {
-                      _serviceMode = !_serviceMode;
-                    }),
+                    onPressed: () => ref
+                        .read(serviceModeProvider.notifier)
+                        .update(!serviceMode),
                     tooltip: 'Service mode',
-                    isSelected: _serviceMode,
+                    isSelected: serviceMode,
                     selectedIcon: const Icon(Icons.build_circle),
                     icon: const Icon(Icons.build_circle_outlined),
                   ),
@@ -79,7 +80,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                   child: FormBuilderTextField(
                     name: 'address',
                     validator: (String? value) {
-                      if (_serviceMode) return null;
+                      if (serviceMode) return null;
                       if (value == null) return 'Address invalid';
                       final number = int.tryParse(value);
                       if (number == null) {
@@ -94,7 +95,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                       icon: Icon(Icons.alternate_email_outlined),
                       labelText: 'Address',
                     ),
-                    enabled: !_serviceMode,
+                    enabled: !serviceMode,
                     keyboardType: TextInputType.number,
                   ),
                 ),
