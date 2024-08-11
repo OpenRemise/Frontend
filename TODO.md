@@ -37,12 +37,9 @@ And an entire table on larger ones?
 Also, how about JMRI import?
 - re-read and re-write button?
 
-## Setting base-href from the command line
-flutter build web --base-href "/path/"
-
 ## Cab
 Option for left-handers to have slider left?
-LinearGradiant for Sliders CustomCurve would be great... (would be a PR)
+LinearGradient for Sliders CustomCurve would be great... (would be a PR)
 There is currently a data race when switching locos while the cab is still open, no clue how we can prevent that?
 
 ## Make use of collections

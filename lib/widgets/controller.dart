@@ -16,6 +16,10 @@ class Controller extends ConsumerStatefulWidget {
 }
 
 class _ControllerState extends ConsumerState<Controller> {
+  int _rvvvvvvv = 0;
+  int _f31_0 = 0;
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
@@ -46,28 +50,29 @@ class _ControllerState extends ConsumerState<Controller> {
         (command) => switch (command) { LanXLocoInfo() => true, _ => false },
       ),
       builder: (context, snapshot) {
-        // data here
-        if (snapshot.hasData) {
-          final locoInfo = snapshot.data! as LanXLocoInfo;
-
-          // TODO ok... this might not be ideal
-          // Maybe we should only update ONCE at the beginning?
+        // Neither data nor error
+        if (!snapshot.hasData && !snapshot.hasError) {
+          z21.lanXGetLocoInfo(loco.address);
           Future.delayed(
             Duration.zero,
-            () => ref.read(locosProvider.notifier).updateLoco(
-                  locoInfo.address,
-                  loco.copyWith(
-                    f31_0: locoInfo.f31_0,
-                    rvvvvvvv: locoInfo.rvvvvvvv,
-                    speedSteps: locoInfo.speedSteps,
-                  ),
-                ),
+            () => setState(() {
+              _rvvvvvvv = 0;
+              _f31_0 = 0;
+              _initialized = false;
+            }),
           );
         }
-        // neither data nor error
-        else if (!snapshot.hasError) {
-          // request first data?
-          z21.lanXGetLocoInfo(loco.address);
+        // Data and no error
+        else if (snapshot.hasData && !snapshot.hasError && !_initialized) {
+          final locoInfo = snapshot.data! as LanXLocoInfo;
+          Future.delayed(
+            Duration.zero,
+            () => setState(() {
+              _rvvvvvvv = locoInfo.rvvvvvvv;
+              _f31_0 = locoInfo.f31_0;
+              _initialized = true;
+            }),
+          );
         }
 
         return ConstrainedBox(
@@ -171,18 +176,18 @@ class _ControllerState extends ConsumerState<Controller> {
       children: [
         for (int i = 0; i < 32; ++i)
           ToggleButtons(
-            isSelected: [loco.f31_0 & (1 << i) != 0],
+            isSelected: [_f31_0 & (1 << i) != 0],
             onPressed: (_) {
               final int mask = 1 << i;
-              final bool state = loco.f31_0 & mask != 0;
-              ref.read(locosProvider.notifier).updateLoco(
-                    loco.address,
-                    loco.copyWith(
-                      f31_0: state
-                          ? loco.f31_0 & ~mask // Clear
-                          : loco.f31_0 | mask, // Set
-                    ),
-                  );
+              final bool state = _f31_0 & mask != 0;
+              setState(() {
+                _f31_0 = state
+                    ? _f31_0 & ~mask // Clear
+                    : _f31_0 | mask; // Set
+              });
+              ref
+                  .read(locosProvider.notifier)
+                  .updateLoco(loco.address, loco.copyWith(f31_0: _f31_0));
               z21.lanXSetLocoFunction(loco.address, state ? 0 : 1, i);
             },
             borderRadius: BorderRadius.circular(12),
@@ -207,7 +212,7 @@ class _ControllerState extends ConsumerState<Controller> {
       ),
       pointers: [
         Pointer(
-          value: (loco.rvvvvvvv & 0x7F).toDouble(),
+          value: (_rvvvvvvv & 0x7F).toDouble(),
           height: 20,
           color: Theme.of(context).dividerColor,
           width: 20,
@@ -215,17 +220,19 @@ class _ControllerState extends ConsumerState<Controller> {
           pointerPosition: PointerPosition.left,
         ),
         Pointer(
-          value: (loco.rvvvvvvv & 0x7F).toDouble(),
+          value: (_rvvvvvvv & 0x7F).toDouble(),
           height: 50,
           color: Colors.transparent,
           shape: PointerShape.circle,
           isInteractive: true,
           onChanged: (double speed) {
-            final int rvvvvvvv = (loco.rvvvvvvv & 0x80) | speed.toInt();
+            setState(() {
+              _rvvvvvvv = (_rvvvvvvv & 0x80) | speed.toInt();
+            });
             ref
                 .read(locosProvider.notifier)
-                .updateLoco(loco.address, loco.copyWith(rvvvvvvv: rvvvvvvv));
-            z21.lanXSetLocoDrive(loco.address, 2, rvvvvvvv);
+                .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
+            z21.lanXSetLocoDrive(loco.address, 2, _rvvvvvvv);
           },
         ),
       ],
@@ -249,20 +256,22 @@ class _ControllerState extends ConsumerState<Controller> {
     final z21 = ref.watch(z21ServiceProvider);
 
     return ToggleButtons(
-      isSelected: [loco.rvvvvvvv & 0x80 == 1],
+      isSelected: [_rvvvvvvv & 0x80 == 1],
       onPressed: (_) {
-        final int rvvvvvvv = loco.rvvvvvvv & 0x80 != 0
-            ? loco.rvvvvvvv & ~0x80 // Clear
-            : loco.rvvvvvvv | 0x80; // Set
+        setState(() {
+          _rvvvvvvv = _rvvvvvvv & 0x80 != 0
+              ? _rvvvvvvv & ~0x80 // Clear
+              : _rvvvvvvv | 0x80; // Set
+        });
         ref
             .read(locosProvider.notifier)
-            .updateLoco(loco.address, loco.copyWith(rvvvvvvv: rvvvvvvv));
-        z21.lanXSetLocoDrive(loco.address, 2, rvvvvvvv);
+            .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
+        z21.lanXSetLocoDrive(loco.address, 2, _rvvvvvvv);
       },
       borderRadius: BorderRadius.circular(12),
       children: [
         Icon(
-          loco.rvvvvvvv & 0x80 != 0
+          _rvvvvvvv & 0x80 != 0
               ? Icons.arrow_forward_outlined
               : Icons.arrow_back_outlined,
         ),
