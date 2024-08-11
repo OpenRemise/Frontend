@@ -10,10 +10,13 @@ class FakeSettingsService implements SettingsService {
     httpTransmitTimeout: 5,
     usbReceiveTimeout: 1,
     currentLimit: 3,
-    dccPreambleCount: 21,
+    dccPreamble: 21,
     dccBit1Duration: 58,
     dccBit0Duration: 100,
     dccBiDiBitDuration: 60,
+    mduPreamble: 14,
+    mduAckreq: 10,
+    mduRecoveryMode: 0,
   );
 
   @override
@@ -36,11 +39,14 @@ class FakeSettingsService implements SettingsService {
         usbReceiveTimeout:
             config.usbReceiveTimeout ?? _config.usbReceiveTimeout,
         currentLimit: config.currentLimit ?? _config.currentLimit,
-        dccPreambleCount: config.dccPreambleCount ?? _config.dccPreambleCount,
+        dccPreamble: config.dccPreamble ?? _config.dccPreamble,
         dccBit1Duration: config.dccBit1Duration ?? _config.dccBit1Duration,
         dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,
         dccBiDiBitDuration:
             config.dccBiDiBitDuration ?? _config.dccBiDiBitDuration,
+        mduPreamble: config.mduPreamble ?? _config.mduPreamble,
+        mduAckreq: config.mduAckreq ?? _config.mduAckreq,
+        mduRecoveryMode: config.mduRecoveryMode ?? _config.mduRecoveryMode,
       ),
     );
   }

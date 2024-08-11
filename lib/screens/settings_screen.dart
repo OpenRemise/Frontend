@@ -158,7 +158,7 @@ class SettingsScreen extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: FormBuilderSlider(
                     name: 'dcc_preamble',
-                    initialValue: data.dccPreambleCount!.toDouble(),
+                    initialValue: data.dccPreamble!.toDouble(),
                     decoration: const InputDecoration(
                       icon: Icon(Icons.train_outlined),
                       labelText: 'DCC preamble',
@@ -218,6 +218,54 @@ class SettingsScreen extends ConsumerWidget {
                     displayValues: DisplayValues.current,
                     valueWidget: (value) =>
                         Text(_dccBidibitDurValues[int.parse(value)].toString()),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: Divider(),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'mdu_preamble',
+                    initialValue: data.mduPreamble!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.update_outlined),
+                      labelText: 'MDU preamble',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 14,
+                    max: 30,
+                    divisions: 30 - 14,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'mdu_ackreq',
+                    initialValue: data.mduAckreq!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'MDU ackreq',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 10,
+                    max: 30,
+                    divisions: 30 - 10,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'mdu_rcvy_mode',
+                    initialValue: data.mduRecoveryMode!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'MDU recovery mode',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 0,
+                    max: 1,
+                    divisions: 1 - 0,
+                    displayValues: DisplayValues.current,
                   ),
                 ),
                 SliverToBoxAdapter(
