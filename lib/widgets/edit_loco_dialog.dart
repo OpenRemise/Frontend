@@ -40,6 +40,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               decoration: const InputDecoration(
                 icon: Icon(Icons.title_outlined),
                 labelText: 'Name',
+                helperText: ' ',
               ),
             ),
             FormBuilderTextField(
@@ -64,6 +65,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               decoration: const InputDecoration(
                 icon: Icon(Icons.alternate_email_outlined),
                 labelText: 'Address',
+                helperText: ' ',
               ),
               valueTransformer: (value) =>
                   value != null ? int.tryParse(value) : null,
