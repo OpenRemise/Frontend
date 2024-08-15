@@ -127,9 +127,6 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final status = ref.watch(z21StatusProvider);
-    debugPrint('$status');
-
     return Scaffold(
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth

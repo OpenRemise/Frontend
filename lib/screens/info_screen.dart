@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -13,6 +15,22 @@ class InfoScreen extends ConsumerStatefulWidget {
 }
 
 class _InfoScreenState extends ConsumerState<InfoScreen> {
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    debugPrint('InfoScreen init');
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
+  }
+
+  @override
+  void dispose() {
+    debugPrint('InfoScreen dispose');
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final domain = ref.watch(domainProvider);
@@ -112,5 +130,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           const Center(child: Icon(Icons.error_outline)),
       loading: () => const Center(child: Text('loading')),
     );
+  }
+
+  void _heartbeat(_) {
+    ref.read(sysProvider.notifier).fetchInfo();
   }
 }
