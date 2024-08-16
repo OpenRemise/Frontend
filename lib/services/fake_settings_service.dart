@@ -16,7 +16,6 @@ class FakeSettingsService implements SettingsService {
     dccBiDiBitDuration: 60,
     mduPreamble: 14,
     mduAckreq: 10,
-    mduRecoveryMode: 0,
   );
 
   @override
@@ -46,7 +45,6 @@ class FakeSettingsService implements SettingsService {
             config.dccBiDiBitDuration ?? _config.dccBiDiBitDuration,
         mduPreamble: config.mduPreamble ?? _config.mduPreamble,
         mduAckreq: config.mduAckreq ?? _config.mduAckreq,
-        mduRecoveryMode: config.mduRecoveryMode ?? _config.mduRecoveryMode,
       ),
     );
   }

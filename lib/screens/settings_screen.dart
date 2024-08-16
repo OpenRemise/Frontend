@@ -254,21 +254,6 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: FormBuilderSlider(
-                    name: 'mdu_rcvy_mode',
-                    initialValue: data.mduRecoveryMode!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'MDU recovery mode',
-                    ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 0,
-                    max: 1,
-                    divisions: 1 - 0,
-                    displayValues: DisplayValues.current,
-                  ),
-                ),
-                SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(

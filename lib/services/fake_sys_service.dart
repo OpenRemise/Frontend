@@ -48,11 +48,11 @@ class FakeSysService implements SysService {
         mdns: 'wulf.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',
-        heap: Random().nextInt(16384),
-        internalHeap: Random().nextInt(16384),
-        current: Random().nextInt(3500),
-        voltage: Random().nextInt(28000),
-        temperature: Random().nextDouble() * 80.0,
+        heap: Random().nextInt(384) + 8100000,
+        internalHeap: Random().nextInt(384) + 32000,
+        current: 0,
+        voltage: Random().nextInt(500) + 18000,
+        temperature: Random().nextDouble() * 2.0 + 25.0,
       ),
     );
   }

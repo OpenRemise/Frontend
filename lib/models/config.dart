@@ -21,7 +21,6 @@ class Config with _$Config {
     @JsonKey(name: 'dcc_bidibit_dur') int? dccBiDiBitDuration,
     @JsonKey(name: 'mdu_preamble') int? mduPreamble,
     @JsonKey(name: 'mdu_ackreq') int? mduAckreq,
-    @JsonKey(name: 'mdu_rcvy_mode') int? mduRecoveryMode,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);
