@@ -94,7 +94,7 @@ class _ControllerState extends ConsumerState<Controller> {
                             : null,
                         tooltip: 'On/off',
                         isSelected: z21Status.hasValue &&
-                            z21Status.requireValue.centralState & 0x02 == 0x00,
+                            !z21Status.requireValue.trackVoltageOff(),
                         selectedIcon: const Icon(Icons.power_off_outlined),
                         icon: const Icon(Icons.power_outlined),
                       ),

@@ -73,6 +73,16 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
+  void lanXCvPomWriteByte(int address, int cvAddress, int value) {
+    // TODO: implement lanXCvPomWriteByte
+  }
+
+  @override
+  void lanXCvPomReadByte(int address, int cvAddress) {
+    // TODO: implement lanXCvPomReadByte
+  }
+
+  @override
   void lanSystemStateGetData() {
     // TODO: implement lanSystemStateGetData
   }

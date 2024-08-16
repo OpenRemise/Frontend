@@ -34,7 +34,23 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
       ),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          debugPrint('${snapshot.data!}');
+          switch (snapshot.requireData) {
+            case LanXCvNackSc():
+              // TODO some error here?
+              debugPrint('LanXCvNackSc');
+            case LanXCvNack():
+              // TODO some error here?
+              debugPrint('LanXCvNackSc');
+            case LanXCvResult(cvAddress: final cvAddress, value: final value):
+              if (int.parse(_formKey.currentState?.value['CV number']) ==
+                  (cvAddress + 1)) {
+                _formKey.currentState?.fields['CV value']
+                    ?.didChange(value.toString());
+              } else {
+                _formKey.currentState?.fields['CV value']?.didChange(null);
+              }
+            default:
+          }
         }
 
         return Padding(
@@ -46,13 +62,13 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                 SliverAppBar(
                   leading: IconButton(
                     onPressed: z21Status.hasValue
-                        ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                        ? (z21Status.requireValue.trackVoltageOff()
                             ? z21.lanXSetTrackPowerOn
                             : z21.lanXSetTrackPowerOff)
                         : null,
                     tooltip: 'On/off',
                     isSelected: z21Status.hasValue &&
-                        z21Status.requireValue.centralState & 0x02 == 0x00,
+                        !z21Status.requireValue.trackVoltageOff(),
                     selectedIcon: const Icon(Icons.power_off_outlined),
                     icon: const Icon(Icons.power_outlined),
                   ),
@@ -135,7 +151,14 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                               final number = int.parse(
                                 _formKey.currentState?.value['CV number'],
                               );
-                              z21.lanXCvRead(number - 1);
+                              if (serviceMode) {
+                                z21.lanXCvRead(number - 1);
+                              } else {
+                                final address = int.parse(
+                                  _formKey.currentState?.value['address'],
+                                );
+                                z21.lanXCvPomReadByte(address, number - 1);
+                              }
                             }
                           },
                           child: const Text('Read'),
@@ -153,7 +176,15 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                               final value = int.parse(
                                 _formKey.currentState?.value['CV value'],
                               );
-                              z21.lanXCvWrite(number - 1, value);
+                              if (serviceMode) {
+                                z21.lanXCvWrite(number - 1, value);
+                              } else {
+                                final address = int.parse(
+                                  _formKey.currentState?.value['address'],
+                                );
+                                z21.lanXCvPomWriteByte(
+                                    address, number - 1, value);
+                              }
                             }
                           },
                           child: const Text('Write'),

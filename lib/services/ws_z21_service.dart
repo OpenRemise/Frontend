@@ -164,6 +164,46 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
+  void lanXCvPomWriteByte(int address, int cvAddress, int value) {
+    assert(address <= 9999 && cvAddress <= 1024 && value <= 255);
+    List<int> data = [
+      0x0C,
+      0x00,
+      Header.LAN_X_CV_POM_WRITE_BYTE.value,
+      0x00,
+      XHeader.LAN_X_CV_POM_WRITE_BYTE.value,
+      DB0.LAN_X_CV_POM_WRITE_BYTE.value,
+      (address >> 8) & 0xFF, // Address
+      (address >> 0) & 0xFF,
+      0xEC | (cvAddress >> 8) & 0xFF, // CV address
+      (cvAddress >> 0) & 0xFF, //
+      value & 0xFF, // CV value
+    ];
+    data.add(exor(data.sublist(4)));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void lanXCvPomReadByte(int address, int cvAddress) {
+    assert(address <= 9999 && cvAddress <= 1024);
+    List<int> data = [
+      0x0C,
+      0x00,
+      Header.LAN_X_CV_POM_READ_BYTE.value,
+      0x00,
+      XHeader.LAN_X_CV_POM_READ_BYTE.value,
+      DB0.LAN_X_CV_POM_READ_BYTE.value,
+      (address >> 8) & 0xFF, // Address
+      (address >> 0) & 0xFF,
+      0xE4 | (cvAddress >> 8) & 0xFF, // CV address
+      (cvAddress >> 0) & 0xFF, //
+      0 & 0xFF, // CV value
+    ];
+    data.add(exor(data.sublist(4)));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
   void lanSystemStateGetData() {
     _channel.sink.add(
       Uint8List.fromList(
