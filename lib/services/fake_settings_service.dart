@@ -3,7 +3,7 @@ import 'package:Frontend/services/settings_service.dart';
 
 class FakeSettingsService implements SettingsService {
   Config _config = Config(
-    mdns: 'wulf',
+    mdns: 'remise',
     ssid: 'Klettermaxl',
     password: '********',
     httpReceiveTimeout: 5,

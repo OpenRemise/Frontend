@@ -45,7 +45,7 @@ class FakeSysService implements SysService {
         compileTime: '18:31:28',
         compileDate: 'Jul 28 2024',
         idfVersion: '5.2.dev',
-        mdns: 'wulf.local',
+        mdns: 'remise.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',
         heap: Random().nextInt(384) + 8100000,

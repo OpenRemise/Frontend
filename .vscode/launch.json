@@ -15,25 +15,25 @@
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=wulf.local SMALL_SCREEN_WIDTH=800",
+      "name": "Frontend (debug mode) DOMAIN=remise.local SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "DOMAIN=wulf.local",
+        "DOMAIN=remise.local",
         "--dart-define",
         "SMALL_SCREEN_WIDTH=800"
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=wulf.local FAKE_SERVICES=true SMALL_SCREEN_WIDTH=800",
+      "name": "Frontend (debug mode) DOMAIN=remise.local FAKE_SERVICES=true SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "DOMAIN=wulf.local",
+        "DOMAIN=remise.local",
         "--dart-define",
         "FAKE_SERVICES=true",
         "--dart-define",
