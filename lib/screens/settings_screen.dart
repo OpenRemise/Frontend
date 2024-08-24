@@ -8,7 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsScreen extends ConsumerWidget {
   static const List<double> _currentLimitValues = [0.5, 1.6, 3, 4.1];
-  static const List<int> _dccBidibitDurValues = [0, 57, 58, 59, 60, 61];
+  static const List<int> _dccBiDiBitDurationValues = [0, 57, 58, 59, 60, 61];
+  static const List<String> _dccProgrammingTypeValues = [
+    'Nothing',
+    'Bit only',
+    'Byte only',
+    'Bit and byte',
+  ];
   final _formKey = GlobalKey<FormBuilderState>();
 
   SettingsScreen({super.key});
@@ -203,7 +209,7 @@ class SettingsScreen extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: FormBuilderSlider(
                     name: 'dcc_bidibit_dur',
-                    initialValue: _dccBidibitDurValues
+                    initialValue: _dccBiDiBitDurationValues
                         .indexOf(data.dccBiDiBitDuration!)
                         .toDouble(),
                     decoration: const InputDecoration(
@@ -211,13 +217,106 @@ class SettingsScreen extends ConsumerWidget {
                       labelText: 'DCC BiDi bit duration [µs]',
                     ),
                     valueTransformer: (value) =>
-                        _dccBidibitDurValues[value!.toInt()],
+                        _dccBiDiBitDurationValues[value!.toInt()],
                     min: 0,
                     max: 61 - 57 + 1,
                     divisions: 61 - 57 + 1,
                     displayValues: DisplayValues.current,
+                    valueWidget: (value) => Text(
+                      _dccBiDiBitDurationValues[int.parse(value)].toString(),
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_prog_type',
+                    initialValue: data.dccProgrammingType!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC programming type',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 0,
+                    max: 3,
+                    divisions: 3 - 0,
+                    displayValues: DisplayValues.current,
                     valueWidget: (value) =>
-                        Text(_dccBidibitDurValues[int.parse(value)].toString()),
+                        Text(_dccProgrammingTypeValues[int.parse(value)]),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_strtp_rs_pc',
+                    initialValue: data.dccStartupResetPacketCount!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC startup reset packets',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 25,
+                    max: 255,
+                    divisions: (255 - 25) ~/ 5,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_cntn_rs_pc',
+                    initialValue: data.dccContinueResetPacketCount!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC continue reset packets',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 3,
+                    max: 64,
+                    divisions: 64 - 3,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_prog_pc',
+                    initialValue: data.dccProgramPacketCount!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC program packets',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 2,
+                    max: 64,
+                    divisions: 64 - 2,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_verify_bit1',
+                    initialValue: (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC verify to bit',
+                    ),
+                    valueTransformer: (value) => value! == 1,
+                    min: 0,
+                    max: 1,
+                    divisions: 1 - 0,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'dcc_ack_cur',
+                    initialValue: data.dccProgrammingAckCurrent!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'DCC programming ack current [mA]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 5,
+                    max: 255,
+                    divisions: (255 - 5) ~/ 5,
+                    displayValues: DisplayValues.current,
                   ),
                 ),
                 const SliverToBoxAdapter(

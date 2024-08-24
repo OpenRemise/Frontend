@@ -14,6 +14,13 @@ class FakeSettingsService implements SettingsService {
     dccBit1Duration: 58,
     dccBit0Duration: 100,
     dccBiDiBitDuration: 60,
+    dccProgrammingType: 3,
+    dccStartupResetPacketCount: 25,
+    dccContinueResetPacketCount: 6,
+    dccProgramPacketCount: 7,
+    dccBitVerifyTo1: true,
+    dccProgrammingAckCurrent: 50,
+    dccFlags: 2,
     mduPreamble: 14,
     mduAckreq: 10,
   );
@@ -43,6 +50,18 @@ class FakeSettingsService implements SettingsService {
         dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,
         dccBiDiBitDuration:
             config.dccBiDiBitDuration ?? _config.dccBiDiBitDuration,
+        dccProgrammingType:
+            config.dccProgrammingType ?? _config.dccProgrammingType,
+        dccStartupResetPacketCount: config.dccStartupResetPacketCount ??
+            _config.dccStartupResetPacketCount,
+        dccContinueResetPacketCount: config.dccContinueResetPacketCount ??
+            _config.dccContinueResetPacketCount,
+        dccProgramPacketCount:
+            config.dccProgramPacketCount ?? _config.dccProgramPacketCount,
+        dccBitVerifyTo1: config.dccBitVerifyTo1 ?? _config.dccBitVerifyTo1,
+        dccProgrammingAckCurrent:
+            config.dccProgrammingAckCurrent ?? _config.dccProgrammingAckCurrent,
+        dccFlags: config.dccFlags ?? _config.dccFlags,
         mduPreamble: config.mduPreamble ?? _config.mduPreamble,
         mduAckreq: config.mduAckreq ?? _config.mduAckreq,
       ),
