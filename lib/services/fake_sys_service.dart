@@ -9,6 +9,7 @@ enum Mode {
   //
   Suspended,
   Shutdown,
+  ShortCircuit,
 
   // USB protocols
   DCC_EIN,

@@ -158,6 +158,21 @@ class SettingsScreen extends ConsumerWidget {
                         Text(_currentLimitValues[int.parse(value)].toString()),
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: FormBuilderSlider(
+                    name: 'current_sc_time',
+                    initialValue: data.currentShortCircuitTime!.toDouble(),
+                    decoration: const InputDecoration(
+                      icon: Icon(null),
+                      labelText: 'Current short circuit time [ms]',
+                    ),
+                    valueTransformer: (value) => value!.toInt(),
+                    min: 20,
+                    max: 240,
+                    divisions: (240 - 20) ~/ 20,
+                    displayValues: DisplayValues.current,
+                  ),
+                ),
                 const SliverToBoxAdapter(
                   child: Divider(),
                 ),

@@ -10,6 +10,7 @@ class FakeSettingsService implements SettingsService {
     httpTransmitTimeout: 5,
     usbReceiveTimeout: 1,
     currentLimit: 3,
+    currentShortCircuitTime: 20,
     dccPreamble: 21,
     dccBit1Duration: 58,
     dccBit0Duration: 100,
@@ -45,6 +46,8 @@ class FakeSettingsService implements SettingsService {
         usbReceiveTimeout:
             config.usbReceiveTimeout ?? _config.usbReceiveTimeout,
         currentLimit: config.currentLimit ?? _config.currentLimit,
+        currentShortCircuitTime:
+            config.currentShortCircuitTime ?? _config.currentShortCircuitTime,
         dccPreamble: config.dccPreamble ?? _config.dccPreamble,
         dccBit1Duration: config.dccBit1Duration ?? _config.dccBit1Duration,
         dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,
