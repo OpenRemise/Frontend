@@ -33,7 +33,7 @@ class FakeZ21Service implements Z21Service {
 
   @override
   void lanXSetTrackPowerOff() {
-    mode = Mode.Shutdown;
+    mode = Mode.Suspend;
     Future.delayed(const Duration(seconds: 1), () => mode = Mode.Suspended);
   }
 

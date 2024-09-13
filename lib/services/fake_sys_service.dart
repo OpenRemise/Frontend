@@ -6,9 +6,9 @@ import 'package:Frontend/models/info.dart';
 import 'package:Frontend/services/sys_service.dart';
 
 enum Mode {
-  //
+  // Flags (8 bits)
   Suspended,
-  Shutdown,
+  Suspend,
   ShortCircuit,
 
   // USB protocols
@@ -17,19 +17,17 @@ enum Mode {
   MDU_EIN,
   SUSIV2,
 
-  //
+  // Outputs
   DCCOperations,
   DCCService,
-
-  //
+  DECUPZpp,
+  DECUPZsu,
+  MDUZpp,
+  MDUZsu,
   ZUSI,
 
-  //
-  MDUFirmware,
-  MDUZpp,
-
-  //
-  OTA
+  // System
+  OTA,
 }
 
 Mode mode = Mode.Suspended;
