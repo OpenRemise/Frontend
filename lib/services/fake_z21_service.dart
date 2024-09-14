@@ -33,13 +33,13 @@ class FakeZ21Service implements Z21Service {
 
   @override
   void lanXSetTrackPowerOff() {
-    mode = Mode.Suspend;
-    Future.delayed(const Duration(seconds: 1), () => mode = Mode.Suspended);
+    state = State.Suspend;
+    Future.delayed(const Duration(seconds: 1), () => state = State.Suspended);
   }
 
   @override
   void lanXSetTrackPowerOn() {
-    mode = Mode.DCCOperations;
+    state = State.DCCOperations;
   }
 
   @override

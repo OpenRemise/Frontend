@@ -72,8 +72,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text(
                     String.fromEnvironment('VERSION', defaultValue: 'debug'),
                   ),
-                  const Text('Mode'),
-                  Text(sys.requireValue.mode),
+                  const Text('State'),
+                  Text(sys.requireValue.state),
                   const Text('Heap memory'),
                   Text('${sys.requireValue.heap}'),
                   const Text('Internal heap memory'),

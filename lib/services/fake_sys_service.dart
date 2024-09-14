@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:Frontend/models/info.dart';
 import 'package:Frontend/services/sys_service.dart';
 
-enum Mode {
+enum State {
   // Flags (8 bits)
   Suspended,
   Suspend,
@@ -30,7 +30,7 @@ enum Mode {
   OTA,
 }
 
-Mode mode = Mode.Suspended;
+State state = State.Suspended;
 
 class FakeSysService implements SysService {
   @override
@@ -38,7 +38,7 @@ class FakeSysService implements SysService {
     return Future.delayed(
       const Duration(milliseconds: 500),
       () => Info(
-        mode: mode.toString().split('.')[1],
+        state: state.toString().split('.')[1],
         version: '1.2.3',
         projectName: 'Frontend',
         compileTime: '18:31:28',
