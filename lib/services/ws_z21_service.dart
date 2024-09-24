@@ -4,16 +4,30 @@ import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsZ21Service implements Z21Service {
-  late final WebSocketChannel _channel;
-  late final Stream<Command> _stream;
+  final String _domain;
+  late WebSocketChannel _channel;
+  late Stream<Command> _stream;
 
-  WsZ21Service(String domain) {
-    debugPrint('WsZ21Service ctor');
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/z21/'));
+  void _connect() {
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$_domain/z21/'));
     _stream = _channel.stream
         .asBroadcastStream()
         .cast<Uint8List>()
         .map(Z21Service.convert);
+    _stream.listen(
+      null,
+      onError: (e) => debugPrint(e),
+      onDone: _reconnect,
+    );
+  }
+
+  void _reconnect() {
+    if (_channel.closeCode != null) _connect();
+  }
+
+  WsZ21Service(this._domain) {
+    debugPrint('WsZ21Service ctor');
+    _connect();
   }
 
   @override
@@ -58,15 +72,17 @@ class WsZ21Service implements Z21Service {
 
   @override
   void lanXSetTrackPowerOn() {
-    _channel.sink.add(Uint8List.fromList([
-      0x07,
-      0x00,
-      Header.LAN_X_SET_TRACK_POWER_ON.value,
-      0x00,
-      XHeader.LAN_X_SET_TRACK_POWER_ON.value,
-      DB0.LAN_X_SET_TRACK_POWER_ON.value,
-      0xA0
-    ]));
+    _channel.sink.add(
+      Uint8List.fromList([
+        0x07,
+        0x00,
+        Header.LAN_X_SET_TRACK_POWER_ON.value,
+        0x00,
+        XHeader.LAN_X_SET_TRACK_POWER_ON.value,
+        DB0.LAN_X_SET_TRACK_POWER_ON.value,
+        0xA0,
+      ]),
+    );
   }
 
   @override
