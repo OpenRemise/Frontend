@@ -255,6 +255,14 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
   }
 
   void _heartbeat(_) {
-    ref.read(z21ServiceProvider).lanXGetStatus();
+    final z21 = ref.read(z21ServiceProvider);
+    z21.lanXGetStatus();
+
+    // Recover after socket was closed server side
+    z21.stream.listen(
+      null,
+      onError: (e) => debugPrint(e),
+      onDone: () => ref.invalidate(z21ServiceProvider),
+    );
   }
 }
