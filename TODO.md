@@ -21,6 +21,7 @@ Replacing mdns_minimal with mdns4_minimal did the trick so far
 - [flutter_xslider](https://pub.dev/packages/flutter_xlider)
 - [sleek_circular_slider](https://pub.dev/packages/sleek_circular_slider)
 - [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)
+- [websocket_universal](https://pub.dev/packages/websocket_universal)
 
 ## Android
 Gradle version clusterfuck  
@@ -37,12 +38,9 @@ And an entire table on larger ones?
 Also, how about JMRI import?
 - re-read and re-write button?
 
-## Setting base-href from the command line
-flutter build web --base-href "/path/"
-
 ## Cab
 Option for left-handers to have slider left?
-LinearGradiant for Sliders CustomCurve would be great... (would be a PR)
+LinearGradient for Sliders CustomCurve would be great... (would be a PR)
 There is currently a data race when switching locos while the cab is still open, no clue how we can prevent that?
 
 ## Make use of collections

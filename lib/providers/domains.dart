@@ -14,12 +14,12 @@ Future<List<String>> domains(_) async {
       .toList();
   client.stop();
 
-  final wulfDomainNames = [
+  final remiseDomainNames = [
     for (final record in records)
-      if (record.domainName.contains('wulf'))
+      if (record.domainName.contains('remise'))
         record.domainName.replaceAll('_http._tcp.', ''),
   ];
 
   // Set -> List enforces uniqueness
-  return wulfDomainNames.toSet().toList();
+  return remiseDomainNames.toSet().toList();
 }

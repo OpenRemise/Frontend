@@ -7,9 +7,9 @@ part 'z21_status.g.dart';
 @riverpod
 Stream<LanXStatusChanged> z21Status(ref) async* {
   final z21 = ref.watch(z21ServiceProvider);
-  await for (final systemState in z21.stream.where(
+  await for (final status in z21.stream.where(
     (command) => switch (command) { LanXStatusChanged() => true, _ => false },
   )) {
-    yield systemState;
+    yield status;
   }
 }

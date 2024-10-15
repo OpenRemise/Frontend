@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 include(FetchContent)
 
-if(ESP_PLATFORM)
-  idf_component_register(REQUIRES spiffs)
-endif()
-
 FetchContent_Declare(
   CMakeModules
   GIT_REPOSITORY "https://github.com/ZIMO-Elektronik/CMakeModules"
@@ -16,10 +12,6 @@ project(
   Frontend
   VERSION ${VERSION_FROM_GIT}
   LANGUAGES CXX)
-
-set(PARTITION
-    storage
-    CACHE STRING "")
 
 # For some reason only dart can run the build_runner
 find_program(DART_EXECUTABLE dart PATHS /usr/bin/ REQUIRED)
@@ -42,9 +34,3 @@ add_custom_command(
   COMMENT "Building Frontend for web")
 
 add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build/web)
-
-if(ESP_PLATFORM)
-  spiffs_create_partition_image(
-    ${PARTITION} ${CMAKE_CURRENT_BINARY_DIR}/build/web FLASH_IN_PROJECT DEPENDS
-    Frontend)
-endif()

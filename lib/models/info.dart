@@ -8,7 +8,7 @@ part 'info.g.dart';
 @freezed
 class Info with _$Info {
   factory Info({
-    required String mode,
+    required String state,
     required String version,
     @JsonKey(name: 'project_name') required String projectName,
     @JsonKey(name: 'compile_time') required String compileTime,

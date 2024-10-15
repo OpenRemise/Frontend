@@ -33,13 +33,13 @@ class FakeZ21Service implements Z21Service {
 
   @override
   void lanXSetTrackPowerOff() {
-    mode = Mode.Shutdown;
-    Future.delayed(const Duration(seconds: 1), () => mode = Mode.Suspended);
+    state = State.Suspend;
+    Future.delayed(const Duration(seconds: 1), () => state = State.Suspended);
   }
 
   @override
   void lanXSetTrackPowerOn() {
-    mode = Mode.DCCOperations;
+    state = State.DCCOperations;
   }
 
   @override
@@ -70,6 +70,16 @@ class FakeZ21Service implements Z21Service {
   @override
   void lanXSetLocoFunction(int address, int state, int index) {
     // TODO: implement lanXSetLocoFunction
+  }
+
+  @override
+  void lanXCvPomWriteByte(int address, int cvAddress, int value) {
+    // TODO: implement lanXCvPomWriteByte
+  }
+
+  @override
+  void lanXCvPomReadByte(int address, int cvAddress) {
+    // TODO: implement lanXCvPomReadByte
   }
 
   @override

@@ -143,13 +143,17 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       final msg =
           await _repeatOnFailure(() => _mdu.ping(0, decoderId), repeat: 1);
       if (msg[0] == nak && msg[1] == ack) {
-        final String name = entry.value.name.substring(0, 7);
-        setState(() {
-          _decoders[decoderId] = ListTile(
-            leading: const Icon(Icons.circle_outlined),
-            title: Text(name),
-          );
-        });
+        final exp = RegExp(r'\w{5,}-[0-9]');
+        final match = exp.firstMatch(entry.value.name);
+        if (match != null && match[0] != null) {
+          final String name = match[0]!;
+          setState(() {
+            _decoders[decoderId] = ListTile(
+              leading: const Icon(Icons.circle_outlined),
+              title: Text(name),
+            );
+          });
+        }
       }
     }
 
