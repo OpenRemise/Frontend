@@ -298,6 +298,22 @@ class LanXStatusChanged implements Command {
     assert(dataset.length == 0x08);
   }
 
+  bool emergencyStop() {
+    return centralState & 0x01 == 0x01;
+  }
+
+  bool trackVoltageOff() {
+    return centralState & 0x02 == 0x02;
+  }
+
+  bool shortCircuit() {
+    return centralState & 0x04 == 0x04;
+  }
+
+  bool programmingMode() {
+    return centralState & 0x01 == 0x01;
+  }
+
   @override
   String toString() {
     return 'LanXStatusChanged(centralState: $centralState)';
@@ -381,14 +397,13 @@ class ReplyToLanGetTurnoutMode implements Command {}
 
 class LanRmBusDataChanged implements Command {}
 
-class LanSystemStateDataChanged implements Command {
+class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
   final int mainCurrent;
   final int progCurrent;
   final int filteredMainCurrent;
   final int temperature;
   final int supplyVoltage;
   final int vccVoltage;
-  final int centralState;
   final int centralStateEx;
   final int capabilities;
 
@@ -399,7 +414,7 @@ class LanSystemStateDataChanged implements Command {
     required this.temperature,
     required this.supplyVoltage,
     required this.vccVoltage,
-    required this.centralState,
+    required super.centralState,
     required this.centralStateEx,
     required this.capabilities,
   });
@@ -411,9 +426,9 @@ class LanSystemStateDataChanged implements Command {
         temperature = data2int16(dataset.sublist(10)),
         supplyVoltage = data2uint16(dataset.sublist(12)),
         vccVoltage = data2uint16(dataset.sublist(14)),
-        centralState = dataset[15],
         centralStateEx = dataset[16],
-        capabilities = dataset[17] {
+        capabilities = dataset[17],
+        super(centralState: dataset[15]) {
     assert(dataset.length == 0x14);
   }
 
@@ -468,6 +483,8 @@ abstract interface class Z21Service {
   void lanXGetLocoInfo(int address);
   void lanXSetLocoDrive(int address, int speedSteps, int rvvvvvvv);
   void lanXSetLocoFunction(int address, int state, int index);
+  void lanXCvPomWriteByte(int address, int cvAddress, int value);
+  void lanXCvPomReadByte(int address, int cvAddress);
   void lanSystemStateGetData();
 
   static Command convert(Uint8List dataset) {

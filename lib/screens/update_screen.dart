@@ -31,7 +31,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             actions: [
               IconButton(
                 onPressed: z21Status.hasValue
-                    ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                    ? (z21Status.requireValue.trackVoltageOff()
                         ? _loadFromFile
                         : null)
                     : null,

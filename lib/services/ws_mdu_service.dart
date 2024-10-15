@@ -8,8 +8,7 @@ class WsMduService implements MduService {
   late final WebSocketChannel _channel;
 
   WsMduService(String domain) {
-    _channel =
-        WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/firmware/'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/zsu/'));
   }
 
   @override

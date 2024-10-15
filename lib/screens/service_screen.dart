@@ -1,14 +1,13 @@
+import 'package:Frontend/providers/service_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/utilities/address_validator.dart';
+import 'package:Frontend/utilities/cv_number_validator.dart';
+import 'package:Frontend/utilities/cv_value_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-typedef _Cv = ({
-  String? number,
-  String? value,
-});
 
 class ServiceScreen extends ConsumerStatefulWidget {
   const ServiceScreen({super.key});
@@ -19,10 +18,10 @@ class ServiceScreen extends ConsumerStatefulWidget {
 
 class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _serviceMode = false;
 
   @override
   Widget build(BuildContext context) {
+    final serviceMode = ref.watch(serviceModeProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
@@ -35,7 +34,23 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
       ),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          debugPrint('${snapshot.data!}');
+          switch (snapshot.requireData) {
+            case LanXCvNackSc():
+              // TODO some error here?
+              debugPrint('LanXCvNackSc');
+            case LanXCvNack():
+              // TODO some error here?
+              debugPrint('LanXCvNackSc');
+            case LanXCvResult(cvAddress: final cvAddress, value: final value):
+              if (int.parse(_formKey.currentState?.value['CV number']) ==
+                  (cvAddress + 1)) {
+                _formKey.currentState?.fields['CV value']
+                    ?.didChange(value.toString());
+              } else {
+                _formKey.currentState?.fields['CV value']?.didChange(null);
+              }
+            default:
+          }
         }
 
         return Padding(
@@ -47,22 +62,22 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                 SliverAppBar(
                   leading: IconButton(
                     onPressed: z21Status.hasValue
-                        ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                        ? (z21Status.requireValue.trackVoltageOff()
                             ? z21.lanXSetTrackPowerOn
                             : z21.lanXSetTrackPowerOff)
                         : null,
                     tooltip: 'On/off',
                     isSelected: z21Status.hasValue &&
-                        z21Status.requireValue.centralState & 0x02 == 0x00,
+                        !z21Status.requireValue.trackVoltageOff(),
                     selectedIcon: const Icon(Icons.power_off_outlined),
                     icon: const Icon(Icons.power_outlined),
                   ),
                   title: IconButton(
-                    onPressed: () => setState(() {
-                      _serviceMode = !_serviceMode;
-                    }),
+                    onPressed: () => ref
+                        .read(serviceModeProvider.notifier)
+                        .update(!serviceMode),
                     tooltip: 'Service mode',
-                    isSelected: _serviceMode,
+                    isSelected: serviceMode,
                     selectedIcon: const Icon(Icons.build_circle),
                     icon: const Icon(Icons.build_circle_outlined),
                   ),
@@ -78,89 +93,44 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                 SliverToBoxAdapter(
                   child: FormBuilderTextField(
                     name: 'address',
-                    validator: (String? value) {
-                      if (_serviceMode) return null;
-                      if (value == null) return 'Address invalid';
-                      final number = int.tryParse(value);
-                      if (number == null) {
-                        return 'Address invalid';
-                      } else if (number > 9999) {
-                        return 'Address out of range';
-                      } else {
-                        return null;
-                      }
-                    },
+                    validator: serviceMode ? null : addressValidator,
                     decoration: const InputDecoration(
                       icon: Icon(Icons.alternate_email_outlined),
                       labelText: 'Address',
                     ),
-                    enabled: !_serviceMode,
+                    enabled: !serviceMode,
                     keyboardType: TextInputType.number,
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: FormBuilderField<_Cv>(
-                    name: 'cv',
-                    initialValue: (number: null, value: null),
-                    validator: (_Cv? cv) {
-                      if (cv!.number == null) return 'Number invalid';
-                      final number = int.tryParse(cv.number!);
-                      if (number == null) return 'Number invalid';
-                      if (number < 1 || number > 1024) {
-                        return 'Number out of range';
-                      }
-                      if (cv.value == null || cv.value!.isEmpty) return null;
-                      final value = int.tryParse(cv.value!);
-                      if (value == null) return 'Value invalid';
-                      if (value > 255) return 'Value out of range';
-                      return null;
-                    },
-                    builder: (FormFieldState<_Cv> cv) {
-                      return Row(
-                        children: [
-                          Flexible(
-                            flex: 1,
-                            child: TextField(
-                              decoration: InputDecoration(
-                                icon: const Icon(Icons.numbers_outlined),
-                                labelText: 'CV number',
-                                errorText: cv.hasError
-                                    ? cv.errorText!
-                                            .toLowerCase()
-                                            .contains('number')
-                                        ? cv.errorText
-                                        : ''
-                                    : null,
-                              ),
-                              keyboardType: TextInputType.number,
-                              onChanged: (number) => cv.didChange(
-                                (number: number, value: cv.value?.value),
-                              ),
-                            ),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: FormBuilderTextField(
+                          name: 'CV number',
+                          validator: cvNumberValidator,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.numbers_outlined),
+                            labelText: 'CV number',
+                            // https://github.com/flutter/flutter/issues/15400
+                            helperText: ' ',
                           ),
-                          Flexible(
-                            flex: 1,
-                            child: TextField(
-                              decoration: InputDecoration(
-                                icon: const Icon(Icons.onetwothree_outlined),
-                                labelText: 'CV value',
-                                errorText: cv.hasError
-                                    ? cv.errorText!
-                                            .toLowerCase()
-                                            .contains('value')
-                                        ? cv.errorText
-                                        : ''
-                                    : null,
-                              ),
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) => cv.didChange(
-                                (number: cv.value?.number, value: value),
-                              ),
-                            ),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: FormBuilderTextField(
+                          name: 'CV value',
+                          validator: cvValueValidator,
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.onetwothree_outlined),
+                            labelText: 'CV value',
+                            helperText: ' ',
                           ),
-                        ],
-                      );
-                    },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 SliverToBoxAdapter(
@@ -171,12 +141,24 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState?.saveAndValidate() ??
-                                false) {
+                            if ((_formKey.currentState?.fields['address']
+                                        ?.validate() ??
+                                    false) &&
+                                (_formKey.currentState?.fields['CV number']
+                                        ?.validate() ??
+                                    false)) {
+                              _formKey.currentState?.save();
                               final number = int.parse(
-                                _formKey.currentState?.value['cv'].number,
+                                _formKey.currentState?.value['CV number'],
                               );
-                              z21.lanXCvRead(number - 1);
+                              if (serviceMode) {
+                                z21.lanXCvRead(number - 1);
+                              } else {
+                                final address = int.parse(
+                                  _formKey.currentState?.value['address'],
+                                );
+                                z21.lanXCvPomReadByte(address, number - 1);
+                              }
                             }
                           },
                           child: const Text('Read'),
@@ -189,12 +171,20 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                             if (_formKey.currentState?.saveAndValidate() ??
                                 false) {
                               final number = int.parse(
-                                _formKey.currentState?.value['cv'].number,
+                                _formKey.currentState?.value['CV number'],
                               );
                               final value = int.parse(
-                                _formKey.currentState?.value['cv'].value,
+                                _formKey.currentState?.value['CV value'],
                               );
-                              z21.lanXCvWrite(number - 1, value);
+                              if (serviceMode) {
+                                z21.lanXCvWrite(number - 1, value);
+                              } else {
+                                final address = int.parse(
+                                  _formKey.currentState?.value['address'],
+                                );
+                                z21.lanXCvPomWriteByte(
+                                    address, number - 1, value);
+                              }
                             }
                           },
                           child: const Text('Write'),

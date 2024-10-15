@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -13,6 +15,22 @@ class InfoScreen extends ConsumerStatefulWidget {
 }
 
 class _InfoScreenState extends ConsumerState<InfoScreen> {
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    debugPrint('InfoScreen init');
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
+  }
+
+  @override
+  void dispose() {
+    debugPrint('InfoScreen dispose');
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final domain = ref.watch(domainProvider);
@@ -29,13 +47,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               SliverAppBar(
                 leading: IconButton(
                   onPressed: z21Status.hasValue
-                      ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                      ? (z21Status.requireValue.trackVoltageOff()
                           ? z21.lanXSetTrackPowerOn
                           : z21.lanXSetTrackPowerOff)
                       : null,
                   tooltip: 'On/off',
                   isSelected: z21Status.hasValue &&
-                      z21Status.requireValue.centralState & 0x02 == 0x00,
+                      !z21Status.requireValue.trackVoltageOff(),
                   selectedIcon: const Icon(Icons.power_off_outlined),
                   icon: const Icon(Icons.power_outlined),
                 ),
@@ -54,8 +72,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text(
                     String.fromEnvironment('VERSION', defaultValue: 'debug'),
                   ),
-                  const Text('Mode'),
-                  Text(sys.requireValue.mode),
+                  const Text('State'),
+                  Text(sys.requireValue.state),
                   const Text('Heap memory'),
                   Text('${sys.requireValue.heap}'),
                   const Text('Internal heap memory'),
@@ -112,5 +130,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           const Center(child: Icon(Icons.error_outline)),
       loading: () => const Center(child: Text('loading')),
     );
+  }
+
+  void _heartbeat(_) {
+    ref.read(sysProvider.notifier).fetchInfo();
   }
 }

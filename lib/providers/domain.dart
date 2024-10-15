@@ -6,7 +6,7 @@ final domainProvider = StateProvider<String>((_) {
   if (kIsWeb) {
     // Domain from running web build on localhost
     if (Uri.base.origin.contains('localhost')) {
-      return 'wulf.local';
+      return 'remise.local';
     }
     // Domain from actual hardware
     else {

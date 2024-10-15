@@ -127,9 +127,6 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final status = ref.watch(z21StatusProvider);
-    debugPrint('$status');
-
     return Scaffold(
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
@@ -258,6 +255,14 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
   }
 
   void _heartbeat(_) {
-    ref.read(z21ServiceProvider).lanXGetStatus();
+    final z21 = ref.read(z21ServiceProvider);
+    z21.lanXGetStatus();
+
+    // Recover after socket was closed server side
+    z21.stream.listen(
+      null,
+      onError: (e) => debugPrint(e),
+      onDone: () => ref.invalidate(z21ServiceProvider),
+    );
   }
 }
