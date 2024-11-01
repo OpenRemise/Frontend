@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Config Frontend",
+      "type": "shell",
+      "isBackground": true,
+      "command": "cmake -Bbuild -GNinja"
+    },
+    {
+      "label": "Build Frontend",
+      "type": "shell",
+      "isBackground": true,
+      "command": "cmake --build build --parallel --target Frontend"
+    },
+    {
+      "label": "Run build_runner build",
+      "type": "shell",
+      "isBackground": true,
+      "command": "dart run build_runner build --delete-conflicting-outputs"
+    },
+    {
+      "label": "Run build_runner clean",
+      "type": "shell",
+      "isBackground": true,
+      "command": "rm -rf build && find . -type f \\( -name \"*.*.dart\" \\) -delete"
+    },
+    {
+      "label": "Run Frontend chrome",
+      "type": "shell",
+      "isBackground": true,
+      // https://stackoverflow.com/a/74783428/5840652
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
+    }
+  ]
+}

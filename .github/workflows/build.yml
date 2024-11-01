@@ -1,0 +1,20 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.1.6
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2.16.0
+        with:
+          channel: stable
+      - run: cmake -Bbuild
+      - run: cmake --build build --target Frontend
