@@ -2,16 +2,22 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Config Frontend",
-      "type": "shell",
-      "isBackground": true,
-      "command": "cmake -Bbuild -GNinja"
-    },
-    {
       "label": "Build Frontend",
       "type": "shell",
       "isBackground": true,
       "command": "cmake --build build --parallel --target Frontend"
+    },
+    {
+      "label": "Build FrontendDocs",
+      "type": "shell",
+      "isBackground": true,
+      "command": "cmake --build build --parallel --target FrontendDocs"
+    },
+    {
+      "label": "Config Frontend",
+      "type": "shell",
+      "isBackground": true,
+      "command": "cmake -Bbuild -GNinja"
     },
     {
       "label": "Run build_runner build",
@@ -31,6 +37,12 @@
       "isBackground": true,
       // https://stackoverflow.com/a/74783428/5840652
       "command": ". chromium.fish && flutter run -d chrome --dart-define=SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
+    },
+    {
+      "label": "Run Python http.server",
+      "type": "shell",
+      "isBackground": true,
+      "command": "python -m http.server --directory ${workspaceFolder}/build/docs/html --bind 127.0.0.1"
     }
   ]
 }

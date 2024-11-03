@@ -13,9 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/models/config.dart';
+// ignore_for_file: dangling_library_doc_comments
 
-abstract interface class SettingsService {
-  Future<Config> fetch();
-  Future<void> update(Config setting);
-}
+///
+///
+/// \file   main.dart
+/// \author Vincent Hamp
+/// \date   03/11/2024
+
+/// \mainpage Introduction
+/// Hello there!
+///
+
+/// \class SomeMadeUpThing
+/// There should be some class here
