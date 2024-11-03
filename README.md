@@ -9,7 +9,27 @@
 </picture>
 </a>
 
-Environment variables
+## Environment variables
 - DOMAIN
 - FAKE_SERVICES
 - SMALL_SCREEN_WIDTH
+
+## Packages
+- [dartdoc](https://pub.dev/packages/dartdoc)
+- [animated_toggle_switch](https://pub.dev/packages/animated_toggle_switch)
+- [easy_localization](https://pub.dev/packages/easy_localization)
+- [sliver_tools](https://pub.dev/packages/sliver_tools)
+- [flutter_slidable](https://pub.dev/packages/flutter_slidable)
+- [radial_button](https://pub.dev/packages/radial_button)
+- [fl_chart](https://pub.dev/packages/fl_chart)
+- [pie_menu](https://pub.dev/packages/pie_menu)
+- [flutter_xslider](https://pub.dev/packages/flutter_xlider)
+- [sleek_circular_slider](https://pub.dev/packages/sleek_circular_slider)
+- [flutter_staggered_grid_view](https://pub.dev/packages/flutter_staggered_grid_view)
+- [websocket_universal](https://pub.dev/packages/websocket_universal)
+- [vertical_card_pager](https://pub.dev/packages/vertical_card_pager)
+- [card_swiper](https://pub.dev/packages/card_swiper)
+
+## svgcleaner
+Use this tool to clean up fucked up .svg files  
+https://github.com/RazrFalcon/svgcleaner

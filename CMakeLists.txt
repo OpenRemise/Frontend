@@ -34,3 +34,5 @@ add_custom_command(
   COMMENT "Building Frontend for web")
 
 add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build/web)
+
+add_subdirectory(docs)
