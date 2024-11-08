@@ -40,31 +40,39 @@ class SettingsScreen extends ConsumerWidget {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
-    return settings.when(
-      data: (data) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FormBuilder(
-            key: _formKey,
-            child: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  leading: IconButton(
-                    onPressed: z21Status.hasValue
-                        ? (z21Status.requireValue.trackVoltageOff()
-                            ? z21.lanXSetTrackPowerOn
-                            : z21.lanXSetTrackPowerOff)
-                        : null,
-                    tooltip: 'On/off',
-                    isSelected: z21Status.hasValue &&
-                        !z21Status.requireValue.trackVoltageOff(),
-                    selectedIcon: const Icon(Icons.power_off_outlined),
-                    icon: const Icon(Icons.power_outlined),
-                  ),
-                  floating: true,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: FormBuilder(
+        key: _formKey,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              leading: IconButton(
+                onPressed: z21Status.hasValue
+                    ? (z21Status.requireValue.trackVoltageOff()
+                        ? z21.lanXSetTrackPowerOn
+                        : z21.lanXSetTrackPowerOff)
+                    : null,
+                tooltip: 'On/off',
+                isSelected: z21Status.hasValue &&
+                    !z21Status.requireValue.trackVoltageOff(),
+                selectedIcon: const Icon(Icons.power_off_outlined),
+                icon: const Icon(Icons.power_outlined),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () =>
+                      ref.read(settingsProvider.notifier).fetchSettings(),
+                  tooltip: 'Refresh',
+                  icon: const Icon(Icons.sync_outlined),
                 ),
-                SliverToBoxAdapter(
-                  child: FormBuilderTextField(
+              ],
+              floating: true,
+            ),
+            settings.when(
+              data: (data) => SliverList.list(
+                children: [
+                  FormBuilderTextField(
                     name: 'sta_mdns',
                     validator: (String? value) {
                       return null;
@@ -75,9 +83,7 @@ class SettingsScreen extends ConsumerWidget {
                       labelText: 'mDNS',
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderTextField(
+                  FormBuilderTextField(
                     name: 'sta_ssid',
                     validator: (String? value) {
                       return null;
@@ -88,9 +94,7 @@ class SettingsScreen extends ConsumerWidget {
                       labelText: 'SSID',
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderTextField(
+                  FormBuilderTextField(
                     name: 'sta_pass',
                     validator: (String? value) {
                       return null;
@@ -101,12 +105,8 @@ class SettingsScreen extends ConsumerWidget {
                       labelText: 'Password',
                     ),
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  Divider(),
+                  FormBuilderSlider(
                     name: 'http_rx_timeout',
                     initialValue: data.httpReceiveTimeout!.toDouble(),
                     decoration: const InputDecoration(
@@ -119,9 +119,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 60 - 5,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'http_tx_timeout',
                     initialValue: data.httpTransmitTimeout!.toDouble(),
                     decoration: const InputDecoration(
@@ -134,12 +132,8 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 60 - 5,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  Divider(),
+                  FormBuilderSlider(
                     name: 'usb_rx_timeout',
                     initialValue: data.usbReceiveTimeout!.toDouble(),
                     decoration: const InputDecoration(
@@ -152,12 +146,8 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 10 - 1,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  Divider(),
+                  FormBuilderSlider(
                     name: 'current_limit',
                     initialValue: data.currentLimit!.toDouble(),
                     decoration: const InputDecoration(
@@ -172,9 +162,7 @@ class SettingsScreen extends ConsumerWidget {
                     valueWidget: (value) =>
                         Text(_currentLimitValues[int.parse(value)].toString()),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'current_sc_time',
                     initialValue: data.currentShortCircuitTime!.toDouble(),
                     decoration: const InputDecoration(
@@ -187,12 +175,8 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: (240 - 20) ~/ 20,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  Divider(),
+                  FormBuilderSlider(
                     name: 'dcc_preamble',
                     initialValue: data.dccPreamble!.toDouble(),
                     decoration: const InputDecoration(
@@ -205,9 +189,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 30 - 17,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_bit1_dur',
                     initialValue: data.dccBit1Duration!.toDouble(),
                     decoration: const InputDecoration(
@@ -220,9 +202,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 60 - 56,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_bit0_dur',
                     initialValue: data.dccBit0Duration!.toDouble(),
                     decoration: const InputDecoration(
@@ -235,9 +215,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 114 - 97,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_bidibit_dur',
                     initialValue: _dccBiDiBitDurationValues
                         .indexOf(data.dccBiDiBitDuration!)
@@ -256,9 +234,7 @@ class SettingsScreen extends ConsumerWidget {
                       _dccBiDiBitDurationValues[int.parse(value)].toString(),
                     ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_prog_type',
                     initialValue: data.dccProgrammingType!.toDouble(),
                     decoration: const InputDecoration(
@@ -273,9 +249,7 @@ class SettingsScreen extends ConsumerWidget {
                     valueWidget: (value) =>
                         Text(_dccProgrammingTypeValues[int.parse(value)]),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_strtp_rs_pc',
                     initialValue: data.dccStartupResetPacketCount!.toDouble(),
                     decoration: const InputDecoration(
@@ -288,9 +262,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: (255 - 25) ~/ 5,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_cntn_rs_pc',
                     initialValue: data.dccContinueResetPacketCount!.toDouble(),
                     decoration: const InputDecoration(
@@ -303,9 +275,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 64 - 3,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_prog_pc',
                     initialValue: data.dccProgramPacketCount!.toDouble(),
                     decoration: const InputDecoration(
@@ -318,9 +288,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 64 - 2,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_verify_bit1',
                     initialValue: (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
                     decoration: const InputDecoration(
@@ -333,9 +301,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 1 - 0,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'dcc_ack_cur',
                     initialValue: data.dccProgrammingAckCurrent!.toDouble(),
                     decoration: const InputDecoration(
@@ -348,12 +314,8 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: (255 - 5) ~/ 5,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                const SliverToBoxAdapter(
-                  child: Divider(),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  Divider(),
+                  FormBuilderSlider(
                     name: 'mdu_preamble',
                     initialValue: data.mduPreamble!.toDouble(),
                     decoration: const InputDecoration(
@@ -366,9 +328,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 30 - 14,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: FormBuilderSlider(
+                  FormBuilderSlider(
                     name: 'mdu_ackreq',
                     initialValue: data.mduAckreq!.toDouble(),
                     decoration: const InputDecoration(
@@ -381,9 +341,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 30 - 10,
                     displayValues: DisplayValues.current,
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -420,15 +378,15 @@ class SettingsScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              error: (error, stackTrace) =>
+                  const SliverToBoxAdapter(child: Icon(Icons.error_outline)),
+              loading: () => const SliverFillRemaining(child: Text('loading')),
             ),
-          ),
-        );
-      },
-      error: (error, stackTrace) =>
-          const Center(child: Icon(Icons.error_outline)),
-      loading: () => const Center(child: Text('loading')),
+          ],
+        ),
+      ),
     );
   }
 }

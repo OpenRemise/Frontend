@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
@@ -21,6 +22,7 @@ import 'package:Frontend/widgets/zusi_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class UpdateScreen extends ConsumerStatefulWidget {
   const UpdateScreen({super.key});
@@ -52,32 +54,60 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
               selectedIcon: const Icon(Icons.power_off_outlined),
               icon: const Icon(Icons.power_outlined),
             ),
-            actions: [
-              IconButton(
-                onPressed: z21Status.hasValue
-                    ? (z21Status.requireValue.trackVoltageOff()
-                        ? _loadFromFile
-                        : null)
-                    : null,
-                tooltip: 'Load local .bin/.zpp/.zsu',
-                icon: const Icon(Icons.file_open_outlined),
-              ),
-            ],
             floating: true,
           ),
-          const SliverToBoxAdapter(
-            child: Placeholder(),
+          SliverList.list(
+            children: [
+              Card(
+                child: ListTile(
+                  title: SvgPicture.asset(
+                    ref.watch(darkModeProvider)
+                        ? 'data/images/dark.svg'
+                        : 'data/images/light.svg',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.scaleDown,
+                  ),
+                  subtitle: const Center(
+                    child: Text(
+                      'Update firmware or frontend',
+                    ),
+                  ),
+                  enabled: z21Status.hasValue &&
+                      z21Status.requireValue.trackVoltageOff(),
+                  onTap: _openRemiseLoadFromFile,
+                ),
+              ),
+              Card(
+                child: ListTile(
+                  title: SvgPicture.asset(
+                    'data/images/zimo.svg',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.scaleDown,
+                  ),
+                  subtitle: const Center(
+                    child: Text(
+                      'Update decoder or sound project',
+                    ),
+                  ),
+                  enabled: z21Status.hasValue &&
+                      z21Status.requireValue.trackVoltageOff(),
+                  onTap: _zimoLoadFromFile,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Future<void> _loadFromFile() async {
+  Future<void> _openRemiseLoadFromFile() async {
     return FilePicker.platform
         .pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['bin', 'zpp', 'zsu'],
+      allowedExtensions: ['bin'],
       withData: true,
     )
         .then((FilePickerResult? result) {
@@ -89,6 +119,22 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           builder: (_) => OtaDialog.fromFile(result.files.first.bytes!),
           barrierDismissible: false,
         );
+      } else {
+        return null;
+      }
+    });
+  }
+
+  Future<void> _zimoLoadFromFile() async {
+    return FilePicker.platform
+        .pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zpp', 'zsu'],
+      withData: true,
+    )
+        .then((FilePickerResult? result) {
+      if (result == null) {
+        return;
       } else if (result.files[0].extension == 'zpp') {
         showDialog(
           context: context,
@@ -101,8 +147,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           builder: (_) => MduDialog.fromFile(result.files.first.bytes!),
           barrierDismissible: false,
         );
+      } else {
+        return null;
       }
-      return null;
     });
   }
 

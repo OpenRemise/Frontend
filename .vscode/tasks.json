@@ -2,24 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build Frontend",
-      "type": "shell",
-      "isBackground": true,
-      "command": "cmake --build build --parallel --target Frontend"
-    },
-    {
-      "label": "Build FrontendDocs",
-      "type": "shell",
-      "isBackground": true,
-      "command": "cmake --build build --parallel --target FrontendDocs"
-    },
-    {
-      "label": "Config Frontend",
-      "type": "shell",
-      "isBackground": true,
-      "command": "cmake -Bbuild -GNinja"
-    },
-    {
       "label": "Run build_runner build",
       "type": "shell",
       "isBackground": true,
@@ -32,7 +14,14 @@
       "command": "rm -rf build && find . -type f \\( -name \"*.*.dart\" \\) -delete"
     },
     {
-      "label": "Run Frontend chrome",
+      "label": "Run Frontend OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
+      "type": "shell",
+      "isBackground": true,
+      // https://stackoverflow.com/a/74783428/5840652
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
+    },
+    {
+      "label": "Run Frontend OPENREMISE_FRONTEND_FAKE_SERVICES=true OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "type": "shell",
       "isBackground": true,
       // https://stackoverflow.com/a/74783428/5840652
