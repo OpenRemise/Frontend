@@ -23,6 +23,6 @@ part 'ota_service.g.dart';
 
 @riverpod
 OtaService otaService(ref) =>
-    const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeOtaService()
         : WsOtaService(ref.read(domainProvider));

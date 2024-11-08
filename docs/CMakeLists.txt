@@ -43,19 +43,20 @@ if(Doxygen_FOUND)
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Regular.otf"
     ${CMAKE_CURRENT_BINARY_DIR}/html/GlacialIndifference-Regular.otf)
 
-  set(DOXYGEN_PROJECT_NUMBER ${PROJECT_VER})
   set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
   set(DOXYGEN_REPEAT_BRIEF NO)
   set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
-  set(DOXYGEN_EXTENSION_MAPPING dart=c++)
+  set(DOXYGEN_EXTENSION_MAPPING dart=JavaScript)
   set(DOXYGEN_BUILTIN_STL_SUPPORT YES)
   set(DOXYGEN_NUM_PROC_THREADS 0)
-  set(DOXYGEN_EXTRACT_ALL NO)
+  set(DOXYGEN_EXTRACT_ALL YES)
   set(DOXYGEN_EXTRACT_PRIVATE YES)
   set(DOXYGEN_EXTRACT_STATIC YES)
   set(DOXYGEN_EXTRACT_LOCAL_CLASSES YES)
   set(DOXYGEN_EXTRACT_LOCAL_METHODS YES)
   set(DOXYGEN_EXTRACT_ANON_NSPACES YES)
+  set(DOXYGEN_FILE_PATTERNS *.dart)
+  set(DOXYGEN_EXCLUDE_PATTERNS */*.freezed.dart */*.g.dart)
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/header.html)
   set(DOXYGEN_HTML_FOOTER ${CMAKE_CURRENT_LIST_DIR}/footer.html)
   set(DOXYGEN_HTML_EXTRA_STYLESHEET
@@ -79,6 +80,13 @@ if(Doxygen_FOUND)
   set(DOXYGEN_DOT_IMAGE_FORMAT svg)
   set(DOXYGEN_PLANTUML_JAR_PATH ${PLANTUML_JAR_PATH})
 
-  doxygen_add_docs(${PROJECT_NAME}Docs ${CMAKE_SOURCE_DIR}/lib/doxygen.dart
+  doxygen_add_docs(${PROJECT_NAME}Docs ${CMAKE_SOURCE_DIR}/lib
                    ${CMAKE_SOURCE_DIR}/CHANGELOG.md)
+  add_dependencies(FrontendDocs Frontend)
+
+  add_custom_command(
+    TARGET ${PROJECT_NAME}Docs
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/build/web
+            ${CMAKE_CURRENT_BINARY_DIR}/html/demo)
 endif()

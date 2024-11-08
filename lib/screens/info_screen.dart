@@ -85,7 +85,10 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   Text(sys.requireValue.idfVersion),
                   const Text('Frontend version'),
                   const Text(
-                    String.fromEnvironment('VERSION', defaultValue: 'debug'),
+                    String.fromEnvironment(
+                      'OPENREMISE_FRONTEND_VERSION',
+                      defaultValue: 'kDebugMode',
+                    ),
                   ),
                   const Text('State'),
                   Text(sys.requireValue.state),

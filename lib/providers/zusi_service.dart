@@ -23,6 +23,6 @@ part 'zusi_service.g.dart';
 
 @riverpod
 ZusiService zusiService(ref) =>
-    const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeZusiService()
         : WsZusiService(ref.read(domainProvider));

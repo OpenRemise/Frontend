@@ -198,7 +198,10 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                   _formKey.currentState?.value['address'],
                                 );
                                 z21.lanXCvPomWriteByte(
-                                    address, number - 1, value);
+                                  address,
+                                  number - 1,
+                                  value,
+                                );
                               }
                             }
                           },

@@ -24,6 +24,6 @@ part 'z21_service.g.dart';
 
 @Riverpod(keepAlive: true)
 Z21Service z21Service(ref) =>
-    const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeZ21Service(fakeProviderContainer)
         : WsZ21Service(ref.read(domainProvider));

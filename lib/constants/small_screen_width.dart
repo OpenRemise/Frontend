@@ -13,5 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-final int smallScreenWidth =
-    int.parse(const String.fromEnvironment('SMALL_SCREEN_WIDTH'));
+final int smallScreenWidth = int.parse(
+  const String.fromEnvironment('OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH'),
+);

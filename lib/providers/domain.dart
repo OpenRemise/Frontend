@@ -21,7 +21,7 @@ final domainProvider = StateProvider<String>((_) {
   if (kIsWeb) {
     // Domain from running web build on localhost
     if (Uri.base.origin.contains('localhost')) {
-      return 'remise.local';
+      return const String.fromEnvironment('OPENREMISE_FRONTEND_DOMAIN');
     }
     // Domain from actual hardware
     else {
@@ -30,6 +30,6 @@ final domainProvider = StateProvider<String>((_) {
   }
   // Domain from environment
   else {
-    return const String.fromEnvironment('DOMAIN');
+    return const String.fromEnvironment('OPENREMISE_FRONTEND_DOMAIN');
   }
 });

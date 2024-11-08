@@ -22,7 +22,8 @@ part 'locos.g.dart';
 class Locos extends _$Locos {
   @override
   List<Loco> build() {
-    return const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
+            'true'
         ? [
             Loco(address: 42, name: 'BR 85'),
             Loco(address: 3, name: 'Vectron'),
