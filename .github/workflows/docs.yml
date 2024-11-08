@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo apt update -y
           sudo apt install -y doxygen graphviz openjdk-21-jdk
-      - run: cmake -Bbuild -DOPENREMISE_FRONTEND_BASE_HREF="/Frontend/demo/" -DOPENREMISE_FRONTEND_FAKE_SERVICES=true
+      - run: cmake --preset "Demo"
       - run: cmake --build build --parallel --target FrontendDocs
       - name: Setup Pages
         uses: actions/configure-pages@v5

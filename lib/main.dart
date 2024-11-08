@@ -19,6 +19,7 @@ import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/domain.dart';
+import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
 import 'package:Frontend/screens/info_screen.dart';
@@ -81,6 +82,12 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       home: kIsWeb ? const WebHomeView() : const NativeHomeView(),
+      builder: (_, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(ref.watch(textScalerProvider)),
+        ),
+        child: child!,
+      ),
       title: 'OpenRemise',
       theme: lightThemeBW,
       darkTheme: darkThemeBW,
@@ -145,21 +152,17 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
-                'data/icons/icon.svg',
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.primary,
-                  BlendMode.srcIn,
-                ),
+                ref.watch(darkModeProvider)
+                    ? 'data/icons/dark.svg'
+                    : 'data/icons/light.svg',
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
-                'data/images/logo.svg',
-                colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.primary,
-                  BlendMode.srcIn,
-                ),
+                ref.watch(darkModeProvider)
+                    ? 'data/images/dark.svg'
+                    : 'data/images/light.svg',
               ),
         actions: [
           /*
@@ -170,12 +173,25 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
               height: 20,
             ),
             onPressed: null,
-          ),
+          ), 
           */
+          IconButton(
+            onPressed: () {
+              final scale = ref.read(textScalerProvider) + 0.2;
+              ref
+                  .read(textScalerProvider.notifier)
+                  .update(scale > 1.6 ? 1.0 : scale);
+            },
+            tooltip: 'Toggle font size',
+            icon: const Icon(Icons.text_fields_outlined),
+          ),
           IconButton(
             icon: Icon(
               ref.watch(darkModeProvider) ? Icons.light_mode : Icons.dark_mode,
             ),
+            tooltip: ref.watch(darkModeProvider)
+                ? 'Toggle light mode'
+                : 'Toggle dark mode',
             onPressed: () => ref
                 .read(darkModeProvider.notifier)
                 .update(!ref.read(darkModeProvider)),
