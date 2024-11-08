@@ -4,8 +4,22 @@ include(FetchContent)
 FetchContent_Declare(
   CMakeModules
   GIT_REPOSITORY "https://github.com/ZIMO-Elektronik/CMakeModules"
-  GIT_TAG v0.9.2)
+  GIT_TAG v0.9.3)
 FetchContent_MakeAvailable(CMakeModules)
+
+set(OPENREMISE_FRONTEND_BASE_HREF
+    "/./"
+    CACHE STRING
+          "Overrides the href attribute of the <base> tag in web/index.html")
+set(OPENREMISE_FRONTEND_DOMAIN
+    remise.local
+    CACHE STRING "Default domain for non-kIsWeb builds")
+set(OPENREMISE_FRONTEND_FAKE_SERVICES
+    false
+    CACHE STRING "Fake services (for e.g. demo)")
+set(OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
+    800
+    CACHE STRING "Width from which a small device is assumed")
 
 version_from_git()
 project(
@@ -21,9 +35,12 @@ add_custom_command(
   COMMAND ${FLUTTER_EXECUTABLE} pub get
   COMMAND ${DART_EXECUTABLE} run build_runner build --delete-conflicting-outputs
   COMMAND
-    ${FLUTTER_EXECUTABLE} build web --web-renderer=html
-    --dart-define=VERSION=${VERSION_FROM_GIT}
-    --dart-define=SMALL_SCREEN_WIDTH=800
+    ${FLUTTER_EXECUTABLE} build web --base-href=${OPENREMISE_FRONTEND_BASE_HREF}
+    --web-renderer=html
+    --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN}
+    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES}
+    --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH}
+    --dart-define=OPENREMISE_FRONTEND_VERSION=${PROJECT_VERSION}
     --output-dir=${CMAKE_CURRENT_BINARY_DIR}/build/web
   # https://github.com/flutter/flutter/issues/126738
   COMMAND
@@ -35,4 +52,6 @@ add_custom_command(
 
 add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build/web)
 
-add_subdirectory(docs)
+if(PROJECT_IS_TOP_LEVEL)
+  add_subdirectory(docs)
+endif()

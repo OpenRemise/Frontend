@@ -24,6 +24,3 @@
 /// \mainpage Introduction
 /// Hello there!
 ///
-
-/// \class SomeMadeUpThing
-/// There should be some class here

@@ -10,9 +10,9 @@
 </a>
 
 ## Environment variables
-- DOMAIN
-- FAKE_SERVICES
-- SMALL_SCREEN_WIDTH
+- OPENREMISE_FRONTEND_DOMAIN
+- OPENREMISE_FRONTEND_FAKE_SERVICES
+- OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
 
 ## Packages
 - [dartdoc](https://pub.dev/packages/dartdoc)

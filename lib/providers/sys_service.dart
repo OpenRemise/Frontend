@@ -24,7 +24,7 @@ part 'sys_service.g.dart';
 
 @Riverpod(keepAlive: true)
 SysService sysService(ref) =>
-    const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeSysService()
         : HttpSysService(
             ref.read(httpClientProvider),

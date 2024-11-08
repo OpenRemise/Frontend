@@ -5,39 +5,39 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Frontend (debug mode) SMALL_SCREEN_WIDTH=800",
+      "name": "Frontend (debug mode) OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "SMALL_SCREEN_WIDTH=800"
+        "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=remise.local SMALL_SCREEN_WIDTH=800",
+      "name": "Frontend (debug mode) OPENREMISE_FRONTEND_DOMAIN=remise.local OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "DOMAIN=remise.local",
+        "OPENREMISE_FRONTEND_DOMAIN=remise.local",
         "--dart-define",
-        "SMALL_SCREEN_WIDTH=800"
+        "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
       ]
     },
     {
-      "name": "Frontend (debug mode) DOMAIN=remise.local FAKE_SERVICES=true SMALL_SCREEN_WIDTH=800",
+      "name": "Frontend (debug mode) OPENREMISE_FRONTEND_DOMAIN=remise.local OPENREMISE_FRONTEND_FAKE_SERVICES=true OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
       "args": [
         "--dart-define",
-        "DOMAIN=remise.local",
+        "OPENREMISE_FRONTEND_DOMAIN=remise.local",
         "--dart-define",
-        "FAKE_SERVICES=true",
+        "OPENREMISE_FRONTEND_FAKE_SERVICES=true",
         "--dart-define",
-        "SMALL_SCREEN_WIDTH=800"
+        "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
       ]
     }
   ]

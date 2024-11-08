@@ -23,6 +23,6 @@ part 'mdu_service.g.dart';
 
 @riverpod
 MduService mduService(ref) =>
-    const String.fromEnvironment('FAKE_SERVICES') == 'true'
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeMduService()
         : WsMduService(ref.read(domainProvider));

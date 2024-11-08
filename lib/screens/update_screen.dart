@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
@@ -31,6 +32,7 @@ class UpdateScreen extends ConsumerStatefulWidget {
 class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   @override
   Widget build(BuildContext context) {
+    final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
     return Padding(
@@ -38,10 +40,17 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
-            leading: const IconButton(
-              onPressed: null,
-              tooltip: 'TODO',
-              icon: Icon(Icons.question_mark_outlined),
+            leading: IconButton(
+              onPressed: z21Status.hasValue
+                  ? (z21Status.requireValue.trackVoltageOff()
+                      ? z21.lanXSetTrackPowerOn
+                      : z21.lanXSetTrackPowerOff)
+                  : null,
+              tooltip: 'On/off',
+              isSelected: z21Status.hasValue &&
+                  !z21Status.requireValue.trackVoltageOff(),
+              selectedIcon: const Icon(Icons.power_off_outlined),
+              icon: const Icon(Icons.power_outlined),
             ),
             actions: [
               IconButton(
@@ -57,11 +66,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             floating: true,
           ),
           const SliverToBoxAdapter(
-            child: Center(
-              child: Text(
-                "ZIMO won't let me show shit here",
-              ),
-            ),
+            child: Placeholder(),
           ),
         ],
       ),

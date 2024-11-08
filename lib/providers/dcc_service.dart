@@ -24,7 +24,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'dcc_service.g.dart';
 
 @Riverpod(keepAlive: true)
-DccService dccService(ref) => const String.fromEnvironment('FAKE_SERVICES') ==
-        'true'
-    ? FakeDccService(fakeProviderContainer)
-    : HttpDccService(ref.read(httpClientProvider), ref.read(domainProvider));
+DccService dccService(ref) =>
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
+        ? FakeDccService(fakeProviderContainer)
+        : HttpDccService(
+            ref.read(httpClientProvider),
+            ref.read(domainProvider),
+          );

@@ -20,7 +20,6 @@ import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/z21_service.dart';
-import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
 import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/service_screen.dart';
