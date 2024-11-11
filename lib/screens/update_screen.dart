@@ -13,12 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/decup_dialog.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
 import 'package:Frontend/widgets/zusi_dialog.dart';
+import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,7 +61,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           ),
           SliverList.list(
             children: [
-              Card(
+              Card.outlined(
                 child: ListTile(
                   title: SvgPicture.asset(
                     ref.watch(darkModeProvider)
@@ -70,7 +73,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   ),
                   subtitle: const Center(
                     child: Text(
-                      'Update firmware or frontend',
+                      'Update firmware and frontend',
                     ),
                   ),
                   enabled: z21Status.hasValue &&
@@ -78,7 +81,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   onTap: _openRemiseLoadFromFile,
                 ),
               ),
-              Card(
+              Card.outlined(
                 child: ListTile(
                   title: SvgPicture.asset(
                     'data/images/zimo.svg',
@@ -107,7 +110,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     return FilePicker.platform
         .pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['bin'],
+      allowedExtensions: ['bin', 'zip'],
       withData: true,
     )
         .then((FilePickerResult? result) {
@@ -119,6 +122,16 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           builder: (_) => OtaDialog.fromFile(result.files.first.bytes!),
           barrierDismissible: false,
         );
+      } else if (result.files[0].extension == 'zip') {
+        final archive = ZipDecoder().decodeBytes(result.files.first.bytes!);
+        final bin = archive.findFile('Firmware.bin');
+        if (bin != null) {
+          showDialog(
+            context: context,
+            builder: (_) => OtaDialog.fromFile(bin.content),
+            barrierDismissible: false,
+          );
+        }
       } else {
         return null;
       }
@@ -142,9 +155,12 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           barrierDismissible: false,
         );
       } else if (result.files[0].extension == 'zsu') {
+        final _zsu = Zsu(result.files.first.bytes!);
         showDialog(
           context: context,
-          builder: (_) => MduDialog.fromFile(result.files.first.bytes!),
+          builder: (_) => _zsu.firmwares.values.first.type < 3
+              ? DecupDialog.fromFile(result.files.first.bytes!)
+              : MduDialog.fromFile(result.files.first.bytes!),
           barrierDismissible: false,
         );
       } else {

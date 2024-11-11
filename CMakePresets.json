@@ -17,6 +17,14 @@
                 "OPENREMISE_FRONTEND_BASE_HREF": "/Frontend/demo/",
                 "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
             }
+        },
+        {
+            "name": "Demo (localhost)",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "OPENREMISE_FRONTEND_BASE_HREF": "/demo/",
+                "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
+            }
         }
     ]
 }

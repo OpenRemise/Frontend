@@ -88,6 +88,6 @@ if(Doxygen_FOUND)
   add_custom_command(
     TARGET ${PROJECT_NAME}Docs
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/build/web
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/web
             ${CMAKE_CURRENT_BINARY_DIR}/html/demo)
 endif()

@@ -526,7 +526,7 @@ abstract interface class Z21Service {
 
           case XHeader.LAN_X_61:
             if (dataset.length < 6) break;
-            switch (DB0.fromInt(dataset[4])) {
+            switch (DB0.fromInt(dataset[5])) {
               case DB0.LAN_X_BC_TRACK_POWER_OFF:
                 return LanXBcTrackPowerOff();
 

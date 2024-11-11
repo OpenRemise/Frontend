@@ -13,11 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/prefs.dart';
-import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
+import 'package:Frontend/providers/domain.dart';
+import 'package:Frontend/services/fake_decup_service.dart';
+import 'package:Frontend/services/decup_service.dart';
+import 'package:Frontend/services/ws_decup_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final serviceModeProvider = createPrefProvider<bool>(
-  prefs: (_) => prefs,
-  prefKey: 'serviceMode',
-  defaultValue: true,
-);
+part 'decup_service.g.dart';
+
+@riverpod
+DecupService decupService(ref) =>
+    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
+        ? FakeDecupService()
+        : WsDecupService(ref.read(domainProvider));

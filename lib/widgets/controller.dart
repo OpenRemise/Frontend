@@ -58,6 +58,7 @@ class _ControllerState extends ConsumerState<Controller> {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
+    // https://github.com/flutter/flutter/issues/112197
     return StreamBuilder(
       // Use loco address as key to ensure snapshot is new each time loco changes
       key: ValueKey(loco.address),
@@ -131,7 +132,7 @@ class _ControllerState extends ConsumerState<Controller> {
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Theme.of(context).dividerColor,
-                              width: 2,
+                              width: 1,
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),

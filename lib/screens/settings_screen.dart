@@ -346,7 +346,7 @@ class SettingsScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
+                        OutlinedButton(
                           onPressed: () {
                             if (_formKey.currentState?.saveAndValidate() ??
                                 false) {
@@ -368,7 +368,7 @@ class SettingsScreen extends ConsumerWidget {
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                         ),
-                        ElevatedButton(
+                        OutlinedButton(
                           onPressed: () {
                             if (_formKey.currentState == null) return;
                             _formKey.currentState!.reset();
