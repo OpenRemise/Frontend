@@ -40,10 +40,15 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
+    // https://github.com/flutter/flutter/issues/112197
     return StreamBuilder(
       stream: z21.stream.where(
         (command) => switch (command) {
-          LanXCvNackSc() || LanXCvNack() || LanXCvResult() => true,
+          LanXCvNackSc() ||
+          LanXCvNack() ||
+          LanXStatusChanged() ||
+          LanXCvResult() =>
+            true,
           _ => false
         },
       ),
@@ -55,7 +60,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
               debugPrint('LanXCvNackSc');
             case LanXCvNack():
               // TODO some error here?
-              debugPrint('LanXCvNackSc');
+              debugPrint('LanXCvNack');
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
@@ -91,7 +96,9 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                     onPressed: () => ref
                         .read(serviceModeProvider.notifier)
                         .update(!serviceMode),
-                    tooltip: 'Service mode',
+                    tooltip: ref.read(serviceModeProvider)
+                        ? 'POM mode'
+                        : 'Service mode',
                     isSelected: serviceMode,
                     selectedIcon: const Icon(Icons.build_circle),
                     icon: const Icon(Icons.build_circle_outlined),
@@ -105,18 +112,19 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                   ],
                   floating: true,
                 ),
-                SliverToBoxAdapter(
-                  child: FormBuilderTextField(
-                    name: 'address',
-                    validator: serviceMode ? null : addressValidator,
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.alternate_email_outlined),
-                      labelText: 'Address',
+                if (!serviceMode)
+                  SliverToBoxAdapter(
+                    child: FormBuilderTextField(
+                      name: 'address',
+                      validator: serviceMode ? null : addressValidator,
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.alternate_email_outlined),
+                        labelText: 'Address',
+                      ),
+                      enabled: !serviceMode,
+                      keyboardType: TextInputType.number,
                     ),
-                    enabled: !serviceMode,
-                    keyboardType: TextInputType.number,
                   ),
-                ),
                 SliverToBoxAdapter(
                   child: Row(
                     children: [
@@ -154,11 +162,12 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
+                        OutlinedButton(
                           onPressed: () {
+                            // Address validator or service mode
                             if ((_formKey.currentState?.fields['address']
                                         ?.validate() ??
-                                    false) &&
+                                    serviceMode) &&
                                 (_formKey.currentState?.fields['CV number']
                                         ?.validate() ??
                                     false)) {
@@ -181,7 +190,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                         ),
-                        ElevatedButton(
+                        OutlinedButton(
                           onPressed: () {
                             if (_formKey.currentState?.saveAndValidate() ??
                                 false) {

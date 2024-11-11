@@ -13,11 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/prefs.dart';
-import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
+///
+///
+/// \file   utilities/doxygen.dart
+/// \author Vincent Hamp
+/// \date   09/11/2024
 
-final serviceModeProvider = createPrefProvider<bool>(
-  prefs: (_) => prefs,
-  prefKey: 'serviceMode',
-  defaultValue: true,
-);
+/// \page page_utilities Utilities
+/// \tableofcontents
+/// \todo document utilities
+///

@@ -22,35 +22,33 @@ set(OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
     CACHE STRING "Width from which a small device is assumed")
 
 version_from_git()
-project(
-  Frontend
-  VERSION ${VERSION_FROM_GIT}
-  LANGUAGES CXX)
+project(Frontend VERSION ${VERSION_FROM_GIT})
 
 # For some reason only dart can run the build_runner
 find_program(DART_EXECUTABLE dart PATHS /usr/bin/ REQUIRED)
 find_program(FLUTTER_EXECUTABLE flutter PATHS /usr/bin/ REQUIRED)
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build/web
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web
   COMMAND ${FLUTTER_EXECUTABLE} pub get
   COMMAND ${DART_EXECUTABLE} run build_runner build --delete-conflicting-outputs
   COMMAND
-    ${FLUTTER_EXECUTABLE} build web --base-href=${OPENREMISE_FRONTEND_BASE_HREF}
-    --web-renderer=html
-    --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN}
-    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES}
-    --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH}
-    --dart-define=OPENREMISE_FRONTEND_VERSION=${PROJECT_VERSION}
-    --output-dir=${CMAKE_CURRENT_BINARY_DIR}/build/web
+    ${FLUTTER_EXECUTABLE} build web #
+    --output=${CMAKE_CURRENT_BINARY_DIR}/web #
+    --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
+    --web-renderer=html #
+    --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
+    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
+    --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
+    --dart-define=OPENREMISE_FRONTEND_VERSION=${PROJECT_VERSION} #
   # https://github.com/flutter/flutter/issues/126738
   COMMAND
-    ${CMAKE_COMMAND} -E rm -rf
-    ${CMAKE_CURRENT_BINARY_DIR}/build/web/assets/NOTICES
-    ${CMAKE_CURRENT_BINARY_DIR}/build/web/canvaskit
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_COMMAND} -E rm -rf #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
+  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
   COMMENT "Building Frontend for web")
 
-add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build/web)
+add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
 
 if(PROJECT_IS_TOP_LEVEL)
   add_subdirectory(docs)

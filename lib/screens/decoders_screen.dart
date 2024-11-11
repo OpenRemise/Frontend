@@ -140,7 +140,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     final locos = ref.watch(locosProvider);
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
 
-    return Card(
+    return Card.outlined(
       child: ListTile(
         leading: const Icon(Icons.train_outlined),
         title: Text(locos[index].name),

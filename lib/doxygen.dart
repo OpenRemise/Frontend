@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// ignore_for_file: dangling_library_doc_comments
-
 ///
 ///
 /// \file   main.dart

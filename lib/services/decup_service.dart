@@ -13,11 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/prefs.dart';
-import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
+import 'dart:typed_data';
 
-final serviceModeProvider = createPrefProvider<bool>(
-  prefs: (_) => prefs,
-  prefKey: 'serviceMode',
-  defaultValue: true,
-);
+abstract interface class DecupService {
+  Future<void> get ready;
+  Stream<Uint8List> get stream;
+  Future close([int? closeCode, String? closeReason]);
+
+  void preamble(int count);
+  void startByte(int byte);
+  void blockCount(int count);
+  void securityByte1();
+  void securityByte2();
+  void block(int count, Uint8List chunk);
+}
