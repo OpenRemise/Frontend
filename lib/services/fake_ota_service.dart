@@ -15,7 +15,6 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constants/ack.dart';
 import 'package:Frontend/services/ota_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -36,7 +35,7 @@ class FakeOtaService implements OtaService {
   void write(Uint8List chunk) async {
     await Future.delayed(const Duration(milliseconds: 50), () {
       if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ack]));
+      _controller.sink.add(Uint8List.fromList([OtaService.ack]));
     });
   }
 }

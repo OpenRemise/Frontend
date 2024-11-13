@@ -105,7 +105,7 @@ class SettingsScreen extends ConsumerWidget {
                       labelText: 'Password',
                     ),
                   ),
-                  Divider(),
+                  const Divider(),
                   FormBuilderSlider(
                     name: 'http_rx_timeout',
                     initialValue: data.httpReceiveTimeout!.toDouble(),
@@ -132,7 +132,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 60 - 5,
                     displayValues: DisplayValues.current,
                   ),
-                  Divider(),
+                  const Divider(),
                   FormBuilderSlider(
                     name: 'usb_rx_timeout',
                     initialValue: data.usbReceiveTimeout!.toDouble(),
@@ -146,7 +146,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: 10 - 1,
                     displayValues: DisplayValues.current,
                   ),
-                  Divider(),
+                  const Divider(),
                   FormBuilderSlider(
                     name: 'current_limit',
                     initialValue: data.currentLimit!.toDouble(),
@@ -175,7 +175,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: (240 - 20) ~/ 20,
                     displayValues: DisplayValues.current,
                   ),
-                  Divider(),
+                  const Divider(),
                   FormBuilderSlider(
                     name: 'dcc_preamble',
                     initialValue: data.dccPreamble!.toDouble(),
@@ -314,7 +314,7 @@ class SettingsScreen extends ConsumerWidget {
                     divisions: (255 - 5) ~/ 5,
                     displayValues: DisplayValues.current,
                   ),
-                  Divider(),
+                  const Divider(),
                   FormBuilderSlider(
                     name: 'mdu_preamble',
                     initialValue: data.mduPreamble!.toDouble(),

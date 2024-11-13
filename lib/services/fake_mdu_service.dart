@@ -14,19 +14,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:math';
 
-import 'package:Frontend/constants/ack.dart';
-import 'package:Frontend/constants/nak.dart';
+import 'package:Frontend/constants/ms_decoder_ids.dart';
 import 'package:Frontend/services/mdu_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeMduService implements MduService {
-  final _decoderIds = Set.of({
-    0x06043202, // MS450-2
-    0x09093201, // MS950-1
-    0x7E031E00 | 0x00100000, // MN330-0
-    0x7F015000 | 0x00100000, // MN180-0
-  });
+  /// Up to 3 random IDs
+  final _decoderIds = () {
+    final shuffledIds = msDecoderIds.toList();
+    shuffledIds.shuffle();
+    return shuffledIds.sublist(0, Random().nextInt(3) + 1);
+  }();
   final _controller = StreamController<Uint8List>();
 
   @override
@@ -47,7 +47,10 @@ class FakeMduService implements MduService {
         if (_controller.isClosed) return;
         _controller.sink.add(
           Uint8List.fromList(
-            [nak, _decoderIds.contains(decoderId) ? ack : nak],
+            [
+              MduService.nak,
+              _decoderIds.contains(decoderId) ? MduService.ack : MduService.nak,
+            ],
           ),
         );
       },
@@ -62,7 +65,10 @@ class FakeMduService implements MduService {
         if (_controller.isClosed) return;
         _controller.sink.add(
           Uint8List.fromList(
-            [nak, transferRate < 3 ? ack : nak],
+            [
+              MduService.nak,
+              transferRate < 3 ? MduService.ack : MduService.nak,
+            ],
           ),
         );
       },
@@ -77,20 +83,20 @@ class FakeMduService implements MduService {
   @override
   void busy() {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
   void firmwareSalsa20IV(Uint8List iv) {
     assert(iv.length == 8);
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
   void firmwareErase(int beginAddress, int endAddress) {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
@@ -98,7 +104,8 @@ class FakeMduService implements MduService {
     assert(chunk.length == 64);
     await Future.delayed(const Duration(milliseconds: 5), () {
       if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([nak, nak]));
+      _controller.sink
+          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
     });
   }
 
@@ -109,18 +116,18 @@ class FakeMduService implements MduService {
     int crc32,
   ) {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
   void firmwareCrc32Result() {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
   void firmwareCrc32ResultExit() {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([nak, nak]));
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 }

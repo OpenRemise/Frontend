@@ -15,10 +15,17 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constants/mx_decoder_ids.dart';
 import 'package:Frontend/services/decup_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeDecupService implements DecupService {
+  /// Random ID
+  final _decoderId = () {
+    final shuffledIds = mxDecoderIds.toList();
+    shuffledIds.shuffle();
+    return shuffledIds.first;
+  }();
   final _controller = StreamController<Uint8List>();
 
   @override
@@ -32,32 +39,53 @@ class FakeDecupService implements DecupService {
       _controller.sink.close();
 
   @override
-  void preamble(int count) {
-    // TODO: implement preamble
+  void preamble() async {
+    await Future.delayed(
+      const Duration(milliseconds: 50),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList(List.empty()));
+      },
+    );
   }
 
   @override
   void startByte(int byte) {
-    // TODO: implement startByte
+    if (_controller.isClosed) return;
+    _controller.sink.add(
+      Uint8List.fromList(
+        byte == _decoderId ? [DecupService.ack] : List.empty(),
+      ),
+    );
   }
 
   @override
   void blockCount(int count) {
-    // TODO: implement blockCount
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
   }
 
   @override
   void securityByte1() {
-    // TODO: implement securityByte1
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
   }
 
   @override
   void securityByte2() {
-    // TODO: implement securityByte2
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
   }
 
   @override
-  void block(int count, Uint8List chunk) {
-    // TODO: implement block
+  void block(int count, Uint8List chunk) async {
+    assert(chunk.length == 32 || chunk.length == 64);
+    await Future.delayed(
+      const Duration(milliseconds: 50),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+      },
+    );
   }
 }

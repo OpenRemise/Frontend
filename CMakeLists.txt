@@ -7,6 +7,7 @@ FetchContent_Declare(
   GIT_TAG v0.9.3)
 FetchContent_MakeAvailable(CMakeModules)
 
+option(OPENREMISE_FRONTEND_BUILD_DOCS "Build documentation" ON)
 set(OPENREMISE_FRONTEND_BASE_HREF
     "/./"
     CACHE STRING
@@ -20,6 +21,9 @@ set(OPENREMISE_FRONTEND_FAKE_SERVICES
 set(OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
     800
     CACHE STRING "Width from which a small device is assumed")
+set(OPENREMISE_FRONTEND_WEB_RENDERER
+    html
+    CACHE STRING "The renderer implementation to use when building for the web")
 
 version_from_git()
 project(Frontend VERSION ${VERSION_FROM_GIT})
@@ -35,7 +39,7 @@ add_custom_command(
     ${FLUTTER_EXECUTABLE} build web #
     --output=${CMAKE_CURRENT_BINARY_DIR}/web #
     --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
-    --web-renderer=html #
+    --web-renderer=${OPENREMISE_FRONTEND_WEB_RENDERER} #
     --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
     --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
     --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
@@ -45,11 +49,10 @@ add_custom_command(
     ${CMAKE_COMMAND} -E rm -rf #
     ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
     ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
-  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-  COMMENT "Building Frontend for web")
+  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
 
-if(PROJECT_IS_TOP_LEVEL)
+if(OPENREMISE_FRONTEND_BUILD_DOCS)
   add_subdirectory(docs)
 endif()

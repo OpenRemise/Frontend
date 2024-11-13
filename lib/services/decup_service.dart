@@ -16,11 +16,13 @@
 import 'dart:typed_data';
 
 abstract interface class DecupService {
+  static const int ack = 0x1C;
+  static const int nak = 0xFC;
   Future<void> get ready;
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void preamble(int count);
+  void preamble();
   void startByte(int byte);
   void blockCount(int count);
   void securityByte1();

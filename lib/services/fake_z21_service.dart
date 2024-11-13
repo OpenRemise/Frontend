@@ -20,7 +20,6 @@ import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/services/fake_sys_service.dart';
 import 'package:Frontend/services/z21_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZ21Service implements Z21Service {
@@ -46,6 +45,7 @@ class FakeZ21Service implements Z21Service {
 
   @override
   void lanXGetStatus() {
+    if (_controller.isClosed) return;
     _controller.sink.add(LanXStatusChanged(centralState: _centralState));
   }
 
@@ -66,8 +66,11 @@ class FakeZ21Service implements Z21Service {
   void lanXCvRead(int cvAddress) {
     Future.delayed(
       const Duration(seconds: 1),
-      () => _controller.sink
-          .add(LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress])),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink
+            .add(LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress]));
+      },
     );
   }
 
@@ -76,6 +79,7 @@ class FakeZ21Service implements Z21Service {
     Future.delayed(
       const Duration(seconds: 1),
       () {
+        if (_controller.isClosed) return;
         _cvs = [
           for (var i = 0; i < _cvs.length; ++i)
             if (i == cvAddress) value else _cvs[i],
@@ -93,6 +97,7 @@ class FakeZ21Service implements Z21Service {
       (loco) => loco.address == address,
       orElse: () => Loco(address: address, name: address.toString()),
     );
+    if (_controller.isClosed) return;
     _controller.sink.add(
       LanXLocoInfo(
         address: loco.address,

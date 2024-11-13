@@ -15,7 +15,6 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constants/ack.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -48,7 +47,7 @@ class FakeZusiService implements ZusiService {
   void eraseZpp() async {
     await Future.delayed(const Duration(seconds: 10), () {
       if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ack]));
+      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
     });
   }
 
@@ -56,7 +55,7 @@ class FakeZusiService implements ZusiService {
   void writeZpp(int address, Uint8List chunk) async {
     await Future.delayed(const Duration(milliseconds: 100), () {
       if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ack]));
+      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
     });
   }
 
@@ -72,7 +71,7 @@ class FakeZusiService implements ZusiService {
   void exit(int flags) async {
     await Future.delayed(const Duration(seconds: 2), () {
       if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ack]));
+      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
     });
   }
 

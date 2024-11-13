@@ -91,7 +91,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   ),
                   subtitle: const Center(
                     child: Text(
-                      'Update decoder or sound project',
+                      'Update ZIMO decoder or sound project',
                     ),
                   ),
                   enabled: z21Status.hasValue &&

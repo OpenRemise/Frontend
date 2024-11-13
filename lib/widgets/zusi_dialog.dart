@@ -16,8 +16,6 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:Frontend/constants/ack.dart';
-import 'package:Frontend/constants/nak.dart';
 import 'package:Frontend/providers/zusi_service.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:async/async.dart';
@@ -94,13 +92,13 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     await _connect();
 
     var msg = await _features();
-    if (msg.contains(nak)) return;
+    if (msg.contains(ZusiService.nak)) return;
 
     msg = await _erase();
-    if (msg.contains(nak)) return;
+    if (msg.contains(ZusiService.nak)) return;
 
     msg = await _write();
-    if (msg.contains(nak)) return;
+    if (msg.contains(ZusiService.nak)) return;
 
     await _exit();
   }
@@ -174,7 +172,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       // Wait for all responses
       final msgs = await _events.take(i);
       for (final msg in msgs) {
-        if (msg[0] == nak) break;
+        if (msg[0] == ZusiService.nak) break;
         index += 256;
         final done = index ~/ 1024;
         final total = _flash.length ~/ 1024;
@@ -185,7 +183,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       }
     }
 
-    return Uint8List.fromList([ack]);
+    return Uint8List.fromList([ZusiService.ack]);
   }
 
   Future<Uint8List> _exit() async {
@@ -199,11 +197,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   }
 
   Future<Uint8List> _repeatOnFailure(Function() f, {int repeat = 10}) async {
-    var msg = Uint8List.fromList([nak]);
+    var msg = Uint8List.fromList([ZusiService.nak]);
     for (int i = 0; i < repeat; i++) {
       f();
       msg = await _events.next;
-      if (msg[0] == ack) return msg;
+      if (msg[0] == ZusiService.ack) return msg;
     }
     return msg;
   }

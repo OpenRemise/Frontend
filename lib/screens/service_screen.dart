@@ -103,13 +103,6 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                     selectedIcon: const Icon(Icons.build_circle),
                     icon: const Icon(Icons.build_circle_outlined),
                   ),
-                  actions: [
-                    IconButton(
-                      onPressed: () {},
-                      tooltip: 'Load local JMRI',
-                      icon: const Icon(Icons.file_open_outlined),
-                    ),
-                  ],
                   floating: true,
                 ),
                 if (!serviceMode)
