@@ -15,8 +15,6 @@
 
 import 'dart:math';
 
-import 'package:Frontend/constants/ack.dart';
-import 'package:Frontend/constants/nak.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/mdu_service.dart';
 import 'package:Frontend/services/mdu_service.dart';
@@ -106,14 +104,14 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     await _connect();
 
     var msg = await _configTransferRate();
-    if (msg.contains(ack)) return;
+    if (msg.contains(MduService.ack)) return;
 
     msg = await _search();
-    if (msg.contains(ack)) return;
+    if (msg.contains(MduService.ack)) return;
 
     for (final decoderId in _decoders.keys) {
       msg = await _update(decoderId);
-      if (msg[0] == ack) return;
+      if (msg[0] == MduService.ack) return;
     }
 
     await _disconnect();
@@ -139,7 +137,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       for (int tf = 1; tf <= 4; ++tf) {
         final msg = await _repeatOnFailure(() => _mdu.configTransferRate(tf));
         debugPrint('Set transfer rate $tf $msg');
-        if (msg[0] == nak && msg[1] == nak) return msg;
+        if (msg[0] == MduService.nak && msg[1] == MduService.nak) return msg;
       }
     }
     final msg = await _repeatOnFailure(() => _mdu.configTransferRate(0));
@@ -157,7 +155,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       await _repeatOnFailure(() => _mdu.ping(0, 0));
       final msg =
           await _repeatOnFailure(() => _mdu.ping(0, decoderId), repeat: 1);
-      if (msg[0] == nak && msg[1] == ack) {
+      if (msg[0] == MduService.nak && msg[1] == MduService.ack) {
         final exp = RegExp(r'\w{5,}-[0-9]');
         final match = exp.firstMatch(entry.value.name);
         if (match != null && match[0] != null) {
@@ -172,7 +170,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       }
     }
 
-    return Uint8List.fromList([_decoders.isEmpty ? ack : nak, nak]);
+    return Uint8List.fromList(
+      [_decoders.isEmpty ? MduService.ack : MduService.nak, MduService.nak],
+    );
   }
 
   Future<Uint8List> _update(int decoderId) async {
@@ -190,11 +190,11 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     // Ping decoder to update
     var msg = await _repeatOnFailure(() => _mdu.ping(0, decoderId));
     debugPrint('Ping $decoderId $msg');
-    if (msg[0] == ack || msg[1] == nak) return msg;
+    if (msg[0] == MduService.ack || msg[1] == MduService.nak) return msg;
 
     final ZsuFirmware zsuFirmware = _zsu.firmwares[decoderId]!;
     msg = await _repeatOnFailure(() => _mdu.firmwareSalsa20IV(zsuFirmware.iv!));
-    if (msg.contains(ack)) return msg;
+    if (msg.contains(MduService.ack)) return msg;
 
     // Erase flash
     setState(() {
@@ -203,7 +203,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     msg = await _repeatOnFailure(
       () => _mdu.firmwareErase(0, zsuFirmware.bin.length - 1),
     );
-    if (msg.contains(ack)) return msg;
+    if (msg.contains(MduService.ack)) return msg;
 
     // Busy doesn't work for internal memory so don't check the response
     for (var i = 0; i < 5; ++i) {
@@ -219,7 +219,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       );
     });
     msg = await _write(zsuFirmware.bin);
-    if (msg.contains(ack)) return msg;
+    if (msg.contains(MduService.ack)) return msg;
 
     // CRC32 check
     msg = await _repeatOnFailure(
@@ -229,9 +229,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         crc32(zsuFirmware.bin),
       ),
     );
-    if (msg.contains(ack)) return msg;
+    if (msg.contains(MduService.ack)) return msg;
     msg = await _repeatOnFailure(() => _mdu.firmwareCrc32Result());
-    if (msg.contains(ack)) return msg;
+    if (msg.contains(MduService.ack)) return msg;
 
     // Done with this ID
     setState(() {
@@ -240,7 +240,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         title: _decoders[decoderId]!.title,
       );
     });
-    return Uint8List.fromList([nak, nak]);
+    return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
 
   Future<Uint8List> _write(Uint8List bin) async {
@@ -253,7 +253,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       final msg =
           await _repeatOnFailure(() => _mdu.firmwareUpdate(index, chunk));
       // Go either forward
-      if (msg[0] == nak && msg[1] == nak) {
+      if (msg[0] == MduService.nak && msg[1] == MduService.nak) {
         backstep = 0;
         index += chunk.length;
       }
@@ -274,7 +274,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         _progress = index / bin.length;
       });
     }
-    return Uint8List.fromList([nak, nak]);
+    return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
 
   Future<Uint8List> _disconnect() async {
@@ -285,15 +285,15 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     await _repeatOnFailure(() => _mdu.ping(0, 0));
     await _repeatOnFailure(() => _mdu.firmwareCrc32ResultExit());
     await _mdu.close();
-    return Uint8List.fromList([nak, nak]);
+    return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
 
   Future<Uint8List> _repeatOnFailure(Function() f, {int repeat = 10}) async {
-    var msg = Uint8List.fromList([ack, nak]);
+    var msg = Uint8List.fromList([MduService.ack, MduService.nak]);
     for (int i = 0; i < repeat; i++) {
       f();
       msg = await _events.next;
-      if (msg[0] == nak) return msg;
+      if (msg[0] == MduService.nak) return msg;
     }
     return msg;
   }

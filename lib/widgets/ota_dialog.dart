@@ -15,8 +15,6 @@
 
 import 'dart:math';
 
-import 'package:Frontend/constants/ack.dart';
-import 'package:Frontend/constants/nak.dart';
 import 'package:Frontend/providers/ota_service.dart';
 import 'package:Frontend/services/ota_service.dart';
 import 'package:async/async.dart';
@@ -89,7 +87,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   Future<void> _execute() async {
     await _connect();
     final msg = await _write();
-    if (msg.contains(nak)) return;
+    if (msg.contains(OtaService.nak)) return;
     await _disconnect();
   }
 
@@ -109,7 +107,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       _ota.write(chunk);
 
       final msg = await _events.next;
-      if (msg.contains(nak)) {
+      if (msg.contains(OtaService.nak)) {
         setState(() {
           _status = 'Failed';
         });
@@ -125,7 +123,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       });
     }
 
-    return Uint8List.fromList([ack]);
+    return Uint8List.fromList([OtaService.ack]);
   }
 
   Future<void> _disconnect() async {

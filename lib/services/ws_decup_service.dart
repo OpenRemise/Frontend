@@ -16,11 +16,13 @@
 import 'dart:async';
 
 import 'package:Frontend/services/decup_service.dart';
+import 'package:Frontend/utilities/exor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsDecupService implements DecupService {
   late final WebSocketChannel _channel;
+  bool preambleToggle = false;
 
   WsDecupService(String domain) {
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/decup/zpp/'));
@@ -37,32 +39,38 @@ class WsDecupService implements DecupService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void preamble(int count) {
-    // TODO: implement preamble
+  void preamble() {
+    _channel.sink.add(
+      Uint8List.fromList([(preambleToggle = !preambleToggle) ? 0xEF : 0xBF]),
+    );
   }
 
   @override
   void startByte(int byte) {
-    // TODO: implement startByte
+    _channel.sink.add(Uint8List.fromList([byte]));
   }
 
   @override
   void blockCount(int count) {
-    // TODO: implement blockCount
+    _channel.sink.add(Uint8List.fromList([count]));
   }
 
   @override
   void securityByte1() {
-    // TODO: implement securityByte1
+    _channel.sink.add(Uint8List.fromList([0x55]));
   }
 
   @override
   void securityByte2() {
-    // TODO: implement securityByte2
+    _channel.sink.add(Uint8List.fromList([0xAA]));
   }
 
   @override
   void block(int count, Uint8List chunk) {
-    // TODO: implement block
+    assert(chunk.length == 32 || chunk.length == 64);
+    List<int> data = [count];
+    data.addAll(chunk);
+    data.add(exor(data));
+    _channel.sink.add(Uint8List.fromList(data));
   }
 }

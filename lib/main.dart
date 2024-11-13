@@ -291,8 +291,14 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     // Recover after socket was closed server side
     z21.stream.listen(
       null,
-      onError: (e) => debugPrint(e),
-      onDone: () => ref.invalidate(z21ServiceProvider),
+      onError: (e) {
+        debugPrint('Z21 stream onDone $e');
+        ref.invalidate(z21ServiceProvider);
+      },
+      onDone: () {
+        debugPrint('Z21 stream onDone');
+        ref.invalidate(z21ServiceProvider);
+      },
     );
   }
 }

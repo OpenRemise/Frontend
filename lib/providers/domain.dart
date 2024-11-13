@@ -25,7 +25,9 @@ final domainProvider = StateProvider<String>((_) {
     }
     // Domain from actual hardware
     else {
-      return Uri.base.origin.replaceFirst('http://', '');
+      return Uri.base.origin
+          .replaceFirst('http://', '')
+          .replaceFirst('https://', '');
     }
   }
   // Domain from environment
