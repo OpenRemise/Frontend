@@ -24,8 +24,10 @@ class WsDecupService implements DecupService {
   late final WebSocketChannel _channel;
   bool preambleToggle = false;
 
-  WsDecupService(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/decup/zpp/'));
+  WsDecupService(String domain, String unencodedPath) {
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://$domain/decup/$unencodedPath'),
+    );
   }
 
   @override

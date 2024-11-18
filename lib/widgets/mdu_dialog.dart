@@ -20,6 +20,7 @@ import 'package:Frontend/providers/mdu_service.dart';
 import 'package:Frontend/services/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +49,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   void initState() {
     debugPrint('MduDialog initState');
     super.initState();
-    _mdu = ref.read(mduServiceProvider);
+    _mdu = ref.read(mduServiceProvider('zsu/'));
     _events = StreamQueue(_mdu.stream);
     if (widget._bytes != null) _zsu = Zsu(widget._bytes!);
     WidgetsBinding.instance.addPostFrameCallback(
@@ -192,6 +193,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     debugPrint('Ping $decoderId $msg');
     if (msg[0] == MduService.ack || msg[1] == MduService.nak) return msg;
 
+    // Salsa20 initialization vector
     final ZsuFirmware zsuFirmware = _zsu.firmwares[decoderId]!;
     msg = await _repeatOnFailure(() => _mdu.firmwareSalsa20IV(zsuFirmware.iv!));
     if (msg.contains(MduService.ack)) return msg;
@@ -244,36 +246,35 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   }
 
   Future<Uint8List> _write(Uint8List bin) async {
-    int index = 0;
+    const int blockSize = 64;
+    final blocks = bin.slices(blockSize).toList();
     int backstep = 0;
-    while (index < bin.length) {
-      final start = index;
-      final end = index + 64;
-      final chunk = bin.sublist(start, min(end, bin.length));
-      final msg =
-          await _repeatOnFailure(() => _mdu.firmwareUpdate(index, chunk));
+    for (var i = 0; i < blocks.length; ++i) {
+      final msg = await _repeatOnFailure(
+        () => _mdu.firmwareUpdate(i * blockSize, Uint8List.fromList(blocks[i])),
+      );
       // Go either forward
       if (msg[0] == MduService.nak && msg[1] == MduService.nak) {
         backstep = 0;
-        index += chunk.length;
       }
       // Or back (limited number of times)
       else if (backstep < 10) {
         ++backstep;
-        index = min(index - chunk.length, 0);
+        i = max(i - 2, -1);
         debugPrint('going back...?');
       }
       // If backstep didn't work either, cancel
       else {
         return msg;
       }
-      final done = index ~/ 1024;
-      final total = bin.length ~/ 1024;
+
       setState(() {
-        _status = 'Writing $done / $total kB';
-        _progress = index / bin.length;
+        _status =
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
+        _progress = i / blocks.length;
       });
     }
+
     return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
 

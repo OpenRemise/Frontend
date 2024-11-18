@@ -22,8 +22,9 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class WsMduService implements MduService {
   late final WebSocketChannel _channel;
 
-  WsMduService(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/zsu/'));
+  WsMduService(String domain, String unencodedPath) {
+    _channel =
+        WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/$unencodedPath'));
   }
 
   @override

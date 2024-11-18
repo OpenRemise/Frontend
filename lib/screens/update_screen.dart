@@ -13,10 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/providers/zusi_mode.dart';
 import 'package:Frontend/widgets/decup_dialog.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
@@ -39,6 +41,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   Widget build(BuildContext context) {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final zusiMode = ref.watch(zusiModeProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -57,6 +60,14 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
               selectedIcon: const Icon(Icons.power_off_outlined),
               icon: const Icon(Icons.power_outlined),
             ),
+            title: IconButton(
+              onPressed: () =>
+                  ref.read(zusiModeProvider.notifier).update(!zusiMode),
+              tooltip: zusiMode ? 'Tracks mode' : 'ZUSI mode',
+              isSelected: zusiMode,
+              selectedIcon: const Icon(OpenRemiseIcons.susi),
+              icon: const Icon(OpenRemiseIcons.susi_off),
+            ),
             floating: true,
           ),
           SliverList.list(
@@ -65,8 +76,8 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                 child: ListTile(
                   title: SvgPicture.asset(
                     ref.watch(darkModeProvider)
-                        ? 'data/images/dark.svg'
-                        : 'data/images/light.svg',
+                        ? 'data/images/logo_dark.svg'
+                        : 'data/images/logo_light.svg',
                     width: 100,
                     height: 100,
                     fit: BoxFit.scaleDown,

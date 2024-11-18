@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math';
+
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/decup_service.dart';
 import 'package:Frontend/services/decup_service.dart';
@@ -46,7 +48,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   void initState() {
     debugPrint('DecupDialog initState');
     super.initState();
-    _decup = ref.read(decupServiceProvider);
+    _decup = ref.read(decupServiceProvider('zsu/'));
     _events = StreamQueue(_decup.stream);
     if (widget._bytes != null) _zsu = Zsu(widget._bytes!);
     WidgetsBinding.instance.addPostFrameCallback(
@@ -144,13 +146,14 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       final decoderId = entry.key;
       _decup.startByte(decoderId);
       final msg = await _events.next;
-      if (msg.isNotEmpty && msg.first == DecupService.ack) {
+      if (msg.contains(DecupService.ack)) {
         setState(() {
           _decoder[decoderId] = ListTile(
             leading: const Icon(Icons.circle_outlined),
             title: Text(entry.value.name),
           );
         });
+        break;
       }
     }
 
@@ -172,7 +175,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   }
 
   Future<Uint8List> _securityByte2() async {
-    _decup.securityByte1();
+    _decup.securityByte2();
     return await _events.next;
   }
 
@@ -189,16 +192,30 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     final blockSize =
         decoderId == 200 || (decoderId >= 202 && decoderId <= 205) ? 32 : 64;
-    final blocks = _zsu.firmwares[decoderId]!.bin.slices(blockSize);
+    final blocks = _zsu.firmwares[decoderId]!.bin.slices(blockSize).toList();
+    int backstep = 0;
+    for (var i = 0; i < blocks.length; ++i) {
+      _decup.block(i, Uint8List.fromList(blocks[i]));
+      final msg = await _events.next;
+      // Go either forward
+      if (msg.contains(DecupService.ack)) {
+        backstep = 0;
+      }
+      // Or back (limited number of times)
+      else if (backstep < 10) {
+        ++backstep;
+        i = max(i - 2, -1);
+        debugPrint('going back...?');
+      }
+      // If backstep didn't work either, cancel
+      else {
+        return msg;
+      }
 
-    int blockCount = 0;
-    for (final block in blocks) {
-      _decup.block(blockCount++, Uint8List.fromList(block));
-      await _events.next;
       setState(() {
         _status =
-            'Writing ${blockCount * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
-        _progress = blockCount / blocks.length;
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
+        _progress = i / blocks.length;
       });
     }
 
