@@ -22,7 +22,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'mdu_service.g.dart';
 
 @riverpod
-MduService mduService(ref) =>
+MduService mduService(ref, String unencodedPath) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
         ? FakeMduService()
-        : WsMduService(ref.read(domainProvider));
+        : WsMduService(ref.read(domainProvider), unencodedPath);

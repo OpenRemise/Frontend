@@ -76,7 +76,6 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
                 }
                 return null;
               },
-              initialValue: loco?.address.toString(),
               decoration: const InputDecoration(
                 icon: Icon(Icons.alternate_email_outlined),
                 labelText: 'Address',
@@ -84,6 +83,8 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               ),
               valueTransformer: (value) =>
                   value != null ? int.tryParse(value) : null,
+              initialValue: loco?.address.toString(),
+              keyboardType: TextInputType.number,
             ),
           ],
         ),

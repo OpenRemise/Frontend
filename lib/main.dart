@@ -153,16 +153,16 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
                 ref.watch(darkModeProvider)
-                    ? 'data/icons/dark.svg'
-                    : 'data/icons/light.svg',
+                    ? 'data/icons/icon_dark.svg'
+                    : 'data/icons/icon_light.svg',
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
                 ref.watch(darkModeProvider)
-                    ? 'data/images/dark.svg'
-                    : 'data/images/light.svg',
+                    ? 'data/images/logo_dark.svg'
+                    : 'data/images/logo_light.svg',
               ),
         actions: [
           /*

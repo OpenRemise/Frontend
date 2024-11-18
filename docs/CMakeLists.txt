@@ -33,7 +33,7 @@ if(Doxygen_FOUND)
   # Get logo and fonts
   file(DOWNLOAD
        "https://github.com/OpenRemise/.github/raw/master/data/images/logo.svg"
-       ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
+       ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
   file(
     DOWNLOAD
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Bold.otf"
@@ -43,7 +43,7 @@ if(Doxygen_FOUND)
     "https://github.com/OpenRemise/.github/raw/master/data/fonts/GlacialIndifference-Regular.otf"
     ${CMAKE_CURRENT_BINARY_DIR}/html/GlacialIndifference-Regular.otf)
 
-  set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/data/images/logo.svg)
+  set(DOXYGEN_PROJECT_LOGO ${CMAKE_CURRENT_BINARY_DIR}/html/logo.svg)
   set(DOXYGEN_REPEAT_BRIEF NO)
   set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
   set(DOXYGEN_EXTENSION_MAPPING dart=JavaScript)
@@ -58,6 +58,7 @@ if(Doxygen_FOUND)
   set(DOXYGEN_LAYOUT_FILE ${CMAKE_CURRENT_LIST_DIR}/DoxygenLayout.xml)
   set(DOXYGEN_FILE_PATTERNS *.dart)
   set(DOXYGEN_EXCLUDE_PATTERNS */*.freezed.dart */*.g.dart)
+  set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_LIST_DIR})
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/header.html)
   set(DOXYGEN_HTML_FOOTER ${CMAKE_CURRENT_LIST_DIR}/footer.html)
   set(DOXYGEN_HTML_EXTRA_STYLESHEET

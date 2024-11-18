@@ -13,16 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/services/fake_decup_service.dart';
-import 'package:Frontend/services/decup_service.dart';
-import 'package:Frontend/services/ws_decup_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter/widgets.dart';
 
-part 'decup_service.g.dart';
+class OpenRemiseIcons {
+  OpenRemiseIcons._();
 
-@riverpod
-DecupService decupService(ref, String unencodedPath) =>
-    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
-        ? FakeDecupService()
-        : WsDecupService(ref.read(domainProvider), unencodedPath);
+  static const _kFontFam = 'OpenRemiseIcons';
+  static const String? _kFontPkg = null;
+
+  static const IconData susi_off =
+      IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData susi =
+      IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+}

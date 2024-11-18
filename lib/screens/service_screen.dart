@@ -132,6 +132,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                             // https://github.com/flutter/flutter/issues/15400
                             helperText: ' ',
                           ),
+                          keyboardType: TextInputType.number,
                         ),
                       ),
                       Flexible(
@@ -144,6 +145,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                             labelText: 'CV value',
                             helperText: ' ',
                           ),
+                          keyboardType: TextInputType.number,
                         ),
                       ),
                     ],
