@@ -37,6 +37,9 @@ class UpdateScreen extends ConsumerStatefulWidget {
 }
 
 class _UpdateScreenState extends ConsumerState<UpdateScreen> {
+  final List<int> _selected = [];
+  int _index = 0;
+
   @override
   Widget build(BuildContext context) {
     final z21 = ref.watch(z21ServiceProvider);
@@ -68,56 +71,215 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
               selectedIcon: const Icon(OpenRemiseIcons.susi),
               icon: const Icon(OpenRemiseIcons.susi_off),
             ),
-            floating: true,
-          ),
-          SliverList.list(
-            children: [
-              Card.outlined(
-                child: ListTile(
-                  title: SvgPicture.asset(
-                    ref.watch(darkModeProvider)
-                        ? 'data/images/logo_dark.svg'
-                        : 'data/images/logo_light.svg',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.scaleDown,
-                  ),
-                  subtitle: const Center(
-                    child: Text(
-                      'Update firmware and frontend',
-                    ),
-                  ),
-                  enabled: z21Status.hasValue &&
-                      z21Status.requireValue.trackVoltageOff(),
-                  onTap: _openRemiseLoadFromFile,
-                ),
-              ),
-              Card.outlined(
-                child: ListTile(
-                  title: SvgPicture.asset(
-                    'data/images/zimo.svg',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.scaleDown,
-                  ),
-                  subtitle: const Center(
-                    child: Text(
-                      'Update ZIMO decoder or sound project',
-                    ),
-                  ),
-                  enabled: z21Status.hasValue &&
-                      z21Status.requireValue.trackVoltageOff(),
-                  onTap: _zimoLoadFromFile,
-                ),
+            actions: [
+              IconButton(
+                onPressed: () => setState(() {
+                  _index = 0;
+                  _selected.clear();
+                }),
+                tooltip: 'Refresh',
+                icon: const Icon(Icons.sync_outlined),
               ),
             ],
+            floating: true,
+          ),
+          SliverToBoxAdapter(
+            child: Stepper(
+              steps: <Step>[
+                _step(
+                  title: const Text('Select manufacturer'),
+                  content: Column(
+                    children: [
+                      Card.outlined(
+                        child: ListTile(
+                          title: SvgPicture.asset(
+                            ref.watch(darkModeProvider)
+                                ? 'data/images/logo_dark.svg'
+                                : 'data/images/logo_light.svg',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.scaleDown,
+                          ),
+                          enabled: z21Status.hasValue &&
+                              z21Status.requireValue.trackVoltageOff(),
+                          onTap: () => setState(() {
+                            ++_index;
+                            _selected
+                              ..removeRange(0, _selected.length)
+                              ..add(0);
+                          }),
+                        ),
+                      ),
+                      Card.outlined(
+                        child: ListTile(
+                          title: SvgPicture.asset(
+                            'data/images/zimo.svg',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.scaleDown,
+                          ),
+                          enabled: z21Status.hasValue &&
+                              z21Status.requireValue.trackVoltageOff(),
+                          onTap: () => setState(() {
+                            ++_index;
+                            _selected
+                              ..removeRange(0, _selected.length)
+                              ..add(1);
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _step(
+                  title: const Text('Select action'),
+                  content: Column(
+                    children: switch (_selected.elementAtOrNull(0)) {
+                      0 => [
+                          Card.outlined(
+                            child: ListTile(
+                              leading:
+                                  const Icon(Icons.developer_board_outlined),
+                              title: const Text('Update OpenRemise board'),
+                              enabled: z21Status.hasValue &&
+                                  z21Status.requireValue.trackVoltageOff(),
+                              onTap: () => setState(() {
+                                ++_index;
+                                _selected
+                                  ..removeRange(1, _selected.length)
+                                  ..add(0);
+                              }),
+                            ),
+                          ),
+                        ],
+                      1 => [
+                          Card.outlined(
+                            child: ListTile(
+                              leading: const Icon(Icons.memory_outlined),
+                              title: const Text('Update ZIMO decoder'),
+                              enabled: z21Status.hasValue &&
+                                  z21Status.requireValue.trackVoltageOff(),
+                              onTap: () => setState(() {
+                                ++_index;
+                                _selected
+                                  ..removeRange(1, _selected.length)
+                                  ..add(0);
+                              }),
+                            ),
+                          ),
+                          Card.outlined(
+                            child: ListTile(
+                              leading: const Icon(Icons.music_note_outlined),
+                              title: Text(
+                                'Upload sound to ZIMO decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                              ),
+                              enabled: z21Status.hasValue &&
+                                  z21Status.requireValue.trackVoltageOff(),
+                              onTap: () => setState(() {
+                                ++_index;
+                                _selected
+                                  ..removeRange(1, _selected.length)
+                                  ..add(1);
+                              }),
+                            ),
+                          ),
+                        ],
+                      _ => [ErrorWidget(Exception('Invalid selection'))],
+                    },
+                  ),
+                ),
+                _step(
+                  title: const Text('Select file'),
+                  content: Column(
+                    children: switch (_selected.elementAtOrNull(0)) {
+                      0 => switch (_selected.elementAtOrNull(1)) {
+                          0 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.file_open_outlined),
+                                  title: const Text(
+                                    'Update OpenRemise board from file',
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: _openRemiseFromFile,
+                                ),
+                              ),
+                            ],
+                          _ => [ErrorWidget(Exception('Invalid selection'))],
+                        },
+                      1 => switch (_selected.elementAtOrNull(1)) {
+                          0 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.file_open_outlined),
+                                  title: const Text(
+                                    'Update ZIMO decoder from file',
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: () =>
+                                      _zimoFromFile(allowedExtensions: ['zsu']),
+                                ),
+                              ),
+                            ],
+                          1 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.file_open_outlined),
+                                  title: Text(
+                                    'Upload sound to ZIMO decoder from file via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: () =>
+                                      _zimoFromFile(allowedExtensions: ['zpp']),
+                                ),
+                              ),
+                            ],
+                          _ => [ErrorWidget(Exception('Invalid selection'))],
+                        },
+                      _ => [ErrorWidget(Exception('Invalid selection'))],
+                    },
+                  ),
+                ),
+              ],
+              currentStep: _index,
+              onStepTapped: (int index) {
+                // Only allow going backwards
+                if (index <= _index) {
+                  setState(() {
+                    _index = index;
+                  });
+                }
+              },
+              controlsBuilder: (context, details) => const SizedBox.shrink(),
+              connectorColor:
+                  WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _openRemiseLoadFromFile() async {
+  Step _step({
+    required Widget title,
+    Widget? subtitle,
+    required Widget content,
+  }) {
+    return Step(
+      title: title,
+      subtitle: subtitle,
+      content: content,
+      stepStyle: StepStyle(
+        color: Theme.of(context).colorScheme.primary,
+        indexStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      ),
+    );
+  }
+
+  Future<void> _openRemiseFromFile() async {
     return FilePicker.platform
         .pickFiles(
       type: FileType.custom,
@@ -149,11 +311,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     });
   }
 
-  Future<void> _zimoLoadFromFile() async {
+  Future<void> _zimoFromFile({List<String>? allowedExtensions}) async {
     return FilePicker.platform
         .pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['zpp', 'zsu'],
+      allowedExtensions: allowedExtensions,
       withData: true,
     )
         .then((FilePickerResult? result) {
