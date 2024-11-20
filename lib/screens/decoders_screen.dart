@@ -90,6 +90,16 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 ),
                 actions: [
                   IconButton(
+                    onPressed: () => showEditLocoDialog(context: context),
+                    tooltip: 'Add',
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                  IconButton(
+                    onPressed: () => showDeleteLocoDialog(context: context),
+                    tooltip: 'Delete all',
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                  IconButton(
                     onPressed: () {
                       // Clear index, otherwise cab might do B$
                       ref
@@ -99,16 +109,6 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                     },
                     tooltip: 'Refresh',
                     icon: const Icon(Icons.sync_outlined),
-                  ),
-                  IconButton(
-                    onPressed: () => showEditLocoDialog(context: context),
-                    tooltip: 'Add',
-                    icon: const Icon(Icons.add_circle_outline),
-                  ),
-                  IconButton(
-                    onPressed: () => showDeleteLocoDialog(context: context),
-                    tooltip: 'Delete all',
-                    icon: const Icon(Icons.delete_outline),
                   ),
                 ],
                 floating: true,

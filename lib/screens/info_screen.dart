@@ -72,6 +72,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   selectedIcon: const Icon(Icons.power_off_outlined),
                   icon: const Icon(Icons.power_outlined),
                 ),
+                actions: [
+                  IconButton(
+                    onPressed: () => ref.read(sysProvider.notifier).fetchInfo(),
+                    tooltip: 'Refresh',
+                    icon: const Icon(Icons.sync_outlined),
+                  ),
+                ],
                 floating: true,
               ),
               SliverGrid.count(
