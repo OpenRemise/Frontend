@@ -20,6 +20,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sys.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 class Sys extends _$Sys {
   late final SysService _service;

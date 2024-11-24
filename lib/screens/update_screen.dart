@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constants/open_remise_icons.dart';
+import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -29,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/// \todo document
 class UpdateScreen extends ConsumerStatefulWidget {
   const UpdateScreen({super.key});
 
@@ -36,10 +38,12 @@ class UpdateScreen extends ConsumerStatefulWidget {
   ConsumerState<UpdateScreen> createState() => _UpdateScreenState();
 }
 
+/// \todo document
 class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   final List<int> _selected = [];
   int _index = 0;
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final z21 = ref.watch(z21ServiceProvider);
@@ -171,7 +175,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
                               title: Text(
-                                'Upload sound to ZIMO decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                                'Upload sound to ZIMO MS decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -180,6 +184,22 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 _selected
                                   ..removeRange(1, _selected.length)
                                   ..add(1);
+                              }),
+                            ),
+                          ),
+                          Card.outlined(
+                            child: ListTile(
+                              leading: const Icon(Icons.music_note_outlined),
+                              title: Text(
+                                'Upload sound to ZIMO MX decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                              ),
+                              enabled: z21Status.hasValue &&
+                                  z21Status.requireValue.trackVoltageOff(),
+                              onTap: () => setState(() {
+                                ++_index;
+                                _selected
+                                  ..removeRange(1, _selected.length)
+                                  ..add(2);
                               }),
                             ),
                           ),
@@ -223,12 +243,12 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 ),
                               ),
                             ],
-                          1 => [
+                          1 || 2 => [
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
                                   title: Text(
-                                    'Upload sound to ZIMO decoder from file via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                                    'Upload sound to ZIMO ${_selected.elementAt(1) == 1 ? 'MS' : 'MX'} decoder via ${zusiMode ? 'ZUSI' : 'tracks'} from file',
                                   ),
                                   enabled: z21Status.hasValue &&
                                       z21Status.requireValue.trackVoltageOff(),
@@ -263,6 +283,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     );
   }
 
+  /// \todo document
   Step _step({
     required Widget title,
     Widget? subtitle,
@@ -279,6 +300,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     );
   }
 
+  /// \todo document
   Future<void> _openRemiseFromFile() async {
     return FilePicker.platform
         .pickFiles(
@@ -287,16 +309,14 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       withData: true,
     )
         .then((FilePickerResult? result) {
-      if (result == null) {
-        return;
-      } else if (result.files[0].extension == 'bin') {
+      if (result?.files[0].extension == 'bin') {
         showDialog(
           context: context,
-          builder: (_) => OtaDialog.fromFile(result.files.first.bytes!),
+          builder: (_) => OtaDialog.fromFile(result!.files.first.bytes!),
           barrierDismissible: false,
         );
-      } else if (result.files[0].extension == 'zip') {
-        final archive = ZipDecoder().decodeBytes(result.files.first.bytes!);
+      } else if (result?.files[0].extension == 'zip') {
+        final archive = ZipDecoder().decodeBytes(result!.files.first.bytes!);
         final bin = archive.findFile('Firmware.bin');
         if (bin != null) {
           showDialog(
@@ -311,6 +331,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     });
   }
 
+  /// \todo document
   Future<void> _zimoFromFile({List<String>? allowedExtensions}) async {
     return FilePicker.platform
         .pickFiles(
@@ -319,21 +340,24 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       withData: true,
     )
         .then((FilePickerResult? result) {
-      if (result == null) {
-        return;
-      } else if (result.files[0].extension == 'zpp') {
+      if (result?.files[0].extension == 'zpp') {
+        final zpp = Zpp(result!.files.first.bytes!);
         showDialog(
           context: context,
-          builder: (_) => ZusiDialog.fromFile(result.files.first.bytes!),
+          builder: (_) => ref.read(zusiModeProvider)
+              ? ZusiDialog(result.files.first.bytes!)
+              : _selected.elementAt(1) == 1
+                  ? MduDialog.zpp(zpp)
+                  : DecupDialog.zpp(zpp),
           barrierDismissible: false,
         );
-      } else if (result.files[0].extension == 'zsu') {
-        final _zsu = Zsu(result.files.first.bytes!);
+      } else if (result?.files[0].extension == 'zsu') {
+        final zsu = Zsu(result!.files.first.bytes!);
         showDialog(
           context: context,
-          builder: (_) => _zsu.firmwares.values.first.type < 3
-              ? DecupDialog.fromFile(result.files.first.bytes!)
-              : MduDialog.fromFile(result.files.first.bytes!),
+          builder: (_) => zsu.firmwares.values.first.type < 3
+              ? DecupDialog.zsu(zsu)
+              : MduDialog.zsu(zsu),
           barrierDismissible: false,
         );
       } else {
@@ -341,14 +365,4 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       }
     });
   }
-
-  /*
-  Future<void> _loadFromUri(Uri uri) async {
-    showDialog(
-      context: context,
-      builder: (_) => MduDialog.fromUri(uri),
-      barrierDismissible: false,
-    );
-  }
-  */
 }

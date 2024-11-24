@@ -22,6 +22,7 @@ import 'package:Frontend/providers/z21_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
 
@@ -29,9 +30,11 @@ class InfoScreen extends ConsumerStatefulWidget {
   ConsumerState<InfoScreen> createState() => _InfoScreenState();
 }
 
+/// \todo document
 class _InfoScreenState extends ConsumerState<InfoScreen> {
   late final Timer _timer;
 
+  /// \todo document
   @override
   void initState() {
     debugPrint('InfoScreen init');
@@ -39,6 +42,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
   }
 
+  /// \todo document
   @override
   void dispose() {
     debugPrint('InfoScreen dispose');
@@ -46,6 +50,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     super.dispose();
   }
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final domain = ref.watch(domainProvider);
@@ -157,6 +162,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     );
   }
 
+  /// \todo document
   void _heartbeat(_) {
     ref.read(sysProvider.notifier).fetchInfo();
   }

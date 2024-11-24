@@ -18,6 +18,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'domains.g.dart';
 
+/// \todo document
 @riverpod
 Future<List<String>> domains(_) async {
   final MDnsClient client = MDnsClient();

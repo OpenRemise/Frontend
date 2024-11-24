@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// MX decoder IDs for fake services
 final mxDecoderIds = Set.unmodifiable({
   0xC6,
   0x8E,

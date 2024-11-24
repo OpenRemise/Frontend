@@ -15,6 +15,7 @@
 
 import 'package:flutter/widgets.dart';
 
+/// OpenRemise icons
 class OpenRemiseIcons {
   OpenRemiseIcons._();
 

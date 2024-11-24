@@ -81,7 +81,7 @@ class FakeDecupService implements DecupService {
   void block(int count, Uint8List chunk) async {
     assert(chunk.length == 32 || chunk.length == 64);
     await Future.delayed(
-      const Duration(milliseconds: 50),
+      Duration(milliseconds: 50 * chunk.length),
       () {
         if (_controller.isClosed) return;
         _controller.sink.add(Uint8List.fromList([DecupService.ack]));

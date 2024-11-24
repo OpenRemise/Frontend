@@ -21,6 +21,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'zusi_service.g.dart';
 
+/// \todo document
 @riverpod
 ZusiService zusiService(ref) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'

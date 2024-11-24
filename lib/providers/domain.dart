@@ -16,7 +16,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// There currently is no way to create a StateProvider with annotations?
+/// \todo document
 final domainProvider = StateProvider<String>((_) {
   if (kIsWeb) {
     // Domain from running web build on localhost

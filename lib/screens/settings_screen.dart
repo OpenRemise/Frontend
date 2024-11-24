@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class SettingsScreen extends ConsumerWidget {
   static const List<double> _currentLimitValues = [0.5, 1.6, 3, 4.1];
   static const List<int> _dccBiDiBitDurationValues = [0, 57, 58, 59, 60, 61];
@@ -34,6 +35,7 @@ class SettingsScreen extends ConsumerWidget {
 
   SettingsScreen({super.key});
 
+  /// \todo document
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);

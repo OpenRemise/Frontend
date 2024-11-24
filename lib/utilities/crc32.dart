@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// \todo document
 int _crc32Byte(int crc, int byte) {
   for (var i = 0; i < 8; ++i) {
     final tmp = crc;
@@ -24,6 +25,7 @@ int _crc32Byte(int crc, int byte) {
   return crc & 0xFFFFFFFF;
 }
 
+/// \todo document
 int crc32<T extends List>(T bytes) {
   int crc = bytes.fold(0xFFFFFFFF, (previousValue, element) {
     return _crc32Byte(previousValue, element);

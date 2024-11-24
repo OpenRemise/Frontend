@@ -20,6 +20,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'info.freezed.dart';
 part 'info.g.dart';
 
+/// \todo document
 @freezed
 class Info with _$Info {
   factory Info({

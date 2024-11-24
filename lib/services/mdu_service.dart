@@ -26,14 +26,23 @@ abstract interface class MduService {
   void configTransferRate(int transferRate);
   void binaryTreeSearch(int byte);
   void busy();
-  void firmwareSalsa20IV(Uint8List iv);
-  void firmwareErase(int beginAddress, int endAddress);
-  void firmwareUpdate(int address, Uint8List chunk);
-  void firmwareCrc32Start(
+
+  void zppValidQuery(String id, int flashSize);
+  void zppLcDcQuery(Uint8List developerCode);
+  void zppErase(int beginAddress, int endAddress);
+  void zppUpdate(int address, Uint8List chunk);
+  void zppUpdateEnd(int beginAddress, int endAddress);
+  void zppExit();
+  void zppExitReset();
+
+  void zsuSalsa20IV(Uint8List iv);
+  void zsuErase(int beginAddress, int endAddress);
+  void zsuUpdate(int address, Uint8List chunk);
+  void zsuCrc32Start(
     int beginAddress,
     int endAddress,
     int crc32,
   );
-  void firmwareCrc32Result();
-  void firmwareCrc32ResultExit();
+  void zsuCrc32Result();
+  void zsuCrc32ResultExit();
 }

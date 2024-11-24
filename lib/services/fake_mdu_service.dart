@@ -87,21 +87,61 @@ class FakeMduService implements MduService {
   }
 
   @override
-  void firmwareSalsa20IV(Uint8List iv) {
+  void zppValidQuery(String id, int flashSize) {
+    assert(id.length == 2);
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
+  }
+
+  @override
+  void zppLcDcQuery(Uint8List developerCode) {}
+
+  @override
+  void zppErase(int beginAddress, int endAddress) async {
+    await Future.delayed(const Duration(seconds: 20), () {
+      if (_controller.isClosed) return;
+      _controller.sink
+          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+    });
+  }
+
+  @override
+  void zppUpdate(int address, Uint8List chunk) async {
+    assert(chunk.length == 256);
+    await Future.delayed(Duration(milliseconds: 10 * chunk.length), () {
+      if (_controller.isClosed) return;
+      _controller.sink
+          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+    });
+  }
+
+  @override
+  void zppUpdateEnd(int beginAddress, int endAddress) {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
+  }
+
+  @override
+  void zppExit() {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
+  }
+
+  @override
+  void zppExitReset() {
+    if (_controller.isClosed) return;
+    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
+  }
+
+  @override
+  void zsuSalsa20IV(Uint8List iv) {
     assert(iv.length == 8);
     if (_controller.isClosed) return;
     _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
-  void firmwareErase(int beginAddress, int endAddress) {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
-
-  @override
-  void firmwareUpdate(int address, Uint8List chunk) async {
-    assert(chunk.length == 64);
+  void zsuErase(int beginAddress, int endAddress) async {
     await Future.delayed(const Duration(milliseconds: 5), () {
       if (_controller.isClosed) return;
       _controller.sink
@@ -110,7 +150,17 @@ class FakeMduService implements MduService {
   }
 
   @override
-  void firmwareCrc32Start(
+  void zsuUpdate(int address, Uint8List chunk) async {
+    assert(chunk.length == 64);
+    await Future.delayed(Duration(milliseconds: 20 * chunk.length), () {
+      if (_controller.isClosed) return;
+      _controller.sink
+          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+    });
+  }
+
+  @override
+  void zsuCrc32Start(
     int beginAddress,
     int endAddress,
     int crc32,
@@ -120,13 +170,13 @@ class FakeMduService implements MduService {
   }
 
   @override
-  void firmwareCrc32Result() {
+  void zsuCrc32Result() {
     if (_controller.isClosed) return;
     _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }
 
   @override
-  void firmwareCrc32ResultExit() {
+  void zsuCrc32ResultExit() {
     if (_controller.isClosed) return;
     _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
   }

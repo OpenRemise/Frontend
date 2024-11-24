@@ -53,7 +53,7 @@ class FakeZusiService implements ZusiService {
 
   @override
   void writeZpp(int address, Uint8List chunk) async {
-    await Future.delayed(const Duration(milliseconds: 100), () {
+    await Future.delayed(Duration(milliseconds: 2 * chunk.length), () {
       if (_controller.isClosed) return;
       _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
     });

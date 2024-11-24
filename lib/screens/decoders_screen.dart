@@ -25,6 +25,7 @@ import 'package:Frontend/widgets/edit_loco_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class DecodersScreen extends ConsumerStatefulWidget {
   const DecodersScreen({super.key});
 
@@ -32,7 +33,9 @@ class DecodersScreen extends ConsumerStatefulWidget {
   ConsumerState<DecodersScreen> createState() => _DecodersScreenState();
 }
 
+/// \todo document
 class _DecodersScreenState extends ConsumerState<DecodersScreen> {
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
@@ -57,6 +60,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     }
   }
 
+  /// \todo document
   Widget _locos() {
     final dcc = ref.watch(dccProvider);
     final locos = ref.watch(locosProvider);
@@ -136,6 +140,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     );
   }
 
+  /// \todo document
   Widget _tile(int index) {
     final locos = ref.watch(locosProvider);
     final selectedIndex = ref.watch(selectedLocoIndexProvider);

@@ -15,6 +15,7 @@
 
 import 'package:Frontend/models/loco.dart';
 
+/// \todo document
 abstract interface class DccService {
   Future<List<Loco>> fetchLocos();
   Future<Loco> fetchLoco(int address);

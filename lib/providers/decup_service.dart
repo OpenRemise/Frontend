@@ -21,6 +21,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'decup_service.g.dart';
 
+/// \todo document
 @riverpod
 DecupService decupService(ref, String unencodedPath) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'

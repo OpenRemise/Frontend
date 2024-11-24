@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// MS decoder IDs for fake services
 final msDecoderIds = Set.unmodifiable({
   0x7C114600,
   0x7F115000,
