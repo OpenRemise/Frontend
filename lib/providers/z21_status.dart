@@ -19,6 +19,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_status.g.dart';
 
+/// \todo document
 @riverpod
 Stream<LanXStatusChanged> z21Status(ref) async* {
   final z21 = ref.watch(z21ServiceProvider);

@@ -15,4 +15,5 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Shared preferences
 late SharedPreferences prefs;

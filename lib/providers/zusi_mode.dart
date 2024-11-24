@@ -16,6 +16,7 @@
 import 'package:Frontend/prefs.dart';
 import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
 
+/// \todo document
 final zusiModeProvider = createPrefProvider<bool>(
   prefs: (_) => prefs,
   prefKey: 'zusiMode',

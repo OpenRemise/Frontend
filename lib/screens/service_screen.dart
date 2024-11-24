@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class ServiceScreen extends ConsumerStatefulWidget {
   const ServiceScreen({super.key});
 
@@ -31,9 +32,11 @@ class ServiceScreen extends ConsumerStatefulWidget {
   ConsumerState<ServiceScreen> createState() => _ServiceScreenState();
 }
 
+/// \todo document
 class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final serviceMode = ref.watch(serviceModeProvider);

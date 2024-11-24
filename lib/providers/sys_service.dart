@@ -22,6 +22,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sys_service.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 SysService sysService(ref) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'

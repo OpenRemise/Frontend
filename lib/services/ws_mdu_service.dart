@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:convert';
+
 import 'package:Frontend/services/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:Frontend/utilities/crc8.dart';
@@ -96,7 +98,130 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareSalsa20IV(Uint8List iv) {
+  void zppValidQuery(String id, int flashSize) {
+    assert(id.length == 2);
+    final tmp = const AsciiEncoder().convert(id);
+    assert(tmp.length == 2);
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x06,
+      tmp[0],
+      tmp[1],
+      (flashSize >> 24) & 0xFF,
+      (flashSize >> 16) & 0xFF,
+      (flashSize >> 8) & 0xFF,
+      (flashSize >> 0) & 0xFF,
+    ];
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppLcDcQuery(Uint8List developerCode) {
+    assert(developerCode.length == 4);
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x07,
+    ];
+    data.addAll(developerCode);
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppErase(int beginAddress, int endAddress) {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x05,
+      (beginAddress >> 24) & 0xFF,
+      (beginAddress >> 16) & 0xFF,
+      (beginAddress >> 8) & 0xFF,
+      (beginAddress >> 0) & 0xFF,
+      (endAddress >> 24) & 0xFF,
+      (endAddress >> 16) & 0xFF,
+      (endAddress >> 8) & 0xFF,
+      (endAddress >> 0) & 0xFF,
+    ];
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppUpdate(int address, Uint8List chunk) {
+    assert(chunk.length == 256);
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x08,
+      (address >> 24) & 0xFF,
+      (address >> 16) & 0xFF,
+      (address >> 8) & 0xFF,
+      (address >> 0) & 0xFF,
+    ];
+    data.addAll(chunk);
+    final int crc = crc32(data);
+    data.addAll([
+      (crc >> 24) & 0xFF,
+      (crc >> 16) & 0xFF,
+      (crc >> 8) & 0xFF,
+      (crc >> 0) & 0xFF,
+    ]);
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppUpdateEnd(int beginAddress, int endAddress) {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x0B,
+      (beginAddress >> 24) & 0xFF,
+      (beginAddress >> 16) & 0xFF,
+      (beginAddress >> 8) & 0xFF,
+      (beginAddress >> 0) & 0xFF,
+      (endAddress >> 24) & 0xFF,
+      (endAddress >> 16) & 0xFF,
+      (endAddress >> 8) & 0xFF,
+      (endAddress >> 0) & 0xFF,
+    ];
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppExit() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x0C,
+    ];
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zppExitReset() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0x0D,
+    ];
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
+  void zsuSalsa20IV(Uint8List iv) {
     assert(iv.length == 8);
     List<int> data = [
       0xFF, // Command
@@ -110,7 +235,7 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareErase(int beginAddress, int endAddress) {
+  void zsuErase(int beginAddress, int endAddress) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -130,7 +255,7 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareUpdate(int address, Uint8List chunk) {
+  void zsuUpdate(int address, Uint8List chunk) {
     assert(chunk.length == 64);
     List<int> data = [
       0xFF, // Command
@@ -154,7 +279,7 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareCrc32Start(int beginAddress, int endAddress, int crc32) {
+  void zsuCrc32Start(int beginAddress, int endAddress, int crc32) {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -178,7 +303,7 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareCrc32Result() {
+  void zsuCrc32Result() {
     List<int> data = [
       0xFF, // Command
       0xFF,
@@ -190,7 +315,7 @@ class WsMduService implements MduService {
   }
 
   @override
-  void firmwareCrc32ResultExit() {
+  void zsuCrc32ResultExit() {
     List<int> data = [
       0xFF, // Command
       0xFF,

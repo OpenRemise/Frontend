@@ -16,6 +16,7 @@
 import 'package:Frontend/prefs.dart';
 import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
 
+/// \todo document
 final textScalerProvider = createPrefProvider<double>(
   prefs: (_) => prefs,
   prefKey: 'textScaler',

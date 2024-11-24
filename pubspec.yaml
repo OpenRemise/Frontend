@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  collection: ^1.18.0
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   http: ^1.2.2
@@ -44,7 +45,7 @@ dependencies:
   file_picker: ^8.1.4
   web_socket_channel: ^3.0.1
   async: ^2.11.0
-  flutter_svg: ^2.0.14
+  flutter_svg: ^2.0.15
   geekyants_flutter_gauges: ^1.0.4
   shared_preferences: ^2.3.3
   shared_preferences_riverpod: ^0.3.0
@@ -61,9 +62,9 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.4.13
-  riverpod_generator: ^2.6.2
+  riverpod_generator: ^2.6.3
   freezed: ^2.5.7
-  json_serializable: ^6.8.0
+  json_serializable: ^6.9.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

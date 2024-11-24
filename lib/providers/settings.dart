@@ -20,6 +20,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 class Settings extends _$Settings {
   late final SettingsService _service;

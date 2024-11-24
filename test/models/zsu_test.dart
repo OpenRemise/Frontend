@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('zsu', () {
     test('MS', () {
-      final Uint8List file = File('data/MS_4.235.0.zsu').readAsBytesSync();
-      Zsu zsu = Zsu(file);
+      final Uint8List file = File('data/MS-4.235.0.zsu').readAsBytesSync();
+      final zsu = Zsu(file);
       expect(zsu.firmwares.length, 40);
       expect(zsu.firmwares.containsKey(0x06043200), true);
       expect(
@@ -22,7 +22,7 @@ void main() {
 
     test('MX', () {
       final Uint8List file = File('data/DS230503.zsu').readAsBytesSync();
-      Zsu zsu = Zsu(file);
+      final zsu = Zsu(file);
       expect(zsu.firmwares.length, 92);
       expect(zsu.firmwares.containsKey(0xDD), true);
       expect(zsu.firmwares[0xDD]?.bootloader, null);

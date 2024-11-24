@@ -18,9 +18,11 @@ import 'package:Frontend/providers/domains.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class DomainDialog extends ConsumerWidget {
   const DomainDialog({super.key});
 
+  /// \todo document
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dialogOptions = ref.watch(domainsProvider).when(
@@ -57,6 +59,7 @@ class DomainDialog extends ConsumerWidget {
   }
 }
 
+/// \todo document
 void showDomainDialog({required BuildContext context}) {
   showDialog(
     context: context,

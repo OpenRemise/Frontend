@@ -21,6 +21,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mdu_service.g.dart';
 
+/// \todo document
 @riverpod
 MduService mduService(ref, String unencodedPath) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'

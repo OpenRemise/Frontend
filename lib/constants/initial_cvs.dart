@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Initial CVs for fake services
 const List<int> initialCvs = [
   3,
   1,

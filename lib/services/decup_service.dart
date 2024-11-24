@@ -15,6 +15,7 @@
 
 import 'dart:typed_data';
 
+/// \todo document
 abstract interface class DecupService {
   static const int ack = 0x1C;
   static const int nak = 0xFC;

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// \todo document
 String? cvNumberValidator(String? value) {
   if (value == null || value.isEmpty) return 'Please enter a CV number';
   final number = int.tryParse(value);

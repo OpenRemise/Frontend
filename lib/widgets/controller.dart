@@ -23,6 +23,7 @@ import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
 
+/// \todo document
 class Controller extends ConsumerStatefulWidget {
   const Controller({super.key});
 
@@ -30,23 +31,27 @@ class Controller extends ConsumerStatefulWidget {
   ConsumerState<Controller> createState() => _ControllerState();
 }
 
+/// \todo document
 class _ControllerState extends ConsumerState<Controller> {
   int _rvvvvvvv = 0;
   int _f31_0 = 0;
   bool _initialized = false;
 
+  /// \todo document
   @override
   void initState() {
     super.initState();
     debugPrint('Controller init');
   }
 
+  /// \todo document
   @override
   void dispose() {
     debugPrint('Controller dispose');
     super.dispose();
   }
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
@@ -170,6 +175,7 @@ class _ControllerState extends ConsumerState<Controller> {
     );
   }
 
+  /// \todo document
   Widget _buttons() {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
     final locos = ref.read(locosProvider);
@@ -213,6 +219,7 @@ class _ControllerState extends ConsumerState<Controller> {
     );
   }
 
+  /// \todo document
   Widget _slider() {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
     final locos = ref.read(locosProvider);
@@ -265,6 +272,7 @@ class _ControllerState extends ConsumerState<Controller> {
     );
   }
 
+  /// \todo document
   Widget _footer() {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
     final locos = ref.read(locosProvider);

@@ -15,6 +15,7 @@
 
 import 'dart:typed_data';
 
+/// \todo document
 abstract interface class ZusiService {
   static const int ack = 0x06;
   static const int nak = 0x15;

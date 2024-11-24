@@ -19,20 +19,21 @@ import 'dart:typed_data';
 import 'package:Frontend/providers/zusi_service.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class ZusiDialog extends ConsumerStatefulWidget {
   final Uint8List? _bytes;
-  final Uri? _uri;
 
-  const ZusiDialog.fromFile(this._bytes, {super.key}) : _uri = null;
-  const ZusiDialog.fromUri(this._uri, {super.key}) : _bytes = null;
+  const ZusiDialog(this._bytes, {super.key});
 
   @override
   ConsumerState<ZusiDialog> createState() => _ZusiDialogState();
 }
 
+/// \todo document
 class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   late final Uint8List _bytes;
   late final Uint8List _flash;
@@ -42,6 +43,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   String _option = 'Cancel';
   double? _progress;
 
+  /// \todo document
   @override
   void initState() {
     super.initState();
@@ -53,6 +55,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     );
   }
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -80,6 +83,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     );
   }
 
+  /// \todo document
   @override
   void dispose() {
     debugPrint('ZusiDialog dispose');
@@ -87,6 +91,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     super.dispose();
   }
 
+  /// \todo document
   Future<void> _execute() async {
     await _download();
     await _connect();
@@ -103,22 +108,8 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     await _exit();
   }
 
+  /// \todo document
   Future<void> _download() async {
-    /*
-    setState(() {
-      _status = 'Downloading';
-    });
-
-    // Download file
-    if (widget._uri != null) {
-      debugPrint('start Download!');
-      final client = ref.read(httpClientProvider);
-      final response = await client.get(widget._uri!);
-      debugPrint('finished Download ${response.bodyBytes.length}');
-      _bytes = response.bodyBytes;
-    }
-    */
-
     final int flashStart =
         _bytes[5] << 24 | _bytes[6] << 16 | _bytes[7] << 8 | _bytes[8] << 0;
     final int flashLength =
@@ -127,6 +118,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     _flash = Uint8List.sublistView(_bytes, flashStart, flashEnd);
   }
 
+  /// \todo document
   Future<void> _connect() async {
     setState(() {
       _status = 'Connecting';
@@ -134,12 +126,14 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     await _zusi.ready;
   }
 
+  /// \todo document
   Future<Uint8List> _features() async {
     final msg = await _repeatOnFailure(() => _zusi.features());
     debugPrint('features $msg');
     return msg;
   }
 
+  /// \todo document
   Future<Uint8List> _erase() async {
     setState(() {
       _status = 'Erasing';
@@ -149,43 +143,56 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     return msg;
   }
 
+  /// \todo document
   Future<Uint8List> _write() async {
     setState(() {
       _status = 'Writing';
     });
 
-    int index = 0;
-    while (index < _flash.length) {
-      // Prepare up to 64 chunks
-      int i = 0;
-      for (; i < 64; ++i) {
-        final start = index + 256 * i;
-        final end = start + 256;
-        final chunk = _flash.sublist(
-          min(start, _flash.length),
-          min(end, _flash.length),
-        );
-        if (chunk.isEmpty) break;
-        _zusi.writeZpp(start, chunk);
+    const int blockSize = 256;
+    final blocks = _flash.slices(blockSize).toList();
+
+    int i = 0;
+    int failCount = 0;
+    while (i < blocks.length) {
+      // Transmit 256 (or less) blocks
+      final n = min(blockSize, blocks.length - i);
+      for (var j = 0; j < n; ++j) {
+        _zusi.writeZpp((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
       }
 
       // Wait for all responses
-      final msgs = await _events.take(i);
-      for (final msg in msgs) {
-        if (msg[0] == ZusiService.nak) break;
-        index += 256;
-        final done = index ~/ 1024;
-        final total = _flash.length ~/ 1024;
-        setState(() {
-          _status = 'Writing $done / $total kB';
-          _progress = index / _flash.length;
-        });
+      for (final msg in await _events.take(n)) {
+        // Go either forward
+        if (msg.contains(ZusiService.ack)) {
+          failCount = 0;
+          ++i;
+        }
+        // Or back (limited number of times)
+        else if (failCount < 10) {
+          ++failCount;
+          i = max(i - 1, 0);
+          debugPrint('zusiUpdate failed $failCount');
+          break;
+        }
+        // Or bail
+        else {
+          return msg;
+        }
       }
+
+      //
+      setState(() {
+        _status =
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
+        _progress = i / blocks.length;
+      });
     }
 
     return Uint8List.fromList([ZusiService.ack]);
   }
 
+  /// \todo document
   Future<Uint8List> _exit() async {
     setState(() {
       _status = 'Done';
@@ -196,6 +203,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     return msg;
   }
 
+  /// \todo document
   Future<Uint8List> _repeatOnFailure(Function() f, {int repeat = 10}) async {
     var msg = Uint8List.fromList([ZusiService.nak]);
     for (int i = 0; i < repeat; i++) {

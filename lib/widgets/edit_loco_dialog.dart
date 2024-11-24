@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class EditLocoDialog extends ConsumerStatefulWidget {
   final int? _index;
 
@@ -29,9 +30,11 @@ class EditLocoDialog extends ConsumerStatefulWidget {
   ConsumerState<EditLocoDialog> createState() => _EditLocoDialogState();
 }
 
+/// \todo document
 class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
   final _formKey = GlobalKey<FormBuilderState>();
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     final locos = ref.watch(locosProvider);
@@ -116,6 +119,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
   }
 }
 
+/// \todo document
 void showEditLocoDialog({required BuildContext context, int? index}) {
   showDialog(
     context: context,

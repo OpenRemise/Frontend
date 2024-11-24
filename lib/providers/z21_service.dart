@@ -22,6 +22,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_service.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 Z21Service z21Service(ref) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'

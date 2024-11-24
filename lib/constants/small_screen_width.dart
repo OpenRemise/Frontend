@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Width at which the display switches between small and large screens
 final int smallScreenWidth = int.parse(
   const String.fromEnvironment('OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH'),
 );

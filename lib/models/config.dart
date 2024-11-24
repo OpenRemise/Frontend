@@ -20,6 +20,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'config.freezed.dart';
 part 'config.g.dart';
 
+/// \todo document
 @freezed
 class Config with _$Config {
   factory Config({

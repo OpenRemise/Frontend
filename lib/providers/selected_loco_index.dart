@@ -15,4 +15,5 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 final selectedLocoIndexProvider = StateProvider<int?>((_) => null);

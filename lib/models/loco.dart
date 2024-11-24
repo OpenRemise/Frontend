@@ -18,6 +18,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'loco.freezed.dart';
 part 'loco.g.dart';
 
+/// \todo document
 @freezed
 class Loco with _$Loco {
   factory Loco({

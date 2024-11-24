@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// \todo document
 int exor<T extends List>(T bytes) {
   return bytes.fold(0, (previousValue, element) {
     return previousValue ^ element;

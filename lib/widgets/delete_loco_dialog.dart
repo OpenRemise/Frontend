@@ -19,6 +19,7 @@ import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class DeleteLocoDialog extends ConsumerStatefulWidget {
   final int? _index;
 
@@ -28,6 +29,7 @@ class DeleteLocoDialog extends ConsumerStatefulWidget {
   ConsumerState<DeleteLocoDialog> createState() => _DeleteLocoDialogState();
 }
 
+/// \todo document
 class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,7 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
   }
 }
 
+/// \todo document
 void showDeleteLocoDialog({required BuildContext context, int? index}) {
   showDialog(
     context: context,

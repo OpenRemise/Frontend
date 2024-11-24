@@ -18,6 +18,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'locos.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 class Locos extends _$Locos {
   @override

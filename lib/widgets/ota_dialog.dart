@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class OtaDialog extends ConsumerStatefulWidget {
   final Uint8List _bin;
 
@@ -31,6 +32,7 @@ class OtaDialog extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _OtaDialogState();
 }
 
+/// \todo document
 class _OtaDialogState extends ConsumerState<OtaDialog> {
   static const int _chunkSize = 1024;
   late final Uint8List _bin;
@@ -40,6 +42,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   String _option = 'Cancel';
   double? _progress;
 
+  /// \todo document
   @override
   void initState() {
     debugPrint('OtaDialog initState');
@@ -52,6 +55,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     );
   }
 
+  /// \todo document
   @override
   void dispose() {
     debugPrint('OtaDialog dispose');
@@ -59,6 +63,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     super.dispose();
   }
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -84,6 +89,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     );
   }
 
+  /// \todo document
   Future<void> _execute() async {
     await _connect();
     final msg = await _write();
@@ -91,6 +97,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     await _disconnect();
   }
 
+  /// \todo document
   Future<void> _connect() async {
     setState(() {
       _status = 'Connecting';
@@ -98,6 +105,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     await _ota.ready;
   }
 
+  /// \todo document
   Future<Uint8List> _write() async {
     int index = 0;
     while (index < _bin.length) {
@@ -126,6 +134,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
     return Uint8List.fromList([OtaService.ack]);
   }
 
+  /// \todo document
   Future<void> _disconnect() async {
     setState(() {
       _status = 'Done';

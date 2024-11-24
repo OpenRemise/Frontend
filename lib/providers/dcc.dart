@@ -21,6 +21,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dcc.g.dart';
 
+/// \todo document
 @Riverpod(keepAlive: true)
 class Dcc extends _$Dcc {
   late final DccService _service;
