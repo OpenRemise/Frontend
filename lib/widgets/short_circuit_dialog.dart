@@ -13,19 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/providers/z21_service.dart';
-import 'package:Frontend/services/z21_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'z21_status.g.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-@Riverpod(keepAlive: true)
-Stream<LanXStatusChanged> z21Status(ref) async* {
-  final z21 = ref.watch(z21ServiceProvider);
-  await for (final status in z21.stream.where(
-    (command) => switch (command) { LanXStatusChanged() => true, _ => false },
-  )) {
-    yield status;
+class ShortCircuitDialog extends ConsumerWidget {
+  const ShortCircuitDialog({super.key});
+
+  /// \todo document
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AlertDialog(
+      title: const Text('Short circuit'),
+      content: const Icon(Icons.error_outline),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    );
   }
 }

@@ -23,7 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
 class SettingsScreen extends ConsumerWidget {
-  static const List<double> _currentLimitValues = [0.5, 1.6, 3, 4.1];
+  static const List<double> _currentLimitValues = [0.5, 1.3, 2.7, 4.1];
   static const List<int> _dccBiDiBitDurationValues = [0, 57, 58, 59, 60, 61];
   static const List<String> _dccProgrammingTypeValues = [
     'Nothing',
@@ -132,20 +132,6 @@ class SettingsScreen extends ConsumerWidget {
                     min: 5,
                     max: 60,
                     divisions: 60 - 5,
-                    displayValues: DisplayValues.current,
-                  ),
-                  const Divider(),
-                  FormBuilderSlider(
-                    name: 'usb_rx_timeout',
-                    initialValue: data.usbReceiveTimeout!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.usb_outlined),
-                      labelText: 'USB receive timeout [s]',
-                    ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 1,
-                    max: 10,
-                    divisions: 10 - 1,
                     displayValues: DisplayValues.current,
                   ),
                   const Divider(),
