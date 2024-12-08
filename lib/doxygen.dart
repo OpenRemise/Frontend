@@ -21,17 +21,17 @@
 
 /// \details
 /// Welcome to the OpenRemise [Frontend](https://github.com/OpenRemise/Frontend)
-/// documentation...
+/// documentation, the software powering the OpenRemise web interface.
 ///
 /// \note
 /// This documentation is intended for developers. General information on usage
-/// can be found on the main page at [openremise.at](https://openremise.at/).
+/// can be found on the main page at [openremise.at](https://openremise.at).
 ///
 /// \mainpage Introduction
 /// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              |
 /// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 /// | [![](stopwatch.svg)](page_getting_started.html)                                                                                                                                                            | [![](api.svg)](page_api_reference.html)                                                                                                                                                                    |
-/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the firmwares architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the firmwares individual modules. It assumes an understanding of the key concepts.</div> |
+/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the frontends architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the frontends individual modules. It assumes an understanding of the key concepts.</div> |
 ///
 /// <div class="section_buttons">
 /// | Next                      |
@@ -40,10 +40,46 @@
 /// </div>
 
 /// \page page_getting_started Getting Started
-/// Some text
+/// \details
+/// The aim of this section is to help you set up a development environment and
+/// provide you with a 30.000ft overview of the frontend and some of it's key
+/// concepts.
+///
+/// After we have successfully set up a development environment and compiled the
+/// frontend we will look at the system architecture.
+///
+/// | Chapter                    | Content                         |
+/// | -------------------------- | ------------------------------- |
+/// | \subpage page_development  | Setup a development environment |
+/// | \subpage page_architecture | System architecture             |
+///
+/// <div class="section_buttons">
+/// | Previous   | Next                   |
+/// | :--------- | ---------------------: |
+/// | \ref index | \ref page_development |
+/// </div>
+
+/// \page page_development Development
+/// HA
+///
+/// <div class="section_buttons">
+/// | Previous                  | Next                   |
+/// | :------------------------ | ---------------------: |
+/// | \ref page_getting_started | \ref page_architecture |
+/// </div>
+
+/// \page page_architecture Architecture
+/// HO
+///
+/// <div class="section_buttons">
+/// | Previous              | Next                    |
+/// | :-------------------- | ----------------------: |
+/// | \ref page_development | \ref page_api_reference |
+/// </div>
 
 /// \page page_api_reference API Reference
-/// Some text
+/// \todo
+/// Write API Reference page
 ///
 /// | Chapter                 | Content                                        |
 /// | ----------------------- | ---------------------------------------------- |

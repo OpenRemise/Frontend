@@ -29,7 +29,6 @@ class Config with _$Config {
     @JsonKey(name: 'sta_pass') String? password,
     @JsonKey(name: 'http_rx_timeout') int? httpReceiveTimeout,
     @JsonKey(name: 'http_tx_timeout') int? httpTransmitTimeout,
-    @JsonKey(name: 'usb_rx_timeout') int? usbReceiveTimeout,
     @JsonKey(name: 'current_limit') int? currentLimit,
     @JsonKey(name: 'current_sc_time') int? currentShortCircuitTime,
     @JsonKey(name: 'dcc_preamble') int? dccPreamble,

@@ -21,12 +21,14 @@ import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
+import 'package:Frontend/providers/z21_short_circuit.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
 import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/service_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
 import 'package:Frontend/widgets/domain_dialog.dart';
+import 'package:Frontend/widgets/short_circuit_dialog.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -137,6 +139,21 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     debugPrint('Home init');
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
+
+    // Add listener for short circuit events
+    ref.listenManual(
+      z21ShortCircuitProvider,
+      (previous, next) {
+        // Only open a new dialog if not already shown
+        if (ModalRoute.of(context)?.isCurrent == true) {
+          showDialog(
+            context: context,
+            builder: (_) => const ShortCircuitDialog(),
+            barrierDismissible: false,
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -165,16 +182,6 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
                     : 'data/images/logo_light.svg',
               ),
         actions: [
-          /*
-          IconButton(
-            icon: SvgPicture.asset(
-              'data/gb.svg',
-              width: 20,
-              height: 20,
-            ),
-            onPressed: null,
-          ), 
-          */
           IconButton(
             onPressed: () {
               final scale = ref.read(textScalerProvider) + 0.2;
