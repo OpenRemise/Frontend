@@ -22,7 +22,15 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+/// \todo document
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static const List<double> _currentLimitValues = [0.5, 1.3, 2.7, 4.1];
   static const List<int> _dccBiDiBitDurationValues = [0, 57, 58, 59, 60, 61];
   static const List<String> _dccProgrammingTypeValues = [
@@ -33,11 +41,9 @@ class SettingsScreen extends ConsumerWidget {
   ];
   final _formKey = GlobalKey<FormBuilderState>();
 
-  SettingsScreen({super.key});
-
   /// \todo document
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
@@ -63,8 +69,15 @@ class SettingsScreen extends ConsumerWidget {
               ),
               actions: [
                 IconButton(
-                  onPressed: () =>
-                      ref.read(settingsProvider.notifier).fetchSettings(),
+                  onPressed: _defaults,
+                  tooltip: 'Defaults',
+                  icon: const Icon(Icons.settings_suggest_outlined),
+                ),
+                IconButton(
+                  onPressed: () {
+                    ref.read(settingsProvider.notifier).fetchSettings();
+                    _formKey.currentState?.reset();
+                  },
                   tooltip: 'Refresh',
                   icon: const Icon(Icons.sync_outlined),
                 ),
@@ -72,301 +85,441 @@ class SettingsScreen extends ConsumerWidget {
               floating: true,
             ),
             settings.when(
-              data: (data) => SliverList.list(
-                children: [
-                  FormBuilderTextField(
-                    name: 'sta_mdns',
-                    validator: (String? value) {
-                      return null;
-                    },
-                    initialValue: data.mdns,
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.wifi_outlined),
-                      labelText: 'mDNS',
+              /// \warning
+              /// All widgets must be visible to the FormBuilder all the time.Do **not** use lazy loading inside a FormBuilder.
+              data: (data) => SliverToBoxAdapter(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Tooltip(
+                      message:
+                          'mDNS hostname under which the device appears (e.g. my-remise.local)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_mdns',
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a mDNS';
+                          } else if (!value.endsWith('remise')) {
+                            return "mDNS must end with 'remise'";
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: data.mdns,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.wifi_outlined),
+                          labelText: 'mDNS',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
                     ),
-                  ),
-                  FormBuilderTextField(
-                    name: 'sta_ssid',
-                    validator: (String? value) {
-                      return null;
-                    },
-                    initialValue: data.ssid,
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'SSID',
+                    Tooltip(
+                      message: 'Name of the network to connect to',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_ssid',
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a SSID';
+                          } else if (value.length > 32) {
+                            return 'SSID too long';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: data.ssid,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'SSID',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
                     ),
-                  ),
-                  FormBuilderTextField(
-                    name: 'sta_pass',
-                    validator: (String? value) {
-                      return null;
-                    },
-                    initialValue: data.password,
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'Password',
+                    Tooltip(
+                      message: 'Password of the network to connect to',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_pass',
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a password';
+                          } else if (value.length > 64) {
+                            return 'Password too long';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: data.password,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Password',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
                     ),
-                  ),
-                  const Divider(),
-                  FormBuilderSlider(
-                    name: 'http_rx_timeout',
-                    initialValue: data.httpReceiveTimeout!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.http_outlined),
-                      labelText: 'HTTP receive timeout [s]',
+                    const Divider(),
+                    Tooltip(
+                      message:
+                          'Timeout for receiving HTTP requests (also used for USB)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'http_rx_timeout',
+                        initialValue: data.httpReceiveTimeout!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.http_outlined),
+                          labelText: 'HTTP receive timeout [s]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 5,
+                        max: 60,
+                        divisions: 60 - 5,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 5,
-                    max: 60,
-                    divisions: 60 - 5,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'http_tx_timeout',
-                    initialValue: data.httpTransmitTimeout!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'HTTP transmit timeout [s]',
+                    Tooltip(
+                      message: 'Timeout for transmitting HTTP response',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'http_tx_timeout',
+                        initialValue: data.httpTransmitTimeout!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'HTTP transmit timeout [s]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 5,
+                        max: 60,
+                        divisions: 60 - 5,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 5,
-                    max: 60,
-                    divisions: 60 - 5,
-                    displayValues: DisplayValues.current,
-                  ),
-                  const Divider(),
-                  FormBuilderSlider(
-                    name: 'current_limit',
-                    initialValue: data.currentLimit!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.power_outlined),
-                      labelText: 'Current limit [A]',
+                    const Divider(),
+                    Tooltip(
+                      message: 'Current limit in DCC operation mode',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'cur_lim',
+                        initialValue: data.currentLimit!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.power_outlined),
+                          labelText: 'Current limit [A]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 3,
+                        divisions: 3 - 0,
+                        displayValues: DisplayValues.current,
+                        valueWidget: (value) => Text(
+                          _currentLimitValues[int.parse(value)].toString(),
+                        ),
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 0,
-                    max: 3,
-                    divisions: 3 - 0,
-                    displayValues: DisplayValues.current,
-                    valueWidget: (value) =>
-                        Text(_currentLimitValues[int.parse(value)].toString()),
-                  ),
-                  FormBuilderSlider(
-                    name: 'current_sc_time',
-                    initialValue: data.currentShortCircuitTime!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'Current short circuit time [ms]',
+                    Tooltip(
+                      message: 'Current limit in DCC service mode',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'cur_lim_serv',
+                        initialValue: data.currentLimitService!.toDouble(),
+                        decoration: InputDecoration(
+                          icon: const Icon(null),
+                          labelText: 'Current limit service mode [A]',
+                          errorText: (_formKey.currentState
+                                          ?.fields['cur_lim_serv']?.value ??
+                                      0) >
+                                  _currentLimitValues.indexOf(1.3)
+                              ? '\u26A0 exceeds recommended limit'
+                              : null,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 3,
+                        divisions: 3 - 0,
+                        displayValues: DisplayValues.current,
+                        valueWidget: (value) => Text(
+                          _currentLimitValues[int.parse(value)].toString(),
+                        ),
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 20,
-                    max: 240,
-                    divisions: (240 - 20) ~/ 20,
-                    displayValues: DisplayValues.current,
-                  ),
-                  const Divider(),
-                  FormBuilderSlider(
-                    name: 'dcc_preamble',
-                    initialValue: data.dccPreamble!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.train_outlined),
-                      labelText: 'DCC preamble',
+                    Tooltip(
+                      message:
+                          'Time after which an overcurrent is considered a short circuit',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'cur_sc_time',
+                        initialValue: data.currentShortCircuitTime!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Current short circuit time [ms]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 20,
+                        max: 240,
+                        divisions: (240 - 20) ~/ 20,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 17,
-                    max: 30,
-                    divisions: 30 - 17,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_bit1_dur',
-                    initialValue: data.dccBit1Duration!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC 1 bit duration [µs]',
+                    const Divider(),
+                    Tooltip(
+                      message: 'Number of preamble bits',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_preamble',
+                        initialValue: data.dccPreamble!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.train_outlined),
+                          labelText: 'DCC preamble',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 17,
+                        max: 30,
+                        divisions: 30 - 17,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 56,
-                    max: 60,
-                    divisions: 60 - 56,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_bit0_dur',
-                    initialValue: data.dccBit0Duration!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC 0 bit duration [µs]',
+                    Tooltip(
+                      message: 'Duration of a 1 bit',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_bit1_dur',
+                        initialValue: data.dccBit1Duration!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC 1 bit duration [µs]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 56,
+                        max: 60,
+                        divisions: 60 - 56,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 97,
-                    max: 114,
-                    divisions: 114 - 97,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_bidibit_dur',
-                    initialValue: _dccBiDiBitDurationValues
-                        .indexOf(data.dccBiDiBitDuration!)
-                        .toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC BiDi bit duration [µs]',
+                    Tooltip(
+                      message: 'Duration of a 0 bit',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_bit0_dur',
+                        initialValue: data.dccBit0Duration!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC 0 bit duration [µs]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 97,
+                        max: 114,
+                        divisions: 114 - 97,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) =>
-                        _dccBiDiBitDurationValues[value!.toInt()],
-                    min: 0,
-                    max: 61 - 57 + 1,
-                    divisions: 61 - 57 + 1,
-                    displayValues: DisplayValues.current,
-                    valueWidget: (value) => Text(
-                      _dccBiDiBitDurationValues[int.parse(value)].toString(),
+                    Tooltip(
+                      message: 'Duration of a BiDi bit (during cutout)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_bidibit_dur',
+                        initialValue: _dccBiDiBitDurationValues
+                            .indexOf(data.dccBiDiBitDuration!)
+                            .toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC BiDi bit duration [µs]',
+                        ),
+                        valueTransformer: (value) =>
+                            _dccBiDiBitDurationValues[value!.toInt()],
+                        min: 0,
+                        max: 61 - 57 + 1,
+                        divisions: 61 - 57 + 1,
+                        displayValues: DisplayValues.current,
+                        valueWidget: (value) => Text(
+                          _dccBiDiBitDurationValues[int.parse(value)]
+                              .toString(),
+                        ),
+                      ),
                     ),
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_prog_type',
-                    initialValue: data.dccProgrammingType!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC programming type',
+                    Tooltip(
+                      message: 'How a service mode verify is performed',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_prog_type',
+                        initialValue: data.dccProgrammingType!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC programming type',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 3,
+                        divisions: 3 - 0,
+                        displayValues: DisplayValues.current,
+                        valueWidget: (value) =>
+                            Text(_dccProgrammingTypeValues[int.parse(value)]),
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 0,
-                    max: 3,
-                    divisions: 3 - 0,
-                    displayValues: DisplayValues.current,
-                    valueWidget: (value) =>
-                        Text(_dccProgrammingTypeValues[int.parse(value)]),
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_strtp_rs_pc',
-                    initialValue: data.dccStartupResetPacketCount!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC startup reset packets',
+                    Tooltip(
+                      message:
+                          'Number of reset packets at the start of the service mode programming sequence',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_strtp_rs_pc',
+                        initialValue:
+                            data.dccStartupResetPacketCount!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC startup reset packets',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 25,
+                        max: 255,
+                        divisions: (255 - 25) ~/ 5,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 25,
-                    max: 255,
-                    divisions: (255 - 25) ~/ 5,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_cntn_rs_pc',
-                    initialValue: data.dccContinueResetPacketCount!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC continue reset packets',
+                    Tooltip(
+                      message:
+                          'Number of reset packets when continuing the service mode programming sequence',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_cntn_rs_pc',
+                        initialValue:
+                            data.dccContinueResetPacketCount!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC continue reset packets',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 3,
+                        max: 64,
+                        divisions: 64 - 3,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 3,
-                    max: 64,
-                    divisions: 64 - 3,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_prog_pc',
-                    initialValue: data.dccProgramPacketCount!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC program packets',
+                    Tooltip(
+                      message:
+                          'Number of programming packets in the service mode programming sequence',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_prog_pc',
+                        initialValue: data.dccProgramPacketCount!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC program packets',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 2,
+                        max: 64,
+                        divisions: 64 - 2,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 2,
-                    max: 64,
-                    divisions: 64 - 2,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_verify_bit1',
-                    initialValue: (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC verify to bit',
+                    Tooltip(
+                      message:
+                          'Comparing bits to either 0 or 1 during a service mode verify',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_verify_bit1',
+                        initialValue:
+                            (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC verify to bit',
+                        ),
+                        valueTransformer: (value) => value! == 1,
+                        min: 0,
+                        max: 1,
+                        divisions: 1 - 0,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value! == 1,
-                    min: 0,
-                    max: 1,
-                    divisions: 1 - 0,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'dcc_ack_cur',
-                    initialValue: data.dccProgrammingAckCurrent!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'DCC programming ack current [mA]',
+                    Tooltip(
+                      message:
+                          'Acknowledge pulse current (60mA according to S-9.2.3)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'dcc_ack_cur',
+                        initialValue: data.dccProgrammingAckCurrent!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'DCC programming ack current [mA]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 5,
+                        max: 255,
+                        divisions: (255 - 5) ~/ 5,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 5,
-                    max: 255,
-                    divisions: (255 - 5) ~/ 5,
-                    displayValues: DisplayValues.current,
-                  ),
-                  const Divider(),
-                  FormBuilderSlider(
-                    name: 'mdu_preamble',
-                    initialValue: data.mduPreamble!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.update_outlined),
-                      labelText: 'MDU preamble',
+                    const Divider(),
+                    Tooltip(
+                      message: 'Number of preamble bits',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'mdu_preamble',
+                        initialValue: data.mduPreamble!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.update_outlined),
+                          labelText: 'MDU preamble',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 14,
+                        max: 30,
+                        divisions: 30 - 14,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 14,
-                    max: 30,
-                    divisions: 30 - 14,
-                    displayValues: DisplayValues.current,
-                  ),
-                  FormBuilderSlider(
-                    name: 'mdu_ackreq',
-                    initialValue: data.mduAckreq!.toDouble(),
-                    decoration: const InputDecoration(
-                      icon: Icon(null),
-                      labelText: 'MDU ackreq',
+                    Tooltip(
+                      message: 'Number of ackreq bits',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'mdu_ackreq',
+                        initialValue: data.mduAckreq!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'MDU ackreq',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 10,
+                        max: 30,
+                        divisions: 30 - 10,
+                        displayValues: DisplayValues.current,
+                      ),
                     ),
-                    valueTransformer: (value) => value!.toInt(),
-                    min: 10,
-                    max: 30,
-                    divisions: 30 - 10,
-                    displayValues: DisplayValues.current,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            if (_formKey.currentState?.saveAndValidate() ??
-                                false) {
-                              // Remove sta_pass if it only contains *
-                              var map = Map.of(_formKey.currentState!.value);
-                              final String staPass = map['sta_pass']!;
-                              if (staPass == '*' * staPass.length) {
-                                map.remove('sta_pass');
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              if (_formKey.currentState?.saveAndValidate() ??
+                                  false) {
+                                // Remove sta_pass if it only contains *
+                                var map = Map.of(_formKey.currentState!.value);
+                                final String staPass = map['sta_pass']!;
+                                if (staPass == '*' * staPass.length) {
+                                  map.remove('sta_pass');
+                                }
+                                ref
+                                    .read(settingsProvider.notifier)
+                                    .updateSettings(Config.fromJson(map));
                               }
-                              ref
-                                  .read(settingsProvider.notifier)
-                                  .updateSettings(Config.fromJson(map));
-
-                              debugPrint(map.toString());
-                            }
-                          },
-                          child: const Text('OK'),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {
-                            if (_formKey.currentState == null) return;
-                            _formKey.currentState!.reset();
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                      ],
+                            },
+                            child: const Text('OK'),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
+                              if (_formKey.currentState == null) return;
+                              _formKey.currentState!.reset();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               error: (error, stackTrace) =>
                   const SliverToBoxAdapter(child: Icon(Icons.error_outline)),
@@ -376,5 +529,29 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  ///
+  void _defaults() {
+    _formKey.currentState?.patchValue({
+      'http_rx_timeout': 5.0,
+      'http_tx_timeout': 5.0,
+      'cur_lim': _currentLimitValues.indexOf(4.1).toDouble(),
+      'cur_lim_serv': _currentLimitValues.indexOf(1.3).toDouble(),
+      'cur_sc_time': 20.0,
+      'dcc_preamble': 17.0,
+      'dcc_bit1_dur': 58.0,
+      'dcc_bit0_dur': 100.0,
+      'dcc_bidibit_dur': _dccBiDiBitDurationValues.indexOf(60).toDouble(),
+      'dcc_prog_type':
+          _dccProgrammingTypeValues.indexOf('Bit and byte').toDouble(),
+      'dcc_strtp_rs_pc': 25.0,
+      'dcc_cntn_rs_pc': 6.0,
+      'dcc_prog_pc': 7.0,
+      'dcc_verify_bit1': 1.0,
+      'dcc_ack_cur': 50.0,
+      'mdu_preamble': 14.0,
+      'mdu_ackreq': 10.0,
+    });
   }
 }

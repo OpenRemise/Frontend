@@ -86,7 +86,6 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   @override
   void dispose() {
-    debugPrint('ZusiDialog dispose');
     _zusi.close();
     super.dispose();
   }
@@ -129,7 +128,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _features() async {
     final msg = await _repeatOnFailure(() => _zusi.features());
-    debugPrint('features $msg');
+    debugPrint('ZUSI features $msg');
     return msg;
   }
 
@@ -139,7 +138,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       _status = 'Erasing';
     });
     final msg = await _repeatOnFailure(() => _zusi.eraseZpp());
-    debugPrint('erase $msg');
+    debugPrint('ZUSI erase $msg');
     return msg;
   }
 
@@ -172,7 +171,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
         else if (failCount < 10) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('zusiUpdate failed $failCount');
+          debugPrint('ZUSI zusiUpdate failed $failCount');
           break;
         }
         // Or bail
@@ -199,7 +198,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       _option = 'OK';
     });
     final msg = await _repeatOnFailure(() => _zusi.exit(0x00));
-    debugPrint('exit $msg');
+    debugPrint('ZUSI exit $msg');
     return msg;
   }
 

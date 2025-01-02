@@ -39,20 +39,6 @@ class _ControllerState extends ConsumerState<Controller> {
 
   /// \todo document
   @override
-  void initState() {
-    super.initState();
-    debugPrint('Controller init');
-  }
-
-  /// \todo document
-  @override
-  void dispose() {
-    debugPrint('Controller dispose');
-    super.dispose();
-  }
-
-  /// \todo document
-  @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedLocoIndexProvider);
     assert(selectedIndex != null);

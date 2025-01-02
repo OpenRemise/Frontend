@@ -136,7 +136,6 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
 
   @override
   void initState() {
-    debugPrint('Home init');
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
 
@@ -158,7 +157,6 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
 
   @override
   void dispose() {
-    debugPrint('Home dispose');
     _timer.cancel();
     super.dispose();
   }

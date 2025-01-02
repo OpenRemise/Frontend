@@ -37,7 +37,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   /// \todo document
   @override
   void initState() {
-    debugPrint('InfoScreen init');
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
   }
@@ -45,7 +44,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   /// \todo document
   @override
   void dispose() {
-    debugPrint('InfoScreen dispose');
     _timer.cancel();
     super.dispose();
   }
@@ -110,10 +108,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   Text('${sys.requireValue.internalHeap}'),
                 ],
               ),
-              SliverList.list(
-                children: const [
-                  Divider(),
-                ],
+              const SliverToBoxAdapter(
+                child: Divider(),
               ),
               SliverGrid.count(
                 crossAxisCount: 2,
@@ -128,10 +124,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   Text(sys.requireValue.mac),
                 ],
               ),
-              SliverList.list(
-                children: const [
-                  Divider(),
-                ],
+              const SliverToBoxAdapter(
+                child: Divider(),
               ),
               SliverGrid.count(
                 crossAxisCount: 2,

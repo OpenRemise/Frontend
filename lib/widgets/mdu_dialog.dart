@@ -52,7 +52,6 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   @override
   void initState() {
-    debugPrint('MduDialog initState');
     super.initState();
     _mdu = ref.read(mduServiceProvider(widget._zpp != null ? 'zpp/' : 'zsu/'));
     _events = StreamQueue(_mdu.stream);
@@ -64,7 +63,6 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   @override
   void dispose() {
-    debugPrint('MduDialog dispose');
     _mdu.close();
     super.dispose();
   }
@@ -117,10 +115,8 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     if (widget._zpp != null) {
       msg = await _zppValid();
       if (msg.contains(MduService.ack)) return;
-
       msg = await _zppUpdate();
       if (msg.contains(MduService.ack)) return;
-
       msg = await _zppExit();
       if (msg.contains(MduService.ack)) return;
     }
@@ -128,12 +124,10 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     else {
       msg = await _zsuSearch();
       if (msg.contains(MduService.ack)) return;
-
       for (final decoderId in _decoders.keys) {
         msg = await _zsuUpdate(decoderId);
-        if (msg[0] == MduService.ack) return;
+        if (msg.contains(MduService.ack)) return;
       }
-
       msg = await _zsuExit();
       if (msg.contains(MduService.ack)) return;
     }
@@ -143,80 +137,74 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
   /// \todo document
   Future<void> _connect() async {
-    setState(() {
-      _status = 'Connecting';
-    });
+    _setStatusState('Connecting');
     await _mdu.ready;
   }
 
   /// \todo document
   Future<Uint8List> _configTransferRate() async {
-    setState(() {
-      _status = 'Config transfer rate';
-    });
+    _setStatusState('Config transfer rate');
 
     // Workaround for special bootloader update software
     if ((widget._zsu?.firmwares.length ?? 0) == 1) {
       return Uint8List.fromList([MduService.nak, MduService.nak]);
     }
 
-    await _repeatOnFailure(() => _mdu.ping(0, 0));
-
     // zsu -> TF starts at 3
     // zpp -> TF starts at 1
     final tfStart = widget._zpp != null ? 1 : 3;
     for (int tf = tfStart; tf <= 4; ++tf) {
       final msg = await _repeatOnFailure(() => _mdu.configTransferRate(tf));
-      debugPrint('Set transfer rate $tf $msg');
-      if (msg[0] == MduService.nak && msg[1] == MduService.nak) return msg;
+      if (!msg.contains(MduService.ack)) return msg;
     }
 
     final msg = await _repeatOnFailure(() => _mdu.configTransferRate(0));
-    debugPrint('Set transfer rate fallback $msg');
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('No common transfer rate found');
+    }
+
     return msg;
   }
 
   /// \todo document
   Future<Uint8List> _zppValid() async {
-    setState(() {
-      _status = 'Check if ZPP is valid';
-    });
-
-    return await _repeatOnFailure(
+    _setStatusState('Check if ZPP is valid');
+    final msg = await _repeatOnFailure(
       () => _mdu.zppValidQuery(widget._zpp!.id, widget._zpp!.flash.length),
     );
+    if (msg.contains(MduService.ack)) return _setErrorState('ZPP not valid');
+    return msg;
   }
 
   /// \todo document
   Future<Uint8List> _zppUpdate() async {
-    setState(() {
-      _status = 'Erasing';
-    });
+    _setStatusState('Erasing');
     var msg = await _repeatOnFailure(
       () => _mdu.zppErase(0, widget._zpp!.flash.length),
     );
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) return _setErrorState('Erasing failed');
 
-    // Check busy every 5s
-    for (var i = 0; i < 200 / 5; ++i) {
-      await Future.delayed(const Duration(seconds: 5));
+    /// \warning
+    /// During erasing busy must be checked periodically within the HTTP receive timeout.
+    for (var i = 0; i < (200 / 3).ceil(); ++i) {
+      await Future.delayed(const Duration(seconds: 3));
       msg = await _repeatOnFailure(() => _mdu.busy());
       if (!msg.contains(MduService.ack)) break;
     }
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) return _setErrorState('Erasing failed');
 
     //
-    setState(() {
-      _status = 'Writing';
-    });
+    _setStatusState('Writing');
     msg = await _zppWrite(widget._zpp!.flash);
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) return _setErrorState('Writing failed');
 
     //
     msg = await _repeatOnFailure(
       () => _mdu.zppUpdateEnd(0, widget._zpp!.flash.length),
     );
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('ZPP update end check failed');
+    }
 
     return msg;
   }
@@ -246,7 +234,6 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         else if (failCount < 10) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('zppUpdate failed $failCount');
           break;
         }
         // Or bail
@@ -255,12 +242,11 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         }
       }
 
-      //
-      setState(() {
-        _status =
-            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
-        _progress = i / blocks.length;
-      });
+      // Update progress
+      _setProgressState(
+        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        i / blocks.length,
+      );
     }
 
     return Uint8List.fromList([MduService.nak, MduService.nak]);
@@ -275,9 +261,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
   /// \todo document
   Future<Uint8List> _zsuSearch() async {
-    setState(() {
-      _status = 'Search decoders';
-    });
+    _setStatusState('Search decoders');
 
     for (final entry in widget._zsu!.firmwares.entries) {
       final decoderId = entry.key;
@@ -299,28 +283,28 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       }
     }
 
-    return Uint8List.fromList(
-      [_decoders.isEmpty ? MduService.ack : MduService.nak, MduService.nak],
-    );
+    if (_decoders.isEmpty) return _setErrorState('No decoders found');
+
+    return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
 
   /// \todo document
   Future<Uint8List> _zsuUpdate(int decoderId) async {
     // Ping all decoders
+    _setStatusState('Ping');
     setState(() {
       _decoders[decoderId] = ListTile(
         leading: const Icon(Icons.pending_outlined),
         title: _decoders[decoderId]!.title,
       );
-      _status = 'Ping';
-      _progress = null;
     });
     await _repeatOnFailure(() => _mdu.ping(0, 0));
 
     // Ping decoder to update
     var msg = await _repeatOnFailure(() => _mdu.ping(0, decoderId));
-    debugPrint('Ping $decoderId $msg');
-    if (msg[0] == MduService.ack || msg[1] == MduService.nak) return msg;
+    if (msg[0] == MduService.ack || msg[1] == MduService.nak) {
+      return _setErrorState('Decoder does not respond', decoderId);
+    }
 
     // Salsa20 initialization vector
     final ZsuFirmware zsuFirmware = widget._zsu!.firmwares[decoderId]!;
@@ -328,13 +312,11 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     if (msg.contains(MduService.ack)) return msg;
 
     // Erase flash
-    setState(() {
-      _status = 'Erasing';
-    });
+    _setStatusState('Erasing');
     msg = await _repeatOnFailure(
       () => _mdu.zsuErase(0, zsuFirmware.bin.length - 1),
     );
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) return _setErrorState('Erasing failed');
 
     // Busy doesn't work for internal memory so don't check the response
     for (var i = 0; i < 5; ++i) {
@@ -343,17 +325,17 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     }
 
     // Write flash
+    _setStatusState('Writing');
     setState(() {
-      _status = 'Writing';
       _decoders[decoderId] = ListTile(
         leading: const Icon(Icons.downloading_outlined),
         title: _decoders[decoderId]!.title,
       );
     });
     msg = await _zsuWrite(zsuFirmware.bin);
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) return _setErrorState('Writing failed');
 
-    // CRC32 check
+    // CRC32 start
     msg = await _repeatOnFailure(
       () => _mdu.zsuCrc32Start(
         0,
@@ -361,9 +343,15 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         crc32(zsuFirmware.bin),
       ),
     );
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('ZSU update CRC32 check failed');
+    }
+
+    // CRC32 result
     msg = await _repeatOnFailure(() => _mdu.zsuCrc32Result());
-    if (msg.contains(MduService.ack)) return msg;
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('ZSU update CRC32 check failed');
+    }
 
     // Done with this ID
     setState(() {
@@ -400,7 +388,6 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         else if (failCount < 10) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('zsuUpdate failed $failCount');
           break;
         }
         // Or bail
@@ -409,12 +396,11 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         }
       }
 
-      //
-      setState(() {
-        _status =
-            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
-        _progress = i / blocks.length;
-      });
+      // Update progress
+      _setProgressState(
+        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        i / blocks.length,
+      );
     }
 
     return Uint8List.fromList([MduService.nak, MduService.nak]);
@@ -429,10 +415,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
   /// \todo document
   Future<Uint8List> _disconnect() async {
-    setState(() {
-      _status = 'Done';
-      _option = 'OK';
-    });
+    _setStatusState('Done', 'OK');
     await _mdu.close();
     return Uint8List.fromList([MduService.nak, MduService.nak]);
   }
@@ -446,5 +429,41 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       if (msg[0] == MduService.nak) return msg;
     }
     return msg;
+  }
+
+  /// \todo document
+  Future<void> _setStatusState(String status, [String? option]) async {
+    setState(() {
+      _status = status;
+      if (option != null) {
+        _option = option;
+        _progress = 0;
+      } else {
+        _progress = null;
+      }
+    });
+  }
+
+  /// \todo document
+  Future<void> _setProgressState(String status, double progress) async {
+    setState(() {
+      _status = status;
+      _progress = progress;
+    });
+  }
+
+  /// \todo document
+  Future<Uint8List> _setErrorState(String status, [int? decoderId]) async {
+    setState(() {
+      if (decoderId != null) {
+        _decoders[decoderId] = ListTile(
+          leading: const Icon(Icons.error_outlined),
+          title: _decoders[decoderId]!.title,
+        );
+      }
+      _status = status;
+      _progress = 0;
+    });
+    return Uint8List.fromList([MduService.ack, MduService.ack]);
   }
 }

@@ -45,7 +45,6 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   @override
   void initState() {
-    debugPrint('OtaDialog initState');
     super.initState();
     _bin = widget._bin;
     _ota = ref.read(otaServiceProvider);
@@ -58,7 +57,6 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   @override
   void dispose() {
-    debugPrint('OtaDialog dispose');
     _ota.close();
     super.dispose();
   }

@@ -51,7 +51,7 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-add_custom_target(Frontend DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
+add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
 
 if(OPENREMISE_FRONTEND_BUILD_DOCS)
   add_subdirectory(docs)

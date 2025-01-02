@@ -35,6 +35,7 @@ class ServiceScreen extends ConsumerStatefulWidget {
 /// \todo document
 class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
+  IconData _IconData = Icons.circle_outlined;
 
   /// \todo document
   @override
@@ -59,17 +60,21 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
         if (snapshot.hasData) {
           switch (snapshot.requireData) {
             case LanXCvNackSc():
+              _updateIconData(Icons.error_outline);
               // TODO some error here?
               debugPrint('LanXCvNackSc');
             case LanXCvNack():
+              _updateIconData(Icons.error_outline);
               // TODO some error here?
               debugPrint('LanXCvNack');
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
+                _updateIconData(Icons.check_circle_outline);
                 _formKey.currentState?.fields['CV value']
                     ?.didChange(value.toString());
               } else {
+                _updateIconData(Icons.error_outline);
                 _formKey.currentState?.fields['CV value']?.didChange(null);
               }
             default:
@@ -151,6 +156,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                           keyboardType: TextInputType.number,
                         ),
                       ),
+                      Icon(_IconData),
                     ],
                   ),
                 ),
@@ -173,6 +179,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                               final number = int.parse(
                                 _formKey.currentState?.value['CV number'],
                               );
+                              _updateIconData(Icons.pending_outlined);
                               if (serviceMode) {
                                 z21.lanXCvRead(number - 1);
                               } else {
@@ -198,6 +205,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                               final value = int.parse(
                                 _formKey.currentState?.value['CV value'],
                               );
+                              _updateIconData(Icons.pending_outlined);
                               if (serviceMode) {
                                 z21.lanXCvWrite(number - 1, value);
                               } else {
@@ -224,5 +232,10 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
         );
       },
     );
+  }
+
+  void _updateIconData(IconData iconData) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => setState(() => _IconData = iconData));
   }
 }
