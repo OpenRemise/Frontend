@@ -26,12 +26,6 @@ enum State {
   Suspend,
   ShortCircuit,
 
-  // USB protocols
-  DCC_EIN,
-  DECUP_EIN,
-  MDU_EIN,
-  SUSIV2,
-
   // Outputs
   DCCOperations,
   DCCService,
@@ -40,6 +34,12 @@ enum State {
   MDUZpp,
   MDUZsu,
   ZUSI,
+
+  // USB protocols
+  ULF_DCC_EIN,
+  ULF_DECUP_EIN,
+  ULF_MDU_EIN,
+  ULF_SUSIV2,
 
   // System
   OTA,

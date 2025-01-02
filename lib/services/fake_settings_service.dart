@@ -24,8 +24,9 @@ class FakeSettingsService implements SettingsService {
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
     currentLimit: 3,
+    currentLimitService: 1,
     currentShortCircuitTime: 20,
-    dccPreamble: 21,
+    dccPreamble: 17,
     dccBit1Duration: 58,
     dccBit0Duration: 100,
     dccBiDiBitDuration: 60,
@@ -58,6 +59,8 @@ class FakeSettingsService implements SettingsService {
         httpTransmitTimeout:
             config.httpTransmitTimeout ?? _config.httpTransmitTimeout,
         currentLimit: config.currentLimit ?? _config.currentLimit,
+        currentLimitService:
+            config.currentLimitService ?? _config.currentLimitService,
         currentShortCircuitTime:
             config.currentShortCircuitTime ?? _config.currentShortCircuitTime,
         dccPreamble: config.dccPreamble ?? _config.dccPreamble,

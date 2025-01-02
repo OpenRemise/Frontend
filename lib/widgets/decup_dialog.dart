@@ -49,7 +49,6 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   @override
   void initState() {
-    debugPrint('DecupDialog initState');
     super.initState();
     _decup = ref.read(decupServiceProvider('zsu/'));
     _events = StreamQueue(_decup.stream);
@@ -61,7 +60,6 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   @override
   void dispose() {
-    debugPrint('DecupDialog dispose');
     _decup.close();
     super.dispose();
   }
@@ -148,7 +146,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   Future<void> _preamble() async {
     _decup.preamble();
     final msg = await _events.next;
-    debugPrint('preamble $msg');
+    debugPrint('DECUP preamble $msg');
   }
 
   /// \todo document
@@ -237,7 +235,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         else if (failCount < 10) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('decupUpdate failed $failCount');
+          debugPrint('DECUP decupUpdate failed $failCount');
           break;
         }
         // Or bail

@@ -14,6 +14,12 @@
       "command": "rm -rf build && find . -type f \\( -name \"*.*.dart\" \\) -delete"
     },
     {
+      "label": "Run flutter pub upgrade --tighten",
+      "type": "shell",
+      "isBackground": true,
+      "command": "flutter pub upgrade --tighten"
+    },
+    {
       "label": "Run Frontend OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "type": "shell",
       "isBackground": true,
