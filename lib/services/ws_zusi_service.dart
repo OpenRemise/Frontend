@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -37,29 +37,29 @@ class WsZusiService implements ZusiService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void readCv(int address) async {
+  void readCv(int cvAddress) async {
     List<int> data = [
       0x01, // Command
       0x00, // Count
-      (address >> 24) & 0xFF, // Address
-      (address >> 16) & 0xFF,
-      (address >> 8) & 0xFF,
-      (address >> 0) & 0xFF,
+      (cvAddress >> 24) & 0xFF, // CV address
+      (cvAddress >> 16) & 0xFF,
+      (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
   }
 
   @override
-  void writeCv(int address, int value) async {
+  void writeCv(int cvAddress, int byte) async {
     List<int> data = [
       0x02, // Command
       0x00, // Count
-      (address >> 24) & 0xFF, // Address
-      (address >> 16) & 0xFF,
-      (address >> 8) & 0xFF,
-      (address >> 0) & 0xFF,
-      value & 0xFF,
+      (cvAddress >> 24) & 0xFF, // CV address
+      (cvAddress >> 16) & 0xFF,
+      (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      byte & 0xFF, // CV value
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
@@ -88,10 +88,6 @@ class WsZusiService implements ZusiService {
       (address >> 0) & 0xFF,
     ];
     data.addAll(chunk);
-
-    // this should normally be zero?
-    // debugPrint('${268 - 1 - data.length}'); // TODO remove
-
     data.addAll(List<int>.filled(268 - 1 - data.length, 0xFF));
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));

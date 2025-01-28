@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -104,8 +104,8 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
-  void lanXCvWrite(int cvAddress, int value) {
-    assert(cvAddress <= 1024 && value <= 255);
+  void lanXCvWrite(int cvAddress, int byte) {
+    assert(cvAddress <= 1024 && byte <= 255);
     List<int> data = [
       0x0A,
       0x00,
@@ -115,15 +115,15 @@ class WsZ21Service implements Z21Service {
       DB0.LAN_X_CV_WRITE.value,
       (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF,
-      value & 0xFF, // CV value
+      byte & 0xFF, // CV value
     ];
     data.add(exor(data.sublist(4)));
     _channel.sink.add(Uint8List.fromList(data));
   }
 
   @override
-  void lanXGetLocoInfo(int address) {
-    assert(address <= 9999);
+  void lanXGetLocoInfo(int locoAddress) {
+    assert(locoAddress <= 9999);
     List<int> data = [
       0x09,
       0x00,
@@ -131,17 +131,17 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_GET_LOCO_INFO.value,
       DB0.LAN_X_GET_LOCO_INFO.value,
-      (address >> 8) & 0xFF, // Address
-      (address >> 0) & 0xFF,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
     ];
     data.add(exor(data.sublist(4)));
     _channel.sink.add(Uint8List.fromList(data));
   }
 
   @override
-  void lanXSetLocoDrive(int address, int speedSteps, int rvvvvvvv) {
+  void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv) {
     assert(
-      address <= 9999 && [0, 2, 3].contains(speedSteps) && rvvvvvvv <= 0xFF,
+      locoAddress <= 9999 && [0, 2, 3].contains(speedSteps) && rvvvvvvv <= 0xFF,
     );
     List<int> data = [
       0x0A,
@@ -154,8 +154,8 @@ class WsZ21Service implements Z21Service {
           : speedSteps == 2
               ? DB0.LAN_X_SET_LOCO_DRIVE_28.value
               : DB0.LAN_X_SET_LOCO_DRIVE_128.value,
-      (address >> 8) & 0xFF, // Address
-      (address >> 0) & 0xFF,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
       rvvvvvvv,
     ];
     data.add(exor(data.sublist(4)));
@@ -163,8 +163,8 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
-  void lanXSetLocoFunction(int address, int state, int index) {
-    assert(address <= 9999 && state <= 3 && index <= 0x3F);
+  void lanXSetLocoFunction(int locoAddress, int state, int index) {
+    assert(locoAddress <= 9999 && state <= 3 && index <= 0x3F);
     List<int> data = [
       0x0A,
       0x00,
@@ -172,8 +172,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_SET_LOCO_FUNCTION.value,
       DB0.LAN_X_SET_LOCO_FUNCTION.value,
-      (address >> 8) & 0xFF, // Address
-      (address >> 0) & 0xFF,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
       state << 6 | index,
     ];
     data.add(exor(data.sublist(4)));
@@ -181,8 +181,8 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
-  void lanXCvPomWriteByte(int address, int cvAddress, int value) {
-    assert(address <= 9999 && cvAddress <= 1024 && value <= 255);
+  void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte) {
+    assert(locoAddress <= 9999 && cvAddress <= 1024 && byte <= 255);
     List<int> data = [
       0x0C,
       0x00,
@@ -190,19 +190,19 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_CV_POM_WRITE_BYTE.value,
       DB0.LAN_X_CV_POM_WRITE_BYTE.value,
-      (address >> 8) & 0xFF, // Address
-      (address >> 0) & 0xFF,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
       0xEC | (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF, //
-      value & 0xFF, // CV value
+      byte & 0xFF, // CV value
     ];
     data.add(exor(data.sublist(4)));
     _channel.sink.add(Uint8List.fromList(data));
   }
 
   @override
-  void lanXCvPomReadByte(int address, int cvAddress) {
-    assert(address <= 9999 && cvAddress <= 1024);
+  void lanXCvPomReadByte(int locoAddress, int cvAddress) {
+    assert(locoAddress <= 9999 && cvAddress <= 1024);
     List<int> data = [
       0x0C,
       0x00,
@@ -210,8 +210,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_CV_POM_READ_BYTE.value,
       DB0.LAN_X_CV_POM_READ_BYTE.value,
-      (address >> 8) & 0xFF, // Address
-      (address >> 0) & 0xFF,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
       0xE4 | (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF, //
       0 & 0xFF, // CV value

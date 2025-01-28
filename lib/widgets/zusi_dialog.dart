@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/providers/zusi_service.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:async/async.dart';
@@ -25,9 +26,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
 class ZusiDialog extends ConsumerStatefulWidget {
-  final Uint8List? _bytes;
+  final Zpp _zpp;
 
-  const ZusiDialog(this._bytes, {super.key});
+  const ZusiDialog.zpp(this._zpp, {super.key});
 
   @override
   ConsumerState<ZusiDialog> createState() => _ZusiDialogState();
@@ -35,10 +36,11 @@ class ZusiDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _ZusiDialogState extends ConsumerState<ZusiDialog> {
-  late final Uint8List _bytes;
-  late final Uint8List _flash;
+  static const int _retries = 10;
+
   late final ZusiService _zusi;
   late final StreamQueue<Uint8List> _events;
+
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -49,7 +51,6 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     super.initState();
     _zusi = ref.read(zusiServiceProvider);
     _events = StreamQueue(_zusi.stream);
-    if (widget._bytes != null) _bytes = widget._bytes!;
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _execute().catchError((_) {}),
     );
@@ -98,64 +99,56 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     var msg = await _features();
     if (msg.contains(ZusiService.nak)) return;
 
-    msg = await _erase();
+    msg = await _zppErase();
     if (msg.contains(ZusiService.nak)) return;
 
-    msg = await _write();
+    msg = await _zppUpdate();
     if (msg.contains(ZusiService.nak)) return;
 
-    await _exit();
+    msg = await _zppCvs();
+    if (msg.contains(ZusiService.nak)) return;
+
+    msg = await _exit();
+    if (msg.contains(ZusiService.nak)) return;
+
+    await _disconnect();
   }
 
   /// \todo document
-  Future<void> _download() async {
-    final int flashStart =
-        _bytes[5] << 24 | _bytes[6] << 16 | _bytes[7] << 8 | _bytes[8] << 0;
-    final int flashLength =
-        _bytes[9] << 24 | _bytes[10] << 16 | _bytes[11] << 8 | _bytes[12] << 0;
-    final int flashEnd = flashStart + flashLength;
-    _flash = Uint8List.sublistView(_bytes, flashStart, flashEnd);
-  }
+  Future<void> _download() async {}
 
   /// \todo document
   Future<void> _connect() async {
-    setState(() {
-      _status = 'Connecting';
-    });
+    _setStatusState('Connecting');
     await _zusi.ready;
   }
 
   /// \todo document
   Future<Uint8List> _features() async {
-    final msg = await _repeatOnFailure(() => _zusi.features());
+    final msg = await _retryOnFailure(() => _zusi.features());
     debugPrint('ZUSI features $msg');
     return msg;
   }
 
   /// \todo document
-  Future<Uint8List> _erase() async {
-    setState(() {
-      _status = 'Erasing';
-    });
-    final msg = await _repeatOnFailure(() => _zusi.eraseZpp());
-    debugPrint('ZUSI erase $msg');
+  Future<Uint8List> _zppErase() async {
+    _setStatusState('Erasing');
+    final msg = await _retryOnFailure(() => _zusi.eraseZpp());
     return msg;
   }
 
   /// \todo document
-  Future<Uint8List> _write() async {
-    setState(() {
-      _status = 'Writing';
-    });
+  Future<Uint8List> _zppUpdate() async {
+    _setStatusState('Writing');
 
     const int blockSize = 256;
-    final blocks = _flash.slices(blockSize).toList();
+    final blocks = widget._zpp.flash.slices(blockSize).toList();
 
     int i = 0;
     int failCount = 0;
     while (i < blocks.length) {
-      // Transmit 256 (or less) blocks
-      final n = min(blockSize, blocks.length - i);
+      // Number of blocks transmit at once
+      final n = min(256, blocks.length - i);
       for (var j = 0; j < n; ++j) {
         _zusi.writeZpp((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
       }
@@ -168,7 +161,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
           ++i;
         }
         // Or back (limited number of times)
-        else if (failCount < 10) {
+        else if (failCount < _retries) {
           ++failCount;
           i = max(i - 1, 0);
           debugPrint('ZUSI zusiUpdate failed $failCount');
@@ -180,36 +173,86 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
         }
       }
 
-      //
-      setState(() {
-        _status =
-            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB';
-        _progress = i / blocks.length;
-      });
+      // Update progress
+      _setProgressState(
+        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        i / blocks.length,
+      );
     }
 
     return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
+  Future<Uint8List> _zppCvs() async {
+    int i = 0;
+    for (final entry in widget._zpp.cvs.entries) {
+      final msg =
+          await _retryOnFailure(() => _zusi.writeCv(entry.key, entry.value));
+      if (msg.contains(ZusiService.nak)) return msg;
+
+      // Update progress
+      _setProgressState(
+        'Writing ${++i} / ${widget._zpp.cvs.length} CVs',
+        i / widget._zpp.cvs.length,
+      );
+    }
+    return Uint8List.fromList([ZusiService.ack]);
+  }
+
+  /// \todo document
   Future<Uint8List> _exit() async {
-    setState(() {
-      _status = 'Done';
-      _option = 'OK';
-    });
-    final msg = await _repeatOnFailure(() => _zusi.exit(0x00));
-    debugPrint('ZUSI exit $msg');
+    final msg = await _retryOnFailure(() => _zusi.exit(1 << 1));
     return msg;
   }
 
   /// \todo document
-  Future<Uint8List> _repeatOnFailure(Function() f, {int repeat = 10}) async {
+  Future<void> _disconnect() async {
+    _setStatusState('Done', 'OK');
+    await _zusi.close();
+  }
+
+  /// \todo document
+  Future<Uint8List> _retryOnFailure(
+    Function() f, {
+    int retries = _retries,
+  }) async {
     var msg = Uint8List.fromList([ZusiService.nak]);
-    for (int i = 0; i < repeat; i++) {
+    for (int i = 0; i < retries; i++) {
       f();
       msg = await _events.next;
       if (msg[0] == ZusiService.ack) return msg;
     }
     return msg;
+  }
+
+  /// \todo document
+  Future<void> _setStatusState(String status, [String? option]) async {
+    setState(() {
+      _status = status;
+      if (option != null) {
+        _option = option;
+        _progress = 0;
+      } else {
+        _progress = null;
+      }
+    });
+  }
+
+  /// \todo document
+  Future<void> _setProgressState(String status, double progress) async {
+    setState(() {
+      _status = status;
+      _progress = progress;
+    });
+  }
+
+  /// \todo document
+  Future<Uint8List> _setErrorState(String status) async {
+    setState(() {
+      _status = status;
+      _progress = 0;
+    });
+    return Uint8List.fromList([ZusiService.nak]);
   }
 }

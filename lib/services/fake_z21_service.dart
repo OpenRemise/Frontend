@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -75,14 +75,14 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
-  void lanXCvWrite(int cvAddress, int value) {
+  void lanXCvWrite(int cvAddress, int byte) {
     Future.delayed(
       const Duration(seconds: 1),
       () {
         if (_controller.isClosed) return;
         _cvs = [
           for (var i = 0; i < _cvs.length; ++i)
-            if (i == cvAddress) value else _cvs[i],
+            if (i == cvAddress) byte else _cvs[i],
         ];
         _controller.sink
             .add(LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress]));
@@ -91,11 +91,11 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
-  void lanXGetLocoInfo(int address) {
+  void lanXGetLocoInfo(int locoAddress) {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == address,
-      orElse: () => Loco(address: address, name: address.toString()),
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
     );
     if (_controller.isClosed) return;
     _controller.sink.add(
@@ -113,30 +113,30 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
-  void lanXSetLocoDrive(int address, int speedSteps, int rvvvvvvv) {
+  void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv) {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == address,
-      orElse: () => Loco(address: address, name: address.toString()),
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
     );
     ref.read(locosProvider.notifier).updateLoco(
-          address,
+          locoAddress,
           loco.copyWith(rvvvvvvv: rvvvvvvv, speedSteps: speedSteps),
         );
   }
 
   @override
-  void lanXSetLocoFunction(int address, int state, int index) {
+  void lanXSetLocoFunction(int locoAddress, int state, int index) {
     // TODO: implement lanXSetLocoFunction
   }
 
   @override
-  void lanXCvPomWriteByte(int address, int cvAddress, int value) {
+  void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte) {
     // TODO: implement lanXCvPomWriteByte
   }
 
   @override
-  void lanXCvPomReadByte(int address, int cvAddress) {
+  void lanXCvPomReadByte(int locoAddress, int cvAddress) {
     // TODO: implement lanXCvPomReadByte
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -494,12 +494,12 @@ abstract interface class Z21Service {
   void lanXSetTrackPowerOff();
   void lanXSetTrackPowerOn();
   void lanXCvRead(int cvAddress);
-  void lanXCvWrite(int cvAddress, int value);
-  void lanXGetLocoInfo(int address);
-  void lanXSetLocoDrive(int address, int speedSteps, int rvvvvvvv);
-  void lanXSetLocoFunction(int address, int state, int index);
-  void lanXCvPomWriteByte(int address, int cvAddress, int value);
-  void lanXCvPomReadByte(int address, int cvAddress);
+  void lanXCvWrite(int cvAddress, int byte);
+  void lanXGetLocoInfo(int locoAddress);
+  void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv);
+  void lanXSetLocoFunction(int locoAddress, int state, int index);
+  void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte);
+  void lanXCvPomReadByte(int locoAddress, int cvAddress);
   void lanSystemStateGetData();
 
   static Command convert(Uint8List dataset) {
