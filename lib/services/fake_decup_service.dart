@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constants/initial_cvs.dart';
 import 'package:Frontend/constants/mx_decoder_ids.dart';
 import 'package:Frontend/services/decup_service.dart';
 import 'package:flutter/foundation.dart';
@@ -39,9 +40,9 @@ class FakeDecupService implements DecupService {
       _controller.sink.close();
 
   @override
-  void preamble() async {
+  void zppPreamble() async {
     await Future.delayed(
-      const Duration(milliseconds: 50),
+      const Duration(milliseconds: 25),
       () {
         if (_controller.isClosed) return;
         _controller.sink.add(Uint8List.fromList(List.empty()));
@@ -50,7 +51,87 @@ class FakeDecupService implements DecupService {
   }
 
   @override
-  void startByte(int byte) {
+  void zppDecoderId() async {
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+      () {
+        if (_controller.isClosed) return;
+        for (var i = 0; i < 8; ++i) {
+          _controller.sink.add(
+            Uint8List.fromList(
+              [_decoderId & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  void zppReadCv(int cvAddress) async {
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+      () {
+        if (_controller.isClosed) return;
+        final cv = initialCvs[cvAddress];
+        for (var i = 0; i < 8; ++i) {
+          _controller.sink.add(
+            Uint8List.fromList(
+              [cv & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  void zppWriteCv(int cvAddress, int byte) async {
+    await Future.delayed(
+      const Duration(milliseconds: 50),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+      },
+    );
+  }
+
+  @override
+  void zppErase() async {
+    await Future.delayed(
+      const Duration(seconds: 10),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList(List.empty()));
+      },
+    );
+  }
+
+  @override
+  void zppBlocks(int count, Uint8List chunk) async {
+    assert(chunk.length == 256);
+    await Future.delayed(
+      Duration(milliseconds: 10 * chunk.length),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+      },
+    );
+  }
+
+  @override
+  void zsuPreamble() async {
+    await Future.delayed(
+      const Duration(milliseconds: 25),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(Uint8List.fromList(List.empty()));
+      },
+    );
+  }
+
+  @override
+  void zsuDecoderId(int byte) {
     if (_controller.isClosed) return;
     _controller.sink.add(
       Uint8List.fromList(
@@ -60,25 +141,25 @@ class FakeDecupService implements DecupService {
   }
 
   @override
-  void blockCount(int count) {
+  void zsuBlockCount(int count) {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
   }
 
   @override
-  void securityByte1() {
+  void zsuSecurityByte1() {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
   }
 
   @override
-  void securityByte2() {
+  void zsuSecurityByte2() {
     if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
   }
 
   @override
-  void block(int count, Uint8List chunk) async {
+  void zsuBlocks(int count, Uint8List chunk) async {
     assert(chunk.length == 32 || chunk.length == 64);
     await Future.delayed(
       Duration(milliseconds: 50 * chunk.length),

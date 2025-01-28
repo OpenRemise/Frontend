@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,10 +23,17 @@ abstract interface class DecupService {
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void preamble();
-  void startByte(int byte);
-  void blockCount(int count);
-  void securityByte1();
-  void securityByte2();
-  void block(int count, Uint8List chunk);
+  void zppPreamble();
+  void zppDecoderId();
+  void zppReadCv(int cvAddress);
+  void zppWriteCv(int cvAddress, int byte);
+  void zppErase();
+  void zppBlocks(int count, Uint8List chunk);
+
+  void zsuPreamble();
+  void zsuDecoderId(int byte);
+  void zsuBlockCount(int count);
+  void zsuSecurityByte1();
+  void zsuSecurityByte2();
+  void zsuBlocks(int count, Uint8List chunk);
 }

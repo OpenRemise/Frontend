@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ int _crc8Byte(int byte) {
 }
 
 /// \todo document
-int crc8<T extends List>(T bytes) {
-  return bytes.fold(0, (previousValue, element) {
+int crc8<T extends List>(T bytes, [int init = 0]) {
+  return bytes.fold(init, (previousValue, element) {
     return _crc8Byte(previousValue ^ element);
   });
 }

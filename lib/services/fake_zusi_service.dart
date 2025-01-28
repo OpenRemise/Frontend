@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,9 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constants/initial_cvs.dart';
 import 'package:Frontend/services/zusi_service.dart';
+import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeZusiService implements ZusiService {
@@ -32,15 +34,27 @@ class FakeZusiService implements ZusiService {
       Future.delayed(Duration.zero);
 
   @override
-  void readCv(int address) {
-    // TODO: implement readCv
-    throw UnimplementedError();
+  void readCv(int cvAddress) async {
+    await Future.delayed(const Duration(milliseconds: 10), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(
+        Uint8List.fromList(
+          [
+            ZusiService.ack,
+            initialCvs[cvAddress],
+            crc8([initialCvs[cvAddress]]),
+          ],
+        ),
+      );
+    });
   }
 
   @override
-  void writeCv(int address, int value) {
-    // TODO: implement writeCv
-    throw UnimplementedError();
+  void writeCv(int cvAddress, int byte) async {
+    await Future.delayed(const Duration(milliseconds: 10), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
+    });
   }
 
   @override

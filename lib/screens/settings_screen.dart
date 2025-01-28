@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               /// All widgets must be visible to the FormBuilder all the time.Do **not** use lazy loading inside a FormBuilder.
               data: (data) => SliverToBoxAdapter(
                 child: ListView(
+                  primary: false,
                   shrinkWrap: true,
                   children: [
                     Tooltip(
@@ -442,11 +443,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           labelText: 'DCC programming ack current [mA]',
                         ),
                         valueTransformer: (value) => value!.toInt(),
-                        min: 5,
-                        max: 255,
-                        divisions: (255 - 5) ~/ 5,
+                        min: 10,
+                        max: 250,
+                        divisions: (250 - 10) ~/ 5,
                         displayValues: DisplayValues.current,
                       ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderCheckbox(
+                            name: 'TODO',
+                            decoration: const InputDecoration(
+                              icon: Icon(null),
+                              labelText: 'DCC flags',
+                            ),
+                            title: const Text('Short loco addresses to 1-127'),
+                          ),
+                        ),
+                        Expanded(
+                          child: FormBuilderCheckbox(
+                            name: 'TODO',
+                            decoration: const InputDecoration(
+                              icon: Icon(null),
+                              labelText: '',
+                            ),
+                            title: const Text('Repeat higher functions (>F13)'),
+                          ),
+                        ),
+                      ],
                     ),
                     const Divider(),
                     Tooltip(

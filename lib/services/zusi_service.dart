@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Vincent Hamp
+// Copyright (C) 2025 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ abstract interface class ZusiService {
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void readCv(int address);
-  void writeCv(int address, int value);
+  void readCv(int cvAddress);
+  void writeCv(int cvAddress, int byte);
   void eraseZpp();
   void writeZpp(int address, Uint8List chunk);
   void features();
