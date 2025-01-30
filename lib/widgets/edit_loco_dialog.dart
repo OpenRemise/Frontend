@@ -94,6 +94,10 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
       ),
       actions: <Widget>[
         TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
           onPressed: () {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               debugPrint(_formKey.currentState?.value.toString());
@@ -109,10 +113,6 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
             }
           },
           child: const Text('OK'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
         ),
       ],
     );

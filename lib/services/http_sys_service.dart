@@ -35,4 +35,13 @@ class HttpSysService implements SysService {
       throw Exception('Failed to fetch sys');
     }
   }
+
+  @override
+  Future<void> restart() async {
+    final uri = Uri.http(_domain, 'sys/', {'restart': 'true'});
+    final response = await _client.get(uri);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to fetch sys');
+    }
+  }
 }

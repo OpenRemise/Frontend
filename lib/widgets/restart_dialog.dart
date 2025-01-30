@@ -13,29 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/models/info.dart';
-import 'package:Frontend/providers/sys_service.dart';
-import 'package:Frontend/services/sys_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'sys.g.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-@Riverpod(keepAlive: true)
-class Sys extends _$Sys {
-  late final SysService _service;
+class RestartDialog extends ConsumerWidget {
+  const RestartDialog({super.key});
 
+  /// \todo document
   @override
-  FutureOr<Info> build() async {
-    _service = ref.read(sysServiceProvider);
-    return _service.fetch(); // TODO this can potentially still fail
-  }
-
-  Future<void> fetchInfo() async {
-    state = await AsyncValue.guard(() async => _service.fetch());
-  }
-
-  Future<void> restart() async {
-    _service.restart();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AlertDialog(
+      title: const Text('Restart'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('OK'),
+        ),
+      ],
+    );
   }
 }
