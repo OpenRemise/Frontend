@@ -15,8 +15,10 @@
 
 import 'package:Frontend/models/config.dart';
 import 'package:Frontend/providers/settings.dart';
+import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/restart_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,6 +69,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 selectedIcon: const Icon(Icons.power_off_outlined),
                 icon: const Icon(Icons.power_outlined),
               ),
+              title: IconButton(
+                onPressed: () => showDialog<bool>(
+                  context: context,
+                  builder: (_) => const RestartDialog(),
+                  barrierDismissible: false,
+                ).then(
+                  (value) => value == true
+                      ? ref.read(sysProvider.notifier).restart()
+                      : null,
+                ),
+                tooltip: 'Restart',
+                icon: const Icon(Icons.restart_alt_outlined),
+              ),
               actions: [
                 IconButton(
                   onPressed: _defaults,
@@ -79,7 +94,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _formKey.currentState?.reset();
                   },
                   tooltip: 'Refresh',
-                  icon: const Icon(Icons.sync_outlined),
+                  icon: const Icon(Icons.refresh_outlined),
                 ),
               ],
               floating: true,
@@ -314,7 +329,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     Tooltip(
-                      message: 'Duration of a BiDi bit (during cutout)',
+                      message:
+                          'Duration of a BiDi bit during cutout (0=BiDi off)',
                       waitDuration: const Duration(seconds: 1),
                       child: FormBuilderSlider(
                         name: 'dcc_bidibit_dur',
@@ -338,7 +354,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     Tooltip(
-                      message: 'How a service mode verify is performed',
+                      message:
+                          'How a service mode verify is performed (bitwise, bytewise, or both)',
                       waitDuration: const Duration(seconds: 1),
                       child: FormBuilderSlider(
                         name: 'dcc_prog_type',
@@ -449,26 +466,101 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         displayValues: DisplayValues.current,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FormBuilderCheckbox(
-                            name: 'TODO',
-                            decoration: const InputDecoration(
-                              icon: Icon(null),
-                              labelText: 'DCC flags',
-                            ),
-                            title: const Text('Short loco addresses to 1-127'),
+                    FormBuilderCheckboxGroup(
+                      name: 'dcc_loco_flags',
+                      initialValue: [
+                        data.dccLocoFlags! & 0x80,
+                        data.dccLocoFlags! & 0x40,
+                        data.dccLocoFlags! & 0x20,
+                      ],
+                      decoration: const InputDecoration(
+                        icon: Icon(null),
+                        labelText: 'DCC locos',
+                      ),
+                      valueTransformer: (value) => value?.fold(
+                        0x02,
+                        (prev, cur) => prev | cur,
+                      ),
+                      options: const [
+                        FormBuilderFieldOption(
+                          value: 0x80,
+                          child: Tooltip(
+                            message:
+                                'Short loco addresses range from 1 to 127 (instead of 99)',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('Short loco addresses to 127'),
                           ),
                         ),
-                        Expanded(
-                          child: FormBuilderCheckbox(
-                            name: 'TODO',
-                            decoration: const InputDecoration(
-                              icon: Icon(null),
-                              labelText: '',
+                        FormBuilderFieldOption(
+                          value: 0x40,
+                          child: Tooltip(
+                            message: 'Repeat high function of locos cyclically',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('Repeat high loco functions (>F13)'),
+                          ),
+                        ),
+                        FormBuilderFieldOption(
+                          value: 0x20,
+                          child: Tooltip(
+                            message:
+                                'Set CV29 automatically if loco address changes',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('CV29 automatic address'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    FormBuilderCheckboxGroup(
+                      name: 'dcc_accy_flags',
+                      initialValue: [
+                        data.dccAccyFlags! & 0x40,
+                        data.dccAccyFlags! & 0x04,
+                        data.dccAccyFlags! & 0x02,
+                        data.dccAccyFlags! & 0x01,
+                      ],
+                      decoration: const InputDecoration(
+                        icon: Icon(null),
+                        labelText: 'DCC accessories',
+                      ),
+                      valueTransformer: (value) => value?.fold(
+                        0,
+                        (prev, cur) => prev | cur,
+                      ),
+                      options: const [
+                        FormBuilderFieldOption(
+                          value: 0x40,
+                          child: Tooltip(
+                            message:
+                                'Invert meaning of straight/branch or green/red',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('Invert green/red'),
+                          ),
+                        ),
+                        FormBuilderFieldOption(
+                          value: 0x04,
+                          child: Tooltip(
+                            message: 'Addressing compliant with RCN-213',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('RCN-213 addressing'),
+                          ),
+                        ),
+                        FormBuilderFieldOption(
+                          value: 0x02,
+                          child: Tooltip(
+                            message:
+                                'Workaround for incompatible clients that only activate outputs',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text(
+                              'Automatically deactivate complementary output',
                             ),
-                            title: const Text('Repeat higher functions (>F13)'),
+                          ),
+                        ),
+                        FormBuilderFieldOption(
+                          value: 0x01,
+                          child: Tooltip(
+                            message: 'Disable automatic timeout of outputs',
+                            waitDuration: const Duration(seconds: 1),
+                            child: Text('Disable timeout'),
                           ),
                         ),
                       ],
@@ -515,10 +607,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           OutlinedButton(
                             onPressed: () {
+                              if (_formKey.currentState == null) return;
+                              _formKey.currentState!.reset();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
                               if (_formKey.currentState?.saveAndValidate() ??
                                   false) {
                                 // Remove sta_pass if it only contains *
                                 var map = Map.of(_formKey.currentState!.value);
+                                debugPrint('$map');
                                 final String staPass = map['sta_pass']!;
                                 if (staPass == '*' * staPass.length) {
                                   map.remove('sta_pass');
@@ -529,16 +632,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               }
                             },
                             child: const Text('OK'),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                          ),
-                          OutlinedButton(
-                            onPressed: () {
-                              if (_formKey.currentState == null) return;
-                              _formKey.currentState!.reset();
-                            },
-                            child: const Text('Cancel'),
                           ),
                         ],
                       ),
@@ -572,9 +665,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _dccProgrammingTypeValues.indexOf('Bit and byte').toDouble(),
       'dcc_strtp_rs_pc': 25.0,
       'dcc_cntn_rs_pc': 6.0,
-      'dcc_prog_pc': 7.0,
       'dcc_verify_bit1': 1.0,
+      'dcc_prog_pc': 7.0,
       'dcc_ack_cur': 50.0,
+      'dcc_loco_flags': [0x80, 0x40, 0x20],
+      'dcc_accy_flags': [0x04],
       'mdu_preamble': 14.0,
       'mdu_ackreq': 10.0,
     });

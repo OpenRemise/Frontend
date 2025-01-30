@@ -112,7 +112,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       ref.read(dccProvider.notifier).fetchLocos();
                     },
                     tooltip: 'Refresh',
-                    icon: const Icon(Icons.sync_outlined),
+                    icon: const Icon(Icons.refresh_outlined),
                   ),
                 ],
                 floating: true,

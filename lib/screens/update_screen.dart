@@ -82,7 +82,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   _selected.clear();
                 }),
                 tooltip: 'Refresh',
-                icon: const Icon(Icons.sync_outlined),
+                icon: const Icon(Icons.refresh_outlined),
               ),
             ],
             floating: true,

@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:Frontend/models/info.dart';
 import 'package:Frontend/services/sys_service.dart';
+import 'package:flutter/foundation.dart';
 
 enum State {
   // Flags (8 bits)
@@ -69,5 +70,10 @@ class FakeSysService implements SysService {
         temperature: 40.0 + Random().nextDouble() * 2.0,
       ),
     );
+  }
+
+  @override
+  Future<void> restart() async {
+    debugPrint('restart');
   }
 }

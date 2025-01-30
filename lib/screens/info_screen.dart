@@ -79,7 +79,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   IconButton(
                     onPressed: () => ref.read(sysProvider.notifier).fetchInfo(),
                     tooltip: 'Refresh',
-                    icon: const Icon(Icons.sync_outlined),
+                    icon: const Icon(Icons.refresh_outlined),
                   ),
                 ],
                 floating: true,

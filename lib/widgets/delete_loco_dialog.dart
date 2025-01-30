@@ -42,6 +42,10 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
       title: Text('Delete ${loco == null ? 'all' : loco.name}'),
       actions: <Widget>[
         TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
           onPressed: () {
             if (loco != null) {
               ref.read(dccProvider.notifier).deleteLoco(loco.address);
@@ -60,10 +64,6 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
             Navigator.pop(context, true);
           },
           child: const Text('OK'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
         ),
       ],
     );
