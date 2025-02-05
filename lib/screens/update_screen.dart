@@ -17,6 +17,7 @@ import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/dark_mode.dart';
+import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/decup_dialog.dart';
@@ -167,13 +168,19 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
-                              title: const Row(
-                                children: [
-                                  Text(
-                                    'Upload sound to ZIMO MS decoder via ',
-                                  ),
-                                  Icon(OpenRemiseIcons.track),
-                                ],
+                              title: RichText(
+                                text: TextSpan(
+                                  text: 'Upload sound to ZIMO MS decoder via ',
+                                  children: const [
+                                    WidgetSpan(
+                                      child: Icon(OpenRemiseIcons.track),
+                                    ),
+                                  ],
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                                textScaler: TextScaler.linear(
+                                  ref.watch(textScalerProvider),
+                                ),
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -188,13 +195,19 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
-                              title: const Row(
-                                children: [
-                                  Text(
-                                    'Upload sound to ZIMO MX decoder via ',
-                                  ),
-                                  Icon(OpenRemiseIcons.track),
-                                ],
+                              title: RichText(
+                                text: TextSpan(
+                                  text: 'Upload sound to ZIMO MX decoder via ',
+                                  children: const [
+                                    WidgetSpan(
+                                      child: Icon(OpenRemiseIcons.track),
+                                    ),
+                                  ],
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                                textScaler: TextScaler.linear(
+                                  ref.watch(textScalerProvider),
+                                ),
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -209,13 +222,19 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
-                              title: const Row(
-                                children: [
-                                  Text(
-                                    'Upload sound to ZIMO decoder via ',
-                                  ),
-                                  Icon(OpenRemiseIcons.susi),
-                                ],
+                              title: RichText(
+                                text: TextSpan(
+                                  text: 'Upload sound to ZIMO decoder via ',
+                                  children: const [
+                                    WidgetSpan(
+                                      child: Icon(OpenRemiseIcons.susi),
+                                    ),
+                                  ],
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                                textScaler: TextScaler.linear(
+                                  ref.watch(textScalerProvider),
+                                ),
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -271,14 +290,22 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
-                                  title: Row(
-                                    children: [
-                                      Text(
-                                        'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 1 ? 'MS' : 'MX'} decoder via ',
-                                      ),
-                                      const Icon(OpenRemiseIcons.track),
-                                      const Text(' from file'),
-                                    ],
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text:
+                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 1 ? 'MS' : 'MX'} decoder via ',
+                                      children: const [
+                                        WidgetSpan(
+                                          child: Icon(OpenRemiseIcons.track),
+                                        ),
+                                        TextSpan(text: ' from file'),
+                                      ],
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                    ),
+                                    textScaler: TextScaler.linear(
+                                      ref.watch(textScalerProvider),
+                                    ),
                                   ),
                                   enabled: z21Status.hasValue &&
                                       z21Status.requireValue.trackVoltageOff(),
@@ -291,14 +318,21 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
-                                  title: const Row(
-                                    children: [
-                                      Text(
-                                        'Upload sound to ZIMO decoder via ',
-                                      ),
-                                      Icon(OpenRemiseIcons.susi),
-                                      Text(' from file'),
-                                    ],
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text: 'Upload sound to ZIMO decoder via ',
+                                      children: const [
+                                        WidgetSpan(
+                                          child: Icon(OpenRemiseIcons.susi),
+                                        ),
+                                        TextSpan(text: ' from file'),
+                                      ],
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                    ),
+                                    textScaler: TextScaler.linear(
+                                      ref.watch(textScalerProvider),
+                                    ),
                                   ),
                                   enabled: z21Status.hasValue &&
                                       z21Status.requireValue.trackVoltageOff(),

@@ -262,7 +262,9 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                                 .currentState?.value['address'],
                                           );
                                           z21.lanXCvPomReadByte(
-                                              address, number - 1);
+                                            address,
+                                            number - 1,
+                                          );
                                         }
                                       }
                                     },
