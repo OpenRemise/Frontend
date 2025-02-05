@@ -35,19 +35,19 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   http: ^1.3.0
-  multicast_dns: ^0.3.2+7
+  multicast_dns: ^0.3.2+8
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
   mockito: ^5.4.5
   flutter_form_builder: ^9.7.0
   form_builder_validators: ^11.1.1
   flutter_layout_grid: ^2.0.7
-  file_picker: ^8.1.7
+  file_picker: ^8.3.1
   web_socket_channel: ^3.0.2
   async: ^2.11.0
   flutter_svg: ^2.0.17
   geekyants_flutter_gauges: ^1.0.4
-  shared_preferences: ^2.4.0
+  shared_preferences: ^2.5.1
   shared_preferences_riverpod: ^0.3.0
   fixnum: ^1.1.1
   csv: ^6.0.0

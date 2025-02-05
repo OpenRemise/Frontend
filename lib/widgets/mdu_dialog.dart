@@ -41,11 +41,8 @@ class MduDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _MduDialogState extends ConsumerState<MduDialog> {
   static const int _retries = 10;
-
   late final MduService _mdu;
   late final StreamQueue<Uint8List> _events;
-
-  //
   final Map<int, ListTile> _decoders = {};
   String _status = '';
   String _option = 'Cancel';
@@ -318,7 +315,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     msg = await _retryOnFailure(
       () => _mdu.zsuErase(0, zsuFirmware.bin.length - 1),
     );
-    if (msg.contains(MduService.ack)) return _setErrorState('Erasing failed');
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('Erasing failed', decoderId);
+    }
 
     // Busy doesn't work for internal memory so don't check the response
     for (var i = 0; i < 5; ++i) {
@@ -335,7 +334,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       );
     });
     msg = await _zsuWrite(zsuFirmware.bin);
-    if (msg.contains(MduService.ack)) return _setErrorState('Writing failed');
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('Writing failed', decoderId);
+    }
 
     // CRC32 start
     msg = await _retryOnFailure(
@@ -346,13 +347,13 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       ),
     );
     if (msg.contains(MduService.ack)) {
-      return _setErrorState('ZSU update CRC32 check failed');
+      return _setErrorState('ZSU update CRC32 check failed', decoderId);
     }
 
     // CRC32 result
     msg = await _retryOnFailure(() => _mdu.zsuCrc32Result());
     if (msg.contains(MduService.ack)) {
-      return _setErrorState('ZSU update CRC32 check failed');
+      return _setErrorState('ZSU update CRC32 check failed', decoderId);
     }
 
     // Done with this ID
@@ -469,5 +470,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       _progress = 0;
     });
     return Uint8List.fromList([MduService.ack, MduService.ack]);
+  }
+
+  /// \todo document
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 }

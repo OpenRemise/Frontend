@@ -15,6 +15,7 @@
 
 import 'dart:math';
 
+import 'package:Frontend/constants/mx_decoder_ids.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/decup_service.dart';
@@ -25,7 +26,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-///
+/// \todo document
 class DecupDialog extends ConsumerStatefulWidget {
   final Zpp? _zpp;
   final Zsu? _zsu;
@@ -37,13 +38,11 @@ class DecupDialog extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _DecupDialogState();
 }
 
-///
+/// \todo document
 class _DecupDialogState extends ConsumerState<DecupDialog> {
   static const int _retries = 10;
-
   late final DecupService _decup;
   late final StreamQueue<Uint8List> _events;
-
   final Map<int, ListTile> _decoders = {};
   String _status = '';
   String _option = 'Cancel';
@@ -114,16 +113,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       for (var i = 0; i < 300; ++i) {
         await _zppPreamble();
       }
-
       var msg = await _zppSearch();
       if (!msg.contains(DecupService.ack)) return;
-
       msg = await _zppErase();
       if (!msg.contains(DecupService.ack)) return;
-
       msg = await _zppUpdate(widget._zpp!.flash);
       if (!msg.contains(DecupService.ack)) return;
-
       msg = await _zppCvs();
       if (!msg.contains(DecupService.ack)) return;
     }
@@ -132,19 +127,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       for (var i = 0; i < 300; ++i) {
         await _zsuPreamble();
       }
-
       var msg = await _zsuSearch();
       if (!msg.contains(DecupService.ack)) return;
-
       msg = await _zsuBlockCount();
       if (!msg.contains(DecupService.nak)) return;
-
-      msg = await _zsuSecurityByte1();
+      msg = await _zsuSecurityBytes();
       if (!msg.contains(DecupService.nak)) return;
-
-      msg = await _zsuSecurityByte2();
-      if (!msg.contains(DecupService.nak)) return;
-
       msg = await _zsuUpdate();
       if (!msg.contains(DecupService.ack)) return;
     }
@@ -168,27 +156,29 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   Future<Uint8List> _zppSearch() async {
     _decup.zppReadCv(7);
     var msgs = await _events.take(8);
-    debugPrint('zppReadCv $msgs');
-    if (msgs.contains(Uint8List.fromList([]))) {
-      return Uint8List.fromList([DecupService.nak]);
+    if (msgs.any((msg) => msg.isEmpty)) {
+      return _setErrorState('Could not read CV8');
     }
     final cv8 = msgs.reversed.fold<int>(
       0,
       (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
     );
-    debugPrint('CV8 $cv8');
+    if (cv8 != 145) {
+      return _setErrorState('Unknown decoder manufacturer');
+    }
 
     _decup.zppDecoderId();
     msgs = await _events.take(8);
-    debugPrint('zppDecoderId $msgs');
-    if (msgs.contains(Uint8List.fromList([]))) {
-      return Uint8List.fromList([DecupService.nak]);
+    if (msgs.any((msg) => msg.isEmpty)) {
+      return _setErrorState('Could not read decoder ID');
     }
     final id = msgs.reversed.fold<int>(
       0,
       (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
     );
-    debugPrint('Decoder ID $id');
+    if (!mxDecoderIds.contains(id)) {
+      return _setErrorState('Unknown decoder ID');
+    }
 
     return Uint8List.fromList([DecupService.ack]);
   }
@@ -205,13 +195,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       await Future.delayed(const Duration(seconds: 10));
       _decup.zppDecoderId();
       final msgs = await _events.take(8);
-      debugPrint('Wait for erase $msgs');
-      if (!msgs.contains(Uint8List.fromList([]))) {
+      if (!msgs.any((msg) => msg.isEmpty)) {
         return Uint8List.fromList([DecupService.ack]);
       }
     }
 
-    return Uint8List.fromList([DecupService.nak]);
+    return _setErrorState('Erasing failed');
   }
 
   /// \todo document
@@ -241,12 +230,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         else if (failCount < _retries) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('DECUP decupUpdate failed $failCount');
           break;
         }
         // Or bail
         else {
-          return msg;
+          return _setErrorState('Writing failed');
         }
       }
 
@@ -267,8 +255,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       final msg = await _retryOnFailure(
         () => _decup.zppWriteCv(entry.key, entry.value),
       );
-      if (!msg.contains(DecupService.ack)) return msg;
-      debugPrint('WriteCV $msg');
+      if (!msg.contains(DecupService.ack)) {
+        return _setErrorState('Writing CVs failed');
+      }
 
       // Update progress
       _setProgressState(
@@ -287,7 +276,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<Uint8List> _zsuSearch() async {
-    _setStatusState('Search decoders');
+    _setStatusState('Search decoder');
 
     for (final entry in widget._zsu!.firmwares.entries) {
       final decoderId = entry.key;
@@ -304,7 +293,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       }
     }
 
-    return Uint8List.fromList(_decoders.isEmpty ? [] : [DecupService.ack]);
+    if (_decoders.isEmpty) return _setErrorState('No decoder found');
+
+    return Uint8List.fromList([DecupService.ack]);
   }
 
   /// \todo document
@@ -314,19 +305,23 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
             8 -
             1);
     _decup.zsuBlockCount(blockCount);
-    return await _events.next;
+    final msg = await _events.next;
+    if (!msg.contains(DecupService.nak)) {
+      return _setErrorState('Block count not acknowledged');
+    }
+    return Uint8List.fromList([DecupService.nak]);
   }
 
   /// \todo document
-  Future<Uint8List> _zsuSecurityByte1() async {
+  Future<Uint8List> _zsuSecurityBytes() async {
     _decup.zsuSecurityByte1();
-    return await _events.next;
-  }
-
-  /// \todo document
-  Future<Uint8List> _zsuSecurityByte2() async {
+    final msg1 = await _events.next;
     _decup.zsuSecurityByte2();
-    return await _events.next;
+    final msg2 = await _events.next;
+    if (!msg1.contains(DecupService.nak) || !msg2.contains(DecupService.nak)) {
+      return _setErrorState('Security byte not acknowledged');
+    }
+    return Uint8List.fromList([DecupService.nak]);
   }
 
   /// \todo document
@@ -367,12 +362,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         else if (failCount < _retries) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('DECUP decupUpdate failed $failCount');
           break;
         }
         // Or bail
         else {
-          return msg;
+          return _setErrorState('Writing failed', decoderId);
         }
       }
 
@@ -390,12 +384,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         title: _decoders[decoderId]!.title,
       );
     });
-
     return Uint8List.fromList([DecupService.ack]);
   }
 
   /// \todo document
   Future<void> _disconnect() async {
+    await Future.delayed(const Duration(seconds: 1));
     _setStatusState('Done', 'OK');
     await _decup.close();
   }
@@ -405,7 +399,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     Function() f, {
     int retries = _retries,
   }) async {
-    var msg = Uint8List.fromList([DecupService.nak]);
+    var msg = Uint8List.fromList([]);
     for (int i = 0; i < retries; i++) {
       f();
       msg = await _events.next;
@@ -447,6 +441,13 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       _status = status;
       _progress = 0;
     });
-    return Uint8List.fromList([DecupService.ack, DecupService.ack]);
+    return Uint8List.fromList([]);
+  }
+
+  /// \todo document
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 }

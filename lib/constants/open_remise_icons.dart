@@ -22,8 +22,16 @@ class OpenRemiseIcons {
   static const _kFontFam = 'OpenRemiseIcons';
   static const String? _kFontPkg = null;
 
-  static const IconData susi_off =
+  static const IconData accessory =
       IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData susi =
+  static const IconData pom =
       IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData susi =
+      IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData track =
+      IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData track_sign =
+      IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData track_sign_outlined =
+      IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

@@ -24,15 +24,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
 
 /// \todo document
-class Controller extends ConsumerStatefulWidget {
-  const Controller({super.key});
+class LocoController extends ConsumerStatefulWidget {
+  const LocoController({super.key});
 
   @override
-  ConsumerState<Controller> createState() => _ControllerState();
+  ConsumerState<LocoController> createState() => _LocoControllerState();
 }
 
 /// \todo document
-class _ControllerState extends ConsumerState<Controller> {
+class _LocoControllerState extends ConsumerState<LocoController> {
   int _rvvvvvvv = 0;
   int _f31_0 = 0;
   bool _initialized = false;

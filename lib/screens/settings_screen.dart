@@ -63,7 +63,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ? z21.lanXSetTrackPowerOn
                         : z21.lanXSetTrackPowerOff)
                     : null,
-                tooltip: 'On/off',
+                tooltip: z21Status.hasValue &&
+                        !z21Status.requireValue.trackVoltageOff()
+                    ? 'Power off'
+                    : 'Power on',
                 isSelected: z21Status.hasValue &&
                     !z21Status.requireValue.trackVoltageOff(),
                 selectedIcon: const Icon(Icons.power_off_outlined),
@@ -540,7 +543,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: 0x04,
                           child: Tooltip(
                             message: 'Addressing compliant with RCN-213',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text('RCN-213 addressing'),
                           ),
                         ),
@@ -549,7 +552,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: Tooltip(
                             message:
                                 'Workaround for incompatible clients that only activate outputs',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text(
                               'Automatically deactivate complementary output',
                             ),
@@ -559,7 +562,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: 0x01,
                           child: Tooltip(
                             message: 'Disable automatic timeout of outputs',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text('Disable timeout'),
                           ),
                         ),
@@ -656,7 +659,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'http_tx_timeout': 5.0,
       'cur_lim': _currentLimitValues.indexOf(4.1).toDouble(),
       'cur_lim_serv': _currentLimitValues.indexOf(1.3).toDouble(),
-      'cur_sc_time': 20.0,
+      'cur_sc_time': 100.0,
       'dcc_preamble': 17.0,
       'dcc_bit1_dur': 58.0,
       'dcc_bit0_dur': 100.0,

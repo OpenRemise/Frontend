@@ -25,7 +25,7 @@ class FakeSettingsService implements SettingsService {
     httpTransmitTimeout: 5,
     currentLimit: 3,
     currentLimitService: 1,
-    currentShortCircuitTime: 20,
+    currentShortCircuitTime: 100,
     dccPreamble: 17,
     dccBit1Duration: 58,
     dccBit0Duration: 100,

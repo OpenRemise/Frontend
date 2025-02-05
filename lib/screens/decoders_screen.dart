@@ -19,9 +19,9 @@ import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
-import 'package:Frontend/widgets/controller.dart';
 import 'package:Frontend/widgets/delete_loco_dialog.dart';
 import 'package:Frontend/widgets/edit_loco_dialog.dart';
+import 'package:Frontend/widgets/loco_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -47,7 +47,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
         padding: EdgeInsets.all(8.0),
         child: Align(
           alignment: Alignment.topRight,
-          child: Controller(),
+          child: LocoController(),
         ),
       );
     }
@@ -81,7 +81,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                           ? z21.lanXSetTrackPowerOn
                           : z21.lanXSetTrackPowerOff)
                       : null,
-                  tooltip: 'On/off',
+                  tooltip: z21Status.hasValue &&
+                          !z21Status.requireValue.trackVoltageOff()
+                      ? 'Power off'
+                      : 'Power on',
                   isSelected: z21Status.hasValue &&
                       !z21Status.requireValue.trackVoltageOff(),
                   selectedIcon: const Icon(Icons.power_off_outlined),
@@ -135,7 +138,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
         ),
         if (selectedIndex != null &&
             MediaQuery.of(context).size.width >= smallScreenWidth)
-          const Controller(),
+          const LocoController(),
       ],
     );
   }
@@ -147,7 +150,8 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
 
     return Card.outlined(
       child: ListTile(
-        leading: const Icon(Icons.train_outlined),
+        leading:
+            Icon(index == selectedIndex ? Icons.train : Icons.train_outlined),
         title: Text(locos[index].name),
         subtitle: Text(
           'Address ${locos[index].address}',

@@ -37,10 +37,8 @@ class ZusiDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   static const int _retries = 10;
-
   late final ZusiService _zusi;
   late final StreamQueue<Uint8List> _events;
-
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -97,19 +95,15 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     await _connect();
 
     var msg = await _features();
-    if (msg.contains(ZusiService.nak)) return;
-
+    if (!msg.contains(ZusiService.ack)) return;
     msg = await _zppErase();
-    if (msg.contains(ZusiService.nak)) return;
-
+    if (!msg.contains(ZusiService.ack)) return;
     msg = await _zppUpdate();
-    if (msg.contains(ZusiService.nak)) return;
-
+    if (!msg.contains(ZusiService.ack)) return;
     msg = await _zppCvs();
-    if (msg.contains(ZusiService.nak)) return;
-
+    if (!msg.contains(ZusiService.ack)) return;
     msg = await _exit();
-    if (msg.contains(ZusiService.nak)) return;
+    if (!msg.contains(ZusiService.ack)) return;
 
     await _disconnect();
   }
@@ -126,15 +120,20 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _features() async {
     final msg = await _retryOnFailure(() => _zusi.features());
-    debugPrint('ZUSI features $msg');
-    return msg;
+    if (!msg.contains(ZusiService.ack)) {
+      return _setErrorState('No decoder found');
+    }
+    return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
   Future<Uint8List> _zppErase() async {
     _setStatusState('Erasing');
     final msg = await _retryOnFailure(() => _zusi.eraseZpp());
-    return msg;
+    if (!msg.contains(ZusiService.ack)) {
+      return _setErrorState('Erasing failed');
+    }
+    return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
@@ -164,12 +163,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
         else if (failCount < _retries) {
           ++failCount;
           i = max(i - 1, 0);
-          debugPrint('ZUSI zusiUpdate failed $failCount');
           break;
         }
         // Or bail
         else {
-          return msg;
+          return _setErrorState('Writing failed');
         }
       }
 
@@ -189,7 +187,9 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     for (final entry in widget._zpp.cvs.entries) {
       final msg =
           await _retryOnFailure(() => _zusi.writeCv(entry.key, entry.value));
-      if (msg.contains(ZusiService.nak)) return msg;
+      if (!msg.contains(ZusiService.ack)) {
+        return _setErrorState('Writing CVs failed');
+      }
 
       // Update progress
       _setProgressState(
@@ -203,7 +203,10 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _exit() async {
     final msg = await _retryOnFailure(() => _zusi.exit(1 << 1));
-    return msg;
+    if (!msg.contains(ZusiService.ack)) {
+      return _setErrorState('Exit failed');
+    }
+    return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
@@ -221,7 +224,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     for (int i = 0; i < retries; i++) {
       f();
       msg = await _events.next;
-      if (msg[0] == ZusiService.ack) return msg;
+      if (msg.contains(ZusiService.ack)) return msg;
     }
     return msg;
   }
@@ -254,5 +257,12 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       _progress = 0;
     });
     return Uint8List.fromList([ZusiService.nak]);
+  }
+
+  /// \todo document
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 }
