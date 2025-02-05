@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/config.dart';
 import 'package:Frontend/providers/settings.dart';
 import 'package:Frontend/providers/sys.dart';
@@ -478,7 +479,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                       decoration: const InputDecoration(
                         icon: Icon(null),
-                        labelText: 'DCC locos',
+                        label: Row(
+                          children: [Text('DCC locos '), Icon(Icons.train)],
+                        ),
                       ),
                       valueTransformer: (value) => value?.fold(
                         0x02,
@@ -523,7 +526,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                       decoration: const InputDecoration(
                         icon: Icon(null),
-                        labelText: 'DCC accessories',
+                        label: Row(
+                          children: [
+                            Text('DCC accessories '),
+                            Icon(OpenRemiseIcons.accessory),
+                          ],
+                        ),
                       ),
                       valueTransformer: (value) => value?.fold(
                         0,
