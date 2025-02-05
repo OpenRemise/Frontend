@@ -45,7 +45,7 @@ class FakeDecupService implements DecupService {
       const Duration(milliseconds: 25),
       () {
         if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList(List.empty()));
+        _controller.sink.add(Uint8List.fromList([]));
       },
     );
   }
@@ -102,7 +102,7 @@ class FakeDecupService implements DecupService {
       const Duration(seconds: 10),
       () {
         if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList(List.empty()));
+        _controller.sink.add(Uint8List.fromList([]));
       },
     );
   }
@@ -125,7 +125,7 @@ class FakeDecupService implements DecupService {
       const Duration(milliseconds: 25),
       () {
         if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList(List.empty()));
+        _controller.sink.add(Uint8List.fromList([]));
       },
     );
   }
@@ -135,7 +135,7 @@ class FakeDecupService implements DecupService {
     if (_controller.isClosed) return;
     _controller.sink.add(
       Uint8List.fromList(
-        byte == _decoderId ? [DecupService.ack] : List.empty(),
+        byte == _decoderId ? [DecupService.ack] : [],
       ),
     );
   }

@@ -24,7 +24,7 @@ import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
 import 'package:Frontend/screens/info_screen.dart';
-import 'package:Frontend/screens/service_screen.dart';
+import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
 import 'package:Frontend/widgets/domain_dialog.dart';
@@ -106,8 +106,13 @@ class NativeHomeView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final String domain = ref.watch(domainProvider);
     if (domain.isEmpty) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => showDomainDialog(context: context));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => showDialog(
+          context: context,
+          builder: (_) => const DomainDialog(),
+          barrierDismissible: false,
+        ),
+      );
       return const Placeholder();
     } else {
       return const WebHomeView();
@@ -129,9 +134,9 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
   final List<Widget> _children = [
     const InfoScreen(),
     const DecodersScreen(),
-    const ServiceScreen(),
+    const ProgramScreen(),
     const UpdateScreen(),
-    SettingsScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -222,9 +227,9 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
                       label: Text('Decoders'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.build_circle_outlined),
-                      selectedIcon: Icon(Icons.build_circle),
-                      label: Text('Service'),
+                      icon: Icon(Icons.integration_instructions_outlined),
+                      selectedIcon: Icon(Icons.integration_instructions),
+                      label: Text('Program'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.cloud_upload_outlined),
@@ -266,9 +271,9 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
                   label: 'Decoders',
                 ),
                 NavigationDestination(
-                  icon: Icon(Icons.build_circle_outlined),
-                  selectedIcon: Icon(Icons.build_circle),
-                  label: 'Service',
+                  icon: Icon(Icons.integration_instructions_outlined),
+                  selectedIcon: Icon(Icons.integration_instructions),
+                  label: 'Program',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.cloud_upload_outlined),

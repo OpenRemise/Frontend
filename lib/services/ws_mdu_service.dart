@@ -23,17 +23,19 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsMduService implements MduService {
   late final WebSocketChannel _channel;
+  late final Stream<Uint8List> _stream;
 
   WsMduService(String domain, String unencodedPath) {
     _channel =
         WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/$unencodedPath'));
+    _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
 
   @override
   Future<void> get ready => _channel.ready;
 
   @override
-  Stream<Uint8List> get stream => _channel.stream.cast<Uint8List>();
+  Stream<Uint8List> get stream => _stream;
 
   @override
   Future close([int? closeCode, String? closeReason]) =>

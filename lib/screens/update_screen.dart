@@ -19,7 +19,6 @@ import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
-import 'package:Frontend/providers/zusi_mode.dart';
 import 'package:Frontend/widgets/decup_dialog.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
@@ -48,7 +47,6 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   Widget build(BuildContext context) {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
-    final zusiMode = ref.watch(zusiModeProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -61,19 +59,14 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       ? z21.lanXSetTrackPowerOn
                       : z21.lanXSetTrackPowerOff)
                   : null,
-              tooltip: 'On/off',
+              tooltip: z21Status.hasValue &&
+                      !z21Status.requireValue.trackVoltageOff()
+                  ? 'Power off'
+                  : 'Power on',
               isSelected: z21Status.hasValue &&
                   !z21Status.requireValue.trackVoltageOff(),
               selectedIcon: const Icon(Icons.power_off_outlined),
               icon: const Icon(Icons.power_outlined),
-            ),
-            title: IconButton(
-              onPressed: () =>
-                  ref.read(zusiModeProvider.notifier).update(!zusiMode),
-              tooltip: zusiMode ? 'Tracks mode' : 'ZUSI mode',
-              isSelected: zusiMode,
-              selectedIcon: const Icon(OpenRemiseIcons.susi),
-              icon: const Icon(OpenRemiseIcons.susi_off),
             ),
             actions: [
               IconButton(
@@ -174,8 +167,13 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
-                              title: Text(
-                                'Upload sound to ZIMO MS decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                              title: const Row(
+                                children: [
+                                  Text(
+                                    'Upload sound to ZIMO MS decoder via ',
+                                  ),
+                                  Icon(OpenRemiseIcons.track),
+                                ],
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -190,8 +188,13 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.music_note_outlined),
-                              title: Text(
-                                'Upload sound to ZIMO MX decoder via ${zusiMode ? 'ZUSI' : 'tracks'}',
+                              title: const Row(
+                                children: [
+                                  Text(
+                                    'Upload sound to ZIMO MX decoder via ',
+                                  ),
+                                  Icon(OpenRemiseIcons.track),
+                                ],
                               ),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -200,6 +203,27 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 _selected
                                   ..removeRange(1, _selected.length)
                                   ..add(2);
+                              }),
+                            ),
+                          ),
+                          Card.outlined(
+                            child: ListTile(
+                              leading: const Icon(Icons.music_note_outlined),
+                              title: const Row(
+                                children: [
+                                  Text(
+                                    'Upload sound to ZIMO decoder via ',
+                                  ),
+                                  Icon(OpenRemiseIcons.susi),
+                                ],
+                              ),
+                              enabled: z21Status.hasValue &&
+                                  z21Status.requireValue.trackVoltageOff(),
+                              onTap: () => setState(() {
+                                ++_index;
+                                _selected
+                                  ..removeRange(1, _selected.length)
+                                  ..add(3);
                               }),
                             ),
                           ),
@@ -247,8 +271,34 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
-                                  title: Text(
-                                    'Upload sound to ZIMO ${_selected.elementAt(1) == 1 ? 'MS' : 'MX'} decoder via ${zusiMode ? 'ZUSI' : 'tracks'} from file',
+                                  title: Row(
+                                    children: [
+                                      Text(
+                                        'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 1 ? 'MS' : 'MX'} decoder via ',
+                                      ),
+                                      const Icon(OpenRemiseIcons.track),
+                                      const Text(' from file'),
+                                    ],
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: () =>
+                                      _zimoFromFile(allowedExtensions: ['zpp']),
+                                ),
+                              ),
+                            ],
+                          3 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.file_open_outlined),
+                                  title: const Row(
+                                    children: [
+                                      Text(
+                                        'Upload sound to ZIMO decoder via ',
+                                      ),
+                                      Icon(OpenRemiseIcons.susi),
+                                      Text(' from file'),
+                                    ],
                                   ),
                                   enabled: z21Status.hasValue &&
                                       z21Status.requireValue.trackVoltageOff(),
@@ -344,11 +394,12 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         final zpp = Zpp(result!.files.first.bytes!);
         showDialog(
           context: context,
-          builder: (_) => ref.read(zusiModeProvider)
-              ? ZusiDialog.zpp(zpp)
-              : _selected.elementAt(1) == 1
-                  ? MduDialog.zpp(zpp)
-                  : DecupDialog.zpp(zpp),
+          builder: (_) => switch (_selected.elementAtOrNull(1)) {
+            1 => MduDialog.zpp(zpp),
+            2 => DecupDialog.zpp(zpp),
+            3 => ZusiDialog.zpp(zpp),
+            _ => ErrorWidget(Exception('Invalid selection')),
+          },
           barrierDismissible: false,
         );
       } else if (result?.files[0].extension == 'zsu') {

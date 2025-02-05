@@ -58,12 +58,3 @@ class DomainDialog extends ConsumerWidget {
     );
   }
 }
-
-/// \todo document
-void showDomainDialog({required BuildContext context}) {
-  showDialog(
-    context: context,
-    builder: (_) => const DomainDialog(),
-    barrierDismissible: false,
-  );
-}

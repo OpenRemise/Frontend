@@ -65,7 +65,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Firmware update'),
+      title: const Text('OTA'),
       children: [
         SimpleDialogOption(
           child: Column(
@@ -90,43 +90,42 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   Future<void> _execute() async {
     await _connect();
+
     final msg = await _write();
-    if (msg.contains(OtaService.nak)) return;
+    if (!msg.contains(OtaService.ack)) return;
+
     await _disconnect();
   }
 
   /// \todo document
   Future<void> _connect() async {
-    setState(() {
-      _status = 'Connecting';
-    });
+    _setStatusState('Connecting');
     await _ota.ready;
   }
 
   /// \todo document
   Future<Uint8List> _write() async {
-    int index = 0;
-    while (index < _bin.length) {
-      final start = index;
+    _setStatusState('Writing');
+
+    int i = 0;
+    while (i < _bin.length) {
+      final start = i;
       final end = start + _chunkSize;
       final chunk = _bin.sublist(start, min(end, _bin.length));
       _ota.write(chunk);
 
       final msg = await _events.next;
-      if (msg.contains(OtaService.nak)) {
-        setState(() {
-          _status = 'Failed';
-        });
-        return msg;
+      if (!msg.contains(OtaService.ack)) {
+        return _setErrorState('Writing failed');
       }
 
-      index += chunk.length;
-      final done = index ~/ 1024;
-      final total = _bin.length ~/ 1024;
-      setState(() {
-        _status = 'Writing $done / $total kB';
-        _progress = index / _bin.length;
-      });
+      i += chunk.length;
+
+      // Update progress
+      _setProgressState(
+        'Writing ${i ~/ 1024} / ${_bin.length ~/ 1024} kB',
+        i / _bin.length,
+      );
     }
 
     return Uint8List.fromList([OtaService.ack]);
@@ -134,10 +133,44 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
 
   /// \todo document
   Future<void> _disconnect() async {
-    setState(() {
-      _status = 'Done';
-      _option = 'OK';
-    });
+    _setStatusState('Done', 'OK');
     await _ota.close();
+  }
+
+  /// \todo document
+  Future<void> _setStatusState(String status, [String? option]) async {
+    setState(() {
+      _status = status;
+      if (option != null) {
+        _option = option;
+        _progress = 0;
+      } else {
+        _progress = null;
+      }
+    });
+  }
+
+  /// \todo document
+  Future<void> _setProgressState(String status, double progress) async {
+    setState(() {
+      _status = status;
+      _progress = progress;
+    });
+  }
+
+  /// \todo document
+  Future<Uint8List> _setErrorState(String status) async {
+    setState(() {
+      _status = status;
+      _progress = 0;
+    });
+    return Uint8List.fromList([OtaService.nak]);
+  }
+
+  /// \todo document
+  @override
+  void setState(VoidCallback fn) {
+    if (!mounted) return;
+    super.setState(fn);
   }
 }

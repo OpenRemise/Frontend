@@ -69,7 +69,10 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                           ? z21.lanXSetTrackPowerOn
                           : z21.lanXSetTrackPowerOff)
                       : null,
-                  tooltip: 'On/off',
+                  tooltip: z21Status.hasValue &&
+                          !z21Status.requireValue.trackVoltageOff()
+                      ? 'Power off'
+                      : 'Power on',
                   isSelected: z21Status.hasValue &&
                       !z21Status.requireValue.trackVoltageOff(),
                   selectedIcon: const Icon(Icons.power_off_outlined),
