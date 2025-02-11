@@ -348,6 +348,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   ),
                 ),
               ],
+              physics: const NeverScrollableScrollPhysics(),
               currentStep: _index,
               onStepTapped: (int index) {
                 // Only allow going backwards

@@ -311,6 +311,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                         ),
                       ),
                     ],
+                    physics: const NeverScrollableScrollPhysics(),
                     currentStep: _index,
                     onStepTapped: (int index) {
                       // Only allow going backwards
