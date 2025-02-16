@@ -38,8 +38,6 @@ class FakeSettingsService implements SettingsService {
     dccProgrammingAckCurrent: 50,
     dccLocoFlags: 0x80 | 0x40 | 0x20 | 0x02,
     dccAccyFlags: 0x04,
-    mduPreamble: 14,
-    mduAckreq: 10,
   );
 
   @override
@@ -82,8 +80,6 @@ class FakeSettingsService implements SettingsService {
             config.dccProgrammingAckCurrent ?? _config.dccProgrammingAckCurrent,
         dccLocoFlags: config.dccLocoFlags ?? _config.dccLocoFlags,
         dccAccyFlags: config.dccAccyFlags ?? _config.dccAccyFlags,
-        mduPreamble: config.mduPreamble ?? _config.mduPreamble,
-        mduAckreq: config.mduAckreq ?? _config.mduAckreq,
       ),
     );
   }

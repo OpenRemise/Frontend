@@ -21,6 +21,7 @@ import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gif/gif.dart';
 
 /// \todo document
 class InfoScreen extends ConsumerStatefulWidget {
@@ -56,46 +57,46 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
-    return sys.when(
-      data: (data) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                leading: IconButton(
-                  onPressed: z21Status.hasValue
-                      ? (z21Status.requireValue.trackVoltageOff()
-                          ? z21.lanXSetTrackPowerOn
-                          : z21.lanXSetTrackPowerOff)
-                      : null,
-                  tooltip: z21Status.hasValue &&
-                          !z21Status.requireValue.trackVoltageOff()
-                      ? 'Power off'
-                      : 'Power on',
-                  isSelected: z21Status.hasValue &&
-                      !z21Status.requireValue.trackVoltageOff(),
-                  selectedIcon: const Icon(Icons.power_off_outlined),
-                  icon: const Icon(Icons.power_outlined),
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: () => ref.read(sysProvider.notifier).fetchInfo(),
-                    tooltip: 'Refresh',
-                    icon: const Icon(Icons.refresh_outlined),
-                  ),
-                ],
-                floating: true,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            leading: IconButton(
+              onPressed: z21Status.hasValue
+                  ? (z21Status.requireValue.trackVoltageOff()
+                      ? z21.lanXSetTrackPowerOn
+                      : z21.lanXSetTrackPowerOff)
+                  : null,
+              tooltip: z21Status.hasValue &&
+                      !z21Status.requireValue.trackVoltageOff()
+                  ? 'Power off'
+                  : 'Power on',
+              isSelected: z21Status.hasValue &&
+                  !z21Status.requireValue.trackVoltageOff(),
+              selectedIcon: const Icon(Icons.power_off_outlined),
+              icon: const Icon(Icons.power_outlined),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () => ref.read(sysProvider.notifier).fetchInfo(),
+                tooltip: 'Refresh',
+                icon: const Icon(Icons.refresh_outlined),
               ),
+            ],
+            floating: true,
+          ),
+          ...sys.when(
+            data: (data) => [
               SliverGrid.count(
                 crossAxisCount: 2,
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
                   const Text('Version'),
-                  Text(sys.requireValue.version),
+                  Text(data.version),
                   const Text('IDF version'),
-                  Text(sys.requireValue.idfVersion),
+                  Text(data.idfVersion),
                   const Text('Frontend version'),
                   const Text(
                     String.fromEnvironment(
@@ -104,11 +105,11 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     ),
                   ),
                   const Text('State'),
-                  Text(sys.requireValue.state),
+                  Text(data.state),
                   const Text('Heap memory'),
-                  Text('${sys.requireValue.heap}'),
+                  Text('${data.heap}'),
                   const Text('Internal heap memory'),
-                  Text('${sys.requireValue.internalHeap}'),
+                  Text('${data.internalHeap}'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -122,9 +123,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('mDNS'),
                   Text(domain),
                   const Text('IP'),
-                  Text(sys.requireValue.ip),
+                  Text(data.ip),
                   const Text('MAC'),
-                  Text(sys.requireValue.mac),
+                  Text(data.mac),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -137,25 +138,45 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 children: [
                   const Text('Voltage'),
                   Text(
-                    '${(sys.requireValue.voltage / 1000).toStringAsFixed(2)}V',
+                    '${(data.voltage / 1000).toStringAsFixed(2)}V',
                   ),
                   const Text('Current'),
                   Text(
-                    '${(sys.requireValue.current / 1000).toStringAsFixed(2)}A',
+                    '${(data.current / 1000).toStringAsFixed(2)}A',
                   ),
                   const Text('Temperature'),
                   Text(
-                    '${sys.requireValue.temperature.toStringAsFixed(0)}°C',
+                    '${data.temperature.toStringAsFixed(0)}°C',
                   ),
                 ],
               ),
             ],
+            error: (error, stackTrace) => [
+              SliverFillRemaining(
+                child: Center(
+                  child: Gif(
+                    image: const AssetImage('data/images/error.gif'),
+                    autostart: Autostart.loop,
+                    width: 200,
+                  ),
+                ),
+              ),
+            ],
+            loading: () => [
+              SliverFillRemaining(
+                child: Center(
+                  child: Gif(
+                    image: const AssetImage('data/images/loading.gif'),
+                    autostart: Autostart.loop,
+                    width: 200,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
-        );
-      },
-      error: (error, stackTrace) =>
-          const Center(child: Icon(Icons.error_outline)),
-      loading: () => const Center(child: Text('loading')),
+        ],
+      ),
     );
   }
 

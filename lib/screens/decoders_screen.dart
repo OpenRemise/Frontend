@@ -24,6 +24,7 @@ import 'package:Frontend/widgets/edit_loco_dialog.dart';
 import 'package:Frontend/widgets/loco_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gif/gif.dart';
 
 /// \todo document
 class DecodersScreen extends ConsumerStatefulWidget {
@@ -128,10 +129,25 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                     childCount: locos.length,
                   ),
                 ),
-                error: (error, stackTrace) =>
-                    const SliverToBoxAdapter(child: Icon(Icons.error_outline)),
-                loading: () =>
-                    const SliverFillRemaining(child: Text('loading')),
+                error: (error, stackTrace) => SliverFillRemaining(
+                  child: Center(
+                    child: Gif(
+                      image: const AssetImage('data/images/error.gif'),
+                      autostart: Autostart.loop,
+                      width: 200,
+                    ),
+                  ),
+                ),
+                loading: () => SliverFillRemaining(
+                  child: Center(
+                    child: Gif(
+                      image: const AssetImage('data/images/loading.gif'),
+                      autostart: Autostart.loop,
+                      width: 200,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

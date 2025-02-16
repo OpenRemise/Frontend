@@ -23,6 +23,7 @@ import 'package:Frontend/widgets/restart_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gif/gif.dart';
 
 /// \todo document
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -288,7 +289,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         name: 'dcc_preamble',
                         initialValue: data.dccPreamble!.toDouble(),
                         decoration: const InputDecoration(
-                          icon: Icon(Icons.train_outlined),
+                          icon: Icon(OpenRemiseIcons.square_wave),
                           labelText: 'DCC preamble',
                         ),
                         valueTransformer: (value) => value!.toInt(),
@@ -576,41 +577,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    const Divider(),
-                    Tooltip(
-                      message: 'Number of preamble bits',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'mdu_preamble',
-                        initialValue: data.mduPreamble!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.update_outlined),
-                          labelText: 'MDU preamble',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 14,
-                        max: 30,
-                        divisions: 30 - 14,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Number of ackreq bits',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'mdu_ackreq',
-                        initialValue: data.mduAckreq!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'MDU ackreq',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 10,
-                        max: 30,
-                        divisions: 30 - 10,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
@@ -650,9 +616,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
               ),
-              error: (error, stackTrace) =>
-                  const SliverToBoxAdapter(child: Icon(Icons.error_outline)),
-              loading: () => const SliverFillRemaining(child: Text('loading')),
+              error: (error, stackTrace) => SliverFillRemaining(
+                child: Center(
+                  child: Gif(
+                    image: const AssetImage('data/images/error.gif'),
+                    autostart: Autostart.loop,
+                    width: 200,
+                  ),
+                ),
+              ),
+              loading: () => SliverFillRemaining(
+                child: Center(
+                  child: Gif(
+                    image: const AssetImage('data/images/loading.gif'),
+                    autostart: Autostart.loop,
+                    width: 200,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -681,8 +663,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'dcc_ack_cur': 50.0,
       'dcc_loco_flags': [0x80, 0x40, 0x20],
       'dcc_accy_flags': [0x04],
-      'mdu_preamble': 14.0,
-      'mdu_ackreq': 10.0,
     });
   }
 }
