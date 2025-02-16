@@ -172,6 +172,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               child: ListTile(
                                 leading: const Icon(OpenRemiseIcons.accessory),
                                 title: const Text('Accessory'),
+                                enabled: false,
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected

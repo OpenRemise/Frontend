@@ -44,8 +44,6 @@ class Config with _$Config {
     @JsonKey(name: 'dcc_ack_cur') int? dccProgrammingAckCurrent,
     @JsonKey(name: 'dcc_loco_flags') int? dccLocoFlags,
     @JsonKey(name: 'dcc_accy_flags') int? dccAccyFlags,
-    @JsonKey(name: 'mdu_preamble') int? mduPreamble,
-    @JsonKey(name: 'mdu_ackreq') int? mduAckreq,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

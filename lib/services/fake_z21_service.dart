@@ -136,8 +136,20 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
-  void lanXCvPomReadByte(int locoAddress, int cvAddress) {
-    // TODO: implement lanXCvPomReadByte
+  void lanXCvPomReadByte(int locoAddress, int cvAddress) async {
+    final locos = ref.read(locosProvider);
+    final loco = locos.firstWhere(
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: 0),
+    );
+    await Future.delayed(
+      Duration(milliseconds: loco.address != 0 ? 250 : 500),
+      () => _controller.sink.add(
+        loco.address != 0
+            ? LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress])
+            : LanXCvNack(),
+      ),
+    );
   }
 
   @override
