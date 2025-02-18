@@ -172,17 +172,15 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/icons/icon_dark.svg'
-                    : 'data/icons/icon_light.svg',
+                'data/icons/icon.svg',
+                color: Theme.of(context).colorScheme.primary,
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/images/logo_dark.svg'
-                    : 'data/images/logo_light.svg',
+                'data/images/logo.svg',
+                color: Theme.of(context).colorScheme.primary,
               ),
         actions: [
           IconButton(
