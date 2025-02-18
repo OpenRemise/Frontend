@@ -91,12 +91,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       Card.outlined(
                         child: ListTile(
                           title: SvgPicture.asset(
-                            ref.watch(darkModeProvider)
-                                ? 'data/images/logo_dark.svg'
-                                : 'data/images/logo_light.svg',
+                            'data/images/logo.svg',
                             width: 100,
                             height: 100,
                             fit: BoxFit.scaleDown,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           enabled: z21Status.hasValue &&
                               z21Status.requireValue.trackVoltageOff(),
