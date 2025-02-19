@@ -10,11 +10,12 @@ jobs:
   web:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
-      - uses: subosito/flutter-action@v2.16.0
+      - uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
-      - run: cmake -Bbuild
+          flutter-version: 3.27.4
+      - run: cmake --preset "Debug"
       - run: cmake --build build --target Frontend

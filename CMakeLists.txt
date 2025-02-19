@@ -36,6 +36,7 @@ add_custom_command(
     ${FLUTTER_EXECUTABLE} build web #
     --output=${CMAKE_CURRENT_BINARY_DIR}/web #
     --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
+    --web-renderer=html #
     --no-web-resources-cdn #
     --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
     --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
@@ -45,9 +46,7 @@ add_custom_command(
   COMMAND
     ${CMAKE_COMMAND} -E rm -rf #
     ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/chromium #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/canvaskit.js.symbols #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm* #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
