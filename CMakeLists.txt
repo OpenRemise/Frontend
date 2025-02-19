@@ -45,7 +45,9 @@ add_custom_command(
   COMMAND
     ${CMAKE_COMMAND} -E rm -rf #
     ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/chromium #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/canvaskit.js.symbols #
+    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm* #
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)

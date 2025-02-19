@@ -34,10 +34,16 @@
       "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=true --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
     },
     {
-      "label": "Run Python http.server",
+      "label": "Run Python http.server docs",
       "type": "shell",
       "isBackground": true,
       "command": "python -m http.server --directory ${workspaceFolder}/build/docs/html --bind 127.0.0.1"
+    },
+    {
+      "label": "Run Python http.server web",
+      "type": "shell",
+      "isBackground": true,
+      "command": "python -m http.server --directory ${workspaceFolder}/build/web --bind 127.0.0.1"
     }
   ]
 }

@@ -11,6 +11,13 @@
             "binaryDir": "${sourceDir}/build"
         },
         {
+            "name": "Debug",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "OPENREMISE_FRONTEND_BUILD_DOCS": "OFF"
+            }
+        },
+        {
             "name": "Demo",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
