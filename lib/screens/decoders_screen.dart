@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constants/small_screen_width.dart';
+import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
@@ -91,11 +92,6 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                   selectedIcon: const Icon(Icons.power_off_outlined),
                   icon: const Icon(Icons.power_outlined),
                 ),
-                title: const IconButton(
-                  onPressed: null,
-                  tooltip: 'Search',
-                  icon: Icon(Icons.search),
-                ),
                 actions: [
                   IconButton(
                     onPressed: () => showEditLocoDialog(context: context),
@@ -132,7 +128,11 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 error: (error, stackTrace) => SliverFillRemaining(
                   child: Center(
                     child: Gif(
-                      image: const AssetImage('data/images/error.gif'),
+                      image: AssetImage(
+                        ref.watch(darkModeProvider)
+                            ? 'data/images/error_dark.gif'
+                            : 'data/images/error_light.gif',
+                      ),
                       autostart: Autostart.loop,
                       width: 200,
                     ),
@@ -141,10 +141,13 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 loading: () => SliverFillRemaining(
                   child: Center(
                     child: Gif(
-                      image: const AssetImage('data/images/loading.gif'),
+                      image: AssetImage(
+                        ref.watch(darkModeProvider)
+                            ? 'data/images/loading_dark.gif'
+                            : 'data/images/loading_light.gif',
+                      ),
                       autostart: Autostart.loop,
                       width: 200,
-                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),

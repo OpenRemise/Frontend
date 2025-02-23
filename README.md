@@ -9,11 +9,23 @@
 </picture>
 </a>
 
+## HTML renderer
+Stick to Flutter version 3.27.4, as this is the last version which supports the HTML renderer...
+- App size with canvaskit: 3.8MB
+- App size with HTML: 1.1MB
+
+## AUR
+How to checkout 3.27.4 from AUR
+```sh
+git clone https://aur.archlinux.org/flutter-bin.git
+git checkout 9dd83f3012fb6b14f7a9453cdfbf2dd097053f79
+makepkg -si
+```
+
 ## Environment variables
 - OPENREMISE_FRONTEND_DOMAIN
 - OPENREMISE_FRONTEND_FAKE_SERVICES
 - OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
-- OPENREMISE_FRONTEND_WEB_RENDERER
 
 ## Packages
 - [dartdoc](https://pub.dev/packages/dartdoc)

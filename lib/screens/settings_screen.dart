@@ -15,6 +15,7 @@
 
 import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/config.dart';
+import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/settings.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -619,7 +620,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               error: (error, stackTrace) => SliverFillRemaining(
                 child: Center(
                   child: Gif(
-                    image: const AssetImage('data/images/error.gif'),
+                    image: AssetImage(
+                      ref.watch(darkModeProvider)
+                          ? 'data/images/error_dark.gif'
+                          : 'data/images/error_light.gif',
+                    ),
                     autostart: Autostart.loop,
                     width: 200,
                   ),
@@ -628,10 +633,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               loading: () => SliverFillRemaining(
                 child: Center(
                   child: Gif(
-                    image: const AssetImage('data/images/loading.gif'),
+                    image: AssetImage(
+                      ref.watch(darkModeProvider)
+                          ? 'data/images/loading_dark.gif'
+                          : 'data/images/loading_light.gif',
+                    ),
                     autostart: Autostart.loop,
                     width: 200,
-                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
