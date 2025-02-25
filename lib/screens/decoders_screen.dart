@@ -94,12 +94,18 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 ),
                 actions: [
                   IconButton(
-                    onPressed: () => showEditLocoDialog(context: context),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => const EditLocoDialog(null),
+                    ),
                     tooltip: 'Add',
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                   IconButton(
-                    onPressed: () => showDeleteLocoDialog(context: context),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => const DeleteLocoDialog(null),
+                    ),
                     tooltip: 'Delete all',
                     icon: const Icon(Icons.delete_outline),
                   ),
@@ -179,13 +185,17 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              onPressed: () =>
-                  showEditLocoDialog(context: context, index: index),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => EditLocoDialog(index),
+              ),
               icon: const Icon(Icons.edit_outlined),
             ),
             IconButton(
-              onPressed: () =>
-                  showDeleteLocoDialog(context: context, index: index),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => DeleteLocoDialog(index),
+              ),
               icon: const Icon(Icons.delete_outline),
             ),
           ],

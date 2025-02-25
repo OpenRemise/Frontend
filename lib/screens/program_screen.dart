@@ -128,6 +128,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               child: ListTile(
                                 leading: const Icon(OpenRemiseIcons.pom),
                                 title: const Text('POM'),
+                                enabled: z21Status.hasValue &&
+                                    !z21Status.requireValue.trackVoltageOff(),
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected
@@ -160,6 +162,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               child: ListTile(
                                 leading: const Icon(Icons.train_outlined),
                                 title: const Text('Loco'),
+                                enabled: serviceMode ||
+                                    z21Status.hasValue &&
+                                        !z21Status.requireValue
+                                            .trackVoltageOff(),
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected
@@ -198,7 +204,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                   icon: Icon(Icons.alternate_email_outlined),
                                   labelText: 'Address',
                                 ),
-                                // enabled: !serviceMode,
+                                enabled: serviceMode ||
+                                    z21Status.hasValue &&
+                                        !z21Status.requireValue
+                                            .trackVoltageOff(),
                                 keyboardType: TextInputType.number,
                               ),
                             Row(
@@ -214,6 +223,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                       // https://github.com/flutter/flutter/issues/15400
                                       helperText: ' ',
                                     ),
+                                    enabled: serviceMode ||
+                                        z21Status.hasValue &&
+                                            !z21Status.requireValue
+                                                .trackVoltageOff(),
                                     keyboardType: TextInputType.number,
                                   ),
                                 ),
@@ -227,6 +240,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                       labelText: 'CV value',
                                       helperText: ' ',
                                     ),
+                                    enabled: serviceMode ||
+                                        z21Status.hasValue &&
+                                            !z21Status.requireValue
+                                                .trackVoltageOff(),
                                     keyboardType: TextInputType.number,
                                   ),
                                 ),

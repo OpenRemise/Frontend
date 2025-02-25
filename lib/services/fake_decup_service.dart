@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constants/initial_cvs.dart';
+import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/constants/mx_decoder_ids.dart';
 import 'package:Frontend/services/decup_service.dart';
 import 'package:flutter/foundation.dart';
@@ -73,7 +73,7 @@ class FakeDecupService implements DecupService {
       const Duration(milliseconds: 500),
       () {
         if (_controller.isClosed) return;
-        final cv = initialCvs[cvAddress];
+        final cv = fakeInitialLocoCvs[cvAddress];
         for (var i = 0; i < 8; ++i) {
           _controller.sink.add(
             Uint8List.fromList(

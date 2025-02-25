@@ -69,11 +69,3 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
     );
   }
 }
-
-/// \todo document
-void showDeleteLocoDialog({required BuildContext context, int? index}) {
-  showDialog(
-    context: context,
-    builder: (_) => DeleteLocoDialog(index),
-  );
-}
