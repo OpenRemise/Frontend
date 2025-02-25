@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initial CVs for fake services
-const List<int> initialCvs = [
+/// Initial loco CVs for fake services
+const List<int> fakeInitialLocoCvs = [
   3,
   1,
   2,
@@ -1040,3 +1040,6 @@ const List<int> initialCvs = [
   0,
   0,
 ];
+
+/// Initial accessory CVs for fake services
+const List<int> fakeInitialAccessoryCvs = [];

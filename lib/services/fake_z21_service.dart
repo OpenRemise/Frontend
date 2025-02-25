@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constants/initial_cvs.dart';
+import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/services/fake_sys_service.dart';
@@ -26,7 +26,7 @@ class FakeZ21Service implements Z21Service {
   final _controller = StreamController<Command>();
   late final Stream<Command> _stream;
   int _centralState = 0x02;
-  List<int> _cvs = initialCvs;
+  List<int> _cvs = fakeInitialLocoCvs;
   final ProviderContainer ref;
 
   FakeZ21Service(this.ref) {

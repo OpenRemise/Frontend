@@ -118,11 +118,3 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
     );
   }
 }
-
-/// \todo document
-void showEditLocoDialog({required BuildContext context, int? index}) {
-  showDialog(
-    context: context,
-    builder: (_) => EditLocoDialog(index),
-  );
-}

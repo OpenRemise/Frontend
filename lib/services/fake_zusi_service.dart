@@ -15,7 +15,7 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constants/initial_cvs.dart';
+import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/services/zusi_service.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
@@ -41,8 +41,8 @@ class FakeZusiService implements ZusiService {
         Uint8List.fromList(
           [
             ZusiService.ack,
-            initialCvs[cvAddress],
-            crc8([initialCvs[cvAddress]]),
+            fakeInitialLocoCvs[cvAddress],
+            crc8([fakeInitialLocoCvs[cvAddress]]),
           ],
         ),
       );

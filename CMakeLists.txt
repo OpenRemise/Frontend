@@ -7,7 +7,6 @@ FetchContent_Declare(
   GIT_TAG v0.9.3)
 FetchContent_MakeAvailable(CMakeModules)
 
-option(OPENREMISE_FRONTEND_BUILD_DOCS "Build documentation" ON)
 set(OPENREMISE_FRONTEND_BASE_HREF
     "/./"
     CACHE STRING
@@ -49,8 +48,27 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
+# Build web
 add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
 
-if(OPENREMISE_FRONTEND_BUILD_DOCS)
+# Create Frontend-${PROJECT_VERSION}.zip
+add_custom_target(
+  FrontendRelease
+  COMMAND ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
+          --format=zip *
+  COMMAND
+    ${CMAKE_COMMAND} -E rename
+    ${CMAKE_CURRENT_BINARY_DIR}/web/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+  DEPENDS Frontend
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/web)
+
+if(PROJECT_IS_TOP_LEVEL)
+  include(CTest)
+endif()
+
+if(BUILD_TESTING
+   AND PROJECT_IS_TOP_LEVEL
+   AND CMAKE_SYSTEM_NAME STREQUAL CMAKE_HOST_SYSTEM_NAME)
   add_subdirectory(docs)
 endif()
