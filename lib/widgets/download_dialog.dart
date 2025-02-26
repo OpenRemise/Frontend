@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:Frontend/providers/http_client.dart';
@@ -34,8 +33,6 @@ class DownloadDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DownloadDialogState extends ConsumerState<DownloadDialog> {
-  String _downloadUrl = '';
-  String _fileName = '';
   final List<int> _bytes = [];
   String _status = '';
   double? _progress;
@@ -66,7 +63,7 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
         children: [
           LinearProgressIndicator(value: _progress),
           Text(_status),
-          Text(_fileName),
+          Text(File(widget._url).uri.pathSegments.last),
         ],
       ),
       actions: <Widget>[
@@ -80,35 +77,8 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
 
   /// \todo document
   Future<void> _execute() async {
-    await _json();
-    await _download();
-  }
-
-  /// \todo document
-  Future<void> _json() async {
-    //
-    if (widget._url.contains('OpenRemise')) {
-      final response = await http.get(Uri.parse(widget._url));
-      final data = jsonDecode(response.body);
-      final assets = data['assets'].first;
-      setState(() {
-        _downloadUrl = assets['browser_download_url'];
-        _fileName = File(_downloadUrl).uri.pathSegments.last;
-      });
-    }
-    //
-    else {
-      setState(() {
-        _downloadUrl = widget._url;
-        _fileName = File(_downloadUrl).uri.pathSegments.last;
-      });
-    }
-  }
-
-  /// \todo document
-  Future<void> _download() async {
     final client = ref.read(httpClientProvider);
-    final request = http.Request('GET', Uri.parse(_downloadUrl));
+    final request = http.Request('GET', Uri.parse(widget._url));
     final response = await client.send(request);
     response.stream.listen(
       (chunk) => setState(() {
