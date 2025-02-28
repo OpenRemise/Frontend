@@ -24,6 +24,7 @@ class Zpp {
   late final Uint8List flash;
   final Map<int, int> cvs = {};
   late final bool coded;
+  late final Uint8List developerCode;
 
   /// \todo document
   Zpp(this._bytes) {
@@ -55,5 +56,8 @@ class Zpp {
 
     // Coded
     coded = _bytes[19] != 0;
+
+    // Developer code
+    developerCode = _bytes.sublist(flashStart + 2190, flashStart + 2190 + 4);
   }
 }

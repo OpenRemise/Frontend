@@ -29,6 +29,8 @@ void main() {
       expect(zpp.id, 'SP');
       expect(zpp.version, 1);
       expect(zpp.coded, true);
+      expect(zpp.developerCode.length, 4);
+      expect(zpp.developerCode, Uint8List.fromList([82, 232, 37, 15]));
     });
   });
 }

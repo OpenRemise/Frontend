@@ -39,7 +39,7 @@ class WsZusiService implements ZusiService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void readCv(int cvAddress) async {
+  void cvRead(int cvAddress) async {
     List<int> data = [
       0x01, // Command
       0x00, // Count
@@ -53,7 +53,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void writeCv(int cvAddress, int byte) async {
+  void cvWrite(int cvAddress, int byte) async {
     List<int> data = [
       0x02, // Command
       0x00, // Count
@@ -68,7 +68,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void eraseZpp() async {
+  void zppErase() async {
     List<int> data = [
       0x04, // Command
       0x55,
@@ -79,7 +79,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void writeZpp(int address, Uint8List chunk) async {
+  void zppWrite(int address, Uint8List chunk) async {
     assert(chunk.length <= 256);
     List<int> data = [
       0x05, // Command
@@ -117,8 +117,13 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void encrypt() async {
-    // TODO: implement encrypt
-    throw UnimplementedError();
+  void zppLcDcQuery(Uint8List developerCode) async {
+    assert(developerCode.length == 4);
+    List<int> data = [
+      0x0D, // Command
+    ];
+    data.addAll(developerCode);
+    data.add(crc8(data));
+    _channel.sink.add(Uint8List.fromList(data));
   }
 }
