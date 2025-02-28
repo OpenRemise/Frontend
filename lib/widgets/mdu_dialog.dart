@@ -113,7 +113,15 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     // ZPP
     if (widget._zpp != null) {
       msg = await _zppValid();
-      if (msg.contains(MduService.ack)) return;
+      if (msg.contains(MduService.ack)) {
+        await _zppExit(); // We can still bail here
+        return;
+      }
+      msg = await _zppLcDcQuery();
+      if (msg.contains(MduService.ack)) {
+        await _zppExit(); // ... or here
+        return;
+      }
       msg = await _zppUpdate();
       if (msg.contains(MduService.ack)) return;
       msg = await _zppExit();
@@ -172,6 +180,21 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       () => _mdu.zppValidQuery(widget._zpp!.id, widget._zpp!.flash.length),
     );
     if (msg.contains(MduService.ack)) return _setErrorState('ZPP not valid');
+    return msg;
+  }
+
+  /// \todo document
+  Future<Uint8List> _zppLcDcQuery() async {
+    if (!widget._zpp!.coded) {
+      return Uint8List.fromList([MduService.nak, MduService.nak]);
+    }
+    _setStatusState('Check if load code is valid');
+    final msg = await _retryOnFailure(
+      () => _mdu.zppLcDcQuery(widget._zpp!.developerCode),
+    );
+    if (msg.contains(MduService.ack)) {
+      return _setErrorState('Load code not valid');
+    }
     return msg;
   }
 

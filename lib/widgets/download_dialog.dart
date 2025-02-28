@@ -80,18 +80,27 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
     final client = ref.read(httpClientProvider);
     final request = http.Request('GET', Uri.parse(widget._url));
     final response = await client.send(request);
-    response.stream.listen(
-      (chunk) => setState(() {
-        _bytes.addAll(chunk);
-        _status =
-            'Downloading ${_bytes.length ~/ 1024} / ${response.contentLength! ~/ 1024} kB';
-        _progress = _bytes.length / response.contentLength!;
-      }),
-      onDone: () {
-        if (mounted) Navigator.pop(context, Uint8List.fromList(_bytes));
-      },
-      onError: (error) => debugPrint('OH OH'),
-    );
+    if (response.statusCode == 200) {
+      final contentLength = response.contentLength ?? 0;
+      response.stream.listen(
+        (chunk) => setState(() {
+          _bytes.addAll(chunk);
+          _status =
+              'Downloading ${_bytes.length ~/ 1024} / ${contentLength ~/ 1024} kB';
+          _progress = _bytes.length / contentLength;
+        }),
+        onDone: () {
+          if (mounted) Navigator.pop(context, Uint8List.fromList(_bytes));
+        },
+        onError: (error) => setState(() {
+          _status = 'Downloading failed';
+        }),
+      );
+    } else {
+      setState(() {
+        _status = 'Downloading failed';
+      });
+    }
   }
 
   /// \todo document

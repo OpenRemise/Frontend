@@ -91,11 +91,18 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
 
   /// \todo document
   Future<void> _execute() async {
-    await _download();
     await _connect();
 
     var msg = await _features();
-    if (!msg.contains(ZusiService.ack)) return;
+    if (!msg.contains(ZusiService.ack)) {
+      await _exit(); // We can still bail here
+      return;
+    }
+    msg = await _zppLcDcQuery();
+    if (!msg.contains(ZusiService.ack)) {
+      await _exit(); // ... or here
+      return;
+    }
     msg = await _zppErase();
     if (!msg.contains(ZusiService.ack)) return;
     msg = await _zppUpdate();
@@ -107,9 +114,6 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
 
     await _disconnect();
   }
-
-  /// \todo document
-  Future<void> _download() async {}
 
   /// \todo document
   Future<void> _connect() async {
@@ -127,9 +131,23 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   }
 
   /// \todo document
+  Future<Uint8List> _zppLcDcQuery() async {
+    if (!widget._zpp.coded) return Uint8List.fromList([ZusiService.ack]);
+    _setStatusState('Check if load code is valid');
+    final msg = await _retryOnFailure(
+      () => _zusi.zppLcDcQuery(widget._zpp.developerCode),
+    );
+    debugPrint('LC DC query answer $msg');
+    if (!msg.contains(ZusiService.ack) || msg[1] == 0x00) {
+      return _setErrorState('Load code not valid');
+    }
+    return Uint8List.fromList([ZusiService.ack]);
+  }
+
+  /// \todo document
   Future<Uint8List> _zppErase() async {
     _setStatusState('Erasing');
-    final msg = await _retryOnFailure(() => _zusi.eraseZpp());
+    final msg = await _retryOnFailure(() => _zusi.zppErase());
     if (!msg.contains(ZusiService.ack)) {
       return _setErrorState('Erasing failed');
     }
@@ -149,7 +167,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       // Number of blocks transmit at once
       final n = min(256, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _zusi.writeZpp((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
+        _zusi.zppWrite((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
       }
 
       // Wait for all responses
@@ -186,7 +204,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     int i = 0;
     for (final entry in widget._zpp.cvs.entries) {
       final msg =
-          await _retryOnFailure(() => _zusi.writeCv(entry.key, entry.value));
+          await _retryOnFailure(() => _zusi.cvWrite(entry.key, entry.value));
       if (!msg.contains(ZusiService.ack)) {
         return _setErrorState('Writing CVs failed');
       }

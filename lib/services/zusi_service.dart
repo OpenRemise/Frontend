@@ -23,11 +23,11 @@ abstract interface class ZusiService {
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void readCv(int cvAddress);
-  void writeCv(int cvAddress, int byte);
-  void eraseZpp();
-  void writeZpp(int address, Uint8List chunk);
+  void cvRead(int cvAddress);
+  void cvWrite(int cvAddress, int byte);
+  void zppErase();
+  void zppWrite(int address, Uint8List chunk);
   void features();
   void exit(int flags);
-  void encrypt();
+  void zppLcDcQuery(Uint8List developerCode);
 }

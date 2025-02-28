@@ -9,11 +9,6 @@
 </picture>
 </a>
 
-## HTML renderer
-Stick to Flutter version 3.27.4, as this is the last version which supports the HTML renderer...
-- App size with canvaskit: 3.8MB
-- App size with HTML: 1.1MB
-
 ## AUR
 How to checkout 3.27.4 from AUR
 ```sh

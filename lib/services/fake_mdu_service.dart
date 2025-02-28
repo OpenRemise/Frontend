@@ -94,7 +94,14 @@ class FakeMduService implements MduService {
   }
 
   @override
-  void zppLcDcQuery(Uint8List developerCode) {}
+  void zppLcDcQuery(Uint8List developerCode) async {
+    assert(developerCode.length == 4);
+    await Future.delayed(const Duration(milliseconds: 50), () {
+      if (_controller.isClosed) return;
+      _controller.sink
+          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+    });
+  }
 
   @override
   void zppErase(int beginAddress, int endAddress) async {

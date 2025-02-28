@@ -34,7 +34,7 @@ class FakeZusiService implements ZusiService {
       Future.delayed(Duration.zero);
 
   @override
-  void readCv(int cvAddress) async {
+  void cvRead(int cvAddress) async {
     await Future.delayed(const Duration(milliseconds: 10), () {
       if (_controller.isClosed) return;
       _controller.sink.add(
@@ -50,7 +50,7 @@ class FakeZusiService implements ZusiService {
   }
 
   @override
-  void writeCv(int cvAddress, int byte) async {
+  void cvWrite(int cvAddress, int byte) async {
     await Future.delayed(const Duration(milliseconds: 10), () {
       if (_controller.isClosed) return;
       _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
@@ -58,7 +58,7 @@ class FakeZusiService implements ZusiService {
   }
 
   @override
-  void eraseZpp() async {
+  void zppErase() async {
     await Future.delayed(const Duration(seconds: 10), () {
       if (_controller.isClosed) return;
       _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
@@ -66,7 +66,7 @@ class FakeZusiService implements ZusiService {
   }
 
   @override
-  void writeZpp(int address, Uint8List chunk) async {
+  void zppWrite(int address, Uint8List chunk) async {
     await Future.delayed(Duration(milliseconds: 2 * chunk.length), () {
       if (_controller.isClosed) return;
       _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
@@ -90,8 +90,18 @@ class FakeZusiService implements ZusiService {
   }
 
   @override
-  void encrypt() {
-    // TODO: implement encrypt
-    throw UnimplementedError();
+  void zppLcDcQuery(Uint8List developerCode) async {
+    await Future.delayed(const Duration(milliseconds: 10), () {
+      if (_controller.isClosed) return;
+      _controller.sink.add(
+        Uint8List.fromList(
+          [
+            ZusiService.ack,
+            0x01,
+            crc8([0x01]),
+          ],
+        ),
+      );
+    });
   }
 }

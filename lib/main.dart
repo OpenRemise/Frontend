@@ -36,6 +36,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// \todo document
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
@@ -45,9 +46,11 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
+/// \todo document
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
+  /// \todo document
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lightThemeBW = ThemeData(
@@ -99,9 +102,11 @@ class MyApp extends ConsumerWidget {
   }
 }
 
+/// \todo document
 class NativeHomeView extends ConsumerWidget {
   const NativeHomeView({super.key});
 
+  /// \todo document
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String domain = ref.watch(domainProvider);
@@ -120,6 +125,7 @@ class NativeHomeView extends ConsumerWidget {
   }
 }
 
+/// \todo document
 class WebHomeView extends ConsumerStatefulWidget {
   const WebHomeView({super.key});
 
@@ -127,6 +133,7 @@ class WebHomeView extends ConsumerStatefulWidget {
   ConsumerState<WebHomeView> createState() => _WebHomeViewState();
 }
 
+/// \todo document
 class _WebHomeViewState extends ConsumerState<WebHomeView> {
   late final Timer _timer;
   int _index = 0;
@@ -139,6 +146,7 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     const SettingsScreen(),
   ];
 
+  /// \todo document
   @override
   void initState() {
     super.initState();
@@ -160,12 +168,14 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     );
   }
 
+  /// \todo document
   @override
   void dispose() {
     _timer.cancel();
     super.dispose();
   }
 
+  /// \todo document
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -294,6 +304,7 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     );
   }
 
+  /// \todo document
   void _heartbeat(_) {
     final z21 = ref.read(z21ServiceProvider);
     z21.lanXGetStatus();
@@ -302,7 +313,7 @@ class _WebHomeViewState extends ConsumerState<WebHomeView> {
     z21.stream.listen(
       null,
       onError: (e) {
-        debugPrint('Z21 stream onDone $e');
+        debugPrint('Z21 stream onError $e');
         ref.invalidate(z21ServiceProvider);
       },
       onDone: () {
