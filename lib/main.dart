@@ -112,10 +112,16 @@ class NativeHomeView extends ConsumerWidget {
     final String domain = ref.watch(domainProvider);
     if (domain.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => showDialog(
+        (_) => showDialog<String>(
           context: context,
           builder: (_) => const DomainDialog(),
           barrierDismissible: false,
+        ).then(
+          (value) {
+            if (value == null) return;
+            debugPrint('Domain set to $value');
+            ref.read(domainProvider.notifier).update((state) => value);
+          },
         ),
       );
       return const Placeholder();
