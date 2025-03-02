@@ -219,11 +219,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   }
 
   /// \todo document
+  ///
+  /// \note
+  /// Unfortunately, we cannot check the return value because the command is not implemented in MX decoders.
   Future<Uint8List> _exit() async {
-    final msg = await _retryOnFailure(() => _zusi.exit(1 << 1));
-    if (!msg.contains(ZusiService.ack)) {
-      return _setErrorState('Exit failed');
-    }
+    await _retryOnFailure(() => _zusi.exit(1 << 1));
     return Uint8List.fromList([ZusiService.ack]);
   }
 
