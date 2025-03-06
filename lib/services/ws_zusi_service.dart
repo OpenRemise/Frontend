@@ -105,12 +105,12 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void exit(int flags) async {
+  void exit({bool cv8Reset = false, bool restart = false}) async {
     List<int> data = [
       0x07, // Command
       0x55,
       0xAA,
-      flags & 0xFF,
+      0xFC | (cv8Reset ? 0 : 1) << 1 | (restart ? 0 : 1) << 0,
     ];
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
