@@ -19,24 +19,88 @@ import 'dart:typed_data';
 
 import 'package:Frontend/utilities/exor.dart';
 
+/// \todo document
 int data2uint16(Uint8List data) {
   return data[0] << 8 | data[1] << 0;
 }
 
+/// \todo document
 int data2int16(data) => data2uint16(data);
 
+/// \todo document
 int data2uint32(Uint8List data) {
   return data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3] << 0;
 }
 
+/// \todo document
 int data2locoAddress(Uint8List data) {
   return data2uint16(data) & 0x3FFF;
 }
 
+/// \todo document
 int data2cvAddress(Uint8List data) {
   return data2uint16(data) & 0x03FF;
 }
 
+/// \todo document
+int decodeRvvvvvvv(int speedSteps, int rvvvvvvv) {
+  // 128 speed steps
+  if (speedSteps == 4) {
+    // Halt
+    if (rvvvvvvv & 0x7F == 0) {
+      return 0;
+    } else if (rvvvvvvv & 0x7E == 0) {
+      return -1;
+    } else {
+      return (rvvvvvvv & 0x7F) - 1;
+    }
+  }
+  // 14 or 28 speed steps
+  else {
+    // Halt
+    if (rvvvvvvv & 0x0F == 0) {
+      return 0;
+    }
+    // EStop
+    else if (rvvvvvvv & 0x0E == 0) {
+      return -1;
+    }
+
+    int speed = (rvvvvvvv & 0x0F) - 1;
+
+    // 28 speed steps with intermediate
+    if (speedSteps == 2) {
+      speed <<= 1;
+      if (rvvvvvvv & 0x10 == 0) --speed;
+    }
+
+    return speed;
+  }
+}
+
+/// \todo document
+int encodeRvvvvvvv(int speedSteps, bool dir, int speed) {
+  // Halt
+  if (speed == 0) {
+    return (dir ? 1 : 0) << 7;
+  }
+  // EStop
+  else if (speed < 0) {
+    return ((dir ? 1 : 0) << 7) | 1;
+  }
+
+  int vvvvvvv = speed + 1;
+
+  // 28 speed steps with intermediate
+  if (speedSteps == 2) {
+    vvvvvvv = (vvvvvvv >> 1) + 1;
+    if (speed % 2 == 0) vvvvvvv |= 0x10;
+  }
+
+  return (dir ? 1 : 0) << 7 | vvvvvvv;
+}
+
+/// \todo document
 enum Header {
   // Client to Z21
   LAN_GET_SERIAL_NUMBER(0x10),
@@ -152,6 +216,7 @@ enum Header {
       );
 }
 
+/// \todo document
 enum XHeader {
   // Client to Z21
   LAN_X_21(0x21),
@@ -278,32 +343,46 @@ enum DB0 {
       );
 }
 
+/// \todo document
 sealed class Command {}
 
+/// \todo document
 class ReplyToLanGetSerialNumber implements Command {}
 
+/// \todo document
 class ReplyToLanGetCode implements Command {}
 
+/// \todo document
 class ReplyToLanGetHwInfo implements Command {}
 
+/// \todo document
 class LanXTurnoutInfo implements Command {}
 
+/// \todo document
 class LanXExtAccessoryInfo implements Command {}
 
+/// \todo document
 class LanXBcTrackPowerOff implements Command {}
 
+/// \todo document
 class LanXBcTrackPowerOn implements Command {}
 
+/// \todo document
 class LanXBcProgrammingMode implements Command {}
 
+/// \todo document
 class LanXBcTrackShortCircuit implements Command {}
 
+/// \todo document
 class LanXCvNackSc implements Command {}
 
+/// \todo document
 class LanXCvNack implements Command {}
 
+/// \todo document
 class LanXUnknownCommand implements Command {}
 
+/// \todo document
 class LanXStatusChanged implements Command {
   final int centralState;
 
@@ -335,8 +414,10 @@ class LanXStatusChanged implements Command {
   }
 }
 
+/// \todo document
 class ReplyToLanXGetVersion implements Command {}
 
+/// \todo document
 class LanXCvResult implements Command {
   final int cvAddress;
   final int value;
@@ -355,8 +436,10 @@ class LanXCvResult implements Command {
   }
 }
 
+/// \todo document
 class LanXBcStopped implements Command {}
 
+/// \todo document
 class LanXLocoInfo implements Command {
   final int address;
   final int mode;
@@ -402,16 +485,22 @@ class LanXLocoInfo implements Command {
   }
 }
 
+/// \todo document
 class ReplyToLanXGetFirmwareVersion implements Command {}
 
+/// \todo document
 class ReplyToLanGetBroadcastFlags implements Command {}
 
+/// \todo document
 class ReplyToLanGetLocoMode implements Command {}
 
+/// \todo document
 class ReplyToLanGetTurnoutMode implements Command {}
 
+/// \todo document
 class LanRmBusDataChanged implements Command {}
 
+/// \todo document
 class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
   final int mainCurrent;
   final int progCurrent;
@@ -453,38 +542,55 @@ class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
   }
 }
 
+/// \todo document
 class LanRailComDataChanged implements Command {}
 
+/// \todo document
 class LanLoconetZ21Rx implements Command {}
 
+/// \todo document
 class LanLoconetZ21Tx implements Command {}
 
+/// \todo document
 class LanLoconetFromLan implements Command {}
 
+/// \todo document
 class LanLoconetDispatchAddr implements Command {}
 
+/// \todo document
 class LanLoconetDetector implements Command {}
 
+/// \todo document
 class LanCanDetector implements Command {}
 
+/// \todo document
 class ReplyToLanCanDeviceGetDescription implements Command {}
 
+/// \todo document
 class LanCanBoosterSystemStateChanged implements Command {}
 
+/// \todo document
 class LanFastClockData implements Command {}
 
+/// \todo document
 class LanFastClockSettingsGet implements Command {}
 
+/// \todo document
 class ReplyToLanBoosterGetDescription implements Command {}
 
+/// \todo document
 class LanBoosterSystemStateDataChanged implements Command {}
 
+/// \todo document
 class ReplyToLanDecoderGetDescription implements Command {}
 
+/// \todo document
 class LanDecoderSystemStateDataChanged implements Command {}
 
+/// \todo document
 class ReplyToLanZLinkGetHwInfo implements Command {}
 
+/// \todo document
 abstract interface class Z21Service {
   Future<void> get ready;
   Stream<Command> get stream;
@@ -502,6 +608,7 @@ abstract interface class Z21Service {
   void lanXCvPomReadByte(int locoAddress, int cvAddress);
   void lanSystemStateGetData();
 
+  /// \todo document
   static Command convert(Uint8List dataset) {
     if (dataset.length <= 4) return LanXUnknownCommand();
 

@@ -82,7 +82,7 @@ class FakeZusiService implements ZusiService {
   }
 
   @override
-  void exit(int flags) async {
+  void exit({bool cv8Reset = false, bool restart = false}) async {
     await Future.delayed(const Duration(seconds: 2), () {
       if (_controller.isClosed) return;
       _controller.sink.add(Uint8List.fromList([ZusiService.ack]));

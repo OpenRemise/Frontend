@@ -60,7 +60,72 @@
 /// </div>
 
 /// \page page_development Development
-/// HA
+/// In this chapter, we set up a development environment that allows us to
+/// create the frontend, its unit tests, and the documentation.
+///
+/// We recommend either an [Arch](https://archlinux.org) (e.g.
+/// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
+/// [Ubuntu](https://ubuntu.com) based distribution, so all of the following
+/// steps refer to those.
+///
+/// \section section_development_prerequisites Prerequisites
+/// In order to start developing the frontend, we need to meet quite a few
+/// prerequisites. Fortunately, most of them can be obtained directly from the
+/// package manager. But before we do that, let's bring our system up to date.
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   sudo pacman -Syu --noconfirm
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   sudo apt update -y
+///   sudo apt upgrade -y
+///   ```
+/// </div>
+///
+/// Without going into detail about each individual dependency, the most
+/// important ones are Flutter, a cross-platform app framework, Clang, a host
+/// compiler, CMake, a build system, Ninja, a build tool, Doxygen, a
+/// documentation generator, and Graphviz, a graph visualization software.
+///
+/// - [Flutter](https://flutter.dev) ( == 3.27.4 )
+/// - [Clang](https://clang.llvm.org) ( >= 16.0.6 )
+/// - [CMake](https://cmake.org) ( >= 3.25 )
+/// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
+/// - Optional
+///   - for building documentation
+///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.12.0 )
+///     - [Graphviz](https://graphviz.org) ( >= 12.1.1 )
+///
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   sudo pacman -S --noconfirm clang cmake doxygen git graphviz jdk-openjdk make ninja
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+///   sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+///   ```
+/// </div>
+///
+/// \subsection subsection_development_flutter Flutter
+///
+/// https://docs.flutter.dev/release/archive
+///
+///
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   git clone https://aur.archlinux.org/flutter-bin.git
+///   cd flutter-bin
+///   git checkout 9dd83f3012fb6b14f7a9453cdfbf2dd097053f79
+///   makepkg -si
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   bla
+/// </div>
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next                   |

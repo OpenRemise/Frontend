@@ -28,6 +28,6 @@ abstract interface class ZusiService {
   void zppErase();
   void zppWrite(int address, Uint8List chunk);
   void features();
-  void exit(int flags);
+  void exit({bool cv8Reset = false, bool restart = false});
   void zppLcDcQuery(Uint8List developerCode);
 }
