@@ -48,14 +48,15 @@
 /// After we have successfully set up a development environment and compiled the
 /// frontend we will look at the system architecture.
 ///
-/// | Chapter                    | Content                         |
-/// | -------------------------- | ------------------------------- |
-/// | \subpage page_development  | Setup a development environment |
-/// | \subpage page_architecture | System architecture             |
+/// | Chapter                     | Content                         |
+/// | --------------------------- | ------------------------------- |
+/// | \subpage page_development   | Setup a development environment |
+/// | \subpage page_configuration | Environmental variables         |
+/// | \subpage page_architecture  | System architecture             |
 ///
 /// <div class="section_buttons">
-/// | Previous   | Next                   |
-/// | :--------- | ---------------------: |
+/// | Previous   | Next                  |
+/// | :--------- | --------------------: |
 /// | \ref index | \ref page_development |
 /// </div>
 
@@ -124,7 +125,7 @@
 /// the last version that supports the HTML renderer, which as of now simply
 /// produces a much smaller app than the newer canvaskit.
 ///
-/// At the time of writing (\showdate "%d-%m-%Y"), the **gzipped app size** is
+/// At the time of writing (06.03.2025), the **gzipped app size** is
 /// - 3.8MB with canvaskit
 /// - 1.1MB with HTML
 ///
@@ -149,10 +150,11 @@
 ///   - Manually download [Flutter 3.27.4](https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.4-stable.tar.xz)
 ///   - Follow the installation instructions at [docs.flutter.dev](https://docs.flutter.dev/get-started/install/linux/web#install-the-flutter-sdk)
 /// </div>
-/// 
+///
 /// \subsection subsection_development_vscode VSCode (optional)
+///
 /// We generally recommend [VSCode](https://code.visualstudio.com) for
-/// development. It has a great Dart/Flutter extension called 
+/// development. It has a great Dart/Flutter extension called
 /// [dartcode](https://dartcode.org) which also provides excellent debug and
 /// testing support. Of course you are welcome to use any other IDE.
 /// <div class="tabbed">
@@ -166,12 +168,11 @@
 ///   ```
 /// </div>
 ///
-/// 
 /// \section section_development_clone Clone
-/// The frontend source code is hosted on GitHub. We can use either SSH or HTTP 
-/// to  clone the [repository](https://github.com/OpenRemise/Frontend). Using 
-/// `git clone` without any additional arguments will clone the latest version 
-/// of the master branch to the current working directory. After that, we can 
+/// The frontend source code is hosted on GitHub. We can use either SSH or HTTP
+/// to  clone the [repository](https://github.com/OpenRemise/Frontend). Using
+/// `git clone` without any additional arguments will clone the latest version
+/// of the master branch to the current working directory. After that, we can
 /// change into the `Frontend` directory we've just created.
 /// <div class="tabbed">
 /// - <b class="tab-title">SSH</b>
@@ -185,28 +186,111 @@
 ///   cd Frontend
 ///   ```
 /// </div>
-/// 
+///
 /// \section section_development_build Build
-/// 
+/// Normally, Flutter apps can be built directly from the command line, e.g.
+/// ```sh
+/// flutter build linux
+/// ```
+///
+/// However, since we want to integrate the build into the
+/// [Firmware](https://github.com/OpenRemise/Firmware), it will be wrapped in
+/// CMake. This allows us to use a `Frontend` target directly on the one hand,
+/// and on the other hand to have a `FrontendRelease` target that generates
+/// ready-made .zip archives for releases.
+///
+/// ```sh
+/// cmake --preset "Release"
+/// cmake --build build --target FrontendRelease
+/// ```
+///
 /// \section section_development_debug Debug
-/// 
+/// With Flutter, we have to differentiate on which platform we want to debug.
+///
+/// \subsection subsection_develop_debug_native Native
+/// The easiest to debug are definitely native builds, as they provide us with a
+/// debugger with a start and stop function. The VSCode integration via
+/// [dartcode](https://dartcode.org) is phenomenal and a simple click on debug
+/// configuration is (usually) enough to start a session.
+///
+/// These configurations can be found under `.vscode/launch.json` and look
+/// something like this.
+/// ```json
+/// {
+///   "name": "Frontend (debug mode) OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
+///   "request": "launch",
+///   "type": "dart",
+///   "flutterMode": "debug",
+///   "args": [
+///     "--dart-define",
+///     "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
+///   ]
+/// }
+/// ```
+///
+/// \warning
+/// If Flutter is complaining about `Target of URI hasn't been generated` you'll
+/// probably need to run the build runner with
+/// ```sh
+/// dart run build_runner build --delete-conflicting-outputs
+/// ```
+///
+/// \subsection subsection_develop_debug_web Web
+/// No matter how good the native debuggers are, from time to time you need to
+/// debug directly in the browser. Flutter allows us to start directly in
+/// Chromium with the following call. There is no start or stop function, but
+/// the browser developer tools prove useful.
+/// <div class="tabbed">
+/// - <b class="tab-title">Fish</b>
+///    ```sh
+///    . chromium.fish
+///    flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800
+///    ```
+/// - <b class="tab-title">Bash</b>
+///    ```sh
+///    . chromium.sh
+///    flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800
+///    ```
+/// </div>
+///
 /// \section section_development_test Test
-/// 
+/// Flutter as a modern framework integrates unit tests very tightly. All that
+/// is necessary to run the tests is a one-liner.
+/// ```sh
+/// flutter test
+/// ```
+///
 /// \section section_development_doc Doc
+/// If Doxygen was found during CMake's configuration phase, the `FrontendDocs`
+/// target can be built to create the documentation.
+/// ```sh
+/// cmake --build build --target FrontendDocs
+/// ```
 ///
 /// <div class="section_buttons">
-/// | Previous                  | Next                   |
-/// | :------------------------ | ---------------------: |
-/// | \ref page_getting_started | \ref page_architecture |
+/// | Previous                  | Next                    |
+/// | :------------------------ | ----------------------: |
+/// | \ref page_getting_started | \ref page_configuration |
+/// </div>
+
+/// \page page_configuration Configuration
+/// \todo
+/// Environmental variable stuff... invocations, fakes?
+///
+/// <div class="section_buttons">
+/// | Previous              | Next                   |
+/// | :-------------------- | ---------------------: |
+/// | \ref page_development | \ref page_architecture |
 /// </div>
 
 /// \page page_architecture Architecture
-/// HO
+/// \todo
+/// Services, Providers, Riverpod, Widgets, Dialogs?
 ///
 /// <div class="section_buttons">
-/// | Previous              | Next                    |
-/// | :-------------------- | ----------------------: |
-/// | \ref page_development | \ref page_api_reference |
+/// | Previous                | Next                    |
+/// | :---------------------- | ----------------------: |
+/// | \ref page_configuration | \ref page_api_reference |
 /// </div>
 
 /// \page page_api_reference API Reference
@@ -223,3 +307,8 @@
 /// | \subpage page_utilities | SPIFFS and NVS memory                          |
 /// | \subpage page_widgets   | OTA                                            |
 ///
+/// <div class="section_buttons">
+/// | Previous               | Next                |
+/// | :--------------------- | ------------------: |
+/// | \ref page_architecture | \ref page_constants |
+/// </div>
