@@ -9,14 +9,6 @@
 </picture>
 </a>
 
-## AUR
-How to checkout 3.27.4 from AUR
-```sh
-git clone https://aur.archlinux.org/flutter-bin.git
-git checkout 9dd83f3012fb6b14f7a9453cdfbf2dd097053f79
-makepkg -si
-```
-
 ## Environment variables
 - OPENREMISE_FRONTEND_DOMAIN
 - OPENREMISE_FRONTEND_FAKE_SERVICES
