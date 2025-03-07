@@ -28,6 +28,7 @@ import 'package:Frontend/widgets/decup_dialog.dart';
 import 'package:Frontend/widgets/download_dialog.dart';
 import 'package:Frontend/widgets/mdu_dialog.dart';
 import 'package:Frontend/widgets/ota_dialog.dart';
+import 'package:Frontend/widgets/zimo_sound_dialog.dart';
 import 'package:Frontend/widgets/zusi_dialog.dart';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
@@ -324,7 +325,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                       internetStatus.hasValue &&
                                       internetStatus.requireValue ==
                                           InternetStatus.connected,
-                                  onTap: () => _zimoFromWeb(),
+                                  onTap: () => _zimoFirmwareFromWeb(),
                                 ),
                               ),
                               Card.outlined(
@@ -340,6 +341,31 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                             ],
                           2 || 3 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.language_outlined),
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text:
+                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS' : 'MX'} decoder via ',
+                                      children: const [
+                                        WidgetSpan(
+                                          child: Icon(OpenRemiseIcons.track),
+                                        ),
+                                        TextSpan(text: ' from web'),
+                                      ],
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                    ),
+                                    textScaler: TextScaler.linear(
+                                      ref.watch(textScalerProvider),
+                                    ),
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: () => _zimoSoundFromWeb(),
+                                ),
+                              ),
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
@@ -367,6 +393,30 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                             ],
                           4 => [
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: const Icon(Icons.language_outlined),
+                                  title: RichText(
+                                    text: TextSpan(
+                                      text: 'Upload sound to ZIMO decoder via ',
+                                      children: const [
+                                        WidgetSpan(
+                                          child: Icon(OpenRemiseIcons.susi),
+                                        ),
+                                        TextSpan(text: ' from web'),
+                                      ],
+                                      style:
+                                          Theme.of(context).textTheme.bodyLarge,
+                                    ),
+                                    textScaler: TextScaler.linear(
+                                      ref.watch(textScalerProvider),
+                                    ),
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      z21Status.requireValue.trackVoltageOff(),
+                                  onTap: () => _zimoSoundFromWeb(),
+                                ),
+                              ),
                               Card.outlined(
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open_outlined),
@@ -440,7 +490,8 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   Future<void> _openRemiseFromWeb() async {
     final response = await http.get(
       Uri.parse(
-          'https://api.github.com/repos/OpenRemise/Firmware/releases/latest'),
+        'https://api.github.com/repos/OpenRemise/Firmware/releases/latest',
+      ),
     );
     final data = jsonDecode(response.body);
     final assets = data['assets'].first;
@@ -498,7 +549,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   }
 
   /// \todo document
-  Future<void> _zimoFromWeb() async {
+  Future<void> _zimoFirmwareFromWeb() async {
     showDialog<Uint8List>(
       context: context,
       builder: (_) => DownloadDialog(
@@ -526,6 +577,39 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             _ => ErrorWidget(Exception('Invalid selection')),
           },
           barrierDismissible: false,
+        );
+      },
+    );
+  }
+
+  /// \todo document
+  Future<void> _zimoSoundFromWeb() async {
+    showDialog<String>(
+      context: context,
+      builder: (_) => const ZimoSoundDialog(),
+      barrierDismissible: false,
+    ).then(
+      (value) {
+        if (value == null) return;
+        showDialog<Uint8List>(
+          context: context,
+          builder: (_) => DownloadDialog(value),
+          barrierDismissible: false,
+        ).then(
+          (value) {
+            if (value == null) return;
+            final zpp = Zpp(value);
+            showDialog(
+              context: context,
+              builder: (_) => switch (_selected.elementAtOrNull(1)) {
+                2 => MduDialog.zpp(zpp),
+                3 => DecupDialog.zpp(zpp),
+                4 => ZusiDialog.zpp(zpp),
+                _ => ErrorWidget(Exception('Invalid selection')),
+              },
+              barrierDismissible: false,
+            );
+          },
         );
       },
     );

@@ -60,8 +60,11 @@
 /// </div>
 
 /// \page page_development Development
+/// \details \tableofcontents
 /// In this chapter, we set up a development environment that allows us to
-/// create the frontend, its unit tests, and the documentation.
+/// create the frontend, its unit tests, and the documentation. This means that
+/// we will primarily install the [Flutter](https://flutter.dev) framework, as
+/// well as a few tools around it.
 ///
 /// We recommend either an [Arch](https://archlinux.org) (e.g.
 /// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
@@ -85,11 +88,13 @@
 /// </div>
 ///
 /// Without going into detail about each individual dependency, the most
-/// important ones are Flutter, a cross-platform app framework, Clang, a host
-/// compiler, CMake, a build system, Ninja, a build tool, Doxygen, a
-/// documentation generator, and Graphviz, a graph visualization software.
+/// important ones are Flutter, a cross-platform app framework, Chromium, a web
+/// browser, Clang, a host compiler, CMake, a build system, Ninja, a build tool,
+/// Doxygen, a documentation generator, and Graphviz, a graph visualization
+/// software.
 ///
 /// - [Flutter](https://flutter.dev) ( == 3.27.4 )
+/// - [Chromium](https://www.chromium.org) ( >= 134.0.6998.35 )
 /// - [Clang](https://clang.llvm.org) ( >= 16.0.6 )
 /// - [CMake](https://cmake.org) ( >= 3.25 )
 /// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
@@ -101,19 +106,36 @@
 /// <div class="tabbed">
 /// - <b class="tab-title">Arch</b>
 ///   ```sh
-///   sudo pacman -S --noconfirm clang cmake doxygen git graphviz jdk-openjdk make ninja
+///   sudo pacman -S --noconfirm chromium clang cmake doxygen git graphviz jdk-openjdk make ninja
 ///   ```
 /// - <b class="tab-title">Ubuntu 24.04</b>
 ///   ```sh
 ///   sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
-///   sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+///   sudo apt-get install -y chromium-browser clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
 ///   ```
 /// </div>
 ///
 /// \subsection subsection_development_flutter Flutter
+/// The Flutter framework is the only dependency that we cannot get directly
+/// from the (official) package manager. It's either available from
+/// [AUR](https://aur.archlinux.org) or from the
+/// [flutter releases archive](https://docs.flutter.dev/release/archive). The
+/// problem is that we need a very specific version, namely **3.27.4**. This is
+/// the last version that supports the HTML renderer, which as of now simply
+/// produces a much smaller app than the newer canvaskit.
 ///
-/// https://docs.flutter.dev/release/archive
+/// At the time of writing (\showdate "%d-%m-%Y"), the **gzipped app size** is
+/// - 3.8MB with canvaskit
+/// - 1.1MB with HTML
 ///
+/// Unless this changes drastically, the Flutter version **must not be
+/// updated**. However, Google promises improvement, the progress is tracked in
+/// an open issue on [GitHub](https://github.com/OpenRemise/Frontend/issues/23).
+///
+/// \warning
+/// Packages from the package manager or AUR are **not** intended to be locked
+/// to a specific version. In case the installation from AUR no longer works,
+/// please fall back on the manual installation.
 ///
 /// <div class="tabbed">
 /// - <b class="tab-title">Arch</b>
@@ -124,8 +146,53 @@
 ///   makepkg -si
 ///   ```
 /// - <b class="tab-title">Ubuntu 24.04</b>
-///   bla
+///   - Manually download [Flutter 3.27.4](https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.4-stable.tar.xz)
+///   - Follow the installation instructions at [docs.flutter.dev](https://docs.flutter.dev/get-started/install/linux/web#install-the-flutter-sdk)
 /// </div>
+/// 
+/// \subsection subsection_development_vscode VSCode (optional)
+/// We generally recommend [VSCode](https://code.visualstudio.com) for
+/// development. It has a great Dart/Flutter extension called 
+/// [dartcode](https://dartcode.org) which also provides excellent debug and
+/// testing support. Of course you are welcome to use any other IDE.
+/// <div class="tabbed">
+/// - <b class="tab-title">Arch</b>
+///   ```sh
+///   sudo pamac install visual-studio-code-bin
+///   ```
+/// - <b class="tab-title">Ubuntu 24.04</b>
+///   ```sh
+///   snap install code --classic
+///   ```
+/// </div>
+///
+/// 
+/// \section section_development_clone Clone
+/// The frontend source code is hosted on GitHub. We can use either SSH or HTTP 
+/// to  clone the [repository](https://github.com/OpenRemise/Frontend). Using 
+/// `git clone` without any additional arguments will clone the latest version 
+/// of the master branch to the current working directory. After that, we can 
+/// change into the `Frontend` directory we've just created.
+/// <div class="tabbed">
+/// - <b class="tab-title">SSH</b>
+///   ```sh
+///   git clone git@github.com:OpenRemise/Frontend.git
+///   cd Frontend
+///   ```
+/// - <b class="tab-title">HTTPS</b>
+///   ```sh
+///   git clone https://github.com/OpenRemise/Frontend.git
+///   cd Frontend
+///   ```
+/// </div>
+/// 
+/// \section section_development_build Build
+/// 
+/// \section section_development_debug Debug
+/// 
+/// \section section_development_test Test
+/// 
+/// \section section_development_doc Doc
 ///
 /// <div class="section_buttons">
 /// | Previous                  | Next                   |

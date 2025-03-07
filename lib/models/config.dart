@@ -27,6 +27,8 @@ class Config with _$Config {
     @JsonKey(name: 'sta_mdns') String? mdns,
     @JsonKey(name: 'sta_ssid') String? ssid,
     @JsonKey(name: 'sta_pass') String? password,
+    @JsonKey(name: 'sta_alt_ssid') String? alternativeSsid,
+    @JsonKey(name: 'sta_alt_pass') String? alternativePassword,
     @JsonKey(name: 'http_rx_timeout') int? httpReceiveTimeout,
     @JsonKey(name: 'http_tx_timeout') int? httpTransmitTimeout,
     @JsonKey(name: 'cur_lim') int? currentLimit,

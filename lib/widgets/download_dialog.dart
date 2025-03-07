@@ -55,6 +55,9 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final params = Uri.parse(widget._url).queryParameters;
+    final fileName = params['f'] ?? File(widget._url).uri.pathSegments.last;
+
     return AlertDialog(
       title: const Text('Download'),
       content: Column(
@@ -63,7 +66,7 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
         children: [
           LinearProgressIndicator(value: _progress),
           Text(_status),
-          Text(File(widget._url).uri.pathSegments.last),
+          Text(fileName),
         ],
       ),
       actions: <Widget>[
@@ -85,9 +88,12 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
       response.stream.listen(
         (chunk) => setState(() {
           _bytes.addAll(chunk);
-          _status =
-              'Downloading ${_bytes.length ~/ 1024} / ${contentLength ~/ 1024} kB';
-          _progress = _bytes.length / contentLength;
+          _status = 'Downloading';
+          if (contentLength > 0) {
+            _status +=
+                ' ${_bytes.length ~/ 1024} / ${contentLength ~/ 1024} kB';
+            _progress = _bytes.length / contentLength;
+          }
         }),
         onDone: () {
           if (mounted) Navigator.pop(context, Uint8List.fromList(_bytes));
