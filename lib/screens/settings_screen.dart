@@ -164,7 +164,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       child: FormBuilderTextField(
                         name: 'sta_pass',
                         validator: (String? value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null) {
                             return 'Please enter a password';
                           } else if (value.length > 64) {
                             return 'Password too long';
@@ -176,6 +176,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'Password',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Name of the alternative network to connect to',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_alt_ssid',
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return null;
+                          } else if (value.length > 32) {
+                            return 'SSID too long';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: data.alternativeSsid,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Alternative SSID',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
+                    ),
+                    Tooltip(
+                      message:
+                          'Password of the alternative network to connect to',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_alt_pass',
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return null;
+                          } else if (value.length > 64) {
+                            return 'Password too long';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: data.alternativePassword,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Alternative password',
                         ),
                         autovalidateMode: AutovalidateMode.always,
                       ),
@@ -599,9 +644,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   false) {
                                 // Remove sta_pass if it only contains *
                                 var map = Map.of(_formKey.currentState!.value);
-                                debugPrint('$map');
                                 final String staPass = map['sta_pass']!;
-                                if (staPass == '*' * staPass.length) {
+                                if (staPass.isNotEmpty &&
+                                    staPass == '*' * staPass.length) {
                                   map.remove('sta_pass');
                                 }
                                 ref

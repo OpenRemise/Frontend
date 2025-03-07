@@ -21,6 +21,8 @@ class FakeSettingsService implements SettingsService {
     mdns: 'remise',
     ssid: 'FakeSSID',
     password: '************',
+    alternativeSsid: '',
+    alternativePassword: '',
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
     currentLimit: 3,
@@ -52,7 +54,14 @@ class FakeSettingsService implements SettingsService {
       () => _config = Config(
         mdns: config.mdns ?? _config.mdns,
         ssid: config.ssid ?? _config.ssid,
-        password: config.password ?? _config.password,
+        password:
+            List.filled((config.password ?? _config.password)!.length, '*')
+                .join(),
+        alternativeSsid: config.alternativeSsid ?? _config.alternativeSsid,
+        alternativePassword: List.filled(
+          (config.alternativePassword ?? _config.alternativePassword)!.length,
+          '*',
+        ).join(),
         httpReceiveTimeout:
             config.httpReceiveTimeout ?? _config.httpReceiveTimeout,
         httpTransmitTimeout:
