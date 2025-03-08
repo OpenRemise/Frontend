@@ -29,6 +29,7 @@ class ZimoSoundDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
   List<String> _urls = [];
+  String _str = '.*';
 
   /// \todo document
   @override
@@ -68,15 +69,43 @@ class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    RegExp exp;
+    try {
+      exp = RegExp(_str);
+    } on FormatException {
+      exp = RegExp('.*');
+    }
+    final matches = _urls.where((url) => exp.firstMatch(url) != null);
+    final nonMatches = _urls.where((url) => exp.firstMatch(url) == null);
+
     return SimpleDialog(
-      title: const Text('ZIMO sound database'),
+      title: const Text('ZIMO Sound Database'),
       children: [
         ..._urls.isEmpty
             ? [
                 const SimpleDialogOption(child: LinearProgressIndicator()),
               ]
             : [
-                ..._urls.map(
+                SimpleDialogOption(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.search),
+                      labelText: 'Search',
+                    ),
+                    onChanged: (str) => setState(() => _str = str),
+                  ),
+                ),
+                ...matches.map(
+                  (url) {
+                    final params = Uri.parse(url).queryParameters;
+                    final fileName = params['f']!;
+                    return SimpleDialogOption(
+                      onPressed: () => Navigator.pop(context, url),
+                      child: Text(fileName),
+                    );
+                  },
+                ),
+                ...nonMatches.map(
                   (url) {
                     final params = Uri.parse(url).queryParameters;
                     final fileName = params['f']!;

@@ -297,7 +297,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
           final String name = match[0]!;
           setState(() {
             _decoders[decoderId] = ListTile(
-              leading: const Icon(Icons.circle_outlined),
+              leading: const Icon(Icons.circle),
               title: Text(name),
             );
           });
@@ -316,7 +316,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     _setStatusState('Ping');
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.pending_outlined),
+        leading: const Icon(Icons.pending),
         title: _decoders[decoderId]!.title,
       );
     });
@@ -352,7 +352,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     _setStatusState('Writing');
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.downloading_outlined),
+        leading: const Icon(Icons.downloading),
         title: _decoders[decoderId]!.title,
       );
     });
@@ -382,7 +382,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     // Done with this ID
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.check_circle_outline),
+        leading: const Icon(Icons.check_circle),
         title: _decoders[decoderId]!.title,
       );
     });
@@ -485,7 +485,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     setState(() {
       if (decoderId != null) {
         _decoders[decoderId] = ListTile(
-          leading: const Icon(Icons.error_outlined),
+          leading: const Icon(Icons.error),
           title: _decoders[decoderId]!.title,
         );
       }
