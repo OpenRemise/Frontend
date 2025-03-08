@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
+import 'package:gif/gif.dart';
 
 /// \todo document
 class LocoController extends ConsumerStatefulWidget {
@@ -89,7 +91,17 @@ class _LocoControllerState extends ConsumerState<LocoController> {
             maxHeight: 800,
           ),
           child: snapshot.hasError
-              ? const Text('error')
+              ? Center(
+                  child: Gif(
+                    image: AssetImage(
+                      ref.watch(darkModeProvider)
+                          ? 'data/images/error_dark.gif'
+                          : 'data/images/error_light.gif',
+                    ),
+                    autostart: Autostart.loop,
+                    width: 200,
+                  ),
+                )
               : snapshot.hasData
                   ? AppBar(
                       leading: IconButton(
@@ -102,8 +114,8 @@ class _LocoControllerState extends ConsumerState<LocoController> {
                         tooltip: 'On/off',
                         isSelected: z21Status.hasValue &&
                             !z21Status.requireValue.trackVoltageOff(),
-                        selectedIcon: const Icon(Icons.power_off_outlined),
-                        icon: const Icon(Icons.power_outlined),
+                        selectedIcon: const Icon(Icons.power_off),
+                        icon: const Icon(Icons.power),
                       ),
                       title: ListTile(
                         title: Text(loco.name),
@@ -115,7 +127,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
                               .read(selectedLocoIndexProvider.notifier)
                               .update((state) => null),
                           tooltip: 'Close',
-                          icon: const Icon(Icons.close_outlined),
+                          icon: const Icon(Icons.close),
                         ),
                       ],
                       flexibleSpace: SizedBox.expand(
@@ -155,7 +167,17 @@ class _LocoControllerState extends ConsumerState<LocoController> {
                         ),
                       ),
                     )
-                  : const Text('loading'),
+                  : Center(
+                      child: Gif(
+                        image: AssetImage(
+                          ref.watch(darkModeProvider)
+                              ? 'data/images/loading_dark.gif'
+                              : 'data/images/loading_light.gif',
+                        ),
+                        autostart: Autostart.loop,
+                        width: 200,
+                      ),
+                    ),
         );
       },
     );
@@ -281,9 +303,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
       borderRadius: BorderRadius.circular(12),
       children: [
         Icon(
-          _rvvvvvvv & 0x80 != 0
-              ? Icons.arrow_forward_outlined
-              : Icons.arrow_back_outlined,
+          _rvvvvvvv & 0x80 != 0 ? Icons.arrow_forward : Icons.arrow_back,
         ),
       ],
     );

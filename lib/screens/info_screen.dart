@@ -75,14 +75,14 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   : 'Power on',
               isSelected: z21Status.hasValue &&
                   !z21Status.requireValue.trackVoltageOff(),
-              selectedIcon: const Icon(Icons.power_off_outlined),
-              icon: const Icon(Icons.power_outlined),
+              selectedIcon: const Icon(Icons.power_off),
+              icon: const Icon(Icons.power),
             ),
             actions: [
               IconButton(
                 onPressed: () => ref.read(sysProvider.notifier).fetchInfo(),
                 tooltip: 'Refresh',
-                icon: const Icon(Icons.refresh_outlined),
+                icon: const Icon(Icons.refresh),
               ),
             ],
             floating: true,

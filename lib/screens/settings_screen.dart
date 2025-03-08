@@ -72,8 +72,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     : 'Power on',
                 isSelected: z21Status.hasValue &&
                     !z21Status.requireValue.trackVoltageOff(),
-                selectedIcon: const Icon(Icons.power_off_outlined),
-                icon: const Icon(Icons.power_outlined),
+                selectedIcon: const Icon(Icons.power_off),
+                icon: const Icon(Icons.power),
               ),
               title: IconButton(
                 onPressed: () => showDialog<bool>(
@@ -86,13 +86,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       : null,
                 ),
                 tooltip: 'Restart',
-                icon: const Icon(Icons.restart_alt_outlined),
+                icon: const Icon(Icons.restart_alt),
               ),
               actions: [
                 IconButton(
                   onPressed: _defaults,
                   tooltip: 'Defaults',
-                  icon: const Icon(Icons.settings_suggest_outlined),
+                  icon: const Icon(Icons.settings_suggest),
                 ),
                 IconButton(
                   onPressed: () {
@@ -100,7 +100,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _formKey.currentState?.reset();
                   },
                   tooltip: 'Refresh',
-                  icon: const Icon(Icons.refresh_outlined),
+                  icon: const Icon(Icons.refresh),
                 ),
               ],
               floating: true,
@@ -130,7 +130,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         },
                         initialValue: data.mdns,
                         decoration: const InputDecoration(
-                          icon: Icon(Icons.wifi_outlined),
+                          icon: Icon(Icons.wifi),
                           labelText: 'mDNS',
                         ),
                         autovalidateMode: AutovalidateMode.always,
@@ -234,7 +234,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         name: 'http_rx_timeout',
                         initialValue: data.httpReceiveTimeout!.toDouble(),
                         decoration: const InputDecoration(
-                          icon: Icon(Icons.http_outlined),
+                          icon: Icon(Icons.http),
                           labelText: 'HTTP receive timeout [s]',
                         ),
                         valueTransformer: (value) => value!.toInt(),
@@ -269,7 +269,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         name: 'cur_lim',
                         initialValue: data.currentLimit!.toDouble(),
                         decoration: const InputDecoration(
-                          icon: Icon(Icons.power_outlined),
+                          icon: Icon(Icons.power),
                           labelText: 'Current limit [A]',
                         ),
                         valueTransformer: (value) => value!.toInt(),

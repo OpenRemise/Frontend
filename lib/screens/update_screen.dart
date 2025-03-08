@@ -75,8 +75,8 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   : 'Power on',
               isSelected: z21Status.hasValue &&
                   !z21Status.requireValue.trackVoltageOff(),
-              selectedIcon: const Icon(Icons.power_off_outlined),
-              icon: const Icon(Icons.power_outlined),
+              selectedIcon: const Icon(Icons.power_off),
+              icon: const Icon(Icons.power),
             ),
             actions: [
               IconButton(
@@ -85,7 +85,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                   _selected.clear();
                 }),
                 tooltip: 'Refresh',
-                icon: const Icon(Icons.refresh_outlined),
+                icon: const Icon(Icons.refresh),
               ),
             ],
             floating: true,
@@ -145,8 +145,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       0 => [
                           Card.outlined(
                             child: ListTile(
-                              leading:
-                                  const Icon(Icons.developer_board_outlined),
+                              leading: const Icon(Icons.developer_board),
                               title: const Text('Update OpenRemise board'),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -162,7 +161,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       1 => [
                           Card.outlined(
                             child: ListTile(
-                              leading: const Icon(Icons.memory_outlined),
+                              leading: const Icon(Icons.memory),
                               title: const Text('Update ZIMO MS decoder'),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -176,7 +175,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           ),
                           Card.outlined(
                             child: ListTile(
-                              leading: const Icon(Icons.memory_outlined),
+                              leading: const Icon(Icons.memory),
                               title: const Text('Update ZIMO MX decoder'),
                               enabled: z21Status.hasValue &&
                                   z21Status.requireValue.trackVoltageOff(),
@@ -190,7 +189,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           ),
                           Card.outlined(
                             child: ListTile(
-                              leading: const Icon(Icons.music_note_outlined),
+                              leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
                                   text: 'Upload sound to ZIMO MS decoder via ',
@@ -217,7 +216,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           ),
                           Card.outlined(
                             child: ListTile(
-                              leading: const Icon(Icons.music_note_outlined),
+                              leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
                                   text: 'Upload sound to ZIMO MX decoder via ',
@@ -244,7 +243,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           ),
                           Card.outlined(
                             child: ListTile(
-                              leading: const Icon(Icons.music_note_outlined),
+                              leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
                                   text: 'Upload sound to ZIMO decoder via ',
@@ -283,7 +282,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           0 => [
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.language_outlined),
+                                  leading: const Icon(Icons.language),
                                   title: const Text(
                                     'Update OpenRemise board from web',
                                   ),
@@ -298,7 +297,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.file_open_outlined),
+                                  leading: const Icon(Icons.file_open),
                                   title: const Text(
                                     'Update OpenRemise board from file',
                                   ),
@@ -315,7 +314,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           0 || 1 => [
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.language_outlined),
+                                  leading: const Icon(Icons.language),
                                   title: Text(
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from web',
                                   ),
@@ -330,7 +329,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.file_open_outlined),
+                                  leading: const Icon(Icons.file_open),
                                   title: Text(
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from file',
                                   ),
@@ -343,7 +342,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           2 || 3 => [
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.language_outlined),
+                                  leading: const Icon(Icons.language),
                                   title: RichText(
                                     text: TextSpan(
                                       text:
@@ -368,7 +367,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.file_open_outlined),
+                                  leading: const Icon(Icons.file_open),
                                   title: RichText(
                                     text: TextSpan(
                                       text:
@@ -395,7 +394,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           4 => [
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.language_outlined),
+                                  leading: const Icon(Icons.language),
                                   title: RichText(
                                     text: TextSpan(
                                       text: 'Upload sound to ZIMO decoder via ',
@@ -419,7 +418,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ),
                               Card.outlined(
                                 child: ListTile(
-                                  leading: const Icon(Icons.file_open_outlined),
+                                  leading: const Icon(Icons.file_open),
                                   title: RichText(
                                     text: TextSpan(
                                       text: 'Upload sound to ZIMO decoder via ',
@@ -587,7 +586,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     showDialog<String>(
       context: context,
       builder: (_) => const ZimoSoundDialog(),
-      barrierDismissible: false,
+      barrierDismissible: true,
     ).then(
       (value) {
         if (value == null) return;

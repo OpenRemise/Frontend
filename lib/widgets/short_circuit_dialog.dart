@@ -25,7 +25,7 @@ class ShortCircuitDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
       title: const Text('Short circuit'),
-      content: const Icon(Icons.error_outline),
+      content: const Icon(Icons.error),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(),

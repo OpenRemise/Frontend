@@ -89,8 +89,8 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       : 'Power on',
                   isSelected: z21Status.hasValue &&
                       !z21Status.requireValue.trackVoltageOff(),
-                  selectedIcon: const Icon(Icons.power_off_outlined),
-                  icon: const Icon(Icons.power_outlined),
+                  selectedIcon: const Icon(Icons.power_off),
+                  icon: const Icon(Icons.power),
                 ),
                 actions: [
                   IconButton(
@@ -99,7 +99,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       builder: (_) => const EditLocoDialog(null),
                     ),
                     tooltip: 'Add',
-                    icon: const Icon(Icons.add_circle_outline),
+                    icon: const Icon(Icons.add_circle),
                   ),
                   IconButton(
                     onPressed: () => showDialog(
@@ -107,7 +107,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       builder: (_) => const DeleteLocoDialog(null),
                     ),
                     tooltip: 'Delete all',
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const Icon(Icons.delete),
                   ),
                   IconButton(
                     onPressed: () {
@@ -118,7 +118,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       ref.read(dccProvider.notifier).fetchLocos();
                     },
                     tooltip: 'Refresh',
-                    icon: const Icon(Icons.refresh_outlined),
+                    icon: const Icon(Icons.refresh),
                   ),
                 ],
                 floating: true,
@@ -189,14 +189,14 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 context: context,
                 builder: (_) => EditLocoDialog(index),
               ),
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit),
             ),
             IconButton(
               onPressed: () => showDialog(
                 context: context,
                 builder: (_) => DeleteLocoDialog(index),
               ),
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete),
             ),
           ],
         ),

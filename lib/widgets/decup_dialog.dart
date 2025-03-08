@@ -285,7 +285,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       if (msg.contains(DecupService.ack)) {
         setState(() {
           _decoders[decoderId] = ListTile(
-            leading: const Icon(Icons.circle_outlined),
+            leading: const Icon(Icons.circle),
             title: Text(entry.value.name),
           );
         });
@@ -332,7 +332,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     _setStatusState('Writing');
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.downloading_outlined),
+        leading: const Icon(Icons.downloading),
         title: _decoders[decoderId]!.title,
       );
     });
@@ -380,7 +380,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     // Done
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.check_circle_outline),
+        leading: const Icon(Icons.check_circle),
         title: _decoders[decoderId]!.title,
       );
     });
@@ -434,7 +434,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     setState(() {
       if (decoderId != null) {
         _decoders[decoderId] = ListTile(
-          leading: const Icon(Icons.error_outlined),
+          leading: const Icon(Icons.error),
           title: _decoders[decoderId]!.title,
         );
       }

@@ -40,7 +40,7 @@ class DomainDialog extends ConsumerWidget {
 
     final refreshButton = TextButton.icon(
       onPressed: () => ref.refresh(domainsProvider),
-      icon: const Icon(Icons.refresh_outlined),
+      icon: const Icon(Icons.refresh),
       label: const Text('Refresh'),
     );
 

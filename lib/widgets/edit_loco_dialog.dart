@@ -56,7 +56,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               },
               initialValue: loco?.name,
               decoration: const InputDecoration(
-                icon: Icon(Icons.title_outlined),
+                icon: Icon(Icons.title),
                 labelText: 'Name',
                 helperText: ' ',
               ),
@@ -80,7 +80,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
                 return null;
               },
               decoration: const InputDecoration(
-                icon: Icon(Icons.alternate_email_outlined),
+                icon: Icon(Icons.alternate_email),
                 labelText: 'Address',
                 helperText: ' ',
               ),

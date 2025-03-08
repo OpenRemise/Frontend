@@ -37,7 +37,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final List<int> _selected = [];
   int _index = 0;
-  IconData _iconData = Icons.circle_outlined;
+  IconData _iconData = Icons.circle;
 
   /// \todo document
   @override
@@ -62,21 +62,21 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         if (snapshot.hasData) {
           switch (snapshot.requireData) {
             case LanXCvNackSc():
-              _updateIconData(Icons.error_outline);
+              _updateIconData(Icons.error);
               // TODO some error here?
               debugPrint('LanXCvNackSc');
             case LanXCvNack():
-              _updateIconData(Icons.error_outline);
+              _updateIconData(Icons.error);
               // TODO some error here?
               debugPrint('LanXCvNack');
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
-                _updateIconData(Icons.check_circle_outline);
+                _updateIconData(Icons.check_circle);
                 _formKey.currentState?.fields['CV value']
                     ?.didChange(value.toString());
               } else {
-                _updateIconData(Icons.error_outline);
+                _updateIconData(Icons.error);
                 _formKey.currentState?.fields['CV value']?.didChange(null);
               }
             default:
@@ -102,8 +102,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                         : 'Power on',
                     isSelected: z21Status.hasValue &&
                         !z21Status.requireValue.trackVoltageOff(),
-                    selectedIcon: const Icon(Icons.power_off_outlined),
-                    icon: const Icon(Icons.power_outlined),
+                    selectedIcon: const Icon(Icons.power_off),
+                    icon: const Icon(Icons.power),
                   ),
                   actions: [
                     IconButton(
@@ -112,7 +112,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                         _selected.clear();
                       }),
                       tooltip: 'Refresh',
-                      icon: const Icon(Icons.refresh_outlined),
+                      icon: const Icon(Icons.refresh),
                     ),
                   ],
                   floating: true,
@@ -140,8 +140,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                             ),
                             Card.outlined(
                               child: ListTile(
-                                leading:
-                                    const Icon(Icons.build_circle_outlined),
+                                leading: const Icon(Icons.build_circle),
                                 title: const Text('Service'),
                                 onTap: () => setState(() {
                                   ++_index;
@@ -201,7 +200,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 name: 'address',
                                 validator: addressValidator,
                                 decoration: const InputDecoration(
-                                  icon: Icon(Icons.alternate_email_outlined),
+                                  icon: Icon(Icons.alternate_email),
                                   labelText: 'Address',
                                 ),
                                 enabled: serviceMode ||
@@ -218,7 +217,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                     name: 'CV number',
                                     validator: cvNumberValidator,
                                     decoration: const InputDecoration(
-                                      icon: Icon(Icons.numbers_outlined),
+                                      icon: Icon(Icons.numbers),
                                       labelText: 'CV number',
                                       // https://github.com/flutter/flutter/issues/15400
                                       helperText: ' ',
@@ -236,7 +235,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                     name: 'CV value',
                                     validator: cvValueValidator,
                                     decoration: const InputDecoration(
-                                      icon: Icon(Icons.onetwothree_outlined),
+                                      icon: Icon(Icons.onetwothree),
                                       labelText: 'CV value',
                                       helperText: ' ',
                                     ),
@@ -271,7 +270,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                           _formKey
                                               .currentState?.value['CV number'],
                                         );
-                                        _updateIconData(Icons.pending_outlined);
+                                        _updateIconData(Icons.pending);
                                         if (serviceMode) {
                                           z21.lanXCvRead(number - 1);
                                         } else {
@@ -304,7 +303,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                           _formKey
                                               .currentState?.value['CV value'],
                                         );
-                                        _updateIconData(Icons.pending_outlined);
+                                        _updateIconData(Icons.pending);
                                         if (serviceMode) {
                                           z21.lanXCvWrite(number - 1, value);
                                         } else {
