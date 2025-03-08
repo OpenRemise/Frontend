@@ -159,7 +159,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                           children: [
                             Card.outlined(
                               child: ListTile(
-                                leading: const Icon(Icons.train_outlined),
+                                leading: const Icon(Icons.train),
                                 title: const Text('Loco'),
                                 enabled: serviceMode ||
                                     z21Status.hasValue &&

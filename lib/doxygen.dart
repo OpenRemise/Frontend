@@ -198,11 +198,15 @@
 /// CMake. This allows us to use a `Frontend` target directly on the one hand,
 /// and on the other hand to have a `FrontendRelease` target that generates
 /// ready-made .zip archives for releases.
-///
 /// ```sh
 /// cmake --preset "Release"
 /// cmake --build build --target FrontendRelease
 /// ```
+///
+/// \note
+/// What CMake also does is deleting a bunch of unnecessary files, since the
+/// Flutter team unfortunately [hasn't managed to clean up the builder folder](https://github.com/flutter/flutter/issues/96509)
+/// properly yet...
 ///
 /// \section section_development_debug Debug
 /// With Flutter, we have to differentiate on which platform we want to debug.
@@ -277,6 +281,11 @@
 /// \todo
 /// Environmental variable stuff... invocations, fakes?
 ///
+/// - OPENREMISE_FRONTEND_BASE_HREF
+/// - OPENREMISE_FRONTEND_DOMAIN
+/// - OPENREMISE_FRONTEND_FAKE_SERVICES
+/// - OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
+///
 /// <div class="section_buttons">
 /// | Previous              | Next                   |
 /// | :-------------------- | ---------------------: |
@@ -286,6 +295,28 @@
 /// \page page_architecture Architecture
 /// \todo
 /// Services, Providers, Riverpod, Widgets, Dialogs?
+///
+/// \startuml "Architecture overview"
+/// !theme mono
+/// skinparam defaultFontName "Glacial Indifference"
+///
+/// database "Providers" {
+/// }
+///
+/// frame "Services" {
+/// }
+///
+/// frame "Screens" {
+/// }
+///
+/// frame "Widgets" {
+/// }
+///
+/// Services -r-> Providers
+/// Providers -d-> Screens
+/// Providers -d-> Widgets
+/// Screens -r-> Widgets
+/// \enduml
 ///
 /// <div class="section_buttons">
 /// | Previous                | Next                    |

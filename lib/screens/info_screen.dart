@@ -94,9 +94,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
-                  const Text('Version'),
+                  const Text('Firmware version'),
                   Text(data.version),
-                  const Text('IDF version'),
+                  const Text('ESP-IDF version'),
                   Text(data.idfVersion),
                   const Text('Frontend version'),
                   const Text(
