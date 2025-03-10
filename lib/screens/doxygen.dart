@@ -23,3 +23,8 @@
 /// \tableofcontents
 /// \todo document screens
 ///
+/// - Info
+/// - Decoders
+/// - Program
+/// - Update
+/// - Settings

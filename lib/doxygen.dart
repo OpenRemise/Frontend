@@ -293,17 +293,24 @@
 /// </div>
 
 /// \page page_architecture Architecture
-/// \todo
-/// Services, Providers, Riverpod, Widgets, Dialogs?
+/// \details \tableofcontents
+/// The entire software stack revolves around services. All communication
+/// happens over [HTTP](https://en.wikipedia.org/wiki/HTTP) or
+/// [WebSockets](https://en.wikipedia.org/wiki/WebSocket) because it is the only
+/// thing that browsers support. All services are packaged into
+/// developer-friendly objects via providers, which take care of asynchronous
+/// requests, possible caching and error handling. The display and manipulation
+/// of the data is then the responsibility of the screens, which in turn use
+/// recurring widgets.
 ///
 /// \startuml "Architecture overview"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
-/// database "Providers" {
+/// frame "Services" {
 /// }
 ///
-/// frame "Services" {
+/// database "Providers" {
 /// }
 ///
 /// frame "Screens" {
@@ -316,7 +323,75 @@
 /// Providers -d-> Screens
 /// Providers -d-> Widgets
 /// Screens -r-> Widgets
+///
+/// 'Links
+/// url of Services is [[page_architecture.html#section_architecture_services]]
+/// url of Providers is [[page_architecture.html#section_architecture_providers]]
+/// url of Screens is [[page_architecture.html#section_architecture_screens]]
+/// url of Widgets is [[page_architecture.html#section_architecture_widgets]]
 /// \enduml
+///
+/// \section section_architecture_services Services
+/// Services come in the two categories HTTP or WebSockets.
+///
+/// \subsection subsection_architecture_http HTTP
+/// HTTP is used where classic requests make sense and no bidirectional
+/// communication is necessary. This applies, for example, to the API for adding
+/// or deleting locomotives, changing device settings or querying the current
+/// system status. The following endpoints are defined for HTTP.
+/// - /dcc/locos/
+///   - DELETE
+///   - GET
+///   - PUT
+/// - /settings/
+///   - GET
+///   - POST
+/// - /sys/
+///   - GET
+/// - /*
+///   - GET
+///
+/// \subsection subsection_architecture_ws WebSockets
+/// WebSockets are used where fast bidirectional data communication is
+/// necessary. This primarily affects all the different APIs for firmware and
+/// sound updates, e.g. [DECUP](https://github.com/ZIMO-Elektronik/DECUP) or
+/// [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI), but also the
+/// [Z21](https://github.com/ZIMO-Elektronik/Z21) endpoint. The following
+/// endpoints are defined for WebSockets.
+/// - /decup/zpp/
+/// - /decup/zsu/
+/// - /mdu/zpp/
+/// - /mdu/zsu/
+/// - /ota/
+/// - /z21/
+/// - /zusi/
+///
+/// \section section_architecture_providers Providers
+/// The frontend uses [Riverpod](https://riverpod.dev) providers as a state
+/// management solution. Different types of providers (e.g. `NotifierProvider`
+/// or `FutureProvider`) encapsulate the services and allow reacting to state
+/// changes through their reactive API. The created providers are injected into
+/// the user code by inheriting from special so-called `ConsumerWidgets`.
+///
+/// For a detailed description of each provider see \ref page_providers.
+///
+/// \section section_architecture_screens Screens
+/// Screens are... well, screens. A screen is essentially a display-filling
+/// widget. The only difference to a "smaller" widget is that there is only ever
+/// one instance of a screen and when you switch from one screen to another, the
+/// entire display usually changes. It is also helpful to distinguish screens
+/// from widgets in order to find a clear vocabulary. It is much easier to
+/// explain a list of tiles on the decoder screen to someone than a list of
+/// widgets on a widget (although that is essentially what it is).
+///
+/// For a detailed description of each screen see \ref page_screens.
+///
+/// \section section_architecture_widgets Widgets
+/// Widgets are user-defined GUI elements that combine Flutter’s own classes. A
+/// classic example of such a widget are the dialogs shown during firmware and
+/// sound updates or the locomotive controller.
+///
+/// For a detailed description of each widget see \ref page_widgets.
 ///
 /// <div class="section_buttons">
 /// | Previous                | Next                    |
@@ -330,13 +405,13 @@
 ///
 /// | Chapter                 | Content                                        |
 /// | ----------------------- | ---------------------------------------------- |
-/// | \subpage page_constants | Analog                                         |
-/// | \subpage page_models    | DCC                                            |
-/// | \subpage page_providers | DECUP                                          |
-/// | \subpage page_screens   | HTTP                                           |
-/// | \subpage page_services  | MDU                                            |
-/// | \subpage page_utilities | SPIFFS and NVS memory                          |
-/// | \subpage page_widgets   | OTA                                            |
+/// | \subpage page_constants | ?                                              |
+/// | \subpage page_models    | ?                                              |
+/// | \subpage page_providers | ?                                              |
+/// | \subpage page_screens   | ?                                              |
+/// | \subpage page_services  | ?                                              |
+/// | \subpage page_utilities | ?                                              |
+/// | \subpage page_widgets   | ?                                              |
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next                |
