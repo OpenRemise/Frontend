@@ -1,7 +1,7 @@
 # Changelog
 
-##
-- Add download from ZIMO sound database
+## 0.0.3
+- Add downloads from [ZIMO sound database](https://www.zimo.at/web2010/sound/tableindex_EN.htm)
 
 ## 0.0.2
 - Bugfix ZUSI exit command flags ([#29](https://github.com/OpenRemise/Frontend/issues/29))
