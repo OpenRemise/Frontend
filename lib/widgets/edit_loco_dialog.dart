@@ -45,6 +45,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
       content: FormBuilder(
         key: _formKey,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             FormBuilderTextField(
               name: 'name',
