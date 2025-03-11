@@ -62,12 +62,6 @@ class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
 
   /// \todo document
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  /// \todo document
-  @override
   Widget build(BuildContext context) {
     RegExp exp;
     try {
@@ -116,13 +110,6 @@ class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
                   },
                 ),
               ],
-        SimpleDialogOption(
-          onPressed: () => Navigator.pop(context),
-          child: const Align(
-            alignment: Alignment.centerRight,
-            child: Text('Cancel'),
-          ),
-        ),
       ],
     );
   }

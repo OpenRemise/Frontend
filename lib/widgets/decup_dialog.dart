@@ -63,6 +63,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   @override
   void dispose() {
+    _events.cancel();
     _decup.close();
     super.dispose();
   }
@@ -70,20 +71,15 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
+    return AlertDialog(
       title: const Text('DECUP'),
-      children: [
-        SimpleDialogOption(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LinearProgressIndicator(value: _progress),
-              Text(_status),
-            ],
-          ),
-        ),
-        SimpleDialogOption(
-          child: AnimatedSize(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(value: _progress),
+          Text(_status),
+          AnimatedSize(
             alignment: Alignment.topCenter,
             curve: Curves.easeIn,
             duration: const Duration(milliseconds: 500),
@@ -92,13 +88,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
               children: [for (final tile in _decoders.values) tile],
             ),
           ),
-        ),
-        SimpleDialogOption(
+        ],
+      ),
+      actions: [
+        TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(_option),
-          ),
+          child: Text(_option),
         ),
       ],
     );
@@ -332,7 +327,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     _setStatusState('Writing');
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.downloading),
+        leading: const Icon(Icons.download_for_offline),
         title: _decoders[decoderId]!.title,
       );
     });

@@ -62,6 +62,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   @override
   void dispose() {
+    _events.cancel();
     _mdu.close();
     super.dispose();
   }
@@ -69,20 +70,15 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
+    return AlertDialog(
       title: const Text('MDU'),
-      children: [
-        SimpleDialogOption(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LinearProgressIndicator(value: _progress),
-              Text(_status),
-            ],
-          ),
-        ),
-        SimpleDialogOption(
-          child: AnimatedSize(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(value: _progress),
+          Text(_status),
+          AnimatedSize(
             alignment: Alignment.topCenter,
             curve: Curves.easeIn,
             duration: const Duration(milliseconds: 500),
@@ -91,13 +87,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
               children: [for (final tile in _decoders.values) tile],
             ),
           ),
-        ),
-        SimpleDialogOption(
+        ],
+      ),
+      actions: [
+        TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(_option),
-          ),
+          child: Text(_option),
         ),
       ],
     );
@@ -352,7 +347,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     _setStatusState('Writing');
     setState(() {
       _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.downloading),
+        leading: const Icon(Icons.download_for_offline),
         title: _decoders[decoderId]!.title,
       );
     });

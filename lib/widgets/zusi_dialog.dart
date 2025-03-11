@@ -57,26 +57,22 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
+    return AlertDialog(
       title: const Text('ZUSI'),
-      children: [
-        SimpleDialogOption(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LinearProgressIndicator(
-                value: _progress,
-              ),
-              Text(_status),
-            ],
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(
+            value: _progress,
           ),
-        ),
-        SimpleDialogOption(
+          Text(_status),
+        ],
+      ),
+      actions: [
+        TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(_option),
-          ),
+          child: Text(_option),
         ),
       ],
     );
@@ -85,6 +81,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   @override
   void dispose() {
+    _events.cancel();
     _zusi.close();
     super.dispose();
   }
