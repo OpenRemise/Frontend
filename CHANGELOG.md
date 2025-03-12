@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.4
+- Bugfix cancel `StreamQueue` event source ([#38](https://github.com/OpenRemise/Frontend/issues/38))
+
 ## 0.0.3
 - Add downloads from [ZIMO sound database](https://www.zimo.at/web2010/sound/tableindex_EN.htm)
 
