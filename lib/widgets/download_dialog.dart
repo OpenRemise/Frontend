@@ -48,12 +48,6 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
 
   /// \todo document
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  /// \todo document
-  @override
   Widget build(BuildContext context) {
     final params = Uri.parse(widget._url).queryParameters;
     final fileName = params['f'] ?? File(widget._url).uri.pathSegments.last;

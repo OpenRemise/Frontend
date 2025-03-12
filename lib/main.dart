@@ -18,7 +18,6 @@ import 'dart:async';
 import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
-import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
@@ -27,7 +26,6 @@ import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
-import 'package:Frontend/widgets/domain_dialog.dart';
 import 'package:Frontend/widgets/short_circuit_dialog.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
@@ -86,7 +84,7 @@ class MyApp extends ConsumerWidget {
     );
 
     return MaterialApp(
-      home: kIsWeb ? const WebHomeView() : const NativeHomeView(),
+      home: const HomeView(),
       builder: (_, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
           textScaler: TextScaler.linear(ref.watch(textScalerProvider)),
@@ -103,44 +101,15 @@ class MyApp extends ConsumerWidget {
 }
 
 /// \todo document
-class NativeHomeView extends ConsumerWidget {
-  const NativeHomeView({super.key});
+class HomeView extends ConsumerStatefulWidget {
+  const HomeView({super.key});
 
-  /// \todo document
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final String domain = ref.watch(domainProvider);
-    if (domain.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => showDialog<String>(
-          context: context,
-          builder: (_) => const DomainDialog(),
-          barrierDismissible: false,
-        ).then(
-          (value) {
-            if (value == null) return;
-            debugPrint('Domain set to $value');
-            ref.read(domainProvider.notifier).update((state) => value);
-          },
-        ),
-      );
-      return const Placeholder();
-    } else {
-      return const WebHomeView();
-    }
-  }
+  ConsumerState<HomeView> createState() => _HomeViewState();
 }
 
 /// \todo document
-class WebHomeView extends ConsumerStatefulWidget {
-  const WebHomeView({super.key});
-
-  @override
-  ConsumerState<WebHomeView> createState() => _WebHomeViewState();
-}
-
-/// \todo document
-class _WebHomeViewState extends ConsumerState<WebHomeView> {
+class _HomeViewState extends ConsumerState<HomeView> {
   late final Timer _timer;
   int _index = 0;
 

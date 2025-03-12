@@ -57,6 +57,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   @override
   void dispose() {
+    _events.cancel();
     _ota.close();
     super.dispose();
   }
@@ -64,24 +65,20 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
+    return AlertDialog(
       title: const Text('OTA'),
-      children: [
-        SimpleDialogOption(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LinearProgressIndicator(value: _progress),
-              Text(_status),
-            ],
-          ),
-        ),
-        SimpleDialogOption(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(value: _progress),
+          Text(_status),
+        ],
+      ),
+      actions: [
+        TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(_option),
-          ),
+          child: Text(_option),
         ),
       ],
     );
