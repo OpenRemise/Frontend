@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/constants/fake_provider_container.dart';
+import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/http_client.dart';
 import 'package:Frontend/services/dcc_service.dart';
@@ -27,7 +27,7 @@ part 'dcc_service.g.dart';
 @Riverpod(keepAlive: true)
 DccService dccService(ref) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
-        ? FakeDccService(fakeProviderContainer)
+        ? FakeDccService(fakeServicesProviderContainer)
         : HttpDccService(
             ref.read(httpClientProvider),
             ref.read(domainProvider),

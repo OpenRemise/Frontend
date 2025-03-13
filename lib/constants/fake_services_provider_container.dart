@@ -15,5 +15,10 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Bad practice, but we need a common provider container for all fake services https://github.com/rrousselGit/riverpod/issues/295
-final fakeProviderContainer = ProviderContainer();
+/// Bad practice, but we need a common provider container for all fake services.
+/// This is the only way we can inject this container to fake services as well
+/// as the entire widget tree.
+///
+/// https://github.com/rrousselGit/riverpod/issues/295
+/// https://github.com/rrousselGit/riverpod/discussions/1387
+final fakeServicesProviderContainer = ProviderContainer();

@@ -63,12 +63,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           switch (snapshot.requireData) {
             case LanXCvNackSc():
               _updateIconData(Icons.error);
-              // TODO some error here?
-              debugPrint('LanXCvNackSc');
             case LanXCvNack():
               _updateIconData(Icons.error);
-              // TODO some error here?
-              debugPrint('LanXCvNack');
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
@@ -303,7 +299,9 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                           _formKey
                                               .currentState?.value['CV value'],
                                         );
-                                        _updateIconData(Icons.pending);
+                                        _updateIconData(serviceMode
+                                            ? Icons.pending
+                                            : Icons.check_circle);
                                         if (serviceMode) {
                                           z21.lanXCvWrite(number - 1, value);
                                         } else {

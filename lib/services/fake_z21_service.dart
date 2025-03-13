@@ -121,18 +121,35 @@ class FakeZ21Service implements Z21Service {
     );
     ref.read(locosProvider.notifier).updateLoco(
           locoAddress,
-          loco.copyWith(rvvvvvvv: rvvvvvvv, speedSteps: speedSteps),
+          loco.copyWith(speedSteps: speedSteps, rvvvvvvv: rvvvvvvv),
         );
   }
 
   @override
   void lanXSetLocoFunction(int locoAddress, int state, int index) {
-    // TODO: implement lanXSetLocoFunction
+    final locos = ref.read(locosProvider);
+    final loco = locos.firstWhere(
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
+    );
+    ref.read(locosProvider.notifier).updateLoco(
+          locoAddress,
+          loco.copyWith(
+            f31_0: state == 1
+                ? loco.f31_0 | (1 << index)
+                : loco.f31_0 & ~(1 << index),
+          ),
+        );
   }
 
   @override
   void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte) {
-    // TODO: implement lanXCvPomWriteByte
+    final locos = ref.read(locosProvider);
+    final loco = locos.firstWhere(
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: 0),
+    );
+    if (loco.address != 0) _cvs[cvAddress] = byte;
   }
 
   @override
