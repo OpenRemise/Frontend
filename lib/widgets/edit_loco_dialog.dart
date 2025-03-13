@@ -76,7 +76,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
                 // Only allow new address if it's not already in use
                 else if (loco?.address != address &&
                     locos.indexWhere((l) => l.address == address) >= 0) {
-                  return 'Address already in use"';
+                  return 'Address already in use';
                 }
                 return null;
               },
@@ -89,6 +89,26 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
                   value != null ? int.tryParse(value) : null,
               initialValue: loco?.address.toString(),
               keyboardType: TextInputType.number,
+            ),
+            FormBuilderDropdown(
+              name: 'speed_steps',
+              validator: (value) {
+                if (value == null) {
+                  return 'Please choose a speed step';
+                }
+                return null;
+              },
+              initialValue: loco?.speedSteps,
+              decoration: const InputDecoration(
+                icon: Icon(Icons.speed),
+                labelText: 'Speed steps',
+                helperText: ' ',
+              ),
+              items: const [
+                DropdownMenuItem(value: 0, child: Text('14')),
+                DropdownMenuItem(value: 2, child: Text('28')),
+                DropdownMenuItem(value: 4, child: Text('128')),
+              ],
             ),
           ],
         ),
@@ -105,7 +125,13 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
               final map = _formKey.currentState!.value;
               ref.read(dccProvider.notifier).updateLoco(
                     loco?.address ?? map['address'],
-                    Loco(address: map['address'], name: map['name']),
+                    Loco(
+                      address: map['address'],
+                      name: map['name'],
+                      speedSteps: map['speed_steps'],
+                      rvvvvvvv: loco?.rvvvvvvv ?? 0x80,
+                      f31_0: loco?.f31_0 ?? 0,
+                    ),
                   );
               Navigator.pop(context);
             } else {

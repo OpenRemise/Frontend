@@ -15,6 +15,7 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
@@ -37,11 +38,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// \todo document
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set minimum window size for Desktop
   if (!kIsWeb) {
     await DesktopWindow.setMinWindowSize(const Size(480, 800));
   }
+
+  // Shared preferences
   prefs = await SharedPreferences.getInstance();
-  runApp(const ProviderScope(child: MyApp()));
+
+  // Expose global `ProviderContainer` to widget tree for fake services
+  if (const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
+      'true') {
+    runApp(
+      UncontrolledProviderScope(
+        container: fakeServicesProviderContainer,
+        child: const MyApp(),
+      ),
+    );
+  }
+  // Otherwise use `ProviderScope`
+  else {
+    runApp(const ProviderScope(child: MyApp()));
+  }
 }
 
 /// \todo document

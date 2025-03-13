@@ -24,9 +24,9 @@ class Loco with _$Loco {
   factory Loco({
     required int address,
     @Default('') String name,
-    @Default(0) int f31_0, // TODO 53bit width my become an issue?
+    @JsonKey(name: 'speed_steps', defaultValue: 4) @Default(4) int speedSteps,
     @Default(0x80) int rvvvvvvv,
-    @JsonKey(name: 'speed_steps', defaultValue: 2) @Default(2) int speedSteps,
+    @Default(0) int f31_0, // TODO 53bit width my become an issue?
   }) = _Loco;
 
   factory Loco.fromJson(Map<String, Object?> json) => _$LocoFromJson(json);

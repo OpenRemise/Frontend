@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/constants/fake_provider_container.dart';
+import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/services/fake_z21_service.dart';
 import 'package:Frontend/services/ws_z21_service.dart';
@@ -26,5 +26,5 @@ part 'z21_service.g.dart';
 @Riverpod(keepAlive: true)
 Z21Service z21Service(ref) =>
     const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
-        ? FakeZ21Service(fakeProviderContainer)
+        ? FakeZ21Service(fakeServicesProviderContainer)
         : WsZ21Service(ref.read(domainProvider));

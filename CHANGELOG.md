@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.5
+- Bugfix `LAN_X_CV_POM_WRITE` not acknowledged ([#26](https://github.com/OpenRemise/Frontend/issues/26))
+
 ## 0.0.4
 - Bugfix cancel `StreamQueue` event source ([#38](https://github.com/OpenRemise/Frontend/issues/38))
 

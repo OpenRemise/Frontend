@@ -40,7 +40,7 @@ class FakeDccService implements DccService {
   @override
   Future<Loco> fetchLoco(int address) {
     return Future.delayed(
-      const Duration(seconds: 1),
+      const Duration(milliseconds: 250),
       () => _readFile().firstWhere(
         (loco) => loco.address == address,
         orElse: () => throw Exception('Failed to fetch loco'),
@@ -55,16 +55,7 @@ class FakeDccService implements DccService {
 
   @override
   Future<void> updateLoco(int address, Loco loco) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      final locos = _readFile();
-      final index = locos.indexWhere((loco) => loco.address == address);
-      if (index >= 0) {
-        locos[index] = loco;
-      } else {
-        locos.add(loco);
-      }
-      _writeFile(locos);
-    });
+    return Future.delayed(const Duration(milliseconds: 250));
   }
 
   @override
@@ -74,11 +65,6 @@ class FakeDccService implements DccService {
 
   @override
   Future<void> deleteLoco(int address) {
-    return Future.delayed(const Duration(seconds: 1), () {
-      final locos = _readFile();
-      final index = locos.indexWhere((loco) => loco.address == address);
-      if (index >= 0) locos.removeAt(index);
-      _writeFile(locos);
-    });
+    return Future.delayed(const Duration(milliseconds: 250));
   }
 }
