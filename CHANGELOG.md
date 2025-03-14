@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.6
+- Bugfix sort locos by ascending address to mirror state on device ([#42](https://github.com/OpenRemise/Frontend/issues/42))
+
 ## 0.0.5
 - Bugfix `LAN_X_CV_POM_WRITE` not acknowledged ([#26](https://github.com/OpenRemise/Frontend/issues/26))
 

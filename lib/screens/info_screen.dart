@@ -94,10 +94,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
-                  const Text('Firmware version'),
-                  Text(data.version),
-                  const Text('ESP-IDF version'),
-                  Text(data.idfVersion),
                   const Text('Frontend version'),
                   const Text(
                     String.fromEnvironment(
@@ -105,6 +101,10 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                       defaultValue: 'kDebugMode',
                     ),
                   ),
+                  const Text('Firmware version'),
+                  Text(data.version),
+                  const Text('ESP-IDF version'),
+                  Text(data.idfVersion),
                   const Text('State'),
                   Text(data.state),
                   const Text('Heap memory'),
