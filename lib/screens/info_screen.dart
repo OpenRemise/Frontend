@@ -15,6 +15,7 @@
 
 import 'dart:async';
 
+import 'package:Frontend/providers/available_firmware_version.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -23,6 +24,7 @@ import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 /// \todo document
 class InfoScreen extends ConsumerStatefulWidget {
@@ -53,6 +55,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final availableFirmwareVersion =
+        ref.watch(availableFirmwareVersionProvider);
     final domain = ref.watch(domainProvider);
     final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
@@ -94,15 +98,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
-                  const Text('Frontend version'),
-                  const Text(
-                    String.fromEnvironment(
-                      'OPENREMISE_FRONTEND_VERSION',
-                      defaultValue: 'kDebugMode',
-                    ),
-                  ),
                   const Text('Firmware version'),
-                  Text(data.version),
+                  Text(
+                    data.version +
+                        (availableFirmwareVersion.hasValue == true &&
+                                Version.parse(
+                                      availableFirmwareVersion.requireValue,
+                                    ) >
+                                    Version.parse(data.version)
+                            ? ' (${availableFirmwareVersion.requireValue} available)'
+                            : ''),
+                  ),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),
                   const Text('State'),

@@ -13,14 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
+import 'package:Frontend/providers/available_firmware_version.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/internet_status.dart';
+import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
@@ -35,8 +36,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 /// \todo document
 class UpdateScreen extends ConsumerStatefulWidget {
@@ -54,9 +55,21 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final availableFirmwareVersion =
+        ref.watch(availableFirmwareVersionProvider);
     final internetStatus = ref.watch(internetStatusProvider);
+    final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+
+    final bool online = internetStatus.hasValue &&
+        internetStatus.requireValue == InternetStatus.connected;
+    final bool firmwareUpdateAvailable = availableFirmwareVersion.hasValue &&
+        sys.hasValue &&
+        Version.parse(availableFirmwareVersion.requireValue) >
+            Version.parse(sys.requireValue.version);
+    final bool trackVoltageOff =
+        z21Status.hasValue && z21Status.requireValue.trackVoltageOff();
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -107,8 +120,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             height: 100,
                             fit: BoxFit.scaleDown,
                           ),
-                          enabled: z21Status.hasValue &&
-                              z21Status.requireValue.trackVoltageOff(),
+                          enabled: trackVoltageOff,
                           onTap: () => setState(() {
                             ++_index;
                             _selected
@@ -125,8 +137,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             height: 100,
                             fit: BoxFit.scaleDown,
                           ),
-                          enabled: z21Status.hasValue &&
-                              z21Status.requireValue.trackVoltageOff(),
+                          enabled: trackVoltageOff,
                           onTap: () => setState(() {
                             ++_index;
                             _selected
@@ -147,8 +158,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.developer_board),
                               title: const Text('Update OpenRemise board'),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -163,8 +173,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.memory),
                               title: const Text('Update ZIMO MS decoder'),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -177,8 +186,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.memory),
                               title: const Text('Update ZIMO MX decoder'),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -204,8 +212,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   ref.watch(textScalerProvider),
                                 ),
                               ),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -231,8 +238,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   ref.watch(textScalerProvider),
                                 ),
                               ),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -258,8 +264,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   ref.watch(textScalerProvider),
                                 ),
                               ),
-                              enabled: z21Status.hasValue &&
-                                  z21Status.requireValue.trackVoltageOff(),
+                              enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -286,12 +291,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: const Text(
                                     'Update OpenRemise board from web',
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue
-                                          .trackVoltageOff() &&
-                                      internetStatus.hasValue &&
-                                      internetStatus.requireValue ==
-                                          InternetStatus.connected,
+                                  enabled: trackVoltageOff &&
+                                      online &&
+                                      firmwareUpdateAvailable,
                                   onTap: () => _openRemiseFromWeb(),
                                 ),
                               ),
@@ -301,8 +303,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: const Text(
                                     'Update OpenRemise board from file',
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: _openRemiseFromFile,
                                 ),
                               ),
@@ -318,12 +319,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: Text(
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from web',
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue
-                                          .trackVoltageOff() &&
-                                      internetStatus.hasValue &&
-                                      internetStatus.requireValue ==
-                                          InternetStatus.connected,
+                                  enabled: trackVoltageOff && online,
                                   onTap: () => _zimoFirmwareFromWeb(),
                                 ),
                               ),
@@ -333,8 +329,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: Text(
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from file',
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: () => _zimoFromFile(),
                                 ),
                               ),
@@ -360,8 +355,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                       ref.watch(textScalerProvider),
                                     ),
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: () => _zimoSoundFromWeb(),
                                 ),
                               ),
@@ -385,8 +379,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                       ref.watch(textScalerProvider),
                                     ),
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: () => _zimoFromFile(),
                                 ),
                               ),
@@ -411,8 +404,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                       ref.watch(textScalerProvider),
                                     ),
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: () => _zimoSoundFromWeb(),
                                 ),
                               ),
@@ -435,8 +427,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                       ref.watch(textScalerProvider),
                                     ),
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      z21Status.requireValue.trackVoltageOff(),
+                                  enabled: trackVoltageOff,
                                   onTap: () => _zimoFromFile(),
                                 ),
                               ),
@@ -487,21 +478,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
   /// \todo document
   Future<void> _openRemiseFromWeb() async {
-    final response = await http.get(
-      Uri.parse(
-        'https://api.github.com/repos/OpenRemise/Firmware/releases/latest',
-      ),
-    );
-    final data = jsonDecode(response.body);
-    final assets = data['assets'].first;
-    final gitHubUrl = assets['browser_download_url'] as String;
+    final availableFirmwareVersion = ref.read(availableFirmwareVersionProvider);
     showDialog<Uint8List>(
       context: context,
       builder: (_) => DownloadDialog(
-        gitHubUrl.replaceFirst(
-          'https://github.com/OpenRemise/Firmware',
-          'https://openremise.at/Firmware',
-        ),
+        'https://openremise.at/Firmware/releases/download/v${availableFirmwareVersion.requireValue}/Firmware-${availableFirmwareVersion.requireValue}.zip',
       ),
       barrierDismissible: false,
     ).then((value) {
