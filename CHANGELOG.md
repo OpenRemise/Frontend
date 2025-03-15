@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.0.6
+- Show available firmware version ([#44](https://github.com/OpenRemise/Frontend/issues/44))
 - Bugfix sort locos by ascending address to mirror state on device ([#42](https://github.com/OpenRemise/Frontend/issues/42))
 - Bugfix loco controller slider scales with speed steps ([#43](https://github.com/OpenRemise/Frontend/issues/43))
 
