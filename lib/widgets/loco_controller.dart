@@ -13,17 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/widgets/error_gif.dart';
+import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
-import 'package:gif/gif.dart';
 
 /// \todo document
 class LocoController extends ConsumerStatefulWidget {
@@ -91,17 +91,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
             maxHeight: 800,
           ),
           child: snapshot.hasError
-              ? Center(
-                  child: Gif(
-                    image: AssetImage(
-                      ref.watch(darkModeProvider)
-                          ? 'data/images/error_dark.gif'
-                          : 'data/images/error_light.gif',
-                    ),
-                    autostart: Autostart.loop,
-                    width: 200,
-                  ),
-                )
+              ? const Center(child: ErrorGif())
               : snapshot.hasData
                   ? AppBar(
                       leading: IconButton(
@@ -167,17 +157,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
                         ),
                       ),
                     )
-                  : Center(
-                      child: Gif(
-                        image: AssetImage(
-                          ref.watch(darkModeProvider)
-                              ? 'data/images/loading_dark.gif'
-                              : 'data/images/loading_light.gif',
-                        ),
-                        autostart: Autostart.loop,
-                        width: 200,
-                      ),
-                    ),
+                  : const Center(child: LoadingGif()),
         );
       },
     );
@@ -233,9 +213,14 @@ class _LocoControllerState extends ConsumerState<LocoController> {
     final locos = ref.read(locosProvider);
     final loco = locos[selectedIndex!];
     final z21 = ref.watch(z21ServiceProvider);
+    final double end = loco.speedSteps == 0
+        ? 14
+        : loco.speedSteps == 2
+            ? 28
+            : 126;
 
     return LinearGauge(
-      end: 126,
+      end: end,
       gaugeOrientation: GaugeOrientation.vertical,
       rulers: RulerStyle(
         textStyle: Theme.of(context).textTheme.labelLarge,
@@ -263,18 +248,18 @@ class _LocoControllerState extends ConsumerState<LocoController> {
             ref
                 .read(locosProvider.notifier)
                 .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
-            z21.lanXSetLocoDrive(loco.address, 2, _rvvvvvvv);
+            z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
           },
         ),
       ],
-      curves: const [
+      curves: [
         CustomCurve(
           startHeight: 4,
           endHeight: 50,
           midHeight: 15,
           curvePosition: CurvePosition.left,
-          end: 126,
-          midPoint: 70,
+          end: 1.0 * end,
+          midPoint: 0.55 * end,
         ),
       ],
     );

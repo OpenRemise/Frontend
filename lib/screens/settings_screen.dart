@@ -15,16 +15,16 @@
 
 import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/config.dart';
-import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/settings.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/error_gif.dart';
+import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:Frontend/widgets/restart_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gif/gif.dart';
 
 /// \todo document
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -662,31 +662,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
               ),
-              error: (error, stackTrace) => SliverFillRemaining(
-                child: Center(
-                  child: Gif(
-                    image: AssetImage(
-                      ref.watch(darkModeProvider)
-                          ? 'data/images/error_dark.gif'
-                          : 'data/images/error_light.gif',
-                    ),
-                    autostart: Autostart.loop,
-                    width: 200,
-                  ),
-                ),
+              error: (error, stackTrace) => const SliverFillRemaining(
+                child: Center(child: ErrorGif()),
               ),
-              loading: () => SliverFillRemaining(
-                child: Center(
-                  child: Gif(
-                    image: AssetImage(
-                      ref.watch(darkModeProvider)
-                          ? 'data/images/loading_dark.gif'
-                          : 'data/images/loading_light.gif',
-                    ),
-                    autostart: Autostart.loop,
-                    width: 200,
-                  ),
-                ),
+              loading: () => const SliverFillRemaining(
+                child: Center(child: LoadingGif()),
               ),
             ),
           ],

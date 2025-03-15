@@ -254,9 +254,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 const VerticalDivider(thickness: 1, width: 2),
                 Expanded(
-                  child: Center(
-                    child: _children[_index],
-                  ),
+                  child: Center(child: _children[_index]),
                 ),
               ],
             ),

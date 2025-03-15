@@ -15,14 +15,14 @@
 
 import 'dart:async';
 
-import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/domain.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/error_gif.dart';
+import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gif/gif.dart';
 
 /// \todo document
 class InfoScreen extends ConsumerStatefulWidget {
@@ -153,33 +153,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               ),
             ],
             error: (error, stackTrace) => [
-              SliverFillRemaining(
-                child: Center(
-                  child: Gif(
-                    image: AssetImage(
-                      ref.watch(darkModeProvider)
-                          ? 'data/images/error_dark.gif'
-                          : 'data/images/error_light.gif',
-                    ),
-                    autostart: Autostart.loop,
-                    width: 200,
-                  ),
-                ),
+              const SliverFillRemaining(
+                child: Center(child: ErrorGif()),
               ),
             ],
             loading: () => [
-              SliverFillRemaining(
-                child: Center(
-                  child: Gif(
-                    image: AssetImage(
-                      ref.watch(darkModeProvider)
-                          ? 'data/images/loading_dark.gif'
-                          : 'data/images/loading_light.gif',
-                    ),
-                    autostart: Autostart.loop,
-                    width: 200,
-                  ),
-                ),
+              const SliverFillRemaining(
+                child: Center(child: LoadingGif()),
               ),
             ],
           ),
