@@ -228,7 +228,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
       ),
       pointers: [
         Pointer(
-          value: (_rvvvvvvv & 0x7F).toDouble(),
+          value: decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv).toDouble(),
           height: 20,
           color: Theme.of(context).dividerColor,
           width: 20,
@@ -236,15 +236,19 @@ class _LocoControllerState extends ConsumerState<LocoController> {
           pointerPosition: PointerPosition.left,
         ),
         Pointer(
-          value: (_rvvvvvvv & 0x7F).toDouble(),
+          value: decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv).toDouble(),
           height: 50,
           color: Colors.transparent,
           shape: PointerShape.circle,
           isInteractive: true,
           onChanged: (double speed) {
-            setState(() {
-              _rvvvvvvv = (_rvvvvvvv & 0x80) | speed.toInt();
-            });
+            setState(
+              () => _rvvvvvvv = encodeRvvvvvvv(
+                loco.speedSteps,
+                _rvvvvvvv >= 0x80,
+                speed.toInt(),
+              ),
+            );
             ref
                 .read(locosProvider.notifier)
                 .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
@@ -283,7 +287,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
         ref
             .read(locosProvider.notifier)
             .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
-        z21.lanXSetLocoDrive(loco.address, 2, _rvvvvvvv);
+        z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
       },
       borderRadius: BorderRadius.circular(12),
       children: [
