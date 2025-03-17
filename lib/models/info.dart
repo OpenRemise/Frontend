@@ -33,6 +33,7 @@ class Info with _$Info {
     required String mdns,
     required String ip,
     required String mac,
+    required int rssi,
     required int heap,
     @JsonKey(name: 'internal_heap') required int internalHeap,
     required int voltage,
