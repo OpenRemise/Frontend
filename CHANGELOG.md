@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.7
+- Add RSSI to info screen ([#47](https://github.com/OpenRemise/Frontend/issues/47))
+- Bugfix internet status only requests `openremise.at` and `zimo.at` ([#48](https://github.com/OpenRemise/Frontend/issues/48))
+
 ## 0.0.6
 - Show available firmware version ([#44](https://github.com/OpenRemise/Frontend/issues/44))
 - Bugfix sort locos by ascending address to mirror state on device ([#42](https://github.com/OpenRemise/Frontend/issues/42))

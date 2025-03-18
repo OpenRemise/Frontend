@@ -21,7 +21,13 @@ part 'internet_status.g.dart';
 /// \todo document
 @Riverpod(keepAlive: true)
 Stream<InternetStatus> internetStatus(ref) async* {
-  final stream = InternetConnection().onStatusChange;
+  final stream = InternetConnection.createInstance(
+    customCheckOptions: [
+      InternetCheckOption(uri: Uri.parse('https://openremise.at')),
+      InternetCheckOption(uri: Uri.parse('https://www.zimo.at')),
+    ],
+    useDefaultOptions: false,
+  ).onStatusChange;
   await for (final status in stream) {
     yield status;
   }

@@ -98,6 +98,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
+                  const Text('State'),
+                  Text(data.state),
                   const Text('Firmware version'),
                   Text(
                     data.version +
@@ -111,12 +113,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   ),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),
-                  const Text('State'),
-                  Text(data.state),
-                  const Text('Heap memory'),
-                  Text('${data.heap}'),
-                  const Text('Internal heap memory'),
-                  Text('${data.internalHeap}'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -157,6 +153,10 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   Text(
                     '${data.temperature.toStringAsFixed(0)}°C',
                   ),
+                  const Text('Heap memory'),
+                  Text('${data.heap}'),
+                  const Text('Internal heap memory'),
+                  Text('${data.internalHeap}'),
                 ],
               ),
             ],

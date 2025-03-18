@@ -34,11 +34,11 @@ class Info with _$Info {
     required String ip,
     required String mac,
     required int rssi,
-    required int heap,
-    @JsonKey(name: 'internal_heap') required int internalHeap,
     required int voltage,
     required int current,
     required double temperature,
+    required int heap,
+    @JsonKey(name: 'internal_heap') required int internalHeap,
   }) = _Info;
 
   factory Info.fromJson(Map<String, Object?> json) => _$InfoFromJson(json);
