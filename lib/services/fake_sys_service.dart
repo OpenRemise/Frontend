@@ -63,6 +63,7 @@ class FakeSysService implements SysService {
         mdns: 'remise.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',
+        rssi: -70 + Random().nextInt(5),
         heap: 8100000 + Random().nextInt(384),
         internalHeap: 32000 + Random().nextInt(384),
         current: 0,

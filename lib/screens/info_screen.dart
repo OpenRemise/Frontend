@@ -17,6 +17,7 @@ import 'dart:async';
 
 import 'package:Frontend/providers/available_firmware_version.dart';
 import 'package:Frontend/providers/domain.dart';
+import 'package:Frontend/providers/internet_status.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
@@ -24,6 +25,7 @@ import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 /// \todo document
@@ -58,6 +60,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final availableFirmwareVersion =
         ref.watch(availableFirmwareVersionProvider);
     final domain = ref.watch(domainProvider);
+    final internetStatus = ref.watch(internetStatusProvider);
     final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
@@ -98,6 +101,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
+                  const Text('State'),
+                  Text(data.state),
                   const Text('Firmware version'),
                   Text(
                     data.version +
@@ -111,12 +116,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   ),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),
-                  const Text('State'),
-                  Text(data.state),
-                  const Text('Heap memory'),
-                  Text('${data.heap}'),
-                  const Text('Internal heap memory'),
-                  Text('${data.internalHeap}'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -133,6 +132,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   Text(data.ip),
                   const Text('MAC'),
                   Text(data.mac),
+                  const Text('RSSI'),
+                  Text('${(2 * (data.rssi + 100)).clamp(0, 100)}%'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -154,6 +155,28 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('Temperature'),
                   Text(
                     '${data.temperature.toStringAsFixed(0)}°C',
+                  ),
+                  const Text('Heap memory'),
+                  Text('${data.heap}'),
+                  const Text('Internal heap memory'),
+                  Text('${data.internalHeap}'),
+                ],
+              ),
+              const SliverToBoxAdapter(
+                child: Divider(),
+              ),
+              SliverGrid.count(
+                crossAxisCount: 2,
+                childAspectRatio: MediaQuery.of(context).size.width /
+                    (MediaQuery.of(context).size.height / 10),
+                children: [
+                  const Text('Internet status'),
+                  Text(
+                    internetStatus.hasValue &&
+                            internetStatus.requireValue ==
+                                InternetStatus.connected
+                        ? 'Connected'
+                        : 'Disconnected',
                   ),
                 ],
               ),
