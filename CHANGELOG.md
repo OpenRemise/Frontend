@@ -2,6 +2,7 @@
 
 ## 0.0.7
 - Add RSSI to info screen ([#47](https://github.com/OpenRemise/Frontend/issues/47))
+- Add internet status to info screen ([#50](https://github.com/OpenRemise/Frontend/issues/50))
 - Bugfix internet status only requests `openremise.at` and `zimo.at` ([#48](https://github.com/OpenRemise/Frontend/issues/48))
 
 ## 0.0.6
