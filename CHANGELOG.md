@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.0.8
 - Add favicon ([#56](https://github.com/OpenRemise/Frontend/issues/56))
 - Bugfix add manufacturer logos in grayscale so that disabled buttons are visible ([#18](https://github.com/OpenRemise/Frontend/issues/18))
 
