@@ -299,9 +299,11 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                           _formKey
                                               .currentState?.value['CV value'],
                                         );
-                                        _updateIconData(serviceMode
-                                            ? Icons.pending
-                                            : Icons.check_circle);
+                                        _updateIconData(
+                                          serviceMode
+                                              ? Icons.pending
+                                              : Icons.check_circle,
+                                        );
                                         if (serviceMode) {
                                           z21.lanXCvWrite(number - 1, value);
                                         } else {
