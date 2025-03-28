@@ -24,14 +24,14 @@
       "type": "shell",
       "isBackground": true,
       // https://stackoverflow.com/a/74783428/5840652
-      "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
     },
     {
       "label": "Run Frontend OPENREMISE_FRONTEND_FAKE_SERVICES=true OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
       "type": "shell",
       "isBackground": true,
       // https://stackoverflow.com/a/74783428/5840652
-      "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=true --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
+      "command": ". chromium.fish && flutter run -d chrome --dart-define=OPENREMISE_FRONTEND_DOMAIN=remise.local --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=true --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800 --web-browser-flag \"--disable-web-security\""
     },
     {
       "label": "Run Python http.server docs",

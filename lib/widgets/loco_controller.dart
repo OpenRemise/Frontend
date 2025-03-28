@@ -84,80 +84,77 @@ class _LocoControllerState extends ConsumerState<LocoController> {
           );
         }
 
-        return ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: 480,
-            maxWidth: 480,
-            maxHeight: 800,
-          ),
-          child: snapshot.hasError
-              ? const Center(child: ErrorGif())
-              : snapshot.hasData
-                  ? AppBar(
-                      leading: IconButton(
-                        onPressed: z21Status.hasValue
-                            ? (z21Status.requireValue.centralState & 0x02 ==
-                                    0x02
-                                ? z21.lanXSetTrackPowerOn
-                                : z21.lanXSetTrackPowerOff)
-                            : null,
-                        tooltip: 'On/off',
-                        isSelected: z21Status.hasValue &&
-                            !z21Status.requireValue.trackVoltageOff(),
-                        selectedIcon: const Icon(Icons.power_off),
-                        icon: const Icon(Icons.power),
-                      ),
-                      title: ListTile(
-                        title: Text(loco.name),
-                        subtitle: Text('Address ${loco.address}'),
-                      ),
-                      actions: [
-                        IconButton(
-                          onPressed: () => ref
-                              .read(selectedLocoIndexProvider.notifier)
-                              .update((state) => null),
-                          tooltip: 'Close',
-                          icon: const Icon(Icons.close),
-                        ),
-                      ],
-                      flexibleSpace: SizedBox.expand(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context).dividerColor,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: LayoutGrid(
-                            // We need some padding here because slider has a pretty big transparent pointer
-                            // Without padding, slider and functions wouldn't be on the same height
-                            areas: '''
-                header    header
-                padding   slider
-                functions slider
-                special   footer 
-              ''',
-                            columnSizes: [2.fr, 1.fr],
-                            rowSizes: [
-                              (AppBar().preferredSize.height - 25).px,
-                              25.px,
-                              8.fr,
-                              AppBar().preferredSize.height.px,
-                            ],
-                            columnGap: 8,
-                            rowGap: 8,
-                            children: [
-                              // const Center(child: Placeholder()).inGridArea('header'),
-                              Center(child: _buttons()).inGridArea('functions'),
-                              Center(child: _slider()).inGridArea('slider'),
-                              Center(child: _footer()).inGridArea('footer'),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : const Center(child: LoadingGif()),
+        return Column(
+          children: [
+            AppBar(
+              leading: IconButton(
+                onPressed: z21Status.hasValue
+                    ? (z21Status.requireValue.centralState & 0x02 == 0x02
+                        ? z21.lanXSetTrackPowerOn
+                        : z21.lanXSetTrackPowerOff)
+                    : null,
+                tooltip: 'On/off',
+                isSelected: z21Status.hasValue &&
+                    !z21Status.requireValue.trackVoltageOff(),
+                selectedIcon: const Icon(Icons.power_off),
+                icon: const Icon(Icons.power),
+              ),
+              title: ListTile(
+                title: Text(loco.name),
+                subtitle: Text('Address ${loco.address}'),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () => ref
+                      .read(selectedLocoIndexProvider.notifier)
+                      .update((state) => null),
+                  tooltip: 'Close',
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const Padding(padding: EdgeInsets.all(2.0)),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 480,
+                maxWidth: 480,
+                maxHeight: 600,
+              ),
+              child: snapshot.hasError
+                  ? const Center(child: ErrorGif())
+                  : snapshot.hasData
+                      ? LayoutGrid(
+                          // We need some padding here because slider has a pretty big transparent pointer
+                          // Without padding, slider and functions wouldn't be on the same height
+                          areas: '''
+                                 padding   slider
+                                 functions slider
+                                 special   footer 
+                                 ''',
+                          columnSizes: [2.fr, 1.fr],
+                          rowSizes: [
+                            25.px,
+                            8.fr,
+                            AppBar().preferredSize.height.px,
+                          ],
+                          columnGap: 8,
+                          rowGap: 8,
+                          children: [
+                            Center(child: _buttons()).inGridArea('functions'),
+                            Center(child: _slider()).inGridArea('slider'),
+                            Center(child: _footer()).inGridArea('footer'),
+                          ],
+                        )
+                      : const Center(child: LoadingGif()),
+            ),
+          ],
         );
       },
     );

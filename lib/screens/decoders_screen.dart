@@ -143,7 +143,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
         ),
         if (selectedIndex != null &&
             MediaQuery.of(context).size.width >= smallScreenWidth)
-          const LocoController(),
+          const IntrinsicWidth(child: LocoController()),
       ],
     );
   }

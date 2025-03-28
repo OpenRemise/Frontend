@@ -247,9 +247,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                   ],
                   selectedIndex: _index,
-                  onDestinationSelected: (index) => setState(() {
-                    _index = index;
-                  }),
+                  onDestinationSelected: (index) =>
+                      setState(() => _index = index),
                   labelType: NavigationRailLabelType.all,
                 ),
                 const VerticalDivider(thickness: 1, width: 2),
@@ -288,9 +287,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   label: 'Settings',
                 ),
               ],
-              onDestinationSelected: (index) => setState(() {
-                _index = index;
-              }),
+              onDestinationSelected: (index) => setState(() => _index = index),
             )
           : null,
     );

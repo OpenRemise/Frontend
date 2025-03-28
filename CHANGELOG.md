@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix add manufacturer logos in grayscale so that disabled buttons are visible ([#18](https://github.com/OpenRemise/Frontend/issues/18))
+
 ## 0.0.7
 - Add RSSI to info screen ([#47](https://github.com/OpenRemise/Frontend/issues/47))
 - Add internet status to info screen ([#50](https://github.com/OpenRemise/Frontend/issues/50))

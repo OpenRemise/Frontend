@@ -540,7 +540,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: Tooltip(
                             message:
                                 'Short loco addresses range from 1 to 127 (instead of 99)',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text('Short loco addresses to 127'),
                           ),
                         ),
@@ -548,8 +548,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           value: 0x40,
                           child: Tooltip(
                             message: 'Repeat high function of locos cyclically',
-                            waitDuration: const Duration(seconds: 1),
-                            child: Text('Repeat high loco functions (>F13)'),
+                            waitDuration: Duration(seconds: 1),
+                            child: Text('Repeat high loco functions (≥F13)'),
                           ),
                         ),
                         FormBuilderFieldOption(
@@ -557,7 +557,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: Tooltip(
                             message:
                                 'Set CV29 automatically if loco address changes',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text('CV29 automatic address'),
                           ),
                         ),
@@ -590,7 +590,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: Tooltip(
                             message:
                                 'Invert meaning of straight/branch or green/red',
-                            waitDuration: const Duration(seconds: 1),
+                            waitDuration: Duration(seconds: 1),
                             child: Text('Invert green/red'),
                           ),
                         ),
