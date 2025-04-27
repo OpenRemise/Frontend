@@ -92,6 +92,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 icon: const Icon(Icons.refresh),
               ),
             ],
+            scrolledUnderElevation: 0,
             floating: true,
           ),
           ...sys.when(
@@ -104,15 +105,22 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('State'),
                   Text(data.state),
                   const Text('Firmware version'),
-                  Text(
-                    data.version +
-                        (availableFirmwareVersion.hasValue == true &&
-                                Version.parse(
-                                      availableFirmwareVersion.requireValue,
-                                    ) >
-                                    Version.parse(data.version)
-                            ? ' (${availableFirmwareVersion.requireValue} available)'
-                            : ''),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(data.version),
+                      if (availableFirmwareVersion.hasValue == true &&
+                          Version.parse(
+                                availableFirmwareVersion.requireValue,
+                              ) >
+                              Version.parse(data.version))
+                        Tooltip(
+                          message: 'New version available',
+                          child: Text(
+                            ' (${availableFirmwareVersion.requireValue})',
+                          ),
+                        ),
+                    ],
                   ),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),

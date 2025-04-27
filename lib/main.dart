@@ -15,10 +15,12 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constants/controller_size.dart';
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
+import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
@@ -27,6 +29,7 @@ import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
+import 'package:Frontend/widgets/controller.dart';
 import 'package:Frontend/widgets/short_circuit_dialog.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
@@ -41,11 +44,16 @@ void main() async {
 
   // Set minimum window size for Desktop
   if (!kIsWeb) {
-    await DesktopWindow.setMinWindowSize(const Size(480, 800));
+    await DesktopWindow.setMinWindowSize(controllerSize * 1.2);
   }
 
   // Shared preferences
   prefs = await SharedPreferences.getInstance();
+
+  if (kDebugMode) {
+    // debugPaintSizeEnabled = true;
+    // debugPrintGestureArenaDiagnostics = true;
+  }
 
   // Expose global `ProviderContainer` to widget tree for fake services
   if (const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
@@ -130,9 +138,40 @@ class HomeView extends ConsumerStatefulWidget {
 /// \todo document
 class _HomeViewState extends ConsumerState<HomeView> {
   late final Timer _timer;
+  bool _smallWidth = true;
+  Key _layoutKey = UniqueKey();
   int _index = 0;
+  Offset _controllerPosition = const Offset(0, 0);
 
-  final List<Widget> _children = [
+  final List<NavigationDestination> _destinations = <NavigationDestination>[
+    const NavigationDestination(
+      icon: Icon(Icons.info_outline),
+      selectedIcon: Icon(Icons.info),
+      label: 'Info',
+    ),
+    const NavigationDestination(
+      icon: Icon(Icons.subtitles_outlined),
+      selectedIcon: Icon(Icons.subtitles),
+      label: 'Decoders',
+    ),
+    const NavigationDestination(
+      icon: Icon(Icons.integration_instructions_outlined),
+      selectedIcon: Icon(Icons.integration_instructions),
+      label: 'Program',
+    ),
+    const NavigationDestination(
+      icon: Icon(Icons.cloud_upload_outlined),
+      selectedIcon: Icon(Icons.cloud_upload),
+      label: 'Update',
+    ),
+    const NavigationDestination(
+      icon: Icon(Icons.settings_outlined),
+      selectedIcon: Icon(Icons.settings),
+      label: 'Settings',
+    ),
+  ];
+
+  final List<Widget> _pages = [
     const InfoScreen(),
     const DecodersScreen(),
     const ProgramScreen(),
@@ -172,6 +211,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
+
+    if (smallWidth != _smallWidth) {
+      _smallWidth = smallWidth;
+      _layoutKey = UniqueKey();
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
@@ -211,85 +258,89 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 .update(!ref.read(darkModeProvider)),
           ),
         ],
+        scrolledUnderElevation: 0,
       ),
-      body: MediaQuery.of(context).size.width < smallScreenWidth
-          ? _children[_index]
-          : Row(
-              children: <Widget>[
-                // create a navigation rail
-                NavigationRail(
-                  destinations: const <NavigationRailDestination>[
-                    // navigation destinations
-                    NavigationRailDestination(
-                      icon: Icon(Icons.info_outline),
-                      selectedIcon: Icon(Icons.info),
-                      label: Text('Info'),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _smallWidth ? _smallLayout() : _largeLayout(),
+      ),
+    );
+  }
+
+  /// \todo document
+  Widget _smallLayout() {
+    return Column(
+      key: _layoutKey,
+      children: [
+        Expanded(
+          child: ref.watch(selectedLocoIndexProvider) != null && _index == 1
+              ? const Controller()
+              : _pages[_index],
+        ),
+        NavigationBar(
+          selectedIndex: _index,
+          destinations: _destinations,
+          onDestinationSelected: (index) => setState(() => _index = index),
+        ),
+      ],
+    );
+  }
+
+  /// \todo document
+  Widget _largeLayout() {
+    return Stack(
+      key: _layoutKey,
+      children: [
+        Row(
+          children: <Widget>[
+            // create a navigation rail
+            NavigationRail(
+              destinations: _destinations
+                  .map(
+                    (e) => NavigationRailDestination(
+                      icon: e.icon,
+                      selectedIcon: e.selectedIcon,
+                      label: Text(e.label),
                     ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.subtitles_outlined),
-                      selectedIcon: Icon(Icons.subtitles),
-                      label: Text('Decoders'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.integration_instructions_outlined),
-                      selectedIcon: Icon(Icons.integration_instructions),
-                      label: Text('Program'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.cloud_upload_outlined),
-                      selectedIcon: Icon(Icons.cloud_upload),
-                      label: Text('Update'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.settings_outlined),
-                      selectedIcon: Icon(Icons.settings),
-                      label: Text('Settings'),
-                    ),
-                  ],
-                  selectedIndex: _index,
-                  onDestinationSelected: (index) =>
-                      setState(() => _index = index),
-                  labelType: NavigationRailLabelType.all,
-                ),
-                const VerticalDivider(thickness: 1, width: 2),
-                Expanded(
-                  child: Center(child: _children[_index]),
-                ),
-              ],
-            ),
-      bottomNavigationBar: MediaQuery.of(context).size.width < smallScreenWidth
-          ? NavigationBar(
+                  )
+                  .toList(),
               selectedIndex: _index,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.info_outline),
-                  selectedIcon: Icon(Icons.info),
-                  label: 'Info',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.subtitles_outlined),
-                  selectedIcon: Icon(Icons.subtitles),
-                  label: 'Decoders',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.integration_instructions_outlined),
-                  selectedIcon: Icon(Icons.integration_instructions),
-                  label: 'Program',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.cloud_upload_outlined),
-                  selectedIcon: Icon(Icons.cloud_upload),
-                  label: 'Update',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.settings_outlined),
-                  selectedIcon: Icon(Icons.settings),
-                  label: 'Settings',
-                ),
-              ],
               onDestinationSelected: (index) => setState(() => _index = index),
-            )
-          : null,
+              labelType: NavigationRailLabelType.all,
+            ),
+            const VerticalDivider(thickness: 1, width: 2),
+            Expanded(
+              child: Center(child: _pages[_index]),
+            ),
+          ],
+        ),
+        if (ref.watch(selectedLocoIndexProvider) != null)
+          Positioned(
+            left: _controllerPosition.dx,
+            top: _controllerPosition.dy,
+            child: GestureDetector(
+              onPanUpdate: (details) => setState(
+                () => _controllerPosition = Offset(
+                  _controllerPosition.dx + details.delta.dx,
+                  _controllerPosition.dy + details.delta.dy,
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                width: controllerSize.width,
+                height: controllerSize.height,
+                child: const Controller(),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

@@ -92,24 +92,26 @@ class FakeZ21Service implements Z21Service {
 
   @override
   void lanXGetLocoInfo(int locoAddress) {
-    final locos = ref.read(locosProvider);
-    final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
-      orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
-    );
-    if (_controller.isClosed) return;
-    _controller.sink.add(
-      LanXLocoInfo(
-        address: loco.address,
-        mode: 2,
-        busy: false,
-        speedSteps: loco.speedSteps,
-        rvvvvvvv: loco.rvvvvvvv,
-        doubleTraction: false,
-        smartSearch: false,
-        f31_0: loco.f31_0,
-      ),
-    );
+    Future.delayed(const Duration(milliseconds: 200), () {
+      final locos = ref.read(locosProvider);
+      final loco = locos.firstWhere(
+        (loco) => loco.address == locoAddress,
+        orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
+      );
+      if (_controller.isClosed) return;
+      _controller.sink.add(
+        LanXLocoInfo(
+          locoAddress: loco.address,
+          mode: 2,
+          busy: false,
+          speedSteps: loco.speedSteps,
+          rvvvvvvv: loco.rvvvvvvv,
+          doubleTraction: false,
+          smartSearch: false,
+          f31_0: loco.f31_0,
+        ),
+      );
+    });
   }
 
   @override
@@ -170,7 +172,17 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
+  void lanSetBroadcastFlags(BroadcastFlags broadcastFlags) {
+    // TODO: implement lanSetBroadcastFlags
+  }
+
+  @override
   void lanSystemStateGetData() {
     // TODO: implement lanSystemStateGetData
+  }
+
+  @override
+  void lanRailComGetData(int locoAddress) {
+    // TODO: implement lanRailComGetData
   }
 }

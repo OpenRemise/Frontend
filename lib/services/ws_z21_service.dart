@@ -25,6 +25,16 @@ class WsZ21Service implements Z21Service {
   WsZ21Service(String domain) {
     debugPrint('WsZ21Service ctor');
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/z21/'));
+    _channel.ready.then(
+      (_) => lanSetBroadcastFlags(
+        BroadcastFlags.fromList([
+          BroadcastFlag.DrivingSwitching,
+          BroadcastFlag.RBus,
+          BroadcastFlag.LocoNet,
+          BroadcastFlag.LocoNetDetector,
+        ]),
+      ),
+    );
     _stream = _channel.stream
         .asBroadcastStream()
         .cast<Uint8List>()
@@ -47,10 +57,10 @@ class WsZ21Service implements Z21Service {
       Uint8List.fromList([
         0x07,
         0x00,
-        Header.LAN_X_GET_STATUS.value,
+        Header.LAN_X_GET_STATUS,
         0x00,
-        XHeader.LAN_X_GET_STATUS.value,
-        DB0.LAN_X_GET_STATUS.value,
+        XHeader.LAN_X_GET_STATUS,
+        DB0.LAN_X_GET_STATUS,
         0x05,
       ]),
     );
@@ -62,10 +72,10 @@ class WsZ21Service implements Z21Service {
       Uint8List.fromList([
         0x07,
         0x00,
-        Header.LAN_X_SET_TRACK_POWER_OFF.value,
+        Header.LAN_X_SET_TRACK_POWER_OFF,
         0x00,
-        XHeader.LAN_X_SET_TRACK_POWER_OFF.value,
-        DB0.LAN_X_SET_TRACK_POWER_OFF.value,
+        XHeader.LAN_X_SET_TRACK_POWER_OFF,
+        DB0.LAN_X_SET_TRACK_POWER_OFF,
         0xA1,
       ]),
     );
@@ -77,10 +87,10 @@ class WsZ21Service implements Z21Service {
       Uint8List.fromList([
         0x07,
         0x00,
-        Header.LAN_X_SET_TRACK_POWER_ON.value,
+        Header.LAN_X_SET_TRACK_POWER_ON,
         0x00,
-        XHeader.LAN_X_SET_TRACK_POWER_ON.value,
-        DB0.LAN_X_SET_TRACK_POWER_ON.value,
+        XHeader.LAN_X_SET_TRACK_POWER_ON,
+        DB0.LAN_X_SET_TRACK_POWER_ON,
         0xA0,
       ]),
     );
@@ -92,10 +102,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x09,
       0x00,
-      Header.LAN_X_CV_READ.value,
+      Header.LAN_X_CV_READ,
       0x00,
-      XHeader.LAN_X_CV_READ.value,
-      DB0.LAN_X_CV_READ.value,
+      XHeader.LAN_X_CV_READ,
+      DB0.LAN_X_CV_READ,
       (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF,
     ];
@@ -109,10 +119,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x0A,
       0x00,
-      Header.LAN_X_CV_WRITE.value,
+      Header.LAN_X_CV_WRITE,
       0x00,
-      XHeader.LAN_X_CV_WRITE.value,
-      DB0.LAN_X_CV_WRITE.value,
+      XHeader.LAN_X_CV_WRITE,
+      DB0.LAN_X_CV_WRITE,
       (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF,
       byte & 0xFF, // CV value
@@ -127,10 +137,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x09,
       0x00,
-      Header.LAN_X_GET_LOCO_INFO.value,
+      Header.LAN_X_GET_LOCO_INFO,
       0x00,
-      XHeader.LAN_X_GET_LOCO_INFO.value,
-      DB0.LAN_X_GET_LOCO_INFO.value,
+      XHeader.LAN_X_GET_LOCO_INFO,
+      DB0.LAN_X_GET_LOCO_INFO,
       (locoAddress >> 8) & 0xFF, // Loco address
       (locoAddress >> 0) & 0xFF,
     ];
@@ -141,19 +151,21 @@ class WsZ21Service implements Z21Service {
   @override
   void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv) {
     assert(
-      locoAddress <= 9999 && [0, 2, 3].contains(speedSteps) && rvvvvvvv <= 0xFF,
+      locoAddress <= 9999 &&
+          [0, 2, 3, 4].contains(speedSteps) &&
+          rvvvvvvv <= 0xFF,
     );
     List<int> data = [
       0x0A,
       0x00,
-      Header.LAN_X_SET_LOCO_DRIVE.value,
+      Header.LAN_X_SET_LOCO_DRIVE,
       0x00,
-      XHeader.LAN_X_SET_LOCO_DRIVE.value,
+      XHeader.LAN_X_SET_LOCO_DRIVE,
       speedSteps == 0
-          ? DB0.LAN_X_SET_LOCO_DRIVE_14.value
+          ? DB0.LAN_X_SET_LOCO_DRIVE_14
           : speedSteps == 2
-              ? DB0.LAN_X_SET_LOCO_DRIVE_28.value
-              : DB0.LAN_X_SET_LOCO_DRIVE_128.value,
+              ? DB0.LAN_X_SET_LOCO_DRIVE_28
+              : DB0.LAN_X_SET_LOCO_DRIVE_128,
       (locoAddress >> 8) & 0xFF, // Loco address
       (locoAddress >> 0) & 0xFF,
       rvvvvvvv,
@@ -168,10 +180,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x0A,
       0x00,
-      Header.LAN_X_SET_LOCO_FUNCTION.value,
+      Header.LAN_X_SET_LOCO_FUNCTION,
       0x00,
-      XHeader.LAN_X_SET_LOCO_FUNCTION.value,
-      DB0.LAN_X_SET_LOCO_FUNCTION.value,
+      XHeader.LAN_X_SET_LOCO_FUNCTION,
+      DB0.LAN_X_SET_LOCO_FUNCTION,
       (locoAddress >> 8) & 0xFF, // Loco address
       (locoAddress >> 0) & 0xFF,
       state << 6 | index,
@@ -186,10 +198,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x0C,
       0x00,
-      Header.LAN_X_CV_POM_WRITE_BYTE.value,
+      Header.LAN_X_CV_POM_WRITE_BYTE,
       0x00,
-      XHeader.LAN_X_CV_POM_WRITE_BYTE.value,
-      DB0.LAN_X_CV_POM_WRITE_BYTE.value,
+      XHeader.LAN_X_CV_POM_WRITE_BYTE,
+      DB0.LAN_X_CV_POM_WRITE_BYTE,
       (locoAddress >> 8) & 0xFF, // Loco address
       (locoAddress >> 0) & 0xFF,
       0xEC | (cvAddress >> 8) & 0xFF, // CV address
@@ -206,10 +218,10 @@ class WsZ21Service implements Z21Service {
     List<int> data = [
       0x0C,
       0x00,
-      Header.LAN_X_CV_POM_READ_BYTE.value,
+      Header.LAN_X_CV_POM_READ_BYTE,
       0x00,
-      XHeader.LAN_X_CV_POM_READ_BYTE.value,
-      DB0.LAN_X_CV_POM_READ_BYTE.value,
+      XHeader.LAN_X_CV_POM_READ_BYTE,
+      DB0.LAN_X_CV_POM_READ_BYTE,
       (locoAddress >> 8) & 0xFF, // Loco address
       (locoAddress >> 0) & 0xFF,
       0xE4 | (cvAddress >> 8) & 0xFF, // CV address
@@ -221,11 +233,44 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
+  void lanSetBroadcastFlags(BroadcastFlags broadcastFlags) {
+    _channel.sink.add(
+      Uint8List.fromList(
+        [
+          0x08,
+          0x00,
+          Header.LAN_SET_BROADCASTFLAGS,
+          0x00,
+          (broadcastFlags.value >> 0) & 0xFF,
+          (broadcastFlags.value >> 8) & 0xFF,
+          (broadcastFlags.value >> 16) & 0xFF,
+          (broadcastFlags.value >> 24) & 0xFF,
+        ],
+      ),
+    );
+  }
+
+  @override
   void lanSystemStateGetData() {
     _channel.sink.add(
       Uint8List.fromList(
-        [0x04, 0x00, Header.LAN_SYSTEMSTATE_GETDATA.value, 0x00],
+        [0x04, 0x00, Header.LAN_SYSTEMSTATE_GETDATA, 0x00],
       ),
     );
+  }
+
+  @override
+  void lanRailComGetData(int locoAddress) {
+    assert(locoAddress <= 9999);
+    List<int> data = [
+      0x07,
+      0x00,
+      Header.LAN_RAILCOM_GETDATA,
+      0x00,
+      0x01,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
+    ];
+    _channel.sink.add(Uint8List.fromList(data));
   }
 }

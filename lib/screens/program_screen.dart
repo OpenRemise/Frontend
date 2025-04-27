@@ -20,6 +20,7 @@ import 'package:Frontend/services/z21_service.dart';
 import 'package:Frontend/utilities/address_validator.dart';
 import 'package:Frontend/utilities/cv_number_validator.dart';
 import 'package:Frontend/utilities/cv_value_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,6 +112,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                       icon: const Icon(Icons.refresh),
                     ),
                   ],
+                  scrolledUnderElevation: 0,
                   floating: true,
                 ),
                 SliverToBoxAdapter(
@@ -169,19 +171,21 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 }),
                               ),
                             ),
-                            Card.outlined(
-                              child: ListTile(
-                                leading: const Icon(OpenRemiseIcons.accessory),
-                                title: const Text('Accessory'),
-                                enabled: false,
-                                onTap: () => setState(() {
-                                  ++_index;
-                                  _selected
-                                    ..removeRange(1, _selected.length)
-                                    ..add(1);
-                                }),
+                            if (kDebugMode)
+                              Card.outlined(
+                                child: ListTile(
+                                  leading:
+                                      const Icon(OpenRemiseIcons.accessory),
+                                  title: const Text('Accessory'),
+                                  enabled: false,
+                                  onTap: () => setState(() {
+                                    ++_index;
+                                    _selected
+                                      ..removeRange(1, _selected.length)
+                                      ..add(1);
+                                  }),
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -204,6 +208,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                         !z21Status.requireValue
                                             .trackVoltageOff(),
                                 keyboardType: TextInputType.number,
+                                style: const TextStyle(fontFamily: 'DSEG14'),
                               ),
                             Row(
                               children: [
@@ -223,6 +228,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                             !z21Status.requireValue
                                                 .trackVoltageOff(),
                                     keyboardType: TextInputType.number,
+                                    style:
+                                        const TextStyle(fontFamily: 'DSEG14'),
                                   ),
                                 ),
                                 Flexible(
@@ -240,6 +247,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                             !z21Status.requireValue
                                                 .trackVoltageOff(),
                                     keyboardType: TextInputType.number,
+                                    style:
+                                        const TextStyle(fontFamily: 'DSEG14'),
                                   ),
                                 ),
                                 Icon(_iconData),

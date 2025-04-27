@@ -15,6 +15,7 @@
 
 import 'dart:math';
 
+import 'package:Frontend/constants/ws_batch_size.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/mdu_service.dart';
@@ -235,7 +236,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     int failCount = 0;
     while (i < blocks.length) {
       // Number of blocks transmit at once
-      final n = min(256, blocks.length - i);
+      final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
         _mdu.zppUpdate((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
       }
@@ -393,7 +394,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     int failCount = 0;
     while (i < blocks.length) {
       // Number of blocks transmit at once
-      final n = min(64, blocks.length - i);
+      final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
         _mdu.zsuUpdate((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
       }

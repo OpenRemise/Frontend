@@ -1,5 +1,12 @@
 # Changelog
 
+##
+- New controller ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- LED duty cycle settings ([#62](https://github.com/OpenRemise/Frontend/issues/62))
+- Current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
+- App close confirmation ([#58](https://github.com/OpenRemise/Frontend/issues/58))
+- Animate between `NavigationRail` and `NavigationBar` ([#52](https://github.com/OpenRemise/Frontend/issues/52))
+
 ## 0.0.8
 - Add favicon ([#56](https://github.com/OpenRemise/Frontend/issues/56))
 - Bugfix add manufacturer logos in grayscale so that disabled buttons are visible ([#18](https://github.com/OpenRemise/Frontend/issues/18))

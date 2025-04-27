@@ -16,6 +16,7 @@
 import 'dart:math';
 
 import 'package:Frontend/constants/mx_decoder_ids.dart';
+import 'package:Frontend/constants/ws_batch_size.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/decup_service.dart';
@@ -209,7 +210,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     int failCount = 0;
     while (i < blocks.length) {
       // Number of blocks transmit at once
-      final n = min(64, blocks.length - i);
+      final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
         _decup.zppBlocks(i + j, Uint8List.fromList(blocks[i + j]));
       }
@@ -341,7 +342,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     int failCount = 0;
     while (i < blocks.length) {
       // Number of blocks transmit at once
-      final n = min(64, blocks.length - i);
+      final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
         _decup.zsuBlocks(i + j, Uint8List.fromList(blocks[i + j]));
       }

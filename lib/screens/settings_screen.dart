@@ -22,6 +22,7 @@ import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:Frontend/widgets/restart_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -103,6 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: const Icon(Icons.refresh),
                 ),
               ],
+              scrolledUnderElevation: 0,
               floating: true,
             ),
             settings.when(
@@ -310,6 +312,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     Tooltip(
+                      message: 'Current limit in update mode',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'cur_lim_updt',
+                        initialValue: data.currentLimitUpdate!.toDouble(),
+                        decoration: InputDecoration(
+                          icon: const Icon(null),
+                          labelText: 'Current limit update mode [A]',
+                          errorText: (_formKey.currentState
+                                          ?.fields['cur_lim_updt']?.value ??
+                                      0) >
+                                  _currentLimitValues.indexOf(0.5)
+                              ? '\u26A0 exceeds recommended limit'
+                              : null,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 3,
+                        divisions: 3 - 0,
+                        displayValues: DisplayValues.current,
+                        valueWidget: (value) => Text(
+                          _currentLimitValues[int.parse(value)].toString(),
+                        ),
+                      ),
+                    ),
+                    Tooltip(
                       message:
                           'Time after which an overcurrent is considered a short circuit',
                       waitDuration: const Duration(seconds: 1),
@@ -324,6 +353,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         min: 20,
                         max: 240,
                         divisions: (240 - 20) ~/ 20,
+                        displayValues: DisplayValues.current,
+                      ),
+                    ),
+                    const Divider(),
+                    Tooltip(
+                      message: 'Duty cycle for bug LED (blue)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'led_dc_bug',
+                        initialValue: data.ledDutyCycleBug!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.lightbulb),
+                          labelText: 'LED duty cycle bug [%]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 100,
+                        divisions: 100 - 0,
+                        displayValues: DisplayValues.current,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Duty cycle for WiFi LED (green)',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderSlider(
+                        name: 'led_dc_wifi',
+                        initialValue: data.ledDutyCycleBug!.toDouble(),
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'LED duty cycle WiFi [%]',
+                        ),
+                        valueTransformer: (value) => value!.toInt(),
+                        min: 0,
+                        max: 100,
+                        divisions: 100 - 0,
                         displayValues: DisplayValues.current,
                       ),
                     ),
@@ -563,66 +627,67 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    FormBuilderCheckboxGroup(
-                      name: 'dcc_accy_flags',
-                      initialValue: [
-                        data.dccAccyFlags! & 0x40,
-                        data.dccAccyFlags! & 0x04,
-                        data.dccAccyFlags! & 0x02,
-                        data.dccAccyFlags! & 0x01,
-                      ],
-                      decoration: const InputDecoration(
-                        icon: Icon(null),
-                        label: Row(
-                          children: [
-                            Text('DCC accessories '),
-                            Icon(OpenRemiseIcons.accessory),
-                          ],
-                        ),
-                      ),
-                      valueTransformer: (value) => value?.fold(
-                        0,
-                        (prev, cur) => prev | cur,
-                      ),
-                      options: const [
-                        FormBuilderFieldOption(
-                          value: 0x40,
-                          child: Tooltip(
-                            message:
-                                'Invert meaning of straight/branch or green/red',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('Invert green/red'),
+                    if (kDebugMode)
+                      FormBuilderCheckboxGroup(
+                        name: 'dcc_accy_flags',
+                        initialValue: [
+                          data.dccAccyFlags! & 0x40,
+                          data.dccAccyFlags! & 0x04,
+                          data.dccAccyFlags! & 0x02,
+                          data.dccAccyFlags! & 0x01,
+                        ],
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          label: Row(
+                            children: [
+                              Text('DCC accessories '),
+                              Icon(OpenRemiseIcons.accessory),
+                            ],
                           ),
                         ),
-                        FormBuilderFieldOption(
-                          value: 0x04,
-                          child: Tooltip(
-                            message: 'Addressing compliant with RCN-213',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('RCN-213 addressing'),
-                          ),
+                        valueTransformer: (value) => value?.fold(
+                          0,
+                          (prev, cur) => prev | cur,
                         ),
-                        FormBuilderFieldOption(
-                          value: 0x02,
-                          child: Tooltip(
-                            message:
-                                'Workaround for incompatible clients that only activate outputs',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text(
-                              'Automatically deactivate complementary output',
+                        options: const [
+                          FormBuilderFieldOption(
+                            value: 0x40,
+                            child: Tooltip(
+                              message:
+                                  'Invert meaning of straight/branch or green/red',
+                              waitDuration: Duration(seconds: 1),
+                              child: Text('Invert green/red'),
                             ),
                           ),
-                        ),
-                        FormBuilderFieldOption(
-                          value: 0x01,
-                          child: Tooltip(
-                            message: 'Disable automatic timeout of outputs',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('Disable timeout'),
+                          FormBuilderFieldOption(
+                            value: 0x04,
+                            child: Tooltip(
+                              message: 'Addressing compliant with RCN-213',
+                              waitDuration: Duration(seconds: 1),
+                              child: Text('RCN-213 addressing'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          FormBuilderFieldOption(
+                            value: 0x02,
+                            child: Tooltip(
+                              message:
+                                  'Workaround for incompatible clients that only activate outputs',
+                              waitDuration: Duration(seconds: 1),
+                              child: Text(
+                                'Automatically deactivate complementary output',
+                              ),
+                            ),
+                          ),
+                          FormBuilderFieldOption(
+                            value: 0x01,
+                            child: Tooltip(
+                              message: 'Disable automatic timeout of outputs',
+                              waitDuration: Duration(seconds: 1),
+                              child: Text('Disable timeout'),
+                            ),
+                          ),
+                        ],
+                      ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
@@ -683,6 +748,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'cur_lim': _currentLimitValues.indexOf(4.1).toDouble(),
       'cur_lim_serv': _currentLimitValues.indexOf(1.3).toDouble(),
       'cur_sc_time': 100.0,
+      'led_dc_bug': 10.0,
+      'led_dc_wifi': 10.0,
       'dcc_preamble': 17.0,
       'dcc_bit1_dur': 58.0,
       'dcc_bit0_dur': 100.0,
