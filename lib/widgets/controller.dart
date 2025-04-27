@@ -51,25 +51,25 @@ class _ControllerState extends ConsumerState<Controller> {
   int? _kmh;
   int? _qos;
 
-  ///
+  /// \todo document
   late final Timer _timer;
 
-  ///
+  /// \todo document
   WeightSliderController? _sliderController;
 
-  ///
+  /// \todo document
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _textFieldHadFocusBeforeGridButton = false;
 
-  ///
+  /// \todo document
   int _buttonsIndex = 0;
 
-  ///
+  /// \todo document
   bool _initialized = false;
 
-  ///
+  /// \todo document
   final _maskFormatter = MaskTextInputFormatter(
     mask: 'CV### = ###',
     filter: {'#': RegExp(r'[0-9]')},
