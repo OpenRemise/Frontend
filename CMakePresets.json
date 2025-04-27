@@ -11,7 +11,14 @@
             "binaryDir": "${sourceDir}/build"
         },
         {
-            "name": "Demo",
+            "name": "Release fake",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
+            }
+        },
+        {
+            "name": "Demo (/Frontend/demo/)",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "OPENREMISE_FRONTEND_BASE_HREF": "/Frontend/demo/",
@@ -19,7 +26,7 @@
             }
         },
         {
-            "name": "Demo (localhost)",
+            "name": "Demo (/demo/)",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "OPENREMISE_FRONTEND_BASE_HREF": "/demo/",

@@ -33,6 +33,7 @@ import 'package:Frontend/widgets/zimo_sound_dialog.dart';
 import 'package:Frontend/widgets/zusi_dialog.dart';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -101,6 +102,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                 icon: const Icon(Icons.refresh),
               ),
             ],
+            scrolledUnderElevation: 0,
             floating: true,
           ),
           SliverToBoxAdapter(
@@ -150,6 +152,26 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           }),
                         ),
                       ),
+                      if (kDebugMode)
+                        Card.outlined(
+                          child: ListTile(
+                            title: SvgPicture.asset(
+                              trackVoltageOff
+                                  ? 'data/images/tams.svg'
+                                  : 'data/images/tams_grayscale.svg',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.scaleDown,
+                            ),
+                            enabled: trackVoltageOff,
+                            onTap: () => setState(() {
+                              ++_index;
+                              _selected
+                                ..removeRange(0, _selected.length)
+                                ..add(1);
+                            }),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -558,7 +580,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           builder: (_) => switch (_selected.elementAtOrNull(1)) {
             0 => MduDialog.zsu(zsu),
             1 => DecupDialog.zsu(zsu),
-            _ => ErrorWidget(Exception('Invalid selection')),
+            _ => throw UnimplementedError(),
           },
           barrierDismissible: false,
         );
@@ -589,7 +611,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                 2 => MduDialog.zpp(zpp),
                 3 => DecupDialog.zpp(zpp),
                 4 => ZusiDialog.zpp(zpp),
-                _ => ErrorWidget(Exception('Invalid selection')),
+                _ => throw UnimplementedError(),
               },
               barrierDismissible: false,
             );
@@ -616,7 +638,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
             2 => MduDialog.zpp(zpp),
             3 => DecupDialog.zpp(zpp),
             4 => ZusiDialog.zpp(zpp),
-            _ => ErrorWidget(Exception('Invalid selection')),
+            _ => throw UnimplementedError(),
           },
           barrierDismissible: false,
         );
@@ -630,7 +652,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
           builder: (_) => switch (_selected.elementAtOrNull(1)) {
             0 => MduDialog.zsu(zsu),
             1 => DecupDialog.zsu(zsu),
-            _ => ErrorWidget(Exception('Invalid selection')),
+            _ => throw UnimplementedError(),
           },
           barrierDismissible: false,
         );

@@ -27,7 +27,10 @@ class FakeSettingsService implements SettingsService {
     httpTransmitTimeout: 5,
     currentLimit: 3,
     currentLimitService: 1,
+    currentLimitUpdate: 0,
     currentShortCircuitTime: 100,
+    ledDutyCycleBug: 10,
+    ledDutyCycleWiFi: 10,
     dccPreamble: 17,
     dccBit1Duration: 58,
     dccBit0Duration: 100,
@@ -69,8 +72,12 @@ class FakeSettingsService implements SettingsService {
         currentLimit: config.currentLimit ?? _config.currentLimit,
         currentLimitService:
             config.currentLimitService ?? _config.currentLimitService,
+        currentLimitUpdate:
+            config.currentLimitUpdate ?? _config.currentLimitUpdate,
         currentShortCircuitTime:
             config.currentShortCircuitTime ?? _config.currentShortCircuitTime,
+        ledDutyCycleBug: config.ledDutyCycleBug ?? _config.ledDutyCycleBug,
+        ledDutyCycleWiFi: config.ledDutyCycleWiFi ?? _config.ledDutyCycleWiFi,
         dccPreamble: config.dccPreamble ?? _config.dccPreamble,
         dccBit1Duration: config.dccBit1Duration ?? _config.dccBit1Duration,
         dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,

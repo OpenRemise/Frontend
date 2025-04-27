@@ -25,6 +25,7 @@ version_from_git()
 project(Frontend VERSION ${VERSION_FROM_GIT})
 
 # For some reason only dart can run the build_runner
+file(GLOB_RECURSE LIB lib/*.dart)
 find_program(DART_EXECUTABLE dart PATHS /usr/bin/ REQUIRED)
 find_program(FLUTTER_EXECUTABLE flutter PATHS /usr/bin/ REQUIRED)
 add_custom_command(
@@ -45,6 +46,7 @@ add_custom_command(
     ${CMAKE_COMMAND} -E rm -rf #
     ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
     ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
+  DEPENDS ${LIB} #
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 # Build web

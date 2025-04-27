@@ -90,10 +90,7 @@ class WsZusiService implements ZusiService {
       (address >> 0) & 0xFF,
     ];
     data.addAll(chunk);
-
-    /// \todo https://github.com/espressif/esp-idf/issues/15235
-    data.addAll(List<int>.filled(268 - 1 - data.length, 0xFF));
-
+    data.addAll(List<int>.filled(263 - 1 - data.length, 0xFF));
     data.add(crc8(data));
     _channel.sink.add(Uint8List.fromList(data));
   }

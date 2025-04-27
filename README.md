@@ -16,7 +16,6 @@
 
 ## Packages
 - [overlayment](https://pub.dev/packages/overlayment)
-- [flutter_mdi_gui](https://pub.dev/packages/flutter_mdi_gui)
 - [group_button](https://pub.dev/packages/group_button)
 - [flutter_grid_button](https://pub.dev/packages/flutter_grid_button)
 - [animated_toggle_switch](https://pub.dev/packages/animated_toggle_switch)
