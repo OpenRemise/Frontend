@@ -50,7 +50,8 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   @override
   Widget build(BuildContext context) {
     final params = Uri.parse(widget._url).queryParameters;
-    final fileName = params['f'] ?? File(widget._url).uri.pathSegments.last;
+    final fileName =
+        params['f'] ?? params['id'] ?? File(widget._url).uri.pathSegments.last;
 
     return AlertDialog(
       title: const Text('Download'),

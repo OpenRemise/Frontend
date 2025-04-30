@@ -42,6 +42,9 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
+  int? get closeCode => _channel.closeCode;
+
+  @override
   Future<void> get ready => _channel.ready;
 
   @override

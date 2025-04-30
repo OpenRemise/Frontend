@@ -27,6 +27,9 @@ class WsOtaService implements OtaService {
   }
 
   @override
+  int? get closeCode => _channel.closeCode;
+
+  @override
   Future<void> get ready => _channel.ready;
 
   @override

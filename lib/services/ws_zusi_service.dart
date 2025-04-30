@@ -29,6 +29,9 @@ class WsZusiService implements ZusiService {
   }
 
   @override
+  int? get closeCode => _channel.closeCode;
+
+  @override
   Future<void> get ready => _channel.ready;
 
   @override
@@ -39,7 +42,7 @@ class WsZusiService implements ZusiService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void cvRead(int cvAddress) async {
+  void cvRead(int cvAddress) {
     List<int> data = [
       0x01, // Command
       0x00, // Count
@@ -53,7 +56,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void cvWrite(int cvAddress, int byte) async {
+  void cvWrite(int cvAddress, int byte) {
     List<int> data = [
       0x02, // Command
       0x00, // Count
@@ -68,7 +71,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppErase() async {
+  void zppErase() {
     List<int> data = [
       0x04, // Command
       0x55,
@@ -79,7 +82,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppWrite(int address, Uint8List chunk) async {
+  void zppWrite(int address, Uint8List chunk) {
     assert(chunk.length <= 256);
     List<int> data = [
       0x05, // Command
@@ -96,7 +99,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void features() async {
+  void features() {
     List<int> data = [
       0x06, // Command
     ];
@@ -105,7 +108,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void exit({bool cv8Reset = false, bool restart = false}) async {
+  void exit({bool cv8Reset = false, bool restart = false}) {
     List<int> data = [
       0x07, // Command
       0x55,
@@ -117,7 +120,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppLcDcQuery(Uint8List developerCode) async {
+  void zppLcDcQuery(Uint8List developerCode) {
     assert(developerCode.length == 4);
     List<int> data = [
       0x0D, // Command

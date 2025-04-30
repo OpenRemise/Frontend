@@ -30,6 +30,9 @@ class FakeDecupService implements DecupService {
   final _controller = StreamController<Uint8List>();
 
   @override
+  int? get closeCode => _controller.isClosed ? 1005 : null;
+
+  @override
   Future<void> get ready => Future.delayed(const Duration(seconds: 1));
 
   @override

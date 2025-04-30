@@ -19,6 +19,7 @@ import 'dart:typed_data';
 abstract interface class DecupService {
   static const int ack = 0x1C;
   static const int nak = 0xFC;
+  int? get closeCode;
   Future<void> get ready;
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);

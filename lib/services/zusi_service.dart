@@ -19,6 +19,7 @@ import 'dart:typed_data';
 abstract interface class ZusiService {
   static const int ack = 0x06;
   static const int nak = 0x15;
+  int? get closeCode;
   Future<void> get ready;
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);

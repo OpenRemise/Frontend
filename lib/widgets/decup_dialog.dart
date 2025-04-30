@@ -138,7 +138,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<void> _connect() async {
-    _setStatusState('Connecting');
+    _updateEphemeralState(status: 'Connecting');
     await _decup.ready;
   }
 
@@ -153,27 +153,34 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     _decup.zppReadCv(7);
     var msgs = await _events.take(8);
     if (msgs.any((msg) => msg.isEmpty)) {
-      return _setErrorState('Could not read CV8');
+      _updateEphemeralState(status: 'Could not read CV8', progress: 0);
+      return Uint8List.fromList([]);
     }
     final cv8 = msgs.reversed.fold<int>(
       0,
       (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
     );
     if (cv8 != 145) {
-      return _setErrorState('Unknown decoder manufacturer');
+      _updateEphemeralState(
+        status: 'Unknown decoder manufacturer',
+        progress: 0,
+      );
+      return Uint8List.fromList([]);
     }
 
     _decup.zppDecoderId();
     msgs = await _events.take(8);
     if (msgs.any((msg) => msg.isEmpty)) {
-      return _setErrorState('Could not read decoder ID');
+      _updateEphemeralState(status: 'Could not read decoder ID', progress: 0);
+      return Uint8List.fromList([]);
     }
     final id = msgs.reversed.fold<int>(
       0,
       (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
     );
     if (!mxDecoderIds.contains(id)) {
-      return _setErrorState('Unknown decoder ID');
+      _updateEphemeralState(status: 'Unknown decoder ID', progress: 0);
+      return Uint8List.fromList([]);
     }
 
     return Uint8List.fromList([DecupService.ack]);
@@ -181,7 +188,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<Uint8List> _zppErase() async {
-    _setStatusState('Erasing');
+    _updateEphemeralState(status: 'Erasing');
     _decup.zppErase();
     await _events.next;
 
@@ -196,12 +203,13 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       }
     }
 
-    return _setErrorState('Erasing failed');
+    _updateEphemeralState(status: 'Erasing failed', progress: 0);
+    return Uint8List.fromList([]);
   }
 
   /// \todo document
   Future<Uint8List> _zppUpdate(Uint8List bin) async {
-    _setStatusState('Writing');
+    _updateEphemeralState(status: 'Writing');
 
     const int blockSize = 256;
     final blocks = bin.slices(blockSize).toList();
@@ -230,14 +238,16 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         }
         // Or bail
         else {
-          return _setErrorState('Writing failed');
+          _updateEphemeralState(status: 'Writing failed', progress: 0);
+          return Uint8List.fromList([]);
         }
       }
 
       // Update progress
-      _setProgressState(
-        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
-        i / blocks.length,
+      _updateEphemeralState(
+        status:
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        progress: i / blocks.length,
       );
     }
 
@@ -252,13 +262,14 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         () => _decup.zppWriteCv(entry.key, entry.value),
       );
       if (!msg.contains(DecupService.ack)) {
-        return _setErrorState('Writing CVs failed');
+        _updateEphemeralState(status: 'Writing CVs failed', progress: 0);
+        return Uint8List.fromList([]);
       }
 
       // Update progress
-      _setProgressState(
-        'Writing ${++i} / ${widget._zpp!.cvs.length} CVs',
-        i / widget._zpp!.cvs.length,
+      _updateEphemeralState(
+        status: 'Writing ${++i} / ${widget._zpp!.cvs.length} CVs',
+        progress: i / widget._zpp!.cvs.length,
       );
     }
     return Uint8List.fromList([DecupService.ack]);
@@ -272,7 +283,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<Uint8List> _zsuSearch() async {
-    _setStatusState('Search decoder');
+    _updateEphemeralState(status: 'Search decoder');
 
     for (final entry in widget._zsu!.firmwares.entries) {
       final decoderId = entry.key;
@@ -289,7 +300,10 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       }
     }
 
-    if (_decoders.isEmpty) return _setErrorState('No decoder found');
+    if (_decoders.isEmpty) {
+      _updateEphemeralState(status: 'No decoder found', progress: 0);
+      return Uint8List.fromList([]);
+    }
 
     return Uint8List.fromList([DecupService.ack]);
   }
@@ -303,7 +317,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     _decup.zsuBlockCount(blockCount);
     final msg = await _events.next;
     if (!msg.contains(DecupService.nak)) {
-      return _setErrorState('Block count not acknowledged');
+      _updateEphemeralState(
+        status: 'Block count not acknowledged',
+        progress: 0,
+      );
+      return Uint8List.fromList([]);
     }
     return Uint8List.fromList([DecupService.nak]);
   }
@@ -315,7 +333,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     _decup.zsuSecurityByte2();
     final msg2 = await _events.next;
     if (!msg1.contains(DecupService.nak) || !msg2.contains(DecupService.nak)) {
-      return _setErrorState('Security byte not acknowledged');
+      _updateEphemeralState(
+        status: 'Security byte not acknowledged',
+        progress: 0,
+      );
+      return Uint8List.fromList([]);
     }
     return Uint8List.fromList([DecupService.nak]);
   }
@@ -325,7 +347,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     final decoderId = _decoders.keys.first;
 
     // Write flash
-    _setStatusState('Writing');
+    _updateEphemeralState(status: 'Writing');
     setState(() {
       _decoders[decoderId] = ListTile(
         leading: const Icon(Icons.download_for_offline),
@@ -362,14 +384,26 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         }
         // Or bail
         else {
-          return _setErrorState('Writing failed', decoderId);
+          _updateEphemeralState(
+            status: 'Writing failed',
+            progress: 0,
+            decoder: MapEntry(
+              decoderId,
+              ListTile(
+                leading: const Icon(Icons.error),
+                title: _decoders[decoderId]!.title,
+              ),
+            ),
+          );
+          return Uint8List.fromList([]);
         }
       }
 
       // Update progress
-      _setProgressState(
-        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
-        i / blocks.length,
+      _updateEphemeralState(
+        status:
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        progress: i / blocks.length,
       );
     }
 
@@ -386,7 +420,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   Future<void> _disconnect() async {
     await Future.delayed(const Duration(seconds: 1));
-    _setStatusState('Done', 'OK');
+    _updateEphemeralState(status: 'Done', option: 'OK');
     await _decup.close();
   }
 
@@ -405,39 +439,20 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   }
 
   /// \todo document
-  Future<void> _setStatusState(String status, [String? option]) async {
-    setState(() {
-      _status = status;
-      if (option != null) {
-        _option = option;
-        _progress = 0;
-      } else {
-        _progress = null;
-      }
-    });
-  }
-
-  /// \todo document
-  Future<void> _setProgressState(String status, double progress) async {
-    setState(() {
-      _status = status;
-      _progress = progress;
-    });
-  }
-
-  /// \todo document
-  Future<Uint8List> _setErrorState(String status, [int? decoderId]) async {
-    setState(() {
-      if (decoderId != null) {
-        _decoders[decoderId] = ListTile(
-          leading: const Icon(Icons.error),
-          title: _decoders[decoderId]!.title,
-        );
-      }
-      _status = status;
-      _progress = 0;
-    });
-    return Uint8List.fromList([]);
+  Future<void> _updateEphemeralState({
+    String? status,
+    String? option,
+    double? progress,
+    MapEntry<int, ListTile>? decoder,
+  }) async {
+    setState(
+      () {
+        if (status != null) _status = status;
+        if (option != null) _option = option;
+        if (progress != null) _progress = progress;
+        if (decoder != null) _decoders[decoder.key] = decoder.value;
+      },
+    );
   }
 
   /// \todo document

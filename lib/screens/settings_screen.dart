@@ -379,7 +379,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       waitDuration: const Duration(seconds: 1),
                       child: FormBuilderSlider(
                         name: 'led_dc_wifi',
-                        initialValue: data.ledDutyCycleBug!.toDouble(),
+                        initialValue: data.ledDutyCycleWiFi!.toDouble(),
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'LED duty cycle WiFi [%]',
@@ -748,8 +748,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'cur_lim': _currentLimitValues.indexOf(4.1).toDouble(),
       'cur_lim_serv': _currentLimitValues.indexOf(1.3).toDouble(),
       'cur_sc_time': 100.0,
-      'led_dc_bug': 10.0,
-      'led_dc_wifi': 10.0,
+      'led_dc_bug': 5.0,
+      'led_dc_wifi': 50.0,
       'dcc_preamble': 17.0,
       'dcc_bit1_dur': 58.0,
       'dcc_bit0_dur': 100.0,
