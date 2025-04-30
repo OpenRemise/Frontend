@@ -115,15 +115,19 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
 
   /// \todo document
   Future<void> _connect() async {
-    _setStatusState('Connecting');
+    _updateEphemeralState(status: 'Connecting');
     await _zusi.ready;
   }
 
   /// \todo document
   Future<Uint8List> _features() async {
     final msg = await _retryOnFailure(() => _zusi.features());
-    if (!msg.contains(ZusiService.ack)) {
-      return _setErrorState('No decoder found');
+    if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'No decoder found',
+        progress: 0,
+      );
+      return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
   }
@@ -131,30 +135,39 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _zppLcDcQuery() async {
     if (!widget._zpp.coded) return Uint8List.fromList([ZusiService.ack]);
-    _setStatusState('Check if load code is valid');
+    _updateEphemeralState(status: 'Check if load code is valid', progress: 0);
     final msg = await _retryOnFailure(
       () => _zusi.zppLcDcQuery(widget._zpp.developerCode),
     );
-    debugPrint('LC DC query answer $msg');
-    if (!msg.contains(ZusiService.ack) || msg[1] == 0x00) {
-      return _setErrorState('Load code not valid');
+    if (!msg.contains(ZusiService.ack) ||
+        _zusi.closeReason != null ||
+        msg[1] == 0x00) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'Load code not valid',
+        progress: 0,
+      );
+      return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
   Future<Uint8List> _zppErase() async {
-    _setStatusState('Erasing');
+    _updateEphemeralState(status: 'Erasing');
     final msg = await _retryOnFailure(() => _zusi.zppErase());
-    if (!msg.contains(ZusiService.ack)) {
-      return _setErrorState('Erasing failed');
+    if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'Erasing failed',
+        progress: 0,
+      );
+      return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
   }
 
   /// \todo document
   Future<Uint8List> _zppUpdate() async {
-    _setStatusState('Writing');
+    _updateEphemeralState(status: 'Writing');
 
     const int blockSize = 256;
     final blocks = widget._zpp.flash.slices(blockSize).toList();
@@ -183,14 +196,22 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
         }
         // Or bail
         else {
-          return _setErrorState('Writing failed');
+          _updateEphemeralState(status: 'Writing failed', progress: 0);
+          return Uint8List.fromList([ZusiService.nak]);
         }
       }
 
+      // WebSocket closed on the server side
+      if (_zusi.closeReason != null) {
+        _updateEphemeralState(status: _zusi.closeReason, progress: 0);
+        return Uint8List.fromList([ZusiService.nak]);
+      }
+
       // Update progress
-      _setProgressState(
-        'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
-        i / blocks.length,
+      _updateEphemeralState(
+        status:
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        progress: i / blocks.length,
       );
     }
 
@@ -203,14 +224,18 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     for (final entry in widget._zpp.cvs.entries) {
       final msg =
           await _retryOnFailure(() => _zusi.cvWrite(entry.key, entry.value));
-      if (!msg.contains(ZusiService.ack)) {
-        return _setErrorState('Writing CVs failed');
+      if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+        _updateEphemeralState(
+          status: _zusi.closeReason ?? 'Writing CVs failed',
+          progress: 0,
+        );
+        return Uint8List.fromList([ZusiService.nak]);
       }
 
       // Update progress
-      _setProgressState(
-        'Writing ${++i} / ${widget._zpp.cvs.length} CVs',
-        i / widget._zpp.cvs.length,
+      _updateEphemeralState(
+        status: 'Writing ${++i} / ${widget._zpp.cvs.length} CVs',
+        progress: i / widget._zpp.cvs.length,
       );
     }
     return Uint8List.fromList([ZusiService.ack]);
@@ -227,7 +252,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
 
   /// \todo document
   Future<void> _disconnect() async {
-    _setStatusState('Done', 'OK');
+    _updateEphemeralState(status: 'Done', option: 'OK');
     await _zusi.close();
   }
 
@@ -246,33 +271,18 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   }
 
   /// \todo document
-  Future<void> _setStatusState(String status, [String? option]) async {
-    setState(() {
-      _status = status;
-      if (option != null) {
-        _option = option;
-        _progress = 0;
-      } else {
-        _progress = null;
-      }
-    });
-  }
-
-  /// \todo document
-  Future<void> _setProgressState(String status, double progress) async {
-    setState(() {
-      _status = status;
-      _progress = progress;
-    });
-  }
-
-  /// \todo document
-  Future<Uint8List> _setErrorState(String status) async {
-    setState(() {
-      _status = status;
-      _progress = 0;
-    });
-    return Uint8List.fromList([ZusiService.nak]);
+  Future<void> _updateEphemeralState({
+    String? status,
+    String? option,
+    double? progress,
+  }) async {
+    setState(
+      () {
+        if (status != null) _status = status;
+        if (option != null) _option = option;
+        if (progress != null) _progress = progress;
+      },
+    );
   }
 
   /// \todo document

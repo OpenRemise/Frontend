@@ -96,13 +96,13 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
 
   /// \todo document
   Future<void> _connect() async {
-    _setStatusState('Connecting');
+    _updateEphemeralState(status: 'Connecting');
     await _ota.ready;
   }
 
   /// \todo document
   Future<Uint8List> _write() async {
-    _setStatusState('Writing');
+    _updateEphemeralState(status: 'Writing');
 
     int i = 0;
     while (i < _bin.length) {
@@ -112,16 +112,20 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       _ota.write(chunk);
 
       final msg = await _events.next;
-      if (!msg.contains(OtaService.ack)) {
-        return _setErrorState('Writing failed');
+      if (!msg.contains(OtaService.ack) || _ota.closeReason != null) {
+        _updateEphemeralState(
+          status: _ota.closeReason ?? 'Writing failed',
+          progress: 0,
+        );
+        return Uint8List.fromList([OtaService.nak]);
       }
 
       i += chunk.length;
 
       // Update progress
-      _setProgressState(
-        'Writing ${i ~/ 1024} / ${_bin.length ~/ 1024} kB',
-        i / _bin.length,
+      _updateEphemeralState(
+        status: 'Writing ${i ~/ 1024} / ${_bin.length ~/ 1024} kB',
+        progress: i / _bin.length,
       );
     }
 
@@ -130,38 +134,23 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
 
   /// \todo document
   Future<void> _disconnect() async {
-    _setStatusState('Done', 'OK');
+    _updateEphemeralState(status: 'Done', option: 'OK');
     await _ota.close();
   }
 
   /// \todo document
-  Future<void> _setStatusState(String status, [String? option]) async {
-    setState(() {
-      _status = status;
-      if (option != null) {
-        _option = option;
-        _progress = 0;
-      } else {
-        _progress = null;
-      }
-    });
-  }
-
-  /// \todo document
-  Future<void> _setProgressState(String status, double progress) async {
-    setState(() {
-      _status = status;
-      _progress = progress;
-    });
-  }
-
-  /// \todo document
-  Future<Uint8List> _setErrorState(String status) async {
-    setState(() {
-      _status = status;
-      _progress = 0;
-    });
-    return Uint8List.fromList([OtaService.nak]);
+  Future<void> _updateEphemeralState({
+    String? status,
+    String? option,
+    double? progress,
+  }) async {
+    setState(
+      () {
+        if (status != null) _status = status;
+        if (option != null) _option = option;
+        if (progress != null) _progress = progress;
+      },
+    );
   }
 
   /// \todo document

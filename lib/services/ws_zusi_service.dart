@@ -23,10 +23,15 @@ class WsZusiService implements ZusiService {
   late final Stream<Uint8List> _stream;
 
   WsZusiService(String domain) {
-    debugPrint('WsZusiService ctor');
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zusi/'));
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
+
+  @override
+  int? get closeCode => _channel.closeCode;
+
+  @override
+  String? get closeReason => closeCode != null ? 'Timeout' : null;
 
   @override
   Future<void> get ready => _channel.ready;
@@ -39,7 +44,7 @@ class WsZusiService implements ZusiService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void cvRead(int cvAddress) async {
+  void cvRead(int cvAddress) {
     List<int> data = [
       0x01, // Command
       0x00, // Count
@@ -53,7 +58,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void cvWrite(int cvAddress, int byte) async {
+  void cvWrite(int cvAddress, int byte) {
     List<int> data = [
       0x02, // Command
       0x00, // Count
@@ -68,7 +73,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppErase() async {
+  void zppErase() {
     List<int> data = [
       0x04, // Command
       0x55,
@@ -79,7 +84,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppWrite(int address, Uint8List chunk) async {
+  void zppWrite(int address, Uint8List chunk) {
     assert(chunk.length <= 256);
     List<int> data = [
       0x05, // Command
@@ -96,7 +101,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void features() async {
+  void features() {
     List<int> data = [
       0x06, // Command
     ];
@@ -105,7 +110,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void exit({bool cv8Reset = false, bool restart = false}) async {
+  void exit({bool cv8Reset = false, bool restart = false}) {
     List<int> data = [
       0x07, // Command
       0x55,
@@ -117,7 +122,7 @@ class WsZusiService implements ZusiService {
   }
 
   @override
-  void zppLcDcQuery(Uint8List developerCode) async {
+  void zppLcDcQuery(Uint8List developerCode) {
     assert(developerCode.length == 4);
     List<int> data = [
       0x0D, // Command

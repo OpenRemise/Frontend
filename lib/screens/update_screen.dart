@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:typed_data';
-
 import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
@@ -32,11 +30,13 @@ import 'package:Frontend/widgets/ota_dialog.dart';
 import 'package:Frontend/widgets/zimo_sound_dialog.dart';
 import 'package:Frontend/widgets/zusi_dialog.dart';
 import 'package:archive/archive_io.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 
@@ -556,33 +556,50 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
   /// \todo document
   Future<void> _zimoFirmwareFromWeb() async {
-    showDialog<Uint8List>(
-      context: context,
-      builder: (_) => DownloadDialog(
-        switch (_selected.elementAtOrNull(1)) {
-          0 => 'https://www.zimo.at/update/FlashFiles/MS_5_5.zip',
-          1 => 'https://www.zimo.at/update/FlashFiles/DS240307.zip',
-          _ => 'Invalid selection',
-        },
+    // No REST API, no fun :(
+    http
+        .get(
+      Uri.parse(
+        _selected.elementAtOrNull(1) == 0
+            ? 'https://www.zimo.at/web2010/support/MS-MN-Decoder-SW-Update.htm'
+            : 'https://www.zimo.at/web2010/support/MX-Decoder-SW-Update.htm',
       ),
-      barrierDismissible: false,
-    ).then(
-      (value) {
-        if (value == null) return;
-        final archive = ZipDecoder().decodeBytes(value);
-        final archiveFile = archive.findFile(
-          _selected.elementAtOrNull(1) == 0 ? 'MS-5.5.0.zsu' : 'DS240307.zsu',
+    )
+        .then(
+      (response) {
+        final exp = RegExp(
+          _selected.elementAtOrNull(1) == 0
+              ? r'href=".+?id=MS_[0-9].[0-9].*"'
+              : r'href=".+?id=DS[0-9]+"',
         );
-        if (archiveFile == null) return;
-        final zsu = Zsu(archiveFile.content);
-        showDialog(
+        final zips = exp.firstMatch(response.body);
+        return zips!.group(0)?.replaceAll('href=', '').replaceAll('"', '');
+      },
+    ).then(
+      (url) {
+        if (url == null) return;
+        showDialog<Uint8List>(
           context: context,
-          builder: (_) => switch (_selected.elementAtOrNull(1)) {
-            0 => MduDialog.zsu(zsu),
-            1 => DecupDialog.zsu(zsu),
-            _ => throw UnimplementedError(),
-          },
+          builder: (_) => DownloadDialog(url),
           barrierDismissible: false,
+        ).then(
+          (value) {
+            if (value == null) return;
+            final archive = ZipDecoder().decodeBytes(value);
+            final archiveFile =
+                archive.files.firstWhereOrNull((f) => f.name.endsWith('.zsu'));
+            if (archiveFile == null) return;
+            final zsu = Zsu(archiveFile.content);
+            showDialog(
+              context: context,
+              builder: (_) => switch (_selected.elementAtOrNull(1)) {
+                0 => MduDialog.zsu(zsu),
+                1 => DecupDialog.zsu(zsu),
+                _ => throw UnimplementedError(),
+              },
+              barrierDismissible: false,
+            );
+          },
         );
       },
     );

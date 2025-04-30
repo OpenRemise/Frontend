@@ -674,6 +674,8 @@ class ReplyToLanZLinkGetHwInfo implements Command {}
 
 /// \todo document
 abstract interface class Z21Service {
+  int? get closeCode;
+  String? get closeReason;
   Future<void> get ready;
   Stream<Command> get stream;
   Future close([int? closeCode, String? closeReason]);
