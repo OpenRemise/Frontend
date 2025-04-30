@@ -152,8 +152,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   Future<Uint8List> _zppSearch() async {
     _decup.zppReadCv(7);
     var msgs = await _events.take(8);
-    if (msgs.any((msg) => msg.isEmpty)) {
-      _updateEphemeralState(status: 'Could not read CV8', progress: 0);
+    if (msgs.any((msg) => msg.isEmpty) || _decup.closeReason != null) {
+      _updateEphemeralState(
+        status: _decup.closeReason ?? 'Could not read CV8',
+        progress: 0,
+      );
       return Uint8List.fromList([]);
     }
     final cv8 = msgs.reversed.fold<int>(
@@ -170,8 +173,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     _decup.zppDecoderId();
     msgs = await _events.take(8);
-    if (msgs.any((msg) => msg.isEmpty)) {
-      _updateEphemeralState(status: 'Could not read decoder ID', progress: 0);
+    if (msgs.any((msg) => msg.isEmpty) || _decup.closeReason != null) {
+      _updateEphemeralState(
+        status: _decup.closeReason ?? 'Could not read decoder ID',
+        progress: 0,
+      );
       return Uint8List.fromList([]);
     }
     final id = msgs.reversed.fold<int>(
@@ -243,6 +249,12 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         }
       }
 
+      // WebSocket closed on the server side
+      if (_decup.closeReason != null) {
+        _updateEphemeralState(status: _decup.closeReason, progress: 0);
+        return Uint8List.fromList([]);
+      }
+
       // Update progress
       _updateEphemeralState(
         status:
@@ -261,8 +273,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       final msg = await _retryOnFailure(
         () => _decup.zppWriteCv(entry.key, entry.value),
       );
-      if (!msg.contains(DecupService.ack)) {
-        _updateEphemeralState(status: 'Writing CVs failed', progress: 0);
+      if (!msg.contains(DecupService.ack) || _decup.closeReason != null) {
+        _updateEphemeralState(
+          status: _decup.closeReason ?? 'Writing CVs failed',
+          progress: 0,
+        );
         return Uint8List.fromList([]);
       }
 
@@ -290,12 +305,15 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       _decup.zsuDecoderId(decoderId);
       final msg = await _events.next;
       if (msg.contains(DecupService.ack)) {
-        setState(() {
-          _decoders[decoderId] = ListTile(
-            leading: const Icon(Icons.circle),
-            title: Text(entry.value.name),
-          );
-        });
+        _updateEphemeralState(
+          decoder: MapEntry(
+            decoderId,
+            ListTile(
+              leading: const Icon(Icons.circle),
+              title: Text(entry.value.name),
+            ),
+          ),
+        );
         break;
       }
     }
@@ -316,9 +334,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
             1);
     _decup.zsuBlockCount(blockCount);
     final msg = await _events.next;
-    if (!msg.contains(DecupService.nak)) {
+    if (!msg.contains(DecupService.nak) || _decup.closeReason != null) {
       _updateEphemeralState(
-        status: 'Block count not acknowledged',
+        status: _decup.closeReason ?? 'Block count not acknowledged',
         progress: 0,
       );
       return Uint8List.fromList([]);
@@ -332,9 +350,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     final msg1 = await _events.next;
     _decup.zsuSecurityByte2();
     final msg2 = await _events.next;
-    if (!msg1.contains(DecupService.nak) || !msg2.contains(DecupService.nak)) {
+    if (!msg1.contains(DecupService.nak) ||
+        !msg2.contains(DecupService.nak) ||
+        _decup.closeReason != null) {
       _updateEphemeralState(
-        status: 'Security byte not acknowledged',
+        status: _decup.closeReason ?? 'Security byte not acknowledged',
         progress: 0,
       );
       return Uint8List.fromList([]);
@@ -347,13 +367,16 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     final decoderId = _decoders.keys.first;
 
     // Write flash
-    _updateEphemeralState(status: 'Writing');
-    setState(() {
-      _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.download_for_offline),
-        title: _decoders[decoderId]!.title,
-      );
-    });
+    _updateEphemeralState(
+      status: 'Writing',
+      decoder: MapEntry(
+        decoderId,
+        ListTile(
+          leading: const Icon(Icons.download_for_offline),
+          title: _decoders[decoderId]!.title,
+        ),
+      ),
+    );
 
     final blockSize =
         decoderId == 200 || (decoderId >= 202 && decoderId <= 205) ? 32 : 64;
@@ -399,6 +422,22 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         }
       }
 
+      // WebSocket closed on the server side
+      if (_decup.closeReason != null) {
+        _updateEphemeralState(
+          status: _decup.closeReason,
+          progress: 0,
+          decoder: MapEntry(
+            decoderId,
+            ListTile(
+              leading: const Icon(Icons.error),
+              title: _decoders[decoderId]!.title,
+            ),
+          ),
+        );
+        return Uint8List.fromList([]);
+      }
+
       // Update progress
       _updateEphemeralState(
         status:
@@ -408,12 +447,15 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     }
 
     // Done
-    setState(() {
-      _decoders[decoderId] = ListTile(
-        leading: const Icon(Icons.check_circle),
-        title: _decoders[decoderId]!.title,
-      );
-    });
+    _updateEphemeralState(
+      decoder: MapEntry(
+        decoderId,
+        ListTile(
+          leading: const Icon(Icons.check_circle),
+          title: _decoders[decoderId]!.title,
+        ),
+      ),
+    );
     return Uint8List.fromList([DecupService.ack]);
   }
 

@@ -112,8 +112,11 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       _ota.write(chunk);
 
       final msg = await _events.next;
-      if (!msg.contains(OtaService.ack)) {
-        _updateEphemeralState(status: 'Writing failed', progress: 0);
+      if (!msg.contains(OtaService.ack) || _ota.closeReason != null) {
+        _updateEphemeralState(
+          status: _ota.closeReason ?? 'Writing failed',
+          progress: 0,
+        );
         return Uint8List.fromList([OtaService.nak]);
       }
 

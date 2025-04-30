@@ -23,13 +23,15 @@ class WsZusiService implements ZusiService {
   late final Stream<Uint8List> _stream;
 
   WsZusiService(String domain) {
-    debugPrint('WsZusiService ctor');
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zusi/'));
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
 
   @override
   int? get closeCode => _channel.closeCode;
+
+  @override
+  String? get closeReason => closeCode != null ? 'Timeout' : null;
 
   @override
   Future<void> get ready => _channel.ready;

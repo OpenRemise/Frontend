@@ -33,6 +33,9 @@ class FakeMduService implements MduService {
   int? get closeCode => _controller.isClosed ? 1005 : null;
 
   @override
+  String? get closeReason => closeCode != null ? 'Timeout' : null;
+
+  @override
   Future<void> get ready => Future.delayed(const Duration(seconds: 1));
 
   @override

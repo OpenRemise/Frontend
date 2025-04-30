@@ -122,8 +122,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _features() async {
     final msg = await _retryOnFailure(() => _zusi.features());
-    if (!msg.contains(ZusiService.ack)) {
-      _updateEphemeralState(status: 'No decoder found', progress: 0);
+    if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'No decoder found',
+        progress: 0,
+      );
       return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
@@ -136,9 +139,13 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     final msg = await _retryOnFailure(
       () => _zusi.zppLcDcQuery(widget._zpp.developerCode),
     );
-    debugPrint('LC DC query answer $msg');
-    if (!msg.contains(ZusiService.ack) || msg[1] == 0x00) {
-      _updateEphemeralState(status: 'Load code not valid', progress: 0);
+    if (!msg.contains(ZusiService.ack) ||
+        _zusi.closeReason != null ||
+        msg[1] == 0x00) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'Load code not valid',
+        progress: 0,
+      );
       return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
@@ -148,8 +155,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   Future<Uint8List> _zppErase() async {
     _updateEphemeralState(status: 'Erasing');
     final msg = await _retryOnFailure(() => _zusi.zppErase());
-    if (!msg.contains(ZusiService.ack)) {
-      _updateEphemeralState(status: 'Erasing failed', progress: 0);
+    if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+      _updateEphemeralState(
+        status: _zusi.closeReason ?? 'Erasing failed',
+        progress: 0,
+      );
       return Uint8List.fromList([ZusiService.nak]);
     }
     return Uint8List.fromList([ZusiService.ack]);
@@ -191,6 +201,12 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
         }
       }
 
+      // WebSocket closed on the server side
+      if (_zusi.closeReason != null) {
+        _updateEphemeralState(status: _zusi.closeReason, progress: 0);
+        return Uint8List.fromList([ZusiService.nak]);
+      }
+
       // Update progress
       _updateEphemeralState(
         status:
@@ -208,8 +224,11 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     for (final entry in widget._zpp.cvs.entries) {
       final msg =
           await _retryOnFailure(() => _zusi.cvWrite(entry.key, entry.value));
-      if (!msg.contains(ZusiService.ack)) {
-        _updateEphemeralState(status: 'Writing CVs failed', progress: 0);
+      if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
+        _updateEphemeralState(
+          status: _zusi.closeReason ?? 'Writing CVs failed',
+          progress: 0,
+        );
         return Uint8List.fromList([ZusiService.nak]);
       }
 

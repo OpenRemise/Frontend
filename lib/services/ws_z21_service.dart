@@ -23,7 +23,6 @@ class WsZ21Service implements Z21Service {
   late final Stream<Command> _stream;
 
   WsZ21Service(String domain) {
-    debugPrint('WsZ21Service ctor');
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/z21/'));
     _channel.ready.then(
       (_) => lanSetBroadcastFlags(
@@ -43,6 +42,9 @@ class WsZ21Service implements Z21Service {
 
   @override
   int? get closeCode => _channel.closeCode;
+
+  @override
+  String? get closeReason => closeCode != null ? 'Timeout' : null;
 
   @override
   Future<void> get ready => _channel.ready;
