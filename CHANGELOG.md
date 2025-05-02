@@ -3,7 +3,6 @@
 ## 0.0.9
 - New controller (beta) ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - LED duty cycle settings ([#62](https://github.com/OpenRemise/Frontend/issues/62))
-- Current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 - App close confirmation ([#58](https://github.com/OpenRemise/Frontend/issues/58))
 - ZIMO update URLs are hardcoded ([#66](https://github.com/OpenRemise/Frontend/issues/66))
 - Animate between `NavigationRail` and `NavigationBar` ([#52](https://github.com/OpenRemise/Frontend/issues/52))
