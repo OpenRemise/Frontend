@@ -289,43 +289,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       waitDuration: const Duration(seconds: 1),
                       child: FormBuilderSlider(
                         name: 'cur_lim_serv',
+                        validator: (_) => null,
                         initialValue: data.currentLimitService!.toDouble(),
                         decoration: InputDecoration(
                           icon: const Icon(null),
                           labelText: 'Current limit service mode [A]',
-                          errorText: (_formKey.currentState
+                          helperText: (_formKey.currentState
                                           ?.fields['cur_lim_serv']?.value ??
                                       0) >
                                   _currentLimitValues.indexOf(1.3)
                               ? '\u26A0 exceeds recommended limit'
                               : null,
-                        ),
-                        onChanged: (_) => setState(() {}),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 3,
-                        divisions: 3 - 0,
-                        displayValues: DisplayValues.current,
-                        valueWidget: (value) => Text(
-                          _currentLimitValues[int.parse(value)].toString(),
-                        ),
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Current limit in update mode',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'cur_lim_updt',
-                        initialValue: data.currentLimitUpdate!.toDouble(),
-                        decoration: InputDecoration(
-                          icon: const Icon(null),
-                          labelText: 'Current limit update mode [A]',
-                          errorText: (_formKey.currentState
-                                          ?.fields['cur_lim_updt']?.value ??
-                                      0) >
-                                  _currentLimitValues.indexOf(0.5)
-                              ? '\u26A0 exceeds recommended limit'
-                              : null,
+                          helperStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                         onChanged: (_) => setState(() {}),
                         valueTransformer: (value) => value!.toInt(),

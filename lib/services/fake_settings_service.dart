@@ -27,7 +27,6 @@ class FakeSettingsService implements SettingsService {
     httpTransmitTimeout: 5,
     currentLimit: 3,
     currentLimitService: 1,
-    currentLimitUpdate: 0,
     currentShortCircuitTime: 100,
     ledDutyCycleBug: 5,
     ledDutyCycleWiFi: 50,
@@ -72,8 +71,6 @@ class FakeSettingsService implements SettingsService {
         currentLimit: config.currentLimit ?? _config.currentLimit,
         currentLimitService:
             config.currentLimitService ?? _config.currentLimitService,
-        currentLimitUpdate:
-            config.currentLimitUpdate ?? _config.currentLimitUpdate,
         currentShortCircuitTime:
             config.currentShortCircuitTime ?? _config.currentShortCircuitTime,
         ledDutyCycleBug: config.ledDutyCycleBug ?? _config.ledDutyCycleBug,
