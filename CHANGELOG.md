@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.2.0
 - Support static IP ([#68](https://github.com/OpenRemise/Frontend/issues/68))
 
 ## 0.1.0
