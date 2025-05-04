@@ -13,21 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'loco.freezed.dart';
-part 'loco.g.dart';
+import 'package:validator_regex/validator_regex.dart';
 
 /// \todo document
-@freezed
-abstract class Loco with _$Loco {
-  factory Loco({
-    required int address,
-    @Default('') String name,
-    @JsonKey(name: 'speed_steps', defaultValue: 4) @Default(4) int speedSteps,
-    @Default(0x80) int rvvvvvvv,
-    @Default(0) int f31_0, // TODO 53bit width my become an issue?
-  }) = _Loco;
-
-  factory Loco.fromJson(Map<String, Object?> json) => _$LocoFromJson(json);
+String? ipAddressValidator(String? value) {
+  if (value == null || value.isEmpty || Validator.ipAddress(value)) {
+    return null;
+  } else {
+    return 'IP address invalid';
+  }
 }

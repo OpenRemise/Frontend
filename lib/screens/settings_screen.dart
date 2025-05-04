@@ -19,6 +19,7 @@ import 'package:Frontend/providers/settings.dart';
 import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/utilities/ip_address_validator.dart';
 import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:Frontend/widgets/restart_dialog.dart';
@@ -130,7 +131,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             return null;
                           }
                         },
-                        initialValue: data.mdns,
+                        initialValue: data.stationMdns,
                         decoration: const InputDecoration(
                           icon: Icon(Icons.wifi),
                           labelText: 'mDNS',
@@ -152,7 +153,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             return null;
                           }
                         },
-                        initialValue: data.ssid,
+                        initialValue: data.stationSsid,
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'SSID',
@@ -174,7 +175,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             return null;
                           }
                         },
-                        initialValue: data.password,
+                        initialValue: data.stationPassword,
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'Password',
@@ -196,7 +197,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             return null;
                           }
                         },
-                        initialValue: data.alternativeSsid,
+                        initialValue: data.stationAlternativeSsid,
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'Alternative SSID',
@@ -219,10 +220,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             return null;
                           }
                         },
-                        initialValue: data.alternativePassword,
+                        initialValue: data.stationAlternativePassword,
                         decoration: const InputDecoration(
                           icon: Icon(null),
                           labelText: 'Alternative password',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'IP address',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_ip',
+                        validator: ipAddressValidator,
+                        initialValue: data.stationIp,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'IP',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'IP address of the access point to connect to',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_netmask',
+                        validator: ipAddressValidator,
+                        initialValue: data.stationNetmask,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Netmask',
+                        ),
+                        autovalidateMode: AutovalidateMode.always,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Range of IP addresses in the network',
+                      waitDuration: const Duration(seconds: 1),
+                      child: FormBuilderTextField(
+                        name: 'sta_gateway',
+                        validator: ipAddressValidator,
+                        initialValue: data.stationGateway,
+                        decoration: const InputDecoration(
+                          icon: Icon(null),
+                          labelText: 'Gateway',
                         ),
                         autovalidateMode: AutovalidateMode.always,
                       ),
@@ -717,7 +760,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  ///
+  /// \todo document
   void _defaults() {
     _formKey.currentState?.patchValue({
       'http_rx_timeout': 5.0,

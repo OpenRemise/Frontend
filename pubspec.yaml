@@ -31,12 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  archive: ^3.6.1
+  archive: ^4.0.7
   async: ^2.11.0
   collection: ^1.19.0
   csv: ^6.0.0
   desktop_window: ^0.4.2
-  file_picker: ^8.3.7
+  file_picker: ^10.1.2
   fixnum: ^1.1.1
   flutter_form_builder: ^9.7.0
   flutter_grid_button: ^2.1.0
@@ -44,7 +44,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   flutter_svg: ^2.1.0
   form_builder_validators: ^11.1.2
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.0.0
   gif: ^2.3.0
   html: ^0.15.6
   http: ^1.3.0
@@ -56,6 +56,7 @@ dependencies:
   shared_preferences: ^2.5.3
   shared_preferences_riverpod: ^0.3.0
   universal_io: ^2.2.2
+  validator_regex: ^1.1.1
   version: ^3.0.2
   vertical_weight_slider: ^2.6.0
   web_socket_channel: ^3.0.3
@@ -69,16 +70,16 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.4.15
-  freezed: ^2.5.8
+  freezed: ^3.0.6
   json_serializable: ^6.9.5
-  riverpod_generator: ^2.6.4
+  riverpod_generator: ^2.6.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
