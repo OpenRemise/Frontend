@@ -22,7 +22,7 @@ part 'info.g.dart';
 
 /// \todo document
 @freezed
-class Info with _$Info {
+abstract class Info with _$Info {
   factory Info({
     required String state,
     required String version,

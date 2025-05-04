@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Support static IP ([#68](https://github.com/OpenRemise/Frontend/issues/68))
+
 ## 0.1.0
 - Remove current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 

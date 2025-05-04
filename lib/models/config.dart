@@ -22,13 +22,16 @@ part 'config.g.dart';
 
 /// \todo document
 @freezed
-class Config with _$Config {
+abstract class Config with _$Config {
   factory Config({
-    @JsonKey(name: 'sta_mdns') String? mdns,
-    @JsonKey(name: 'sta_ssid') String? ssid,
-    @JsonKey(name: 'sta_pass') String? password,
-    @JsonKey(name: 'sta_alt_ssid') String? alternativeSsid,
-    @JsonKey(name: 'sta_alt_pass') String? alternativePassword,
+    @JsonKey(name: 'sta_mdns') String? stationMdns,
+    @JsonKey(name: 'sta_ssid') String? stationSsid,
+    @JsonKey(name: 'sta_pass') String? stationPassword,
+    @JsonKey(name: 'sta_alt_ssid') String? stationAlternativeSsid,
+    @JsonKey(name: 'sta_alt_pass') String? stationAlternativePassword,
+    @JsonKey(name: 'sta_ip') String? stationIp,
+    @JsonKey(name: 'sta_netmask') String? stationNetmask,
+    @JsonKey(name: 'sta_gateway') String? stationGateway,
     @JsonKey(name: 'http_rx_timeout') int? httpReceiveTimeout,
     @JsonKey(name: 'http_tx_timeout') int? httpTransmitTimeout,
     @JsonKey(name: 'cur_lim') int? currentLimit,

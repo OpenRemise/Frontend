@@ -18,11 +18,14 @@ import 'package:Frontend/services/settings_service.dart';
 
 class FakeSettingsService implements SettingsService {
   Config _config = Config(
-    mdns: 'remise',
-    ssid: 'FakeSSID',
-    password: '************',
-    alternativeSsid: '',
-    alternativePassword: '',
+    stationMdns: 'remise',
+    stationSsid: 'FakeSSID',
+    stationPassword: '************',
+    stationAlternativeSsid: '',
+    stationAlternativePassword: '',
+    stationIp: '',
+    stationNetmask: '',
+    stationGateway: '',
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
     currentLimit: 3,
@@ -54,16 +57,23 @@ class FakeSettingsService implements SettingsService {
     return Future.delayed(
       const Duration(milliseconds: 500),
       () => _config = Config(
-        mdns: config.mdns ?? _config.mdns,
-        ssid: config.ssid ?? _config.ssid,
-        password:
-            List.filled((config.password ?? _config.password)!.length, '*')
-                .join(),
-        alternativeSsid: config.alternativeSsid ?? _config.alternativeSsid,
-        alternativePassword: List.filled(
-          (config.alternativePassword ?? _config.alternativePassword)!.length,
+        stationMdns: config.stationMdns ?? _config.stationMdns,
+        stationSsid: config.stationSsid ?? _config.stationSsid,
+        stationPassword: List.filled(
+                (config.stationPassword ?? _config.stationPassword)!.length,
+                '*')
+            .join(),
+        stationAlternativeSsid:
+            config.stationAlternativeSsid ?? _config.stationAlternativeSsid,
+        stationAlternativePassword: List.filled(
+          (config.stationAlternativePassword ??
+                  _config.stationAlternativePassword)!
+              .length,
           '*',
         ).join(),
+        stationIp: config.stationIp ?? _config.stationIp,
+        stationNetmask: config.stationNetmask ?? _config.stationNetmask,
+        stationGateway: config.stationGateway ?? _config.stationGateway,
         httpReceiveTimeout:
             config.httpReceiveTimeout ?? _config.httpReceiveTimeout,
         httpTransmitTimeout:
