@@ -103,17 +103,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     (MediaQuery.of(context).size.height / 10),
                 children: [
                   const Text('State'),
-                  Text(data.state),
+                  Text(data.state!),
                   const Text('Firmware version'),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data.version),
+                      Text(data.version!),
                       if (availableFirmwareVersion.hasValue == true &&
                           Version.parse(
                                 availableFirmwareVersion.requireValue,
                               ) >
-                              Version.parse(data.version))
+                              Version.parse(data.version!))
                         Tooltip(
                           message: 'New version available',
                           child: Text(
@@ -123,7 +123,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     ],
                   ),
                   const Text('ESP-IDF version'),
-                  Text(data.idfVersion),
+                  Text(data.idfVersion!),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -137,11 +137,11 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('mDNS'),
                   Text(domain),
                   const Text('IP'),
-                  Text(data.ip),
+                  Text(data.ip!),
                   const Text('MAC'),
-                  Text(data.mac),
+                  Text(data.mac!),
                   const Text('RSSI'),
-                  Text('${(2 * (data.rssi + 100)).clamp(0, 100)}%'),
+                  Text('${(2 * (data.rssi! + 100)).clamp(0, 100)}%'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -154,15 +154,15 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 children: [
                   const Text('Voltage'),
                   Text(
-                    '${(data.voltage / 1000).toStringAsFixed(2)}V',
+                    '${(data.voltage! / 1000).toStringAsFixed(2)}V',
                   ),
                   const Text('Current'),
                   Text(
-                    '${(data.current / 1000).toStringAsFixed(2)}A',
+                    '${(data.current! / 1000).toStringAsFixed(2)}A',
                   ),
                   const Text('Temperature'),
                   Text(
-                    '${data.temperature.toStringAsFixed(0)}°C',
+                    '${data.temperature!.toStringAsFixed(0)}°C',
                   ),
                   const Text('Heap memory'),
                   Text('${data.heap}'),

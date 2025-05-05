@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:Frontend/constants/open_remise_icons.dart';
+import 'package:Frontend/models/bidi.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/selected_loco_index.dart';
@@ -48,8 +49,6 @@ class _ControllerState extends ConsumerState<Controller> {
   int _animatedToggleSwitchValue = 0;
   int _rvvvvvvv = 0;
   int _f31_0 = 0;
-  int? _kmh;
-  int? _qos;
 
   /// \todo document
   late final Timer _timer;
@@ -117,7 +116,7 @@ class _ControllerState extends ConsumerState<Controller> {
           // Snapshot does not contain data yet, reset
           if (!snapshot.hasData) {
             z21.lanXGetLocoInfo(loco.address);
-            Future.delayed(Duration.zero, _reset);
+            WidgetsBinding.instance.addPostFrameCallback((_) => _reset);
           }
           // Snapshot contains LAN_X_LOCO_INFO and we are not initialized
           else if (snapshot.data is LanXLocoInfo && !_initialized) {
@@ -128,9 +127,8 @@ class _ControllerState extends ConsumerState<Controller> {
                 : locoInfo.speedSteps == 2
                     ? 28
                     : 126;
-            Future.delayed(
-              Duration.zero,
-              () => setState(() {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => setState(() {
                 _rvvvvvvv = locoInfo.rvvvvvvv;
                 _f31_0 = locoInfo.f31_0;
                 _sliderController = WeightSliderController(
@@ -145,13 +143,22 @@ class _ControllerState extends ConsumerState<Controller> {
           // Snapshot contains LAN_RAILCOM_DATACHANGED
           else if (snapshot.data is LanRailComDataChanged) {
             final railComData = snapshot.data! as LanRailComDataChanged;
-            Future.delayed(
-              Duration.zero,
-              () => setState(() {
-                _kmh = railComData.kmh();
-                _qos = railComData.qoS();
-              }),
-            );
+            if (railComData.options != loco.bidi?.options ||
+                railComData.speed != loco.bidi?.speed ||
+                railComData.qos != loco.bidi?.qos) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => ref.read(locosProvider.notifier).updateLoco(
+                      loco.address,
+                      loco.copyWith(
+                        bidi: BiDi(
+                          options: railComData.options,
+                          speed: railComData.speed,
+                          qos: railComData.qos,
+                        ),
+                      ),
+                    ),
+              );
+            }
           }
         }
 
@@ -304,8 +311,17 @@ class _ControllerState extends ConsumerState<Controller> {
 
   /// \todo document
   Widget _bidi() {
-    final int kmh = _kmh ?? 0;
-    final int qos = _qos != null ? 100 - _qos!.clamp(0, 100) : 0;
+    final selectedIndex = ref.watch(selectedLocoIndexProvider);
+    final locos = ref.watch(locosProvider);
+    final loco = locos[selectedIndex!];
+    final railComData = LanRailComDataChanged(
+      locoAddress: loco.address,
+      receiveCounter: loco.bidi?.receiveCounter ?? 0,
+      errorCounter: loco.bidi?.errorCounter ?? 0,
+      options: loco.bidi?.options ?? 0,
+      speed: loco.bidi?.speed ?? 0,
+      qos: loco.bidi?.qos ?? 0,
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -315,7 +331,7 @@ class _ControllerState extends ConsumerState<Controller> {
             const Icon(Icons.speed),
             const SizedBox(width: 4),
             Text(
-              kmh.toString().padLeft(3, '0'),
+              (railComData.kmh() ?? 0).toString().padLeft(3, '0'),
               style: const TextStyle(fontFamily: 'DSEG14'),
             ),
           ],
@@ -325,7 +341,7 @@ class _ControllerState extends ConsumerState<Controller> {
             const Icon(Icons.network_check),
             const SizedBox(width: 4),
             Text(
-              qos.toString().padLeft(3, '0'),
+              (railComData.qoS() ?? 0).toString().padLeft(3, '0'),
               style: const TextStyle(fontFamily: 'DSEG14'),
             ),
           ],
@@ -406,7 +422,7 @@ class _ControllerState extends ConsumerState<Controller> {
                 ),
               ),
               child: Text(
-                decodeRvvvvvvv(loco.speedSteps, loco.rvvvvvvv)
+                decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv)
                     .clamp(0, _sliderController!.maxWeight)
                     .toString()
                     .padLeft(3, '0'),
@@ -675,8 +691,6 @@ class _ControllerState extends ConsumerState<Controller> {
     setState(() {
       _rvvvvvvv = 0;
       _f31_0 = 0;
-      _kmh = null;
-      _qos = null;
       _initialized = false;
     });
   }

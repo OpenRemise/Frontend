@@ -618,7 +618,7 @@ class LanRailComDataChanged implements Command {
   }
 
   int? qoS() {
-    return options & 0x04 != 0 ? qos : null;
+    return options & 0x04 != 0 ? 100 - qos.clamp(0, 100) : null;
   }
 
   @override

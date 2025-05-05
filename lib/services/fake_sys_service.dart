@@ -55,11 +55,11 @@ class FakeSysService implements SysService {
       const Duration(milliseconds: 500),
       () => Info(
         state: state.toString().split('.')[1],
-        version: '0.0.5',
+        version: '0.2.0',
         projectName: 'Frontend',
         compileTime: '18:31:28',
         compileDate: 'Jul 28 2024',
-        idfVersion: '5.4.1',
+        idfVersion: '5.5.0',
         mdns: 'remise.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',

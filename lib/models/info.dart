@@ -23,22 +23,22 @@ part 'info.g.dart';
 /// \todo document
 @freezed
 abstract class Info with _$Info {
-  factory Info({
-    required String state,
-    required String version,
-    @JsonKey(name: 'project_name') required String projectName,
-    @JsonKey(name: 'compile_time') required String compileTime,
-    @JsonKey(name: 'compile_date') required String compileDate,
-    @JsonKey(name: 'idf_version') required String idfVersion,
-    required String mdns,
-    required String ip,
-    required String mac,
-    required int rssi,
-    required int voltage,
-    required int current,
-    required double temperature,
-    required int heap,
-    @JsonKey(name: 'internal_heap') required int internalHeap,
+  const factory Info({
+    @JsonKey(name: 'state') String? state,
+    @JsonKey(name: 'version') String? version,
+    @JsonKey(name: 'project_name') String? projectName,
+    @JsonKey(name: 'compile_time') String? compileTime,
+    @JsonKey(name: 'compile_date') String? compileDate,
+    @JsonKey(name: 'idf_version') String? idfVersion,
+    @JsonKey(name: 'mdns') String? mdns,
+    @JsonKey(name: 'ip') String? ip,
+    @JsonKey(name: 'mac') String? mac,
+    @JsonKey(name: 'rssi') int? rssi,
+    @JsonKey(name: 'voltage') int? voltage,
+    @JsonKey(name: 'current') int? current,
+    @JsonKey(name: 'temperature') double? temperature,
+    @JsonKey(name: 'heap') int? heap,
+    @JsonKey(name: 'internalHeap') int? internalHeap,
   }) = _Info;
 
   factory Info.fromJson(Map<String, Object?> json) => _$InfoFromJson(json);
