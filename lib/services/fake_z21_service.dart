@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/models/loco.dart';
@@ -111,10 +112,10 @@ class FakeZ21Service implements Z21Service {
           mode: 2,
           busy: false,
           speedSteps: loco.speedSteps,
-          rvvvvvvv: loco.rvvvvvvv,
+          rvvvvvvv: loco.rvvvvvvv ?? 0x80,
           doubleTraction: false,
           smartSearch: false,
-          f31_0: loco.f31_0,
+          f31_0: loco.f31_0 ?? 0,
         ),
       );
     });
@@ -144,8 +145,8 @@ class FakeZ21Service implements Z21Service {
           locoAddress,
           loco.copyWith(
             f31_0: state == 1
-                ? loco.f31_0 | (1 << index)
-                : loco.f31_0 & ~(1 << index),
+                ? (loco.f31_0 ?? 0) | (1 << index)
+                : (loco.f31_0 ?? 0) & ~(1 << index),
           ),
         );
   }
@@ -188,7 +189,26 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
-  void lanRailComGetData(int locoAddress) {
-    // TODO: implement lanRailComGetData
+  void lanRailComGetData(int locoAddress) async {
+    final locos = ref.read(locosProvider);
+    final loco = locos.firstWhere(
+      (loco) => loco.address == locoAddress,
+      orElse: () => Loco(address: 0),
+    );
+    final speed = decodeRvvvvvvv(loco.speedSteps, loco.rvvvvvvv ?? 0x80);
+    final kmh = speed * 2;
+    await Future.delayed(
+      Duration(milliseconds: loco.address != 0 ? 250 : 500),
+      () => _controller.sink.add(
+        LanRailComDataChanged(
+          locoAddress: locoAddress,
+          receiveCounter: 0,
+          errorCounter: 0,
+          options: 0x04 | (kmh >= 256 ? 0x02 : 0x01),
+          speed: kmh >= 256 ? kmh - 256 : kmh,
+          qos: 0 + Random().nextInt(5),
+        ),
+      ),
+    );
   }
 }

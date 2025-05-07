@@ -23,7 +23,7 @@ part 'config.g.dart';
 /// \todo document
 @freezed
 abstract class Config with _$Config {
-  factory Config({
+  const factory Config({
     @JsonKey(name: 'sta_mdns') String? stationMdns,
     @JsonKey(name: 'sta_ssid') String? stationSsid,
     @JsonKey(name: 'sta_pass') String? stationPassword,

@@ -68,7 +68,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final bool firmwareUpdateAvailable = availableFirmwareVersion.hasValue &&
         sys.hasValue &&
         Version.parse(availableFirmwareVersion.requireValue) >
-            Version.parse(sys.requireValue.version);
+            Version.parse(sys.requireValue.version!);
     final bool trackVoltageOff =
         z21Status.hasValue && z21Status.requireValue.trackVoltageOff();
 

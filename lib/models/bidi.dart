@@ -13,24 +13,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/models/bidi.dart';
+// ignore_for_file: invalid_annotation_target
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'loco.freezed.dart';
-part 'loco.g.dart';
+part 'bidi.freezed.dart';
+part 'bidi.g.dart';
 
-/// \todo document
 @freezed
-abstract class Loco with _$Loco {
-  const factory Loco({
-    @JsonKey(name: 'address') required int address,
-    @Default('') @JsonKey(name: 'name', defaultValue: '') String name,
-    @Default(0) @JsonKey(name: 'mode', defaultValue: 0) int mode,
-    @Default(4) @JsonKey(name: 'speed_steps', defaultValue: 4) int speedSteps,
-    @JsonKey(name: 'rvvvvvvv') int? rvvvvvvv,
-    @JsonKey(name: 'f31_0') int? f31_0,
-    @JsonKey(name: 'bidi') BiDi? bidi,
-  }) = _Loco;
+abstract class BiDi with _$BiDi {
+  const factory BiDi({
+    @Default(0)
+    @JsonKey(name: 'receive_counter', defaultValue: 0)
+    int receiveCounter,
+    @Default(0)
+    @JsonKey(name: 'error_counter', defaultValue: 0)
+    int errorCounter,
+    @Default(0) @JsonKey(name: 'options', defaultValue: 0) int options,
+    @Default(0) @JsonKey(name: 'speed', defaultValue: 0) int speed,
+    @Default(0) @JsonKey(name: 'qos', defaultValue: 0) int qos,
+  }) = _BiDi;
 
-  factory Loco.fromJson(Map<String, Object?> json) => _$LocoFromJson(json);
+  factory BiDi.fromJson(Map<String, dynamic> json) => _$BiDiFromJson(json);
 }
