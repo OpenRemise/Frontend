@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:Frontend/models/loco.dart';
@@ -26,12 +27,14 @@ class HttpDccService implements DccService {
   HttpDccService(this._client, this._domain);
 
   @override
-  Future<List<Loco>> fetchLocos() async {
+  Future<SplayTreeSet<Loco>> fetchLocos() async {
     final uri = Uri.http(_domain, 'dcc/locos/');
     final response = await _client.get(uri);
     if (response.statusCode == 200) {
       final array = jsonDecode(response.body) as List<dynamic>;
-      return [for (final object in array) Loco.fromJson(object)];
+      return SplayTreeSet.of(
+        [for (final object in array) Loco.fromJson(object)],
+      );
     } else {
       throw Exception('Failed to fetch locos');
     }
@@ -49,7 +52,7 @@ class HttpDccService implements DccService {
   }
 
   @override
-  Future<void> updateLocos(List<Loco> locos) async {
+  Future<void> updateLocos(SplayTreeSet<Loco> locos) async {
     throw UnimplementedError();
   }
 

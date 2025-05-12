@@ -60,9 +60,9 @@ class FakeSettingsService implements SettingsService {
         stationMdns: config.stationMdns ?? _config.stationMdns,
         stationSsid: config.stationSsid ?? _config.stationSsid,
         stationPassword: List.filled(
-                (config.stationPassword ?? _config.stationPassword)!.length,
-                '*')
-            .join(),
+          (config.stationPassword ?? _config.stationPassword)!.length,
+          '*',
+        ).join(),
         stationAlternativeSsid:
             config.stationAlternativeSsid ?? _config.stationAlternativeSsid,
         stationAlternativePassword: List.filled(

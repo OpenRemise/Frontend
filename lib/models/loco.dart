@@ -21,11 +21,14 @@ part 'loco.g.dart';
 
 /// \todo document
 @freezed
-abstract class Loco with _$Loco {
+abstract class Loco with _$Loco implements Comparable<Loco> {
+  const Loco._();
+
   const factory Loco({
     @JsonKey(name: 'address') required int address,
     @Default('') @JsonKey(name: 'name', defaultValue: '') String name,
     @Default(0) @JsonKey(name: 'mode', defaultValue: 0) int mode,
+    @Default(false) @JsonKey(name: 'busy', defaultValue: false) bool busy,
     @Default(4) @JsonKey(name: 'speed_steps', defaultValue: 4) int speedSteps,
     @JsonKey(name: 'rvvvvvvv') int? rvvvvvvv,
     @JsonKey(name: 'f31_0') int? f31_0,
@@ -33,4 +36,9 @@ abstract class Loco with _$Loco {
   }) = _Loco;
 
   factory Loco.fromJson(Map<String, Object?> json) => _$LocoFromJson(json);
+
+  @override
+  int compareTo(Loco other) {
+    return address.compareTo(other.address);
+  }
 }

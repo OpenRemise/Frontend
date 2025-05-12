@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/providers/controller_windows.dart';
 import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
-import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/widgets/delete_loco_dialog.dart';
@@ -81,13 +81,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 icon: const Icon(Icons.delete),
               ),
               IconButton(
-                onPressed: () {
-                  // Clear index, otherwise cab might do B$
-                  ref
-                      .read(selectedLocoIndexProvider.notifier)
-                      .update((state) => null);
-                  ref.read(dccProvider.notifier).fetchLocos();
-                },
+                onPressed: () => ref.read(dccProvider.notifier).fetchLocos(),
                 tooltip: 'Refresh',
                 icon: const Icon(Icons.refresh),
               ),
@@ -117,15 +111,17 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
   /// \todo document
   Widget _tile(int index) {
     final locos = ref.watch(locosProvider);
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
+    final loco = locos.elementAt(index);
+    final active = ref
+        .watch(controllerWindowsProvider)
+        .any((w) => w.locoAddress == loco.address);
 
     return Card.outlined(
       child: ListTile(
-        leading:
-            Icon(index == selectedIndex ? Icons.train : Icons.train_outlined),
-        title: Text(locos[index].name),
+        leading: Icon(active ? Icons.train : Icons.train_outlined),
+        title: Text(loco.name),
         subtitle: Text(
-          'Address ${locos[index].address}',
+          'Address ${loco.address}',
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -133,23 +129,26 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
             IconButton(
               onPressed: () => showDialog(
                 context: context,
-                builder: (_) => EditLocoDialog(index),
+                builder: (_) => EditLocoDialog(loco.address),
               ),
               icon: const Icon(Icons.edit),
             ),
             IconButton(
               onPressed: () => showDialog(
                 context: context,
-                builder: (_) => DeleteLocoDialog(index),
+                builder: (_) => DeleteLocoDialog(loco.address),
               ),
               icon: const Icon(Icons.delete),
             ),
           ],
         ),
-        onTap: () => ref
-            .read(selectedLocoIndexProvider.notifier)
-            .update((state) => selectedIndex != index ? index : null),
-        selected: selectedIndex == index,
+        onTap: () => active
+            ? ref
+                .read(controllerWindowsProvider.notifier)
+                .deleteLoco(loco.address)
+            : ref
+                .read(controllerWindowsProvider.notifier)
+                .updateLoco(loco.address, loco),
       ),
     );
   }

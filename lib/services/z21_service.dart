@@ -352,7 +352,7 @@ enum BroadcastFlag {
   const BroadcastFlag(this.value);
 
   factory BroadcastFlag.fromInt(int i) => values.firstWhere(
-        (e) => e.value == i,
+        (f) => f.value == i,
         orElse: () => BroadcastFlag.DrivingSwitching,
       );
 }

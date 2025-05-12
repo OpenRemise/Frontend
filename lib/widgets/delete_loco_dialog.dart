@@ -15,15 +15,15 @@
 
 import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
-import 'package:Frontend/providers/selected_loco_index.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
 class DeleteLocoDialog extends ConsumerStatefulWidget {
-  final int? _index;
+  final int? _address;
 
-  const DeleteLocoDialog(int? index, {super.key}) : _index = index;
+  const DeleteLocoDialog(this._address, {super.key});
 
   @override
   ConsumerState<DeleteLocoDialog> createState() => _DeleteLocoDialogState();
@@ -35,8 +35,9 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
   Widget build(BuildContext context) {
     // Don't watch provider here, otherwise this widget might get rebuilt with an invalid index
     // Please be aware that this contradicts the documentation
-    final locos = ref.read(locosProvider);
-    final loco = widget._index != null ? locos[widget._index!] : null;
+    final loco = ref
+        .read(locosProvider)
+        .firstWhereOrNull((l) => l.address == widget._address);
 
     return AlertDialog(
       title: Text('Delete ${loco == null ? 'all' : loco.name}'),
@@ -47,20 +48,11 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
         ),
         TextButton(
           onPressed: () {
-            if (loco != null) {
-              ref.read(dccProvider.notifier).deleteLoco(loco.address);
-            } else {
+            if (loco == null) {
               ref.read(dccProvider.notifier).deleteLocos();
+            } else {
+              ref.read(dccProvider.notifier).deleteLoco(loco.address);
             }
-
-            // Deselect
-            if (loco == null ||
-                widget._index == ref.read(selectedLocoIndexProvider)) {
-              ref
-                  .read(selectedLocoIndexProvider.notifier)
-                  .update((state) => null);
-            }
-
             Navigator.pop(context, true);
           },
           child: const Text('OK'),

@@ -13,7 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore_for_file: invalid_annotation_target
 
-/// \todo document
-final selectedLocoIndexProvider = StateProvider<int?>((_) => null);
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'controller_window.freezed.dart';
+
+@freezed
+abstract class ControllerWindow
+    with _$ControllerWindow
+    implements Comparable<ControllerWindow> {
+  const ControllerWindow._();
+
+  const factory ControllerWindow({Key? key, @Default(0) int locoAddress}) =
+      _ControllerWindow;
+
+  @override
+  int compareTo(ControllerWindow other) {
+    return locoAddress.compareTo(other.locoAddress);
+  }
+}

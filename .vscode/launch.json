@@ -29,6 +29,20 @@
         "--dart-define",
         "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
       ]
+    },
+    {
+      "name": "Frontend (release mode) OPENREMISE_FRONTEND_DOMAIN=remise.local OPENREMISE_FRONTEND_FAKE_SERVICES=true OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "args": [
+        "--dart-define",
+        "OPENREMISE_FRONTEND_DOMAIN=remise.local",
+        "--dart-define",
+        "OPENREMISE_FRONTEND_FAKE_SERVICES=true",
+        "--dart-define",
+        "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
+      ]
     }
   ]
 }

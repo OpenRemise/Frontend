@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:collection';
+
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/services/dcc_service.dart';
@@ -24,16 +26,16 @@ class FakeDccService implements DccService {
 
   FakeDccService(this.ref);
 
-  List<Loco> _readFile() {
+  SplayTreeSet<Loco> _readFile() {
     return ref.read(locosProvider);
   }
 
-  void _writeFile(List<Loco> locos) {
+  void _writeFile(SplayTreeSet<Loco> locos) {
     ref.read(locosProvider.notifier).updateLocos(locos);
   }
 
   @override
-  Future<List<Loco>> fetchLocos() {
+  Future<SplayTreeSet<Loco>> fetchLocos() {
     return Future.delayed(const Duration(seconds: 1), () => _readFile());
   }
 
@@ -42,14 +44,14 @@ class FakeDccService implements DccService {
     return Future.delayed(
       const Duration(milliseconds: 250),
       () => _readFile().firstWhere(
-        (loco) => loco.address == address,
+        (l) => l.address == address,
         orElse: () => throw Exception('Failed to fetch loco'),
       ),
     );
   }
 
   @override
-  Future<void> updateLocos(List<Loco> locos) {
+  Future<void> updateLocos(SplayTreeSet<Loco> locos) {
     return Future.delayed(const Duration(seconds: 1), () => _writeFile(locos));
   }
 
@@ -60,7 +62,10 @@ class FakeDccService implements DccService {
 
   @override
   Future<void> deleteLocos() {
-    return Future.delayed(const Duration(seconds: 1), () => _writeFile([]));
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => _writeFile(SplayTreeSet<Loco>()),
+    );
   }
 
   @override

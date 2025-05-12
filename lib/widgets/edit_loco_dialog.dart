@@ -16,15 +16,16 @@
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
 class EditLocoDialog extends ConsumerStatefulWidget {
-  final int? _index;
+  final int? _address;
 
-  const EditLocoDialog(int? index, {super.key}) : _index = index;
+  const EditLocoDialog(this._address, {super.key});
 
   @override
   ConsumerState<EditLocoDialog> createState() => _EditLocoDialogState();
@@ -38,7 +39,7 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
   @override
   Widget build(BuildContext context) {
     final locos = ref.watch(locosProvider);
-    final loco = widget._index != null ? locos[widget._index!] : null;
+    final loco = locos.firstWhereOrNull((l) => l.address == widget._address);
 
     return AlertDialog(
       title: loco == null ? const Text('Add loco') : const Text('Edit loco'),
@@ -75,7 +76,8 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
                 }
                 // Only allow new address if it's not already in use
                 else if (loco?.address != address &&
-                    locos.indexWhere((l) => l.address == address) >= 0) {
+                    locos.firstWhereOrNull((l) => l.address == address) !=
+                        null) {
                   return 'Address already in use';
                 }
                 return null;
@@ -123,16 +125,20 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               debugPrint(_formKey.currentState?.value.toString());
               final map = _formKey.currentState!.value;
-              ref.read(dccProvider.notifier).updateLoco(
-                    loco?.address ?? map['address'],
-                    Loco(
-                      address: map['address'],
-                      name: map['name'],
-                      speedSteps: map['speed_steps'],
-                      rvvvvvvv: loco?.rvvvvvvv ?? 0x80,
-                      f31_0: loco?.f31_0 ?? 0,
-                    ),
-                  );
+              if (loco == null) {
+                ref
+                    .read(dccProvider.notifier)
+                    .updateLoco(map['address'], Loco.fromJson(map));
+              } else {
+                ref.read(dccProvider.notifier).updateLoco(
+                      loco.address,
+                      loco.copyWith(
+                        address: map['address'],
+                        name: map['name'],
+                        speedSteps: map['speed_steps'],
+                      ),
+                    );
+              }
               Navigator.pop(context);
             } else {
               debugPrint(_formKey.currentState?.value.toString());

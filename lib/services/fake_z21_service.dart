@@ -102,7 +102,7 @@ class FakeZ21Service implements Z21Service {
     Future.delayed(const Duration(milliseconds: 200), () {
       final locos = ref.read(locosProvider);
       final loco = locos.firstWhere(
-        (loco) => loco.address == locoAddress,
+        (l) => l.address == locoAddress,
         orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
       );
       if (_controller.isClosed) return;
@@ -125,7 +125,7 @@ class FakeZ21Service implements Z21Service {
   void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv) {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
+      (l) => l.address == locoAddress,
       orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
     );
     ref.read(locosProvider.notifier).updateLoco(
@@ -138,7 +138,7 @@ class FakeZ21Service implements Z21Service {
   void lanXSetLocoFunction(int locoAddress, int state, int index) {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
+      (l) => l.address == locoAddress,
       orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
     );
     ref.read(locosProvider.notifier).updateLoco(
@@ -155,7 +155,7 @@ class FakeZ21Service implements Z21Service {
   void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte) {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
+      (l) => l.address == locoAddress,
       orElse: () => Loco(address: 0),
     );
     if (loco.address != 0) _cvs[cvAddress] = byte;
@@ -165,7 +165,7 @@ class FakeZ21Service implements Z21Service {
   void lanXCvPomReadByte(int locoAddress, int cvAddress) async {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
+      (l) => l.address == locoAddress,
       orElse: () => Loco(address: 0),
     );
     await Future.delayed(
@@ -192,7 +192,7 @@ class FakeZ21Service implements Z21Service {
   void lanRailComGetData(int locoAddress) async {
     final locos = ref.read(locosProvider);
     final loco = locos.firstWhere(
-      (loco) => loco.address == locoAddress,
+      (l) => l.address == locoAddress,
       orElse: () => Loco(address: 0),
     );
     final speed = decodeRvvvvvvv(loco.speedSteps, loco.rvvvvvvv ?? 0x80);
