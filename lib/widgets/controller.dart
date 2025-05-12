@@ -14,12 +14,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:collection';
 
-import 'package:Frontend/constants/open_remise_icons.dart';
 import 'package:Frontend/models/bidi.dart';
+import 'package:Frontend/models/loco.dart';
+import 'package:Frontend/providers/controller_windows.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/locos.dart';
-import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/services/z21_service.dart';
@@ -28,17 +29,19 @@ import 'package:Frontend/widgets/edit_loco_dialog.dart';
 import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:Frontend/widgets/png_picture.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_grid_button/flutter_grid_button.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
 /// \todo document
 class Controller extends ConsumerStatefulWidget {
-  const Controller({super.key});
+  final int address;
+
+  const Controller({super.key, required this.address});
 
   @override
   ConsumerState<Controller> createState() => _ControllerState();
@@ -46,7 +49,6 @@ class Controller extends ConsumerStatefulWidget {
 
 /// \todo document
 class _ControllerState extends ConsumerState<Controller> {
-  int _animatedToggleSwitchValue = 0;
   int _rvvvvvvv = 0;
   int _f31_0 = 0;
 
@@ -69,13 +71,6 @@ class _ControllerState extends ConsumerState<Controller> {
   bool _initialized = false;
 
   /// \todo document
-  final _maskFormatter = MaskTextInputFormatter(
-    mask: 'CV### = ###',
-    filter: {'#': RegExp(r'[0-9]')},
-    type: MaskAutoCompletionType.lazy,
-  );
-
-  /// \todo document
   @override
   void initState() {
     super.initState();
@@ -92,12 +87,8 @@ class _ControllerState extends ConsumerState<Controller> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    assert(selectedIndex != null);
-
-    final locos = ref.read(locosProvider);
-    final loco = locos[selectedIndex!];
-
+    final locos = ref.watch(locosProvider);
+    final loco = locos.firstWhere((l) => l.address == widget.address);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
 
@@ -107,7 +98,9 @@ class _ControllerState extends ConsumerState<Controller> {
       key: ValueKey(loco.address),
       stream: z21.stream.where(
         (command) => switch (command) {
-          LanXLocoInfo() || LanRailComDataChanged() => true,
+          LanXLocoInfo(locoAddress: var a) when a == loco.address => true,
+          LanRailComDataChanged(locoAddress: var a) when a == loco.address =>
+            true,
           _ => false
         },
       ),
@@ -120,7 +113,6 @@ class _ControllerState extends ConsumerState<Controller> {
           }
           // Snapshot contains LAN_X_LOCO_INFO and we are not initialized
           else if (snapshot.data is LanXLocoInfo && !_initialized) {
-            debugPrint('initialize $loco');
             final locoInfo = snapshot.data! as LanXLocoInfo;
             final maxWeight = locoInfo.speedSteps == 0
                 ? 14
@@ -182,22 +174,6 @@ class _ControllerState extends ConsumerState<Controller> {
                   selectedIcon: const Icon(Icons.power_off),
                   icon: const Icon(Icons.power),
                 ),
-                title: kDebugMode
-                    ? ToggleButtons(
-                        onPressed: (index) =>
-                            setState(() => _animatedToggleSwitchValue = index),
-                        isSelected: [
-                          _animatedToggleSwitchValue == 0,
-                          _animatedToggleSwitchValue == 1,
-                        ],
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(12)),
-                        children: const [
-                          Icon(Icons.train),
-                          Icon(OpenRemiseIcons.accessory),
-                        ],
-                      )
-                    : null,
                 actions: [
                   IconButton(
                     onPressed: () => showDialog(
@@ -210,7 +186,7 @@ class _ControllerState extends ConsumerState<Controller> {
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => EditLocoDialog(selectedIndex),
+                      builder: (_) => EditLocoDialog(loco.address),
                     ),
                     tooltip: 'Edit',
                     icon: const Icon(Icons.edit),
@@ -218,15 +194,15 @@ class _ControllerState extends ConsumerState<Controller> {
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => DeleteLocoDialog(selectedIndex),
+                      builder: (_) => DeleteLocoDialog(loco.address),
                     ),
                     tooltip: 'Delete',
                     icon: const Icon(Icons.delete),
                   ),
                   IconButton(
                     onPressed: () => ref
-                        .read(selectedLocoIndexProvider.notifier)
-                        .update((state) => null),
+                        .read(controllerWindowsProvider.notifier)
+                        .deleteLoco(loco.address),
                     tooltip: 'Close',
                     icon: const Icon(Icons.close),
                   ),
@@ -258,12 +234,12 @@ class _ControllerState extends ConsumerState<Controller> {
                             columnGap: 8,
                             rowGap: 8,
                             children: [
-                              _locos().inGridArea('locos'),
+                              _locos(loco).inGridArea('locos'),
                               _image().inGridArea('image'),
                               _cv().inGridArea('cv'),
-                              _bidi().inGridArea('bidi'),
-                              _slider().inGridArea('slider'),
-                              _buttons().inGridArea('buttons'),
+                              _bidi(loco).inGridArea('bidi'),
+                              _slider(loco).inGridArea('slider'),
+                              _buttons(loco).inGridArea('buttons'),
                             ],
                           )
                         : const LoadingGif(),
@@ -276,27 +252,40 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  Widget _locos() {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    final locos = ref.watch(locosProvider);
+  Widget _locos(Loco loco) {
+    // Only show locos which are not already open in other controllers
+    final freeLocos = SplayTreeSet<Loco>.from(
+      ref.watch(locosProvider).where(
+            (l) =>
+                l.address == loco.address ||
+                ref
+                    .watch(controllerWindowsProvider)
+                    .none((w) => w.locoAddress == l.address),
+          ),
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return DropdownMenu(
+        return DropdownMenu<Loco>(
           width: constraints.maxWidth,
           inputDecorationTheme:
               const InputDecorationTheme(border: InputBorder.none),
-          initialSelection: selectedIndex,
-          onSelected: (value) => ref
-              .read(selectedLocoIndexProvider.notifier)
-              .update((state) => value),
-          dropdownMenuEntries: [
-            for (var i = 0; i < locos.length; ++i)
-              DropdownMenuEntry(
-                value: i,
-                label: '${locos[i].name} (${locos[i].address})',
-              ),
-          ],
+          initialSelection: loco,
+          onSelected: (selectedLoco) {
+            if (selectedLoco != null && selectedLoco.address != loco.address) {
+              ref
+                  .read(controllerWindowsProvider.notifier)
+                  .updateLoco(loco.address, selectedLoco);
+            }
+          },
+          dropdownMenuEntries: freeLocos
+              .map(
+                (loco) => DropdownMenuEntry(
+                  value: loco,
+                  label: '${loco.name} (${loco.address})',
+                ),
+              )
+              .toList(),
         );
       },
     );
@@ -310,10 +299,7 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  Widget _bidi() {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    final locos = ref.watch(locosProvider);
-    final loco = locos[selectedIndex!];
+  Widget _bidi(Loco loco) {
     final railComData = LanRailComDataChanged(
       locoAddress: loco.address,
       receiveCounter: loco.bidi?.receiveCounter ?? 0,
@@ -378,11 +364,8 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  Widget _slider() {
+  Widget _slider(Loco loco) {
     final darkMode = ref.watch(darkModeProvider);
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    final locos = ref.read(locosProvider);
-    final loco = locos[selectedIndex!];
     final z21 = ref.watch(z21ServiceProvider);
 
     return GestureDetector(
@@ -453,12 +436,7 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  Widget _buttons() {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    final locos = ref.read(locosProvider);
-    final loco = locos[selectedIndex!];
-    final z21 = ref.watch(z21ServiceProvider);
-
+  Widget _buttons(Loco loco) {
     return Listener(
       onPointerDown: (event) =>
           _textFieldHadFocusBeforeGridButton = _focusNode.hasFocus,
@@ -517,8 +495,8 @@ class _ControllerState extends ConsumerState<Controller> {
               _ => throw UnimplementedError(),
             },
             const GridButtonItem(
-              title: 'MAN',
-              textStyle: const TextStyle(fontFamily: 'DSEG14'),
+              title: kDebugMode ? 'MAN' : '',
+              textStyle: TextStyle(fontFamily: 'DSEG14'),
               value: -7,
             ),
           ],
@@ -544,10 +522,16 @@ class _ControllerState extends ConsumerState<Controller> {
               3 => _FItem(39, true),
               _ => throw UnimplementedError(),
             },
-            const GridButtonItem(value: -11, child: Icon(Icons.backspace)),
+            const GridButtonItem(
+              value: -11,
+              child: Icon(kDebugMode ? Icons.backspace : null),
+            ),
           ],
           [
-            const GridButtonItem(value: -12, child: Icon(Icons.add)),
+            const GridButtonItem(
+              value: -12,
+              child: Icon(kDebugMode ? Icons.add : null),
+            ),
             switch (_buttonsIndex) {
               0 => _FItem(0),
               1 => _FItem(10),
@@ -555,11 +539,29 @@ class _ControllerState extends ConsumerState<Controller> {
               3 => _FItem(30),
               _ => throw UnimplementedError(),
             },
-            const GridButtonItem(value: -14, child: Icon(Icons.remove)),
-            const GridButtonItem(value: -15, child: Icon(Icons.check_circle)),
+            const GridButtonItem(
+              value: -14,
+              child: Icon(kDebugMode ? Icons.remove : null),
+            ),
+            const GridButtonItem(
+              value: -15,
+              child: Icon(kDebugMode ? Icons.check_circle : null),
+            ),
           ],
         ],
-        onPressed: _buttonsPressed,
+        onPressed: (value) {
+          // Only re-focus if it *had* focus before and currently doesn't
+          if (_textFieldHadFocusBeforeGridButton) {
+            FocusScope.of(context).requestFocus(_focusNode);
+
+            // CV?
+            if (kDebugMode && value >= 0 || value == -11 || value == -15) {
+              return _cvButton(loco, value);
+            }
+          }
+          //
+          return _functionButton(loco, value);
+        },
         hideSurroundingBorder: true,
       ),
     );
@@ -577,22 +579,7 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  void _buttonsPressed(dynamic value) {
-    // Only re-focus if it *had* focus before and currently doesn't
-    if (_textFieldHadFocusBeforeGridButton) {
-      FocusScope.of(context).requestFocus(_focusNode);
-
-      // CV?
-      if (kDebugMode && value >= 0 || value == -11 || value == -15) {
-        return _cvButton(value);
-      }
-    }
-    //
-    return _functionButton(value);
-  }
-
-  /// \todo document
-  void _cvButton(int value) {
+  void _cvButton(Loco loco, int value) {
     debugPrint('is text');
 
     switch (value) {
@@ -616,10 +603,10 @@ class _ControllerState extends ConsumerState<Controller> {
   }
 
   /// \todo document
-  void _functionButton(int value) {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
+  void _functionButton(Loco loco, int value) {
+    final selectedIndex = 0;
     final locos = ref.read(locosProvider);
-    final loco = locos[selectedIndex!];
+    final loco = locos.elementAt(selectedIndex);
     final z21 = ref.watch(z21ServiceProvider);
 
     // debugPrint("ain't text");
@@ -697,10 +684,7 @@ class _ControllerState extends ConsumerState<Controller> {
 
   /// \todo document
   void _railComData(_) {
-    final selectedIndex = ref.watch(selectedLocoIndexProvider);
-    final locos = ref.read(locosProvider);
-    final loco = locos[selectedIndex!];
     final z21 = ref.watch(z21ServiceProvider);
-    z21.lanRailComGetData(loco.address);
+    z21.lanRailComGetData(widget.address);
   }
 }

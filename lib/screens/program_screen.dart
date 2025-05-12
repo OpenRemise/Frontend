@@ -51,11 +51,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     return StreamBuilder(
       stream: z21.stream.where(
         (command) => switch (command) {
-          LanXCvNackSc() ||
-          LanXCvNack() ||
-          LanXStatusChanged() ||
-          LanXCvResult() =>
-            true,
+          LanXCvNackSc() => true,
+          LanXCvNack() => true,
+          LanXStatusChanged() => true,
+          LanXCvResult() => true,
           _ => false
         },
       ),

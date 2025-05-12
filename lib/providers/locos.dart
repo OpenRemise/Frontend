@@ -13,7 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:collection';
+
 import 'package:Frontend/models/loco.dart';
+import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'locos.g.dart';
@@ -23,10 +26,10 @@ part 'locos.g.dart';
 class Locos extends _$Locos {
   /// \todo document
   @override
-  List<Loco> build() {
+  SplayTreeSet<Loco> build() {
     return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
             'true'
-        ? [
+        ? SplayTreeSet<Loco>.of([
             Loco(address: 2, name: 'ET22'),
             Loco(address: 3, name: 'Vectron'),
             Loco(address: 6, name: 'E2'),
@@ -45,42 +48,30 @@ class Locos extends _$Locos {
             Loco(address: 1337, name: 'Reihe 498'),
             Loco(address: 1400, name: 'Reihe 5022'),
             Loco(address: 2811, name: 'ASF EL 16'),
-          ]
-        : List.empty();
+          ])
+        : SplayTreeSet<Loco>();
   }
 
   /// \todo document
-  void updateLocos(List<Loco> locos) {
-    state = locos..sort((a, b) => a.address.compareTo(b.address));
+  void updateLocos(SplayTreeSet<Loco> locos) {
+    state = locos;
   }
 
   /// \todo document
   void updateLoco(int address, Loco loco) {
-    final index =
-        state.indexWhere((previousLoco) => previousLoco.address == address);
-    // Update
-    if (index >= 0) {
-      state = [
-        for (var i = 0; i < state.length; ++i)
-          if (i == index) loco else state[i],
-      ]..sort((a, b) => a.address.compareTo(b.address));
-    }
-    // Create
-    else {
-      state = [...state, loco]..sort((a, b) => a.address.compareTo(b.address));
-    }
+    state = SplayTreeSet<Loco>.from(state)
+      ..remove(state.firstWhereOrNull((l) => l.address == address))
+      ..add(loco);
   }
 
   /// \todo document
   void deleteLocos() {
-    state = List.empty();
+    state = SplayTreeSet<Loco>();
   }
 
   /// \todo document
   void deleteLoco(int address) {
-    state = [
-      for (final loco in state)
-        if (loco.address != address) loco,
-    ];
+    state = SplayTreeSet<Loco>.from(state)
+      ..remove(state.firstWhereOrNull((l) => l.address == address));
   }
 }

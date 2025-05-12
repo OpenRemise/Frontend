@@ -14,13 +14,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:Frontend/constants/controller_size.dart';
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
+import 'package:Frontend/models/controller_window.dart';
 import 'package:Frontend/prefs.dart';
+import 'package:Frontend/providers/controller_windows.dart';
 import 'package:Frontend/providers/dark_mode.dart';
-import 'package:Frontend/providers/selected_loco_index.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
@@ -30,7 +32,9 @@ import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
 import 'package:Frontend/widgets/controller.dart';
+import 'package:Frontend/widgets/positioned_draggable.dart';
 import 'package:Frontend/widgets/short_circuit_dialog.dart';
+import 'package:collection/collection.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +145,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   bool _smallWidth = true;
   Key _layoutKey = UniqueKey();
   int _index = 0;
-  Offset _controllerPosition = const Offset(0, 0);
 
   final List<NavigationDestination> _destinations = <NavigationDestination>[
     const NavigationDestination(
@@ -213,6 +216,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
+    final controllerWindows = ref.watch(controllerWindowsProvider);
 
     if (smallWidth != _smallWidth) {
       _smallWidth = smallWidth;
@@ -262,19 +266,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        child: _smallWidth ? _smallLayout() : _largeLayout(),
+        child: _smallWidth
+            ? _smallLayout(controllerWindows)
+            : _largeLayout(controllerWindows),
       ),
     );
   }
 
   /// \todo document
-  Widget _smallLayout() {
+  Widget _smallLayout(SplayTreeSet<ControllerWindow> controllerWindows) {
+    final controllerWindow = controllerWindows.firstOrNull;
+
     return Column(
       key: _layoutKey,
       children: [
         Expanded(
-          child: ref.watch(selectedLocoIndexProvider) != null && _index == 1
-              ? const Controller()
+          child: _index == 1 && controllerWindow != null
+              ? Controller(
+                  key: ValueKey(controllerWindow.locoAddress),
+                  address: controllerWindow.locoAddress,
+                )
               : _pages[_index],
         ),
         NavigationBar(
@@ -287,7 +298,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _largeLayout() {
+  Widget _largeLayout(SplayTreeSet<ControllerWindow> controllerWindows) {
     return Stack(
       key: _layoutKey,
       children: [
@@ -314,32 +325,27 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
-        if (ref.watch(selectedLocoIndexProvider) != null)
-          Positioned(
-            left: _controllerPosition.dx,
-            top: _controllerPosition.dy,
-            child: GestureDetector(
-              onPanUpdate: (details) => setState(
-                () => _controllerPosition = Offset(
-                  _controllerPosition.dx + details.delta.dx,
-                  _controllerPosition.dy + details.delta.dy,
+        ...controllerWindows.map(
+          (controllerWindow) => PositionedDraggable(
+            key: controllerWindow.key,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: Border.all(
+                  color: Theme.of(context).dividerColor,
+                  width: 1,
                 ),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                width: controllerSize.width,
-                height: controllerSize.height,
-                child: const Controller(),
+              width: controllerSize.width,
+              height: controllerSize.height,
+              child: Controller(
+                key: ValueKey(controllerWindow.locoAddress),
+                address: controllerWindow.locoAddress,
               ),
             ),
           ),
+        ),
       ],
     );
   }
