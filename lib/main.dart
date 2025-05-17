@@ -19,9 +19,9 @@ import 'dart:collection';
 import 'package:Frontend/constants/controller_size.dart';
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
-import 'package:Frontend/models/controller_window.dart';
+import 'package:Frontend/models/controller.dart';
 import 'package:Frontend/prefs.dart';
-import 'package:Frontend/providers/controller_windows.dart';
+import 'package:Frontend/providers/loco_controllers.dart';
 import 'package:Frontend/providers/dark_mode.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -31,7 +31,7 @@ import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
-import 'package:Frontend/widgets/controller.dart';
+import 'package:Frontend/widgets/loco_controller.dart';
 import 'package:Frontend/widgets/positioned_draggable.dart';
 import 'package:Frontend/widgets/short_circuit_dialog.dart';
 import 'package:collection/collection.dart';
@@ -216,7 +216,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
-    final controllerWindows = ref.watch(controllerWindowsProvider);
+    final locoControllers = ref.watch(locoControllersProvider);
 
     if (smallWidth != _smallWidth) {
       _smallWidth = smallWidth;
@@ -267,24 +267,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _smallWidth
-            ? _smallLayout(controllerWindows)
-            : _largeLayout(controllerWindows),
+            ? _smallLayout(locoControllers)
+            : _largeLayout(locoControllers),
       ),
     );
   }
 
   /// \todo document
-  Widget _smallLayout(SplayTreeSet<ControllerWindow> controllerWindows) {
-    final controllerWindow = controllerWindows.firstOrNull;
+  Widget _smallLayout(SplayTreeSet<Controller> locoControllers) {
+    final locoController = locoControllers.firstOrNull;
 
     return Column(
       key: _layoutKey,
       children: [
         Expanded(
-          child: _index == 1 && controllerWindow != null
-              ? Controller(
-                  key: ValueKey(controllerWindow.locoAddress),
-                  address: controllerWindow.locoAddress,
+          child: _index == 1 && locoController != null
+              ? LocoController(
+                  key: ValueKey(locoController.address),
+                  address: locoController.address,
                 )
               : _pages[_index],
         ),
@@ -298,7 +298,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _largeLayout(SplayTreeSet<ControllerWindow> controllerWindows) {
+  Widget _largeLayout(SplayTreeSet<Controller> locoControllers) {
     return Stack(
       key: _layoutKey,
       children: [
@@ -325,9 +325,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
-        ...controllerWindows.map(
-          (controllerWindow) => PositionedDraggable(
-            key: controllerWindow.key,
+        ...locoControllers.map(
+          (locoController) => PositionedDraggable(
+            key: locoController.key,
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
@@ -339,9 +339,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ),
               width: controllerSize.width,
               height: controllerSize.height,
-              child: Controller(
-                key: ValueKey(controllerWindow.locoAddress),
-                address: controllerWindow.locoAddress,
+              child: LocoController(
+                key: ValueKey(locoController.address),
+                address: locoController.address,
               ),
             ),
           ),

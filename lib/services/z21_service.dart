@@ -31,12 +31,12 @@ int bigEndianData2int16(data) {
 
 /// \todo document
 int littleEndianData2uint16(Uint8List data) {
-  return data[1] << 8 | data[1] << 0;
+  return data[1] << 8 | data[0] << 0;
 }
 
 /// \todo document
 int littleEndianData2uint32(Uint8List data) {
-  return data[3] << 24 | data[2] << 16 | data[1] << 8 | data[1] << 0;
+  return data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0] << 0;
 }
 
 /// \todo document

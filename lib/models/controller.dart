@@ -18,19 +18,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'controller_window.freezed.dart';
+part 'controller.freezed.dart';
 
 @freezed
-abstract class ControllerWindow
-    with _$ControllerWindow
-    implements Comparable<ControllerWindow> {
-  const ControllerWindow._();
+abstract class Controller with _$Controller implements Comparable<Controller> {
+  const Controller._();
 
-  const factory ControllerWindow({Key? key, @Default(0) int locoAddress}) =
-      _ControllerWindow;
+  const factory Controller({Key? key, @Default(0) int address}) = _Controller;
 
   @override
-  int compareTo(ControllerWindow other) {
-    return locoAddress.compareTo(other.locoAddress);
+  int compareTo(Controller other) {
+    return address.compareTo(other.address);
   }
 }

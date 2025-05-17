@@ -15,19 +15,19 @@
 
 import 'dart:collection';
 
-import 'package:Frontend/models/controller_window.dart';
+import 'package:Frontend/models/controller.dart';
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'controller_windows.g.dart';
+part 'loco_controllers.g.dart';
 
 @Riverpod(keepAlive: true)
-class ControllerWindows extends _$ControllerWindows {
+class LocoControllers extends _$LocoControllers {
   @override
-  SplayTreeSet<ControllerWindow> build() {
+  SplayTreeSet<Controller> build() {
     // Remove deleted addresses
     ref.listen<SplayTreeSet<Loco>>(locosProvider, (previous, next) {
       final previousAddresses = previous?.map((l) => l.address).toSet() ?? {};
@@ -36,7 +36,7 @@ class ControllerWindows extends _$ControllerWindows {
       final removed = previousAddresses.difference(nextAddresses);
       final added = nextAddresses.difference(previousAddresses);
 
-      final newState = SplayTreeSet<ControllerWindow>.from(state);
+      final newState = SplayTreeSet<Controller>.from(state);
 
       for (final removedAddress in removed) {
         // Possible address change
@@ -44,49 +44,49 @@ class ControllerWindows extends _$ControllerWindows {
             added.length == 1 &&
             previousAddresses.length == nextAddresses.length) {
           // Address change detected
-          final window =
-              state.firstWhereOrNull((w) => w.locoAddress == removedAddress);
-          if (window != null) {
+          final controller =
+              state.firstWhereOrNull((c) => c.address == removedAddress);
+          if (controller != null) {
             newState
-              ..remove(window)
-              ..add(window.copyWith(locoAddress: added.first));
+              ..remove(controller)
+              ..add(controller.copyWith(address: added.first));
           }
         } else {
           // Normal removal
-          newState.removeWhere((w) => w.locoAddress == removedAddress);
+          newState.removeWhere((c) => c.address == removedAddress);
         }
       }
 
       state = newState;
     });
 
-    return SplayTreeSet<ControllerWindow>();
+    return SplayTreeSet<Controller>();
   }
 
   /// \todo document
   void updateLoco(int address, Loco loco) {
-    final window = state.firstWhereOrNull((w) => w.locoAddress == address);
+    final controller = state.firstWhereOrNull((c) => c.address == address);
     // Add
-    if (window == null) {
-      state = SplayTreeSet<ControllerWindow>.from(state)
-        ..add(ControllerWindow(key: UniqueKey(), locoAddress: address));
+    if (controller == null) {
+      state = SplayTreeSet<Controller>.from(state)
+        ..add(Controller(key: UniqueKey(), address: address));
     }
     // Update
     else if (address != loco.address) {
-      state = SplayTreeSet<ControllerWindow>.from(state)
-        ..remove(window)
-        ..add(window.copyWith(locoAddress: loco.address));
+      state = SplayTreeSet<Controller>.from(state)
+        ..remove(controller)
+        ..add(controller.copyWith(address: loco.address));
     }
   }
 
   /// \todo document
   void deleteLocos() {
-    state = SplayTreeSet<ControllerWindow>();
+    state = SplayTreeSet<Controller>();
   }
 
   /// \todo document
   void deleteLoco(int address) {
-    state = SplayTreeSet<ControllerWindow>.from(state)
-      ..remove(state.firstWhereOrNull((w) => w.locoAddress == address));
+    state = SplayTreeSet<Controller>.from(state)
+      ..remove(state.firstWhereOrNull((c) => c.address == address));
   }
 }
