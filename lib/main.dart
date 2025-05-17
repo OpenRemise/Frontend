@@ -14,15 +14,15 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:Frontend/constants/controller_size.dart';
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
 import 'package:Frontend/models/controller.dart';
+import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/prefs.dart';
-import 'package:Frontend/providers/loco_controllers.dart';
 import 'package:Frontend/providers/dark_mode.dart';
+import 'package:Frontend/providers/loco_controllers.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
@@ -274,7 +274,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _smallLayout(SplayTreeSet<Controller> locoControllers) {
+  Widget _smallLayout(Set<Controller> locoControllers) {
     final locoController = locoControllers.firstOrNull;
 
     return Column(
@@ -298,7 +298,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _largeLayout(SplayTreeSet<Controller> locoControllers) {
+  Widget _largeLayout(Set<Controller> locoControllers) {
     return Stack(
       key: _layoutKey,
       children: [
@@ -326,25 +326,34 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ],
         ),
         ...locoControllers.map(
-          (locoController) => PositionedDraggable(
-            key: locoController.key,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: Border.all(
-                  color: Theme.of(context).dividerColor,
-                  width: 1,
+          (locoController) {
+            moveToTop() =>
+                ref.read(locoControllersProvider.notifier).updateLoco(
+                      locoController.address,
+                      Loco(address: locoController.address),
+                    );
+            return PositionedDraggable(
+              key: locoController.key,
+              onTap: moveToTop,
+              onPanUpdate: (_) => moveToTop(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                width: controllerSize.width,
+                height: controllerSize.height,
+                child: LocoController(
+                  key: ValueKey(locoController.address),
+                  address: locoController.address,
+                ),
               ),
-              width: controllerSize.width,
-              height: controllerSize.height,
-              child: LocoController(
-                key: ValueKey(locoController.address),
-                address: locoController.address,
-              ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
