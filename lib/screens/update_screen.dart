@@ -497,7 +497,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       content: content,
       stepStyle: StepStyle(
         color: Theme.of(context).colorScheme.primary,
-        indexStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        indexStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+          fontSize: 14 / ref.watch(textScalerProvider),
+        ),
       ),
     );
   }
