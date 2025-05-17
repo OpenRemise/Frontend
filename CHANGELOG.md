@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+- Bugfix various controller issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+
 ## 0.2.0
 - Support static IP ([#68](https://github.com/OpenRemise/Frontend/issues/68))
 

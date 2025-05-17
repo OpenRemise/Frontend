@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/providers/controller_windows.dart';
+import 'package:Frontend/providers/loco_controllers.dart';
 import 'package:Frontend/providers/dcc.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/z21_service.dart';
@@ -113,8 +113,8 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     final locos = ref.watch(locosProvider);
     final loco = locos.elementAt(index);
     final active = ref
-        .watch(controllerWindowsProvider)
-        .any((w) => w.locoAddress == loco.address);
+        .watch(locoControllersProvider)
+        .any((c) => c.address == loco.address);
 
     return Card.outlined(
       child: ListTile(
@@ -144,10 +144,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
         ),
         onTap: () => active
             ? ref
-                .read(controllerWindowsProvider.notifier)
+                .read(locoControllersProvider.notifier)
                 .deleteLoco(loco.address)
             : ref
-                .read(controllerWindowsProvider.notifier)
+                .read(locoControllersProvider.notifier)
                 .updateLoco(loco.address, loco),
       ),
     );

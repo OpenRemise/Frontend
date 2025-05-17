@@ -18,8 +18,8 @@ import 'dart:collection';
 
 import 'package:Frontend/models/bidi.dart';
 import 'package:Frontend/models/loco.dart';
-import 'package:Frontend/providers/controller_windows.dart';
 import 'package:Frontend/providers/dark_mode.dart';
+import 'package:Frontend/providers/loco_controllers.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
@@ -38,17 +38,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
 /// \todo document
-class Controller extends ConsumerStatefulWidget {
+class LocoController extends ConsumerStatefulWidget {
   final int address;
 
-  const Controller({super.key, required this.address});
+  const LocoController({super.key, required this.address});
 
   @override
-  ConsumerState<Controller> createState() => _ControllerState();
+  ConsumerState<LocoController> createState() => _LocoControllerState();
 }
 
 /// \todo document
-class _ControllerState extends ConsumerState<Controller> {
+class _LocoControllerState extends ConsumerState<LocoController> {
   int _rvvvvvvv = 0;
   int _f31_0 = 0;
 
@@ -94,8 +94,8 @@ class _ControllerState extends ConsumerState<Controller> {
 
     // https://github.com/flutter/flutter/issues/112197
     return StreamBuilder(
-      // Use loco address as key to ensure snapshot is new each time loco changes
-      key: ValueKey(loco.address),
+      // Use loco speed steps as key to ensure snapshot is new each time speed steps change
+      key: ValueKey(loco.speedSteps),
       stream: z21.stream.where(
         (command) => switch (command) {
           LanXLocoInfo(locoAddress: var a) when a == loco.address => true,
@@ -109,7 +109,13 @@ class _ControllerState extends ConsumerState<Controller> {
           // Snapshot does not contain data yet, reset
           if (!snapshot.hasData) {
             z21.lanXGetLocoInfo(loco.address);
-            WidgetsBinding.instance.addPostFrameCallback((_) => _reset);
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => setState(() {
+                _rvvvvvvv = 0;
+                _f31_0 = 0;
+                _initialized = false;
+              }),
+            );
           }
           // Snapshot contains LAN_X_LOCO_INFO and we are not initialized
           else if (snapshot.data is LanXLocoInfo && !_initialized) {
@@ -201,7 +207,7 @@ class _ControllerState extends ConsumerState<Controller> {
                   ),
                   IconButton(
                     onPressed: () => ref
-                        .read(controllerWindowsProvider.notifier)
+                        .read(locoControllersProvider.notifier)
                         .deleteLoco(loco.address),
                     tooltip: 'Close',
                     icon: const Icon(Icons.close),
@@ -259,8 +265,8 @@ class _ControllerState extends ConsumerState<Controller> {
             (l) =>
                 l.address == loco.address ||
                 ref
-                    .watch(controllerWindowsProvider)
-                    .none((w) => w.locoAddress == l.address),
+                    .watch(locoControllersProvider)
+                    .none((c) => c.address == l.address),
           ),
     );
 
@@ -274,7 +280,7 @@ class _ControllerState extends ConsumerState<Controller> {
           onSelected: (selectedLoco) {
             if (selectedLoco != null && selectedLoco.address != loco.address) {
               ref
-                  .read(controllerWindowsProvider.notifier)
+                  .read(locoControllersProvider.notifier)
                   .updateLoco(loco.address, selectedLoco);
             }
           },
@@ -670,16 +676,6 @@ class _ControllerState extends ConsumerState<Controller> {
         setState(() => _buttonsIndex = (value % 100).clamp(0, 3));
         break;
     }
-  }
-
-  /// \todo document
-  void _reset() {
-    debugPrint('reset');
-    setState(() {
-      _rvvvvvvv = 0;
-      _f31_0 = 0;
-      _initialized = false;
-    });
   }
 
   /// \todo document
