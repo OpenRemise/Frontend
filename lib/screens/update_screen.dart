@@ -198,7 +198,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.memory),
-                              title: const Text('Update ZIMO MS decoder'),
+                              title: const Text('Update ZIMO MS/N decoder'),
                               enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
@@ -226,7 +226,8 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
-                                  text: 'Upload sound to ZIMO MS decoder via ',
+                                  text:
+                                      'Upload sound to ZIMO MS/N decoder via ',
                                   children: const [
                                     WidgetSpan(
                                       child: Icon(OpenRemiseIcons.track),
@@ -497,7 +498,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       content: content,
       stepStyle: StepStyle(
         color: Theme.of(context).colorScheme.primary,
-        indexStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        indexStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+          fontSize: 14 / ref.watch(textScalerProvider),
+        ),
       ),
     );
   }

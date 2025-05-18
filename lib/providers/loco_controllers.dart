@@ -27,7 +27,7 @@ part 'loco_controllers.g.dart';
 @Riverpod(keepAlive: true)
 class LocoControllers extends _$LocoControllers {
   @override
-  SplayTreeSet<Controller> build() {
+  Set<Controller> build() {
     // Remove deleted addresses
     ref.listen<SplayTreeSet<Loco>>(locosProvider, (previous, next) {
       final previousAddresses = previous?.map((l) => l.address).toSet() ?? {};
@@ -36,7 +36,7 @@ class LocoControllers extends _$LocoControllers {
       final removed = previousAddresses.difference(nextAddresses);
       final added = nextAddresses.difference(previousAddresses);
 
-      final newState = SplayTreeSet<Controller>.from(state);
+      final newState = Set<Controller>.from(state);
 
       for (final removedAddress in removed) {
         // Possible address change
@@ -60,7 +60,7 @@ class LocoControllers extends _$LocoControllers {
       state = newState;
     });
 
-    return SplayTreeSet<Controller>();
+    return <Controller>{};
   }
 
   /// \todo document
@@ -68,25 +68,31 @@ class LocoControllers extends _$LocoControllers {
     final controller = state.firstWhereOrNull((c) => c.address == address);
     // Add
     if (controller == null) {
-      state = SplayTreeSet<Controller>.from(state)
+      state = Set<Controller>.from(state)
         ..add(Controller(key: UniqueKey(), address: address));
     }
     // Update
     else if (address != loco.address) {
-      state = SplayTreeSet<Controller>.from(state)
+      state = Set<Controller>.from(state)
         ..remove(controller)
         ..add(controller.copyWith(address: loco.address));
+    }
+    // Don't update
+    else if (address == loco.address) {
+      state = Set<Controller>.from(state)
+        ..remove(controller)
+        ..add(controller);
     }
   }
 
   /// \todo document
   void deleteLocos() {
-    state = SplayTreeSet<Controller>();
+    state = <Controller>{};
   }
 
   /// \todo document
   void deleteLoco(int address) {
-    state = SplayTreeSet<Controller>.from(state)
+    state = Set<Controller>.from(state)
       ..remove(state.firstWhereOrNull((c) => c.address == address));
   }
 }

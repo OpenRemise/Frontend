@@ -21,13 +21,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'controller.freezed.dart';
 
 @freezed
-abstract class Controller with _$Controller implements Comparable<Controller> {
-  const Controller._();
-
+abstract class Controller with _$Controller {
   const factory Controller({Key? key, @Default(0) int address}) = _Controller;
-
-  @override
-  int compareTo(Controller other) {
-    return address.compareTo(other.address);
-  }
 }

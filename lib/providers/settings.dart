@@ -43,4 +43,6 @@ class Settings extends _$Settings {
       return _service.fetch();
     });
   }
+
+  Future<void> refresh() async => fetchSettings();
 }

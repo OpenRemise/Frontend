@@ -35,6 +35,11 @@ class Sys extends _$Sys {
     state = await AsyncValue.guard(() async => _service.fetch());
   }
 
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    fetchInfo();
+  }
+
   Future<void> restart() async {
     _service.restart();
   }

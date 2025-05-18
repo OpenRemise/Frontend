@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constants/open_remise_icons.dart';
+import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/services/z21_service.dart';
@@ -373,7 +374,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       content: content,
       stepStyle: StepStyle(
         color: Theme.of(context).colorScheme.primary,
-        indexStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        indexStyle: TextStyle(
+          color: Theme.of(context).colorScheme.secondary,
+          fontSize: 14 / ref.watch(textScalerProvider),
+        ),
       ),
     );
   }
