@@ -73,4 +73,6 @@ class Dcc extends _$Dcc {
       ref.read(locosProvider.notifier).deleteLoco(address);
     });
   }
+
+  Future<void> refresh() async => fetchLocos();
 }

@@ -98,7 +98,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    ref.read(settingsProvider.notifier).fetchSettings();
+                    ref.read(settingsProvider.notifier).refresh();
                     _formKey.currentState?.reset();
                   },
                   tooltip: 'Refresh',

@@ -81,7 +81,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 icon: const Icon(Icons.delete),
               ),
               IconButton(
-                onPressed: () => ref.read(dccProvider.notifier).fetchLocos(),
+                onPressed: () => ref.read(dccProvider.notifier).refresh(),
                 tooltip: 'Refresh',
                 icon: const Icon(Icons.refresh),
               ),
