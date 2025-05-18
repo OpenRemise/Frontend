@@ -137,6 +137,22 @@ class WsZ21Service implements Z21Service {
   }
 
   @override
+  void lanXSetLocoEStop(int locoAddress) {
+    assert(locoAddress <= 9999);
+    List<int> data = [
+      0x08,
+      0x00,
+      Header.LAN_X_SET_LOCO_E_STOP,
+      0x00,
+      XHeader.LAN_X_SET_LOCO_E_STOP,
+      (locoAddress >> 8) & 0xFF, // Loco address
+      (locoAddress >> 0) & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    _channel.sink.add(Uint8List.fromList(data));
+  }
+
+  @override
   void lanXGetLocoInfo(int locoAddress) {
     assert(locoAddress <= 9999);
     List<int> data = [

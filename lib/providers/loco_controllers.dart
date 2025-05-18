@@ -77,7 +77,7 @@ class LocoControllers extends _$LocoControllers {
         ..remove(controller)
         ..add(controller.copyWith(address: loco.address));
     }
-    // Don't update
+    // Don't update (but move to end of set)
     else if (address == loco.address) {
       state = Set<Controller>.from(state)
         ..remove(controller)

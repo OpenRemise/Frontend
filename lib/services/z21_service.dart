@@ -685,6 +685,7 @@ abstract interface class Z21Service {
   void lanXSetTrackPowerOn();
   void lanXCvRead(int cvAddress);
   void lanXCvWrite(int cvAddress, int byte);
+  void lanXSetLocoEStop(int locoAddress);
   void lanXGetLocoInfo(int locoAddress);
   void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv);
   void lanXSetLocoFunction(int locoAddress, int state, int index);

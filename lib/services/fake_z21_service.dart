@@ -98,6 +98,22 @@ class FakeZ21Service implements Z21Service {
   }
 
   @override
+  void lanXSetLocoEStop(int locoAddress) {
+    Future.delayed(const Duration(milliseconds: 200), () {
+      final locos = ref.read(locosProvider);
+      final loco = locos.firstWhere(
+        (l) => l.address == locoAddress,
+        orElse: () => Loco(address: locoAddress, name: locoAddress.toString()),
+      );
+      final int rvvvvvvv =
+          encodeRvvvvvvv(loco.speedSteps, (loco.rvvvvvvv ?? 0x80) >= 0x80, -1);
+      ref
+          .read(locosProvider.notifier)
+          .updateLoco(locoAddress, loco.copyWith(rvvvvvvv: rvvvvvvv));
+    });
+  }
+
+  @override
   void lanXGetLocoInfo(int locoAddress) {
     Future.delayed(const Duration(milliseconds: 200), () {
       final locos = ref.read(locosProvider);
@@ -196,7 +212,7 @@ class FakeZ21Service implements Z21Service {
       orElse: () => Loco(address: 0),
     );
     final speed = decodeRvvvvvvv(loco.speedSteps, loco.rvvvvvvv ?? 0x80);
-    final kmh = speed * 2;
+    final kmh = speed.isNegative ? 0 : speed * 2;
     await Future.delayed(
       Duration(milliseconds: loco.address != 0 ? 250 : 500),
       () => _controller.sink.add(

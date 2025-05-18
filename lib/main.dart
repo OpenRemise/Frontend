@@ -327,7 +327,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         ),
         ...locoControllers.map(
           (locoController) {
-            moveToTop() =>
+            void moveToTop() =>
                 ref.read(locoControllersProvider.notifier).updateLoco(
                       locoController.address,
                       Loco(address: locoController.address),

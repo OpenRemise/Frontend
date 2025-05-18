@@ -372,14 +372,36 @@ class _LocoControllerState extends ConsumerState<LocoController> {
   /// \todo document
   Widget _slider(Loco loco) {
     final darkMode = ref.watch(darkModeProvider);
+    final speed = decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv);
     final z21 = ref.watch(z21ServiceProvider);
+
+    //
+    void weight2rvvvvvvv(double weight) {
+      setState(
+        () => _rvvvvvvv = encodeRvvvvvvv(
+          loco.speedSteps,
+          _rvvvvvvv >= 0x80,
+          (_sliderController!.maxWeight - weight).toInt(),
+        ),
+      );
+      ref
+          .read(locosProvider.notifier)
+          .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
+      z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
+    }
 
     return GestureDetector(
       onTap: () {
-        _sliderController!.jumpTo(_sliderController!.maxWeight.toDouble());
+        final weight = _sliderController!.maxWeight.toDouble();
+        _sliderController!.jumpTo(weight);
+        weight2rvvvvvvv(weight);
+      },
+      onDoubleTap: () {
+        final weight = (_sliderController!.maxWeight + 1).toDouble();
+        _sliderController!.jumpTo(weight);
+        weight2rvvvvvvv(weight);
       },
       onVerticalDragUpdate: (details) {
-        final speed = decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv).toDouble();
         final weight =
             _sliderController!.maxWeight - speed - details.delta.dy / 2;
         _sliderController!
@@ -411,32 +433,18 @@ class _LocoControllerState extends ConsumerState<LocoController> {
                 ),
               ),
               child: Text(
-                decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv)
-                    .clamp(0, _sliderController!.maxWeight)
-                    .toString()
-                    .padLeft(3, '0'),
+                speed.isNegative
+                    ? 'ETS'
+                    : speed
+                        .clamp(0, _sliderController!.maxWeight)
+                        .toString()
+                        .padLeft(3, '0'),
                 style: const TextStyle(color: Colors.red, fontFamily: 'DSEG14'),
               ),
             ),
           ],
         ),
-        onChanged: (double weight) {
-          setState(
-            () => _rvvvvvvv = encodeRvvvvvvv(
-              loco.speedSteps,
-              _rvvvvvvv >= 0x80,
-              (_sliderController!.maxWeight - weight).toInt(),
-            ),
-          );
-          ref
-              .read(locosProvider.notifier)
-              .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
-          z21.lanXSetLocoDrive(
-            loco.address,
-            loco.speedSteps,
-            _rvvvvvvv,
-          );
-        },
+        onChanged: weight2rvvvvvvv,
       ),
     );
   }
@@ -534,10 +542,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
             ),
           ],
           [
-            const GridButtonItem(
-              value: -12,
-              child: Icon(kDebugMode ? Icons.add : null),
-            ),
+            const GridButtonItem(value: -12, child: Icon(Icons.add)),
             switch (_buttonsIndex) {
               0 => _FItem(0),
               1 => _FItem(10),
@@ -545,10 +550,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
               3 => _FItem(30),
               _ => throw UnimplementedError(),
             },
-            const GridButtonItem(
-              value: -14,
-              child: Icon(kDebugMode ? Icons.remove : null),
-            ),
+            const GridButtonItem(value: -14, child: Icon(Icons.remove)),
             const GridButtonItem(
               value: -15,
               child: Icon(kDebugMode ? Icons.check_circle : null),
@@ -561,7 +563,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
             FocusScope.of(context).requestFocus(_focusNode);
 
             // CV?
-            if (kDebugMode && value >= 0 || value == -11 || value == -15) {
+            if (kDebugMode && value != -7) {
               return _cvButton(loco, value);
             }
           }
@@ -610,9 +612,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
 
   /// \todo document
   void _functionButton(Loco loco, int value) {
-    final selectedIndex = 0;
-    final locos = ref.read(locosProvider);
-    final loco = locos.elementAt(selectedIndex);
+    final speed = decodeRvvvvvvv(loco.speedSteps, _rvvvvvvv);
     final z21 = ref.watch(z21ServiceProvider);
 
     // debugPrint("ain't text");
@@ -629,11 +629,7 @@ class _LocoControllerState extends ConsumerState<LocoController> {
         ref
             .read(locosProvider.notifier)
             .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
-        z21.lanXSetLocoDrive(
-          loco.address,
-          loco.speedSteps,
-          _rvvvvvvv,
-        );
+        z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
         break;
       // MAN
       case -7:
@@ -646,10 +642,37 @@ class _LocoControllerState extends ConsumerState<LocoController> {
       // Add
       case -12:
         debugPrint('add');
+        final newSpeed =
+            (speed + 1).clamp(0, _sliderController!.maxWeight.toInt());
+        setState(
+          () => _rvvvvvvv =
+              encodeRvvvvvvv(loco.speedSteps, _rvvvvvvv >= 0x80, newSpeed),
+        );
+        ref
+            .read(locosProvider.notifier)
+            .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
+        z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
+        _sliderController!
+            .jumpTo((_sliderController!.maxWeight - newSpeed).toDouble());
         break;
       // Remove
       case -14:
         debugPrint('remove');
+        final newSpeed =
+            (speed - 1).clamp(0, _sliderController!.maxWeight.toInt());
+        setState(
+          () => _rvvvvvvv = encodeRvvvvvvv(
+            loco.speedSteps,
+            _rvvvvvvv >= 0x80,
+            (speed - 1).clamp(0, _sliderController!.maxWeight.toInt()),
+          ),
+        );
+        ref
+            .read(locosProvider.notifier)
+            .updateLoco(loco.address, loco.copyWith(rvvvvvvv: _rvvvvvvv));
+        z21.lanXSetLocoDrive(loco.address, loco.speedSteps, _rvvvvvvv);
+        _sliderController!
+            .jumpTo((_sliderController!.maxWeight - newSpeed).toDouble());
         break;
       // Check
       case -15:
