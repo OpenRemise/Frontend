@@ -319,7 +319,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               onDestinationSelected: (index) => setState(() => _index = index),
               labelType: NavigationRailLabelType.all,
             ),
-            const VerticalDivider(thickness: 1, width: 2),
+            const VerticalDivider(thickness: 2),
             Expanded(
               child: Center(child: _pages[_index]),
             ),
@@ -341,7 +341,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   color: Theme.of(context).colorScheme.surface,
                   border: Border.all(
                     color: Theme.of(context).dividerColor,
-                    width: 1,
+                    width: 2,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
