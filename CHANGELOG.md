@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix typo JSON key `internal_heap` ([#83](https://github.com/OpenRemise/Frontend/issues/83))
+
 ## 0.2.1
 - Bugfix various controller issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 

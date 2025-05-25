@@ -35,6 +35,10 @@ class RestartDialog extends ConsumerWidget {
           child: const Text('OK'),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 }

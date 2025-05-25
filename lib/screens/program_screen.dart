@@ -40,6 +40,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   final List<int> _selected = [];
   int _index = 0;
   IconData _iconData = Icons.circle;
+  bool _pending = false;
 
   /// \todo document
   @override
@@ -60,12 +61,12 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         },
       ),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && _pending) {
           switch (snapshot.requireData) {
             case LanXCvNackSc():
-              _updateIconData(Icons.error);
             case LanXCvNack():
               _updateIconData(Icons.error);
+              _pending = false;
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
@@ -76,6 +77,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                 _updateIconData(Icons.error);
                 _formKey.currentState?.fields['CV value']?.didChange(null);
               }
+              _pending = false;
             default:
           }
         }
@@ -260,74 +262,14 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   OutlinedButton(
-                                    onPressed: () {
-                                      // Address validator or service mode
-                                      if ((_formKey.currentState
-                                                  ?.fields['address']
-                                                  ?.validate() ??
-                                              serviceMode) &&
-                                          (_formKey.currentState
-                                                  ?.fields['CV number']
-                                                  ?.validate() ??
-                                              false)) {
-                                        _formKey.currentState?.save();
-                                        final number = int.parse(
-                                          _formKey
-                                              .currentState?.value['CV number'],
-                                        );
-                                        _updateIconData(Icons.pending);
-                                        if (serviceMode) {
-                                          z21.lanXCvRead(number - 1);
-                                        } else {
-                                          final address = int.parse(
-                                            _formKey
-                                                .currentState?.value['address'],
-                                          );
-                                          z21.lanXCvPomReadByte(
-                                            address,
-                                            number - 1,
-                                          );
-                                        }
-                                      }
-                                    },
+                                    onPressed: _cvRead,
                                     child: const Text('Read'),
                                   ),
                                   const Padding(
                                     padding: EdgeInsets.all(8.0),
                                   ),
                                   OutlinedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState
-                                              ?.saveAndValidate() ??
-                                          false) {
-                                        final number = int.parse(
-                                          _formKey
-                                              .currentState?.value['CV number'],
-                                        );
-                                        final value = int.parse(
-                                          _formKey
-                                              .currentState?.value['CV value'],
-                                        );
-                                        _updateIconData(
-                                          serviceMode
-                                              ? Icons.pending
-                                              : Icons.check_circle,
-                                        );
-                                        if (serviceMode) {
-                                          z21.lanXCvWrite(number - 1, value);
-                                        } else {
-                                          final address = int.parse(
-                                            _formKey
-                                                .currentState?.value['address'],
-                                          );
-                                          z21.lanXCvPomWriteByte(
-                                            address,
-                                            number - 1,
-                                            value,
-                                          );
-                                        }
-                                      }
-                                    },
+                                    onPressed: _cvWrite,
                                     child: const Text('Write'),
                                   ),
                                 ],
@@ -382,8 +324,53 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     );
   }
 
+  /// \todo document
   void _updateIconData(IconData iconData) {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => setState(() => _iconData = iconData));
+  }
+
+  /// \todo document
+  void _cvRead() {
+    final z21 = ref.watch(z21ServiceProvider);
+    final serviceMode = _selected.elementAtOrNull(0) == 1;
+
+    // Address validator or service mode
+    if ((_formKey.currentState?.fields['address']?.validate() ?? serviceMode) &&
+        (_formKey.currentState?.fields['CV number']?.validate() ?? false)) {
+      _formKey.currentState?.save();
+      final number = int.parse(_formKey.currentState?.value['CV number']);
+      _updateIconData(Icons.pending);
+
+      if (serviceMode) {
+        z21.lanXCvRead(number - 1);
+        _pending = true;
+      } else {
+        final address = int.parse(_formKey.currentState?.value['address']);
+        z21.lanXCvPomReadByte(address, number - 1);
+        _pending = true;
+      }
+    }
+  }
+
+  /// \todo document
+  void _cvWrite() {
+    final z21 = ref.watch(z21ServiceProvider);
+    final serviceMode = _selected.elementAtOrNull(0) == 1;
+
+    if (_formKey.currentState?.saveAndValidate() ?? false) {
+      final number = int.parse(_formKey.currentState?.value['CV number']);
+      final value = int.parse(_formKey.currentState?.value['CV value']);
+      _updateIconData(serviceMode ? Icons.pending : Icons.check_circle);
+
+      if (serviceMode) {
+        z21.lanXCvWrite(number - 1, value);
+        _pending = true;
+      } else {
+        final address = int.parse(_formKey.currentState?.value['address']);
+        z21.lanXCvPomWriteByte(address, number - 1, value);
+        // Don't set pending flag for POM
+      }
+    }
   }
 }

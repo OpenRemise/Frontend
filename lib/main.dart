@@ -18,12 +18,13 @@ import 'dart:async';
 import 'package:Frontend/constants/controller_size.dart';
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/constants/small_screen_width.dart';
-import 'package:Frontend/models/controller.dart';
 import 'package:Frontend/models/loco.dart';
+import 'package:Frontend/models/register.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/providers/dark_mode.dart';
-import 'package:Frontend/providers/loco_controllers.dart';
+import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/text_scaler.dart';
+import 'package:Frontend/providers/throttle_registry.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_short_circuit.dart';
 import 'package:Frontend/screens/decoders_screen.dart';
@@ -31,9 +32,9 @@ import 'package:Frontend/screens/info_screen.dart';
 import 'package:Frontend/screens/program_screen.dart';
 import 'package:Frontend/screens/settings_screen.dart';
 import 'package:Frontend/screens/update_screen.dart';
-import 'package:Frontend/widgets/loco_controller.dart';
+import 'package:Frontend/widgets/dialog/short_circuit.dart';
 import 'package:Frontend/widgets/positioned_draggable.dart';
-import 'package:Frontend/widgets/short_circuit_dialog.dart';
+import 'package:Frontend/widgets/throttle/throttle.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
@@ -216,7 +217,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
-    final locoControllers = ref.watch(locoControllersProvider);
+    final throttleRegistry = ref.watch(throttleRegistryProvider);
 
     if (smallWidth != _smallWidth) {
       _smallWidth = smallWidth;
@@ -267,24 +268,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _smallWidth
-            ? _smallLayout(locoControllers)
-            : _largeLayout(locoControllers),
+            ? _smallLayout(throttleRegistry)
+            : _largeLayout(throttleRegistry),
       ),
     );
   }
 
   /// \todo document
-  Widget _smallLayout(Set<Controller> locoControllers) {
-    final locoController = locoControllers.firstOrNull;
+  Widget _smallLayout(Set<Register> throttleRegistry) {
+    final throttle = throttleRegistry.firstOrNull;
 
     return Column(
       key: _layoutKey,
       children: [
         Expanded(
-          child: _index == 1 && locoController != null
-              ? LocoController(
-                  key: ValueKey(locoController.address),
-                  address: locoController.address,
+          child: _index == 1 && throttle != null
+              ? Throttle(
+                  key: ValueKey(throttle.address),
+                  initialLoco: ref
+                      .read(locosProvider)
+                      .firstWhere((l) => l.address == throttle.address),
                 )
               : _pages[_index],
         ),
@@ -298,7 +301,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _largeLayout(Set<Controller> locoControllers) {
+  Widget _largeLayout(Set<Register> throttleRegistry) {
     return Stack(
       key: _layoutKey,
       children: [
@@ -325,15 +328,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
-        ...locoControllers.map(
-          (locoController) {
+        ...throttleRegistry.map(
+          (throttle) {
             void moveToTop() =>
-                ref.read(locoControllersProvider.notifier).updateLoco(
-                      locoController.address,
-                      Loco(address: locoController.address),
+                ref.read(throttleRegistryProvider.notifier).updateLoco(
+                      throttle.address,
+                      Loco(address: throttle.address),
                     );
             return PositionedDraggable(
-              key: locoController.key,
+              key: throttle.key,
               onTap: moveToTop,
               onPanUpdate: (_) => moveToTop(),
               child: Container(
@@ -347,9 +350,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 width: controllerSize.width,
                 height: controllerSize.height,
-                child: LocoController(
-                  key: ValueKey(locoController.address),
-                  address: locoController.address,
+                child: Throttle(
+                  key: ValueKey(throttle.address),
+                  initialLoco: ref
+                      .read(locosProvider)
+                      .firstWhere((l) => l.address == throttle.address),
                 ),
               ),
             );

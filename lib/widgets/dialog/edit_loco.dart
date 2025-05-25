@@ -148,6 +148,10 @@ class _EditLocoDialogState extends ConsumerState<EditLocoDialog> {
           child: const Text('OK'),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 }

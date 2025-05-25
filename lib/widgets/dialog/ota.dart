@@ -81,6 +81,10 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
           child: Text(_option),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 

@@ -23,12 +23,12 @@ import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
-import 'package:Frontend/widgets/decup_dialog.dart';
-import 'package:Frontend/widgets/download_dialog.dart';
-import 'package:Frontend/widgets/mdu_dialog.dart';
-import 'package:Frontend/widgets/ota_dialog.dart';
-import 'package:Frontend/widgets/zimo_sound_dialog.dart';
-import 'package:Frontend/widgets/zusi_dialog.dart';
+import 'package:Frontend/widgets/dialog/decup.dart';
+import 'package:Frontend/widgets/dialog/download.dart';
+import 'package:Frontend/widgets/dialog/mdu.dart';
+import 'package:Frontend/widgets/dialog/ota.dart';
+import 'package:Frontend/widgets/dialog/zimo_sound.dart';
+import 'package:Frontend/widgets/dialog/zusi.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -321,7 +321,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   enabled: trackVoltageOff &&
                                       online &&
                                       firmwareUpdateAvailable,
-                                  onTap: () => _openRemiseFromWeb(),
+                                  onTap: _openRemiseFromWeb,
                                 ),
                               ),
                               Card.outlined(
@@ -347,7 +347,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from web',
                                   ),
                                   enabled: trackVoltageOff && online,
-                                  onTap: () => _zimoFirmwareFromWeb(),
+                                  onTap: _zimoFirmwareFromWeb,
                                 ),
                               ),
                               Card.outlined(
@@ -357,7 +357,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from file',
                                   ),
                                   enabled: trackVoltageOff,
-                                  onTap: () => _zimoFromFile(),
+                                  onTap: _zimoFromFile,
                                 ),
                               ),
                             ],
@@ -383,7 +383,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     ),
                                   ),
                                   enabled: trackVoltageOff,
-                                  onTap: () => _zimoSoundFromWeb(),
+                                  onTap: _zimoSoundFromWeb,
                                 ),
                               ),
                               Card.outlined(
@@ -407,7 +407,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     ),
                                   ),
                                   enabled: trackVoltageOff,
-                                  onTap: () => _zimoFromFile(),
+                                  onTap: _zimoFromFile,
                                 ),
                               ),
                             ],
@@ -432,7 +432,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     ),
                                   ),
                                   enabled: trackVoltageOff,
-                                  onTap: () => _zimoSoundFromWeb(),
+                                  onTap: _zimoSoundFromWeb,
                                 ),
                               ),
                               Card.outlined(
@@ -455,7 +455,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                     ),
                                   ),
                                   enabled: trackVoltageOff,
-                                  onTap: () => _zimoFromFile(),
+                                  onTap: _zimoFromFile,
                                 ),
                               ),
                             ],

@@ -97,6 +97,10 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
           child: Text(_option),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 

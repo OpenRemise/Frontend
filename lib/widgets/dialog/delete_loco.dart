@@ -58,6 +58,10 @@ class _DeleteLocoDialogState extends ConsumerState<DeleteLocoDialog> {
           child: const Text('OK'),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 }
