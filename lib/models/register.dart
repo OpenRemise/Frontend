@@ -18,9 +18,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'controller.freezed.dart';
+part 'register.freezed.dart';
 
 @freezed
-abstract class Controller with _$Controller {
-  const factory Controller({Key? key, @Default(0) int address}) = _Controller;
+abstract class Register with _$Register {
+  const factory Register({Key? key, @Default(0) int address}) = _Register;
 }

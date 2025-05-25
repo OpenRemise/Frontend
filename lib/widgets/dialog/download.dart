@@ -70,6 +70,10 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
           child: const Text('Cancel'),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 

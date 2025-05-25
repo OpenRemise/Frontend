@@ -27,7 +27,7 @@ class FakeZ21Service implements Z21Service {
   final _controller = StreamController<Command>();
   late final Stream<Command> _stream;
   int _centralState = 0x02;
-  List<int> _cvs = fakeInitialLocoCvs;
+  List<int> _cvs = List.from(fakeInitialLocoCvs);
   final ProviderContainer ref;
 
   FakeZ21Service(this.ref) {

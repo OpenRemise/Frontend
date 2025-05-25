@@ -76,6 +76,10 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
           child: Text(_option),
         ),
       ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 

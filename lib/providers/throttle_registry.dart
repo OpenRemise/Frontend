@@ -15,19 +15,19 @@
 
 import 'dart:collection';
 
-import 'package:Frontend/models/controller.dart';
+import 'package:Frontend/models/register.dart';
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'loco_controllers.g.dart';
+part 'throttle_registry.g.dart';
 
 @Riverpod(keepAlive: true)
-class LocoControllers extends _$LocoControllers {
+class ThrottleRegistry extends _$ThrottleRegistry {
   @override
-  Set<Controller> build() {
+  Set<Register> build() {
     // Remove deleted addresses
     ref.listen<SplayTreeSet<Loco>>(locosProvider, (previous, next) {
       final previousAddresses = previous?.map((l) => l.address).toSet() ?? {};
@@ -36,7 +36,7 @@ class LocoControllers extends _$LocoControllers {
       final removed = previousAddresses.difference(nextAddresses);
       final added = nextAddresses.difference(previousAddresses);
 
-      final newState = Set<Controller>.from(state);
+      final newState = Set<Register>.from(state);
 
       for (final removedAddress in removed) {
         // Possible address change
@@ -60,7 +60,7 @@ class LocoControllers extends _$LocoControllers {
       state = newState;
     });
 
-    return <Controller>{};
+    return <Register>{};
   }
 
   /// \todo document
@@ -68,18 +68,18 @@ class LocoControllers extends _$LocoControllers {
     final controller = state.firstWhereOrNull((c) => c.address == address);
     // Add
     if (controller == null) {
-      state = Set<Controller>.from(state)
-        ..add(Controller(key: UniqueKey(), address: address));
+      state = Set<Register>.from(state)
+        ..add(Register(key: UniqueKey(), address: address));
     }
     // Update
     else if (address != loco.address) {
-      state = Set<Controller>.from(state)
+      state = Set<Register>.from(state)
         ..remove(controller)
         ..add(controller.copyWith(address: loco.address));
     }
     // Don't update (but move to end of set)
     else if (address == loco.address) {
-      state = Set<Controller>.from(state)
+      state = Set<Register>.from(state)
         ..remove(controller)
         ..add(controller);
     }
@@ -87,12 +87,12 @@ class LocoControllers extends _$LocoControllers {
 
   /// \todo document
   void deleteLocos() {
-    state = <Controller>{};
+    state = <Register>{};
   }
 
   /// \todo document
   void deleteLoco(int address) {
-    state = Set<Controller>.from(state)
+    state = Set<Register>.from(state)
       ..remove(state.firstWhereOrNull((c) => c.address == address));
   }
 }

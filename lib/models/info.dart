@@ -38,7 +38,7 @@ abstract class Info with _$Info {
     @JsonKey(name: 'current') int? current,
     @JsonKey(name: 'temperature') double? temperature,
     @JsonKey(name: 'heap') int? heap,
-    @JsonKey(name: 'internalHeap') int? internalHeap,
+    @JsonKey(name: 'internal_heap') int? internalHeap,
   }) = _Info;
 
   factory Info.fromJson(Map<String, Object?> json) => _$InfoFromJson(json);

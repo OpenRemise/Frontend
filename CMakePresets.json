@@ -8,28 +8,23 @@
     "configurePresets": [
         {
             "name": "Release",
+            "description": "Release build",
             "binaryDir": "${sourceDir}/build"
         },
         {
             "name": "Release fake",
+            "description": "Release build with fake services",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
             }
         },
         {
-            "name": "Demo (/Frontend/demo/)",
+            "name": "Demo",
+            "description": "Release build for documentation",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "OPENREMISE_FRONTEND_BASE_HREF": "/Frontend/demo/",
-                "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
-            }
-        },
-        {
-            "name": "Demo (/demo/)",
-            "binaryDir": "${sourceDir}/build",
-            "cacheVariables": {
-                "OPENREMISE_FRONTEND_BASE_HREF": "/demo/",
                 "OPENREMISE_FRONTEND_FAKE_SERVICES": "true"
             }
         }

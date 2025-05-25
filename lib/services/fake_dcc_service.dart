@@ -36,7 +36,7 @@ class FakeDccService implements DccService {
 
   @override
   Future<SplayTreeSet<Loco>> fetchLocos() {
-    return Future.delayed(const Duration(seconds: 1), () => _readFile());
+    return Future.delayed(const Duration(seconds: 1), _readFile);
   }
 
   @override

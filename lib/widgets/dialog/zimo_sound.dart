@@ -74,6 +74,10 @@ class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
 
     return SimpleDialog(
       title: const Text('ZIMO Sound Database'),
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
       children: [
         ..._urls.isEmpty
             ? [
