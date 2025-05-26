@@ -33,6 +33,7 @@ import 'package:Frontend/widgets/png_picture.dart';
 import 'package:Frontend/widgets/throttle/cv_terminal.dart';
 import 'package:Frontend/widgets/throttle/key_press_notifier.dart';
 import 'package:Frontend/widgets/throttle/keypad.dart';
+import 'package:Frontend/widgets/throttle/railcom.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
@@ -128,11 +129,15 @@ class _ThrottleState extends ConsumerState<Throttle> {
           }
           // Snapshot contains LAN_X_LOCO_INFO and we are not initialized
           else if (snapshot.data is LanXLocoInfo && _loco == null) {
-            _initializeLoco(snapshot.data! as LanXLocoInfo);
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _initializeLoco(snapshot.data! as LanXLocoInfo),
+            );
           }
           // Snapshot contains LAN_RAILCOM_DATACHANGED and we are initialized
           else if (snapshot.data is LanRailComDataChanged && _loco != null) {
-            _updateRailCom(snapshot.data! as LanRailComDataChanged);
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _updateRailCom(snapshot.data! as LanRailComDataChanged),
+            );
           }
         }
 
@@ -285,40 +290,7 @@ class _ThrottleState extends ConsumerState<Throttle> {
 
   /// \todo document
   Widget _bidiGridArea() {
-    final railComData = LanRailComDataChanged(
-      locoAddress: _loco!.address,
-      receiveCounter: _loco!.bidi?.receiveCounter ?? 0,
-      errorCounter: _loco!.bidi?.errorCounter ?? 0,
-      options: _loco!.bidi?.options ?? 0,
-      speed: _loco!.bidi?.speed ?? 0,
-      qos: _loco!.bidi?.qos ?? 0,
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.speed),
-            const SizedBox(width: 4),
-            Text(
-              (railComData.kmh() ?? 0).toString().padLeft(3, '0'),
-              style: const TextStyle(fontFamily: 'DSEG14'),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            const Icon(Icons.network_check),
-            const SizedBox(width: 4),
-            Text(
-              (railComData.qoS() ?? 0).toString().padLeft(3, '0'),
-              style: const TextStyle(fontFamily: 'DSEG14'),
-            ),
-          ],
-        ),
-      ],
-    );
+    return RailCom(loco: _loco!);
   }
 
   /// \todo document
@@ -490,64 +462,60 @@ class _ThrottleState extends ConsumerState<Throttle> {
 
   /// \todo document
   void _initializeLoco(LanXLocoInfo locoInfo) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final speed = decodeRvvvvvvv(locoInfo.speedSteps, locoInfo.rvvvvvvv);
+    final speed = decodeRvvvvvvv(locoInfo.speedSteps, locoInfo.rvvvvvvv);
 
-      // Set missing ephemeral state
-      setState(() {
-        final maxWeight = locoInfo.speedSteps == 0
-            ? 14
-            : locoInfo.speedSteps == 2
-                ? 28
-                : 126;
-        _sliderController = WeightSliderController(
-          initialWeight: maxWeight - (speed.isNegative ? 0 : speed.toDouble()),
-          maxWeight: maxWeight,
-        );
-      });
-
-      // Update loco with LanXLocoInfo
-      ref.read(locosProvider.notifier).updateLoco(
-            widget.initialLoco.address,
-            widget.initialLoco.copyWith(
-              mode: locoInfo.mode,
-              busy: locoInfo.busy,
-              speedSteps: locoInfo.speedSteps,
-              rvvvvvvv: locoInfo.rvvvvvvv,
-              f31_0: locoInfo.f31_0,
-            ),
-          );
-
-      // Add listener
-      ref.listenManual(
-        locosProvider,
-        (previous, next) {
-          _loco = next
-              .firstWhereOrNull((l) => l.address == widget.initialLoco.address);
-        },
-        fireImmediately: true,
+    // Set missing ephemeral state
+    setState(() {
+      final maxWeight = locoInfo.speedSteps == 0
+          ? 14
+          : locoInfo.speedSteps == 2
+              ? 28
+              : 126;
+      _sliderController = WeightSliderController(
+        initialWeight: maxWeight - (speed.isNegative ? 0 : speed.toDouble()),
+        maxWeight: maxWeight,
       );
     });
+
+    // Update loco with LanXLocoInfo
+    ref.read(locosProvider.notifier).updateLoco(
+          widget.initialLoco.address,
+          widget.initialLoco.copyWith(
+            mode: locoInfo.mode,
+            busy: locoInfo.busy,
+            speedSteps: locoInfo.speedSteps,
+            rvvvvvvv: locoInfo.rvvvvvvv,
+            f31_0: locoInfo.f31_0,
+          ),
+        );
+
+    // Add listener
+    ref.listenManual(
+      locosProvider,
+      (previous, next) {
+        _loco = next
+            .firstWhereOrNull((l) => l.address == widget.initialLoco.address);
+      },
+      fireImmediately: true,
+    );
   }
 
   /// \todo document
   void _updateRailCom(LanRailComDataChanged railComData) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (railComData.options != _loco!.bidi?.options ||
-          railComData.speed != _loco!.bidi?.speed ||
-          railComData.qos != _loco!.bidi?.qos) {
-        ref.read(locosProvider.notifier).updateLoco(
-              _loco!.address,
-              _loco!.copyWith(
-                bidi: BiDi(
-                  options: railComData.options,
-                  speed: railComData.speed,
-                  qos: railComData.qos,
-                ),
+    if (railComData.options != _loco!.bidi?.options ||
+        railComData.speed != _loco!.bidi?.speed ||
+        railComData.qos != _loco!.bidi?.qos) {
+      ref.read(locosProvider.notifier).updateLoco(
+            _loco!.address,
+            _loco!.copyWith(
+              bidi: BiDi(
+                options: railComData.options,
+                speed: railComData.speed,
+                qos: railComData.qos,
               ),
-            );
-      }
-    });
+            ),
+          );
+    }
   }
 
   /// \todo document

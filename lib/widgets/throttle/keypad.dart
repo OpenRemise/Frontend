@@ -135,6 +135,7 @@ class KeypadState extends ConsumerState<Keypad> {
             },
             const GridButtonItem(
               value: KeyCodes.backspace,
+              longPressValue: KeyCodes.backspaceLong,
               child: Icon(Icons.backspace),
             ),
           ],
