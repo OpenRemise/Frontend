@@ -344,7 +344,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.language),
                                   title: Text(
-                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from web',
+                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from web',
                                   ),
                                   enabled: trackVoltageOff && online,
                                   onTap: _zimoFirmwareFromWeb,
@@ -354,7 +354,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open),
                                   title: Text(
-                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS' : 'MX'} decoder from file',
+                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from file',
                                   ),
                                   enabled: trackVoltageOff,
                                   onTap: _zimoFromFile,
@@ -368,7 +368,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS' : 'MX'} decoder via ',
+                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),
@@ -392,7 +392,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS' : 'MX'} decoder via ',
+                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),

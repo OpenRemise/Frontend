@@ -21,7 +21,6 @@ import 'package:Frontend/widgets/throttle/cv_editing_controller.dart';
 import 'package:Frontend/widgets/throttle/key_press_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rich_text_controller/rich_text_controller.dart';
 
 /// \todo document
 class CvTerminal extends ConsumerStatefulWidget {
@@ -42,18 +41,7 @@ class CvTerminal extends ConsumerStatefulWidget {
 
 /// \todo document
 class CvTerminalState extends ConsumerState<CvTerminal> {
-  final CvEditingController _cvEditingController = CvEditingController(
-    targetMatches: [
-      MatchTargetItem(
-        regex: RegExp(r'A.*'),
-        style: TextStyle(color: Colors.green),
-      ),
-      MatchTargetItem(
-        regex: RegExp(r'E.*'),
-        style: TextStyle(color: Colors.red),
-      ),
-    ],
-  );
+  final CvEditingController _cvEditingController = CvEditingController();
 
   final ScrollController _scrollController = ScrollController();
 
@@ -65,20 +53,21 @@ class CvTerminalState extends ConsumerState<CvTerminal> {
     super.initState();
 
     widget.keyPressNotifier.addListener(
-      () => _cvEditingController
-          .appendKeyCode(widget.keyPressNotifier.lastKeyCode!),
+      () {
+        //
+        _cvEditingController
+            .appendKeyCode(widget.keyPressNotifier.lastKeyCode!);
+
+        // read / write CVs HERE?
+        if (_cvEditingController.text.endsWith('!') &&
+            (widget.keyPressNotifier.lastKeyCode! == KeyCodes.enter ||
+                widget.keyPressNotifier.lastKeyCode! == KeyCodes.enterLong)) {
+          _cvReadWrite(widget.keyPressNotifier.lastKeyCode!);
+        }
+
+        _scrollToMaxExtent();
+      },
     );
-
-    _cvEditingController.addListener(() {
-      // read / write CVs HERE?
-      if (_cvEditingController.text.endsWith('!') &&
-          (widget.keyPressNotifier.lastKeyCode! == KeyCodes.enter ||
-              widget.keyPressNotifier.lastKeyCode! == KeyCodes.enterLong)) {
-        _cvReadWrite();
-      }
-
-      _scrollToMaxExtent();
-    });
   }
 
   @override
@@ -101,18 +90,17 @@ class CvTerminalState extends ConsumerState<CvTerminal> {
             case LanXCvNackSc():
             case LanXCvNack():
               WidgetsBinding.instance.addPostFrameCallback(
-                (_) {
-                  _cvEditingController.prepend('E');
-                  _cvEditingController.append('\n');
-                },
+                (_) => _cvEditingController.error(),
               );
               _pending = false;
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _cvEditingController.prepend('A');
-                _cvEditingController.append('$value\n');
-              });
-              _pending = false;
+              final cv = _cvEditingController.values();
+              if (cv.number == cvAddress + 1) {
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _cvEditingController.success(value),
+                );
+                _pending = false;
+              }
             default:
           }
         }
@@ -122,7 +110,7 @@ class CvTerminalState extends ConsumerState<CvTerminal> {
           focusNode: widget.focusNode,
           decoration: InputDecoration(
             icon: const Icon(Icons.integration_instructions_outlined),
-            hintText: 'A 1024:::255',
+            hintText: 'TERMINAL\nR 1:::_\nW 1:::3',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -148,27 +136,38 @@ class CvTerminalState extends ConsumerState<CvTerminal> {
   }
 
   /// \todo document
-  void _cvReadWrite() {
+  void _cvReadWrite(int keyCode) {
     final z21 = ref.watch(z21ServiceProvider);
 
-    final number = _cvEditingController.cvNumber();
-    if (number == null) return;
-
-    final value = _cvEditingController.cvValue();
+    final cv = _cvEditingController.values();
+    if (cv.number == null) return;
 
     // Read
-    if (value == null) {
-      debugPrint('read $number');
-      z21.lanXCvPomReadByte(widget.loco.address, number - 1);
-      _pending = true;
+    if (cv.value == null) {
+      // Service mode
+      if (keyCode == KeyCodes.enterLong) {
+        z21.lanXCvRead(cv.number! - 1);
+        _pending = true;
+      }
+      // POM
+      else {
+        z21.lanXCvPomReadByte(widget.loco.address, cv.number! - 1);
+        _pending = true;
+      }
     }
     // Write
     else {
-      debugPrint('write $number = $value');
-
-      z21.lanXCvPomWriteByte(widget.loco.address, number - 1, value);
-      _cvEditingController.prepend('A');
-      _cvEditingController.append('\n');
+      // Service mode
+      if (keyCode == KeyCodes.enterLong) {
+        z21.lanXCvWrite(cv.number! - 1, cv.value!);
+        _pending = true;
+      }
+      // POM
+      else {
+        z21.lanXCvPomWriteByte(widget.loco.address, cv.number! - 1, cv.value!);
+        _cvEditingController.success(cv.value!);
+        // Don't set pending flag for POM
+      }
     }
   }
 }

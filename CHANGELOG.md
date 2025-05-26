@@ -1,10 +1,12 @@
 # Changelog
 
-##
+## 0.3.0
+- Add CV read/write to throttle ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - Bugfix typo JSON key `internal_heap` ([#83](https://github.com/OpenRemise/Frontend/issues/83))
+- Bugfix add border to dialogs ([#85](https://github.com/OpenRemise/Frontend/issues/85))
 
 ## 0.2.1
-- Bugfix various controller issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- Bugfix various throttle issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 
 ## 0.2.0
 - Support static IP ([#68](https://github.com/OpenRemise/Frontend/issues/68))
@@ -13,7 +15,7 @@
 - Remove current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 
 ## 0.0.9
-- New controller (beta) ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- New throttle (beta) ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - LED duty cycle settings ([#62](https://github.com/OpenRemise/Frontend/issues/62))
 - Current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 - App close confirmation ([#58](https://github.com/OpenRemise/Frontend/issues/58))
@@ -33,7 +35,7 @@
 ## 0.0.6
 - Show available firmware version ([#44](https://github.com/OpenRemise/Frontend/issues/44))
 - Bugfix sort locos by ascending address to mirror state on device ([#42](https://github.com/OpenRemise/Frontend/issues/42))
-- Bugfix loco controller slider scales with speed steps ([#43](https://github.com/OpenRemise/Frontend/issues/43))
+- Bugfix loco throttle slider scales with speed steps ([#43](https://github.com/OpenRemise/Frontend/issues/43))
 
 ## 0.0.5
 - Bugfix `LAN_X_CV_POM_WRITE` not acknowledged ([#26](https://github.com/OpenRemise/Frontend/issues/26))

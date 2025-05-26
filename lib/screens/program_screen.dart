@@ -65,16 +65,20 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           switch (snapshot.requireData) {
             case LanXCvNackSc():
             case LanXCvNack():
-              _updateIconData(Icons.error);
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) => _updateIconData(Icons.error));
               _pending = false;
             case LanXCvResult(cvAddress: final cvAddress, value: final value):
               if (int.parse(_formKey.currentState?.value['CV number']) ==
                   (cvAddress + 1)) {
-                _updateIconData(Icons.check_circle);
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _updateIconData(Icons.check_circle),
+                );
                 _formKey.currentState?.fields['CV value']
                     ?.didChange(value.toString());
               } else {
-                _updateIconData(Icons.error);
+                WidgetsBinding.instance
+                    .addPostFrameCallback((_) => _updateIconData(Icons.error));
                 _formKey.currentState?.fields['CV value']?.didChange(null);
               }
               _pending = false;
@@ -326,8 +330,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   /// \todo document
   void _updateIconData(IconData iconData) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => setState(() => _iconData = iconData));
+    setState(() => _iconData = iconData);
   }
 
   /// \todo document
