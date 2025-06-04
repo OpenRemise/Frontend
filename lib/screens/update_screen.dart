@@ -23,6 +23,7 @@ import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/text_scaler.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
+import 'package:Frontend/widgets/dialog/confirmation.dart';
 import 'package:Frontend/widgets/dialog/decup.dart';
 import 'package:Frontend/widgets/dialog/download.dart';
 import 'package:Frontend/widgets/dialog/mdu.dart';
@@ -198,7 +199,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.memory),
-                              title: const Text('Update ZIMO MS/N decoder'),
+                              title: const Text('Update MS/N decoder'),
                               enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
@@ -211,7 +212,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.memory),
-                              title: const Text('Update ZIMO MX decoder'),
+                              title: const Text('Update MX decoder'),
                               enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
@@ -226,8 +227,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
-                                  text:
-                                      'Upload sound to ZIMO MS/N decoder via ',
+                                  text: 'Upload to MS/N decoder via ',
                                   children: const [
                                     WidgetSpan(
                                       child: Icon(OpenRemiseIcons.track),
@@ -253,7 +253,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
-                                  text: 'Upload sound to ZIMO MX decoder via ',
+                                  text: 'Upload to MX decoder via ',
                                   children: const [
                                     WidgetSpan(
                                       child: Icon(OpenRemiseIcons.track),
@@ -279,7 +279,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
-                                  text: 'Upload sound to ZIMO decoder via ',
+                                  text: 'Upload to decoder via ',
                                   children: const [
                                     WidgetSpan(
                                       child: Icon(OpenRemiseIcons.susi),
@@ -344,7 +344,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.language),
                                   title: Text(
-                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from web',
+                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from web',
                                   ),
                                   enabled: trackVoltageOff && online,
                                   onTap: _zimoFirmwareFromWeb,
@@ -354,7 +354,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open),
                                   title: Text(
-                                    'Update ZIMO ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from file',
+                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from file',
                                   ),
                                   enabled: trackVoltageOff,
                                   onTap: _zimoFromFile,
@@ -368,7 +368,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
+                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),
@@ -392,7 +392,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload sound to ZIMO ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
+                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),
@@ -417,7 +417,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   leading: const Icon(Icons.language),
                                   title: RichText(
                                     text: TextSpan(
-                                      text: 'Upload sound to ZIMO decoder via ',
+                                      text: 'Upload to decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.susi),
@@ -440,7 +440,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   leading: const Icon(Icons.file_open),
                                   title: RichText(
                                     text: TextSpan(
-                                      text: 'Upload sound to ZIMO decoder via ',
+                                      text: 'Upload to decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.susi),
@@ -520,11 +520,19 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       final archive = ZipDecoder().decodeBytes(value);
       final bin = archive.findFile('Firmware.bin');
       if (bin == null) return;
-      showDialog(
+      showDialog<bool>(
         context: context,
-        builder: (_) => OtaDialog.fromFile(bin.content),
-        barrierDismissible: false,
-      );
+        builder: (_) => ConfirmationDialog(
+          title: 'Update to ${availableFirmwareVersion.requireValue}',
+        ),
+      ).then((value) {
+        if (value != true) return;
+        showDialog(
+          context: context,
+          builder: (_) => OtaDialog.fromFile(bin.content),
+          barrierDismissible: false,
+        );
+      });
     });
   }
 
@@ -594,15 +602,24 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                 archive.files.firstWhereOrNull((f) => f.name.endsWith('.zsu'));
             if (archiveFile == null) return;
             final zsu = Zsu(archiveFile.content);
-            showDialog(
+            showDialog<bool>(
               context: context,
-              builder: (_) => switch (_selected.elementAtOrNull(1)) {
-                0 => MduDialog.zsu(zsu),
-                1 => DecupDialog.zsu(zsu),
-                _ => throw UnimplementedError(),
-              },
-              barrierDismissible: false,
-            );
+              builder: (_) => ConfirmationDialog(
+                title:
+                    'Update to ${zsu.firmwares.values.first.majorVersion}.${zsu.firmwares.values.first.minorVersion}',
+              ),
+            ).then((value) {
+              if (value != true) return;
+              showDialog(
+                context: context,
+                builder: (_) => switch (_selected.elementAtOrNull(1)) {
+                  0 => MduDialog.zsu(zsu),
+                  1 => DecupDialog.zsu(zsu),
+                  _ => throw UnimplementedError(),
+                },
+                barrierDismissible: false,
+              );
+            });
           },
         );
       },

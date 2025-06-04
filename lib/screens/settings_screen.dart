@@ -20,7 +20,7 @@ import 'package:Frontend/providers/sys.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
 import 'package:Frontend/utilities/ip_address_validator.dart';
-import 'package:Frontend/widgets/dialog/restart.dart';
+import 'package:Frontend/widgets/dialog/confirmation.dart';
 import 'package:Frontend/widgets/error_gif.dart';
 import 'package:Frontend/widgets/loading_gif.dart';
 import 'package:flutter/foundation.dart';
@@ -80,7 +80,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               title: IconButton(
                 onPressed: () => showDialog<bool>(
                   context: context,
-                  builder: (_) => const RestartDialog(),
+                  builder: (_) => const ConfirmationDialog(title: 'Restart'),
                   barrierDismissible: false,
                 ).then(
                   (value) => value == true

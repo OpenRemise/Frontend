@@ -17,14 +17,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-class RestartDialog extends ConsumerWidget {
-  const RestartDialog({super.key});
+class ConfirmationDialog extends ConsumerWidget {
+  final String title;
+
+  const ConfirmationDialog({super.key, required this.title});
 
   /// \todo document
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
-      title: const Text('Restart'),
+      title: Text(title),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context, false),
