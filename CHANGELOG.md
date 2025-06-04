@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+- Add update confirmation for `from web` dialogs ([#76](https://github.com/OpenRemise/Frontend/issues/76))
+
 ## 0.3.0
 - Add CV read/write to throttle ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - Bugfix typo JSON key `internal_heap` ([#83](https://github.com/OpenRemise/Frontend/issues/83))

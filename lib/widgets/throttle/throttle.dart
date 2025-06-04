@@ -86,7 +86,8 @@ class _ThrottleState extends ConsumerState<Throttle> {
     );
 
     _throttleKeyPressNotifier.addListener(
-        () => _onPressedLoco(_throttleKeyPressNotifier.lastKeyCode!));
+      () => _onPressedLoco(_throttleKeyPressNotifier.lastKeyCode!),
+    );
 
     _timer = Timer.periodic(const Duration(milliseconds: 500), _railComData);
   }
@@ -421,7 +422,10 @@ class _ThrottleState extends ConsumerState<Throttle> {
         final newSpeed =
             (speed + 1).clamp(0, _sliderController!.maxWeight.toInt());
         final rvvvvvvv = encodeRvvvvvvv(
-            _loco!.speedSteps, _loco!.rvvvvvvv! >= 0x80, newSpeed);
+          _loco!.speedSteps,
+          _loco!.rvvvvvvv! >= 0x80,
+          newSpeed,
+        );
         ref
             .read(locosProvider.notifier)
             .updateLoco(_loco!.address, _loco!.copyWith(rvvvvvvv: rvvvvvvv));
@@ -434,7 +438,10 @@ class _ThrottleState extends ConsumerState<Throttle> {
         final newSpeed =
             (speed - 1).clamp(0, _sliderController!.maxWeight.toInt());
         final rvvvvvvv = encodeRvvvvvvv(
-            _loco!.speedSteps, _loco!.rvvvvvvv! >= 0x80, newSpeed);
+          _loco!.speedSteps,
+          _loco!.rvvvvvvv! >= 0x80,
+          newSpeed,
+        );
         ref
             .read(locosProvider.notifier)
             .updateLoco(_loco!.address, _loco!.copyWith(rvvvvvvv: rvvvvvvv));
