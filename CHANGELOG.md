@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.3.2
+
 ## 0.3.1
 - Add update confirmation for `from web` dialogs ([#76](https://github.com/OpenRemise/Frontend/issues/76))
 
