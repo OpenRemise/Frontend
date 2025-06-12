@@ -24,7 +24,7 @@ import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/providers/throttle_registry.dart';
 import 'package:Frontend/providers/z21_service.dart';
 import 'package:Frontend/providers/z21_status.dart';
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:Frontend/widgets/dialog/delete_loco.dart';
 import 'package:Frontend/widgets/dialog/edit_loco.dart';
 import 'package:Frontend/widgets/error_gif.dart';

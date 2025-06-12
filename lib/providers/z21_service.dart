@@ -15,9 +15,9 @@
 
 import 'package:Frontend/constants/fake_services_provider_container.dart';
 import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/services/fake_z21_service.dart';
-import 'package:Frontend/services/ws_z21_service.dart';
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/fake_z21_service.dart';
+import 'package:Frontend/services/roco/ws_z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_service.g.dart';

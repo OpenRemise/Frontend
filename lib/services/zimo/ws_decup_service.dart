@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/services/decup_service.dart';
+import 'package:Frontend/services/zimo/decup_service.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:Frontend/utilities/exor.dart';
 import 'package:flutter/foundation.dart';

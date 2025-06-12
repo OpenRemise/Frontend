@@ -17,7 +17,7 @@ import 'dart:async';
 
 import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/constants/mx_decoder_ids.dart';
-import 'package:Frontend/services/decup_service.dart';
+import 'package:Frontend/services/zimo/decup_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeDecupService implements DecupService {

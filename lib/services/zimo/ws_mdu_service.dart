@@ -15,7 +15,7 @@
 
 import 'dart:convert';
 
-import 'package:Frontend/services/mdu_service.dart';
+import 'package:Frontend/services/zimo/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
