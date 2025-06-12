@@ -17,7 +17,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:Frontend/constants/ms_decoder_ids.dart';
-import 'package:Frontend/services/mdu_service.dart';
+import 'package:Frontend/services/zimo/mdu_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FakeMduService implements MduService {

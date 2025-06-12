@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/models/loco.dart';
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

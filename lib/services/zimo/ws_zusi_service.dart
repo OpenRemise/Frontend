@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/services/zusi_service.dart';
+import 'package:Frontend/services/zimo/zusi_service.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -23,7 +23,7 @@ class WsZusiService implements ZusiService {
   late final Stream<Uint8List> _stream;
 
   WsZusiService(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zusi/'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zimo/zusi/'));
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
 

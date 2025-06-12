@@ -20,7 +20,7 @@ import 'package:Frontend/constants/fake_initial_cvs.dart';
 import 'package:Frontend/models/loco.dart';
 import 'package:Frontend/providers/locos.dart';
 import 'package:Frontend/services/fake_sys_service.dart';
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZ21Service implements Z21Service {

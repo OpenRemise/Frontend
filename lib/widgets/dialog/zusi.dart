@@ -19,7 +19,7 @@ import 'dart:typed_data';
 import 'package:Frontend/constants/ws_batch_size.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/providers/zusi_service.dart';
-import 'package:Frontend/services/zusi_service.dart';
+import 'package:Frontend/services/zimo/zusi_service.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';

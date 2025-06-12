@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/services/fake_decup_service.dart';
-import 'package:Frontend/services/decup_service.dart';
-import 'package:Frontend/services/ws_decup_service.dart';
+import 'package:Frontend/services/zimo/decup_service.dart';
+import 'package:Frontend/services/zimo/fake_decup_service.dart';
+import 'package:Frontend/services/zimo/ws_decup_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'decup_service.g.dart';

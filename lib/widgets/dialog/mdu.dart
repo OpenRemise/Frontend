@@ -19,7 +19,7 @@ import 'package:Frontend/constants/ws_batch_size.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/mdu_service.dart';
-import 'package:Frontend/services/mdu_service.dart';
+import 'package:Frontend/services/zimo/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';

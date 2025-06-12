@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/services/fake_mdu_service.dart';
-import 'package:Frontend/services/mdu_service.dart';
-import 'package:Frontend/services/ws_mdu_service.dart';
+import 'package:Frontend/services/zimo/fake_mdu_service.dart';
+import 'package:Frontend/services/zimo/mdu_service.dart';
+import 'package:Frontend/services/zimo/ws_mdu_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mdu_service.g.dart';

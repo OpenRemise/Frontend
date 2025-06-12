@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:Frontend/utilities/exor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -23,7 +23,7 @@ class WsZ21Service implements Z21Service {
   late final Stream<Command> _stream;
 
   WsZ21Service(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/z21/'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/roco/z21/'));
     _channel.ready.then(
       (_) => lanSetBroadcastFlags(
         BroadcastFlags.fromList([

@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/providers/z21_service.dart';
-import 'package:Frontend/services/z21_service.dart';
+import 'package:Frontend/services/roco/z21_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_status.g.dart';

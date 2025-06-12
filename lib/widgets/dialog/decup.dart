@@ -20,7 +20,7 @@ import 'package:Frontend/constants/ws_batch_size.dart';
 import 'package:Frontend/models/zpp.dart';
 import 'package:Frontend/models/zsu.dart';
 import 'package:Frontend/providers/decup_service.dart';
-import 'package:Frontend/services/decup_service.dart';
+import 'package:Frontend/services/zimo/decup_service.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';

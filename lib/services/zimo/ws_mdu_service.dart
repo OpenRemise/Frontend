@@ -15,7 +15,7 @@
 
 import 'dart:convert';
 
-import 'package:Frontend/services/mdu_service.dart';
+import 'package:Frontend/services/zimo/mdu_service.dart';
 import 'package:Frontend/utilities/crc32.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
@@ -26,8 +26,9 @@ class WsMduService implements MduService {
   late final Stream<Uint8List> _stream;
 
   WsMduService(String domain, String unencodedPath) {
-    _channel =
-        WebSocketChannel.connect(Uri.parse('ws://$domain/mdu/$unencodedPath'));
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://$domain/zimo/mdu/$unencodedPath'),
+    );
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
 

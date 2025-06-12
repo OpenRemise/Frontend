@@ -16,7 +16,7 @@
 import 'dart:async';
 
 import 'package:Frontend/constants/fake_initial_cvs.dart';
-import 'package:Frontend/services/zusi_service.dart';
+import 'package:Frontend/services/zimo/zusi_service.dart';
 import 'package:Frontend/utilities/crc8.dart';
 import 'package:flutter/foundation.dart';
 

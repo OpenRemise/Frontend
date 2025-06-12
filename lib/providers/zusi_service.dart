@@ -14,9 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/providers/domain.dart';
-import 'package:Frontend/services/fake_zusi_service.dart';
-import 'package:Frontend/services/ws_zusi_service.dart';
-import 'package:Frontend/services/zusi_service.dart';
+import 'package:Frontend/services/zimo/fake_zusi_service.dart';
+import 'package:Frontend/services/zimo/ws_zusi_service.dart';
+import 'package:Frontend/services/zimo/zusi_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'zusi_service.g.dart';
