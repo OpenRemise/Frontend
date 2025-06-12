@@ -23,7 +23,7 @@ class WsZ21Service implements Z21Service {
   late final Stream<Command> _stream;
 
   WsZ21Service(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/z21/'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/roco/z21/'));
     _channel.ready.then(
       (_) => lanSetBroadcastFlags(
         BroadcastFlags.fromList([

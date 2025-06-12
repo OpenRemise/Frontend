@@ -26,7 +26,7 @@ class WsDecupService implements DecupService {
 
   WsDecupService(String domain, String unencodedPath) {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://$domain/decup/$unencodedPath'),
+      Uri.parse('ws://$domain/zimo/decup/$unencodedPath'),
     );
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }

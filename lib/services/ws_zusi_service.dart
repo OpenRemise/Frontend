@@ -23,7 +23,7 @@ class WsZusiService implements ZusiService {
   late final Stream<Uint8List> _stream;
 
   WsZusiService(String domain) {
-    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zusi/'));
+    _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/zimo/zusi/'));
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }
 
