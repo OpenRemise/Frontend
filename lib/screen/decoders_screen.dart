@@ -15,6 +15,7 @@
 
 import 'package:Frontend/provider/dcc.dart';
 import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/small_width_state.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_status.dart';
@@ -42,6 +43,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
     final locos = ref.watch(locosProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final smallLayout = ref.watch(smallWidthStateProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -88,7 +90,34 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
             ],
             scrolledUnderElevation: 0,
             floating: true,
+            flexibleSpace: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Decoders  ',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+              ),
+            ),
           ),
+          if (!smallLayout) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Divider(
+                  thickness: 1,
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withOpacity(0.5),
+                ),
+              ),
+            ),
+          ],
           dcc.when(
             data: (data) => SliverList(
               delegate: SliverChildBuilderDelegate(

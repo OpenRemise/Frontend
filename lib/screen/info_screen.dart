@@ -18,6 +18,7 @@ import 'dart:async';
 import 'package:Frontend/provider/available_firmware_version.dart';
 import 'package:Frontend/provider/domain.dart';
 import 'package:Frontend/provider/internet_status.dart';
+import 'package:Frontend/provider/small_width_state.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_status.dart';
@@ -27,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:intl/intl.dart';
 
 /// \todo document
 class InfoScreen extends ConsumerStatefulWidget {
@@ -64,6 +66,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final smallLayout = ref.watch(smallWidthStateProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -94,7 +97,34 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
             ],
             scrolledUnderElevation: 0,
             floating: true,
+            flexibleSpace: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Info',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+              ),
+            ),
           ),
+          if (!smallLayout) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Divider(
+                  thickness: 1,
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withOpacity(0.5),
+                ),
+              ),
+            ),
+          ],
           ...sys.when(
             data: (data) => [
               SliverGrid.count(
@@ -122,6 +152,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                         ),
                     ],
                   ),
+                  const Text('Build date'),
+                  Text(() {
+                    try {
+                      final raw = '${data.compileDate} ${data.compileTime}';
+                      final parsed =
+                          DateFormat('MMM dd yyyy HH:mm:ss').parseStrict(raw);
+                      return DateFormat('yyyy-MM-dd, HH:mm').format(parsed);
+                    } catch (e) {
+                      return 'Invalid timestamp';
+                    }
+                  }()),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion!),
                 ],

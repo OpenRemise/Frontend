@@ -28,6 +28,8 @@ class FakeSettingsService implements SettingsService {
     stationGateway: '',
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
+    connTimeout: 2,
+    exitMessage: true,
     currentLimit: 3,
     currentLimitService: 1,
     currentShortCircuitTime: 100,

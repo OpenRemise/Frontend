@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Created by Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,13 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// makes the smallWidth status available globally
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Bad practice, but we need a common provider container for all fake services.
-/// This is the only way we can inject this container to fake services as well
-/// as the entire widget tree.
-///
-/// https://github.com/rrousselGit/riverpod/issues/295
-/// https://github.com/rrousselGit/riverpod/discussions/1387
-
-final fakeServicesProviderContainer = ProviderContainer();
+final smallWidthStateProvider = StateProvider<bool>((ref) => true);

@@ -13,13 +13,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Bad practice, but we need a common provider container for all fake services.
-/// This is the only way we can inject this container to fake services as well
-/// as the entire widget tree.
-///
-/// https://github.com/rrousselGit/riverpod/issues/295
-/// https://github.com/rrousselGit/riverpod/discussions/1387
+/// \todo document
+class ServerOfflineDialog extends ConsumerWidget {
+  const ServerOfflineDialog({super.key});
 
-final fakeServicesProviderContainer = ProviderContainer();
+  /// \todo document
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AlertDialog(
+      title: const Text('Connection lost'),
+      content: const Icon(Icons.wifi_off),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+}
