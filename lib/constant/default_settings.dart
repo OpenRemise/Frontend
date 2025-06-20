@@ -1,5 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
-// Created by Franziska Walter
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,8 +28,7 @@ class DefaultSettings {
   static Map<String, dynamic> values() => {
         'http_rx_timeout': 5.0,
         'http_tx_timeout': 5.0,
-        'conn_timeout': 2.0,
-        'exit_message': [true],
+        'http_exit_msg': [true],
         'cur_lim': currentLimit.indexOf(4.1).toDouble(),
         'cur_lim_serv': currentLimit.indexOf(1.3).toDouble(),
         'cur_sc_time': 100.0,

@@ -28,8 +28,7 @@ class FakeSettingsService implements SettingsService {
     stationGateway: '',
     httpReceiveTimeout: 5,
     httpTransmitTimeout: 5,
-    connTimeout: 2,
-    exitMessage: true,
+    httpExitMessage: true,
     currentLimit: 3,
     currentLimitService: 1,
     currentShortCircuitTime: 100,
@@ -80,6 +79,7 @@ class FakeSettingsService implements SettingsService {
             config.httpReceiveTimeout ?? _config.httpReceiveTimeout,
         httpTransmitTimeout:
             config.httpTransmitTimeout ?? _config.httpTransmitTimeout,
+        httpExitMessage: config.httpExitMessage ?? _config.httpExitMessage,
         currentLimit: config.currentLimit ?? _config.currentLimit,
         currentLimitService:
             config.currentLimitService ?? _config.currentLimitService,

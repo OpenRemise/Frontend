@@ -21,5 +21,4 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// https://github.com/rrousselGit/riverpod/issues/295
 /// https://github.com/rrousselGit/riverpod/discussions/1387
-
 final fakeServicesProviderContainer = ProviderContainer();

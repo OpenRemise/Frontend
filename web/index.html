@@ -34,13 +34,6 @@
 </head>
 <body style="opacity: 0; transition: opacity 2s;" onload="document.body.style.opacity='1'">
   <img img width="80%" style="margin: 0; position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);" src="assets/data/images/logo.svg" />
-  <script>
-    window.addEventListener('beforeunload', function (e) {
-      // Standard message not shown in modern browsers, but returning a value triggers the dialog
-      e.preventDefault(); // Required for Chrome
-      e.returnValue = ''; // Required for modern browsers
-    });
-  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

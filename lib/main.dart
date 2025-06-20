@@ -18,15 +18,16 @@ import 'dart:async';
 import 'package:Frontend/constant/controller_size.dart';
 import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
+import 'package:Frontend/model/connection_status.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/register.dart';
 import 'package:Frontend/prefs.dart';
+import 'package:Frontend/provider/connection_status.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/locos.dart';
-import 'package:Frontend/provider/small_width_state.dart';
+import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
-import 'package:Frontend/provider/z21_connection_state.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_short_circuit.dart';
 import 'package:Frontend/screen/decoders_screen.dart';
@@ -34,6 +35,7 @@ import 'package:Frontend/screen/info_screen.dart';
 import 'package:Frontend/screen/program_screen.dart';
 import 'package:Frontend/screen/settings_screen.dart';
 import 'package:Frontend/screen/update_screen.dart';
+import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
 import 'package:Frontend/widget/throttle/throttle.dart';
@@ -142,35 +144,6 @@ class HomeView extends ConsumerStatefulWidget {
   ConsumerState<HomeView> createState() => _HomeViewState();
 }
 
-class ConnectionStatusIcon extends ConsumerWidget {
-  const ConnectionStatusIcon({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(z21ConnectionStateProvider);
-
-    return status.when(
-      data: (connected) => Tooltip(
-        message: connected ? 'Connected' : 'Connection lost',
-        child: Icon(
-          connected ? Icons.wifi : Icons.wifi_off,
-          // color: connected ? Colors.green : Colors.red,
-          size: 20,
-        ),
-      ),
-      loading: () => const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-      error: (_, __) => const Icon(
-        Icons.error,
-        //color: Colors.orange
-      ),
-    );
-  }
-}
-
 /// \todo document
 class _HomeViewState extends ConsumerState<HomeView> {
   late final Timer _timer;
@@ -218,16 +191,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 1000), _heartbeat);
+    _timer = Timer.periodic(const Duration(seconds: 1), _heartbeat);
 
     // Add listener for short circuit events
     ref.listenManual(
       z21ShortCircuitProvider,
       (previous, next) {
-        final connection = ref.read(z21ConnectionStateProvider);
-        final isConnected = connection is AsyncData && connection.value == true;
+        final connectionStatus = ref.read(connectionStatusProvider);
+        final bool connected = connectionStatus.hasValue &&
+            connectionStatus.value == ConnectionStatus.connected;
 
-        if (ModalRoute.of(context)?.isCurrent == true && isConnected) {
+        if (ModalRoute.of(context)?.isCurrent == true && connected) {
           showDialog(
             context: context,
             builder: (_) => const ShortCircuitDialog(),
@@ -240,18 +214,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   /// \todo document
   @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  /// \todo document
-  @override
   Widget build(BuildContext context) {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
-    ref.read(smallWidthStateProvider.notifier).state = smallWidth;
     final throttleRegistry = ref.watch(throttleRegistryProvider);
+    final connectionStatus = ref.watch(connectionStatusProvider);
+    final bool connected = connectionStatus.hasValue &&
+        connectionStatus.value == ConnectionStatus.connected;
 
     if (smallWidth != _smallWidth) {
       _smallWidth = smallWidth;
@@ -276,6 +245,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
               ),
         actions: [
           IconButton(
+            onPressed: () => showDialog<bool>(
+              context: context,
+              builder: (_) => const ConfirmationDialog(title: 'Restart'),
+              barrierDismissible: false,
+            ).then(
+              (value) => value == true
+                  ? ref.read(sysProvider.notifier).restart()
+                  : null,
+            ),
+            tooltip: 'Restart',
+            icon: const Icon(Icons.restart_alt),
+          ),
+          IconButton(
             onPressed: () {
               final scale = ref.read(textScalerProvider) + 0.2;
               ref
@@ -296,9 +278,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 .read(darkModeProvider.notifier)
                 .update(!ref.read(darkModeProvider)),
           ),
-          const SizedBox(width: 8),
-          const ConnectionStatusIcon(), // <- Status-LED!
-          const SizedBox(width: 12),
+          Tooltip(
+            message: connected ? 'Connected' : 'Disconnected',
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(connected ? Icons.wifi : Icons.wifi_off),
+            ),
+          ),
         ],
         scrolledUnderElevation: 0,
       ),

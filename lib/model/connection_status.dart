@@ -1,5 +1,4 @@
 // Copyright (C) 2025 Vincent Hamp
-// Created by Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// makes the smallWidth status available globally
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final smallWidthStateProvider = StateProvider<bool>((ref) => true);
+enum ConnectionStatus {
+  connected,
+  disconnected,
+}

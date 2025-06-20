@@ -1,4 +1,4 @@
-// Created by Franziska Walter
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -59,10 +59,6 @@ class _PersistentExpansionTileState extends State<PersistentExpansionTile> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final expandedColor = isDark ? Colors.grey.shade800 : Colors.grey.shade200;
-
     final contentOnly = Column(
       children: [
         ...widget.children,
@@ -87,7 +83,8 @@ class _PersistentExpansionTileState extends State<PersistentExpansionTile> {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          color: _expanded ? expandedColor : Colors.transparent,
+          color:
+              _expanded ? Theme.of(context).highlightColor : Colors.transparent,
           child: ListTile(
             contentPadding: widget.tilePadding,
             leading: widget.leading,

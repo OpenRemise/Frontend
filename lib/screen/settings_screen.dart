@@ -1,5 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
-// Changed by Franziska Walter
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,14 +16,12 @@
 
 import 'package:Frontend/constant/default_settings.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
+import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/config.dart';
 import 'package:Frontend/provider/settings.dart';
-import 'package:Frontend/provider/small_width_state.dart';
-import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/utility/ip_address_validator.dart';
-import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
 import 'package:Frontend/widget/persistent_expansion_tile.dart';
@@ -51,7 +49,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final settings = ref.watch(settingsProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
-    final smallLayout = ref.watch(smallWidthStateProvider);
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -75,25 +74,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 selectedIcon: const Icon(Icons.power_off),
                 icon: const Icon(Icons.power),
               ),
-              title: IconButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (_) => const ConfirmationDialog(title: 'Restart'),
-                  barrierDismissible: false,
-                ).then(
-                  (value) => value == true
-                      ? ref.read(sysProvider.notifier).restart()
-                      : null,
-                ),
-                tooltip: 'Restart',
-                icon: const Icon(Icons.restart_alt),
-              ),
+              title: smallWidth ? null : Text('Settings'),
               actions: [
                 ValueListenableBuilder<bool>(
                   valueListenable: _expandAllNotifier,
                   builder: (context, isExpanded, _) {
                     return IconButton(
-                      tooltip: isExpanded ? 'collapse all' : 'expand all',
+                      tooltip: isExpanded ? 'Collapse all' : 'Expand all',
                       icon: Icon(
                         isExpanded ? Icons.unfold_less : Icons.unfold_more,
                       ),
@@ -117,36 +104,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: const Icon(Icons.refresh),
                 ),
               ],
+              bottom: smallWidth
+                  ? null
+                  : PreferredSize(
+                      preferredSize: Size(double.infinity, 0),
+                      child: Divider(thickness: 2),
+                    ),
               scrolledUnderElevation: 0,
+              centerTitle: true,
               floating: true,
-              flexibleSpace: Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Settings',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                  ),
-                ),
-              ),
             ),
-            if (!smallLayout) ...[
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Divider(
-                    thickness: 1,
-                    height: 1,
-                    color: Theme.of(context).dividerColor.withOpacity(0.5),
-                  ),
-                ),
-              ),
-            ],
             settings.when(
               /// \warning
               /// All widgets must be visible to the FormBuilder all the time.Do **not** use lazy loading inside a FormBuilder.
@@ -177,10 +144,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               }
                             },
                             initialValue: data.stationMdns,
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'mDNS',
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'mDNS'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -200,7 +165,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             },
                             initialValue: data.stationSsid,
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
                               labelText: 'SSID',
                             ),
                             autovalidateMode: AutovalidateMode.always,
@@ -221,10 +185,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               }
                             },
                             initialValue: data.stationPassword,
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Password',
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -245,7 +207,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             },
                             initialValue: data.stationAlternativeSsid,
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
                               labelText: 'Alternative SSID',
                             ),
                             autovalidateMode: AutovalidateMode.always,
@@ -268,7 +229,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             },
                             initialValue: data.stationAlternativePassword,
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
                               labelText: 'Alternative password',
                             ),
                             autovalidateMode: AutovalidateMode.always,
@@ -281,10 +241,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'sta_ip',
                             validator: ipAddressValidator,
                             initialValue: data.stationIp,
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'IP',
-                            ),
+                            decoration: const InputDecoration(labelText: 'IP'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -296,10 +253,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'sta_netmask',
                             validator: ipAddressValidator,
                             initialValue: data.stationNetmask,
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Netmask',
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'Netmask'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -310,10 +265,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'sta_gateway',
                             validator: ipAddressValidator,
                             initialValue: data.stationGateway,
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Gateway',
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'Gateway'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -333,8 +286,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'http_rx_timeout',
                             initialValue: data.httpReceiveTimeout!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'HTTP receive timeout [s]',
+                              labelText: 'Receive timeout [s]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 5,
@@ -350,8 +302,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'http_tx_timeout',
                             initialValue: data.httpTransmitTimeout!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'HTTP transmit timeout [s]',
+                              labelText: 'Transmit timeout [s]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 5,
@@ -360,46 +311,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             displayValues: DisplayValues.current,
                           ),
                         ),
-                        Tooltip(
-                          message: 'Timeout for determining connection status',
-                          waitDuration: const Duration(seconds: 1),
-                          child: FormBuilderSlider(
-                            name: 'conn_timeout',
-                            initialValue: data.connTimeout!.toDouble(),
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Connection timeout [s]',
-                            ),
-                            valueTransformer: (value) => value!.toInt(),
-                            min: 1,
-                            max: 5,
-                            divisions: 5 - 1,
-                            displayValues: DisplayValues.current,
-                          ),
-                        ),
                         FormBuilderCheckboxGroup(
-                          name: 'exit_message',
-                          initialValue: [
-                            if (data.exitMessage == true) true,
-                          ],
+                          name: 'http_exit_msg',
+                          initialValue: [data.httpExitMessage!],
                           decoration: const InputDecoration(
-                            // icon: Icon(null),
-                            label: Row(
-                              children: [
-                                Text('Show Message on page leave'),
-                                Icon(null),
-                              ],
-                            ),
+                            labelText: 'Show Message on page leave',
                           ),
                           options: const [
                             FormBuilderFieldOption(
                               value: true,
                               child: Tooltip(
-                                message:
-                                    'Displays a query when leaving the page',
-                                waitDuration: Duration(seconds: 1),
-                                child: Text('Message on page leave'),
-                              ),
+                                  message:
+                                      'Display a query when leaving the page',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('Message on page leave')),
                             ),
                           ],
                           valueTransformer: (value) => value?.contains(true),
@@ -419,8 +344,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'cur_lim',
                             initialValue: data.currentLimit!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Current limit [A]',
+                              labelText: 'Limit [A]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 0,
@@ -441,8 +365,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             validator: (_) => null,
                             initialValue: data.currentLimitService!.toDouble(),
                             decoration: InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Current limit service mode [A]',
+                              labelText: 'Limit service mode [A]',
                               helperText: (_formKey.currentState
                                               ?.fields['cur_lim_serv']?.value ??
                                           0) >
@@ -474,8 +397,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 data.currentShortCircuitTime!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'Current short circuit time [ms]',
+                              labelText: 'Short circuit time [ms]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 20,
@@ -499,8 +421,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'led_dc_bug',
                             initialValue: data.ledDutyCycleBug!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'LED duty cycle bug [%]',
+                              labelText: 'Duty cycle bug [%]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 0,
@@ -516,8 +437,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'led_dc_wifi',
                             initialValue: data.ledDutyCycleWiFi!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'LED duty cycle WiFi [%]',
+                              labelText: 'Duty cycle WiFi [%]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 0,
@@ -541,8 +461,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'dcc_preamble',
                             initialValue: data.dccPreamble!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC preamble',
+                              labelText: 'Preamble',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 17,
@@ -558,8 +477,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'dcc_bit1_dur',
                             initialValue: data.dccBit1Duration!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC 1 bit duration [µs]',
+                              labelText: '1 bit duration [µs]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 56,
@@ -575,8 +493,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'dcc_bit0_dur',
                             initialValue: data.dccBit0Duration!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC 0 bit duration [µs]',
+                              labelText: '0 bit duration [µs]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 97,
@@ -595,8 +512,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 .indexOf(data.dccBiDiBitDuration!)
                                 .toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC BiDi bit duration [µs]',
+                              labelText: 'BiDi bit duration [µs]',
                             ),
                             valueTransformer: (value) => DefaultSettings
                                 .dccBiDiDurations[value!.toInt()],
@@ -618,8 +534,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             name: 'dcc_prog_type',
                             initialValue: data.dccProgrammingType!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC programming type',
+                              labelText: 'Programming type',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 0,
@@ -641,8 +556,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 data.dccStartupResetPacketCount!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC startup reset packets',
+                              labelText: 'Startup reset packets',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 25,
@@ -660,8 +574,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 data.dccContinueResetPacketCount!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC continue reset packets',
+                              labelText: 'Continue reset packets',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 3,
@@ -679,8 +592,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 data.dccProgramPacketCount!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC program packets',
+                              labelText: 'Program packets',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 2,
@@ -698,8 +610,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC verify to bit',
+                              labelText: 'Verify to bit',
                             ),
                             valueTransformer: (value) => value! == 1,
                             min: 0,
@@ -717,8 +628,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue:
                                 data.dccProgrammingAckCurrent!.toDouble(),
                             decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              labelText: 'DCC programming ack current [mA]',
+                              labelText: 'Programming ack current [mA]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
                             min: 10,
@@ -730,25 +640,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                     ),
                     PersistentExpansionTile(
-                      title: const Text('Loco'),
+                      title: const Text('Locos'),
                       externalController: _expandAllNotifier,
                       leading: const Icon(Icons.train),
                       showDividers: true,
                       children: [
                         FormBuilderCheckboxGroup(
                           name: 'dcc_loco_flags',
-                          orientation: OptionsOrientation.vertical,
                           initialValue: [
                             data.dccLocoFlags! & 0x80,
                             data.dccLocoFlags! & 0x40,
                             data.dccLocoFlags! & 0x20,
                           ],
-                          decoration: const InputDecoration(
-                            // icon: Icon(null),
-                            label: Row(
-                              children: [Text('DCC locos '), Icon(null)],
-                            ),
-                          ),
                           valueTransformer: (value) => value?.fold(
                             0x02,
                             (prev, cur) => prev | cur,
@@ -760,7 +663,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 message:
                                     'Short loco addresses range from 1 to 127 (instead of 99)',
                                 waitDuration: Duration(seconds: 1),
-                                child: Text('Short loco addresses to 127'),
+                                child: Text('Short addresses to 127'),
                               ),
                             ),
                             FormBuilderFieldOption(
@@ -769,8 +672,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 message:
                                     'Repeat high function of locos cyclically',
                                 waitDuration: Duration(seconds: 1),
-                                child:
-                                    Text('Repeat high loco functions (≥F13)'),
+                                child: Text('Repeat high functions (≥F13)'),
                               ),
                             ),
                             FormBuilderFieldOption(
@@ -783,12 +685,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ),
                             ),
                           ],
+                          orientation: smallWidth
+                              ? OptionsOrientation.vertical
+                              : OptionsOrientation.wrap,
                         ),
                       ],
                     ),
                     if (kDebugMode)
                       PersistentExpansionTile(
-                        title: const Text('Debug DCC'),
+                        title: const Text('Accessories'),
                         externalController: _expandAllNotifier,
                         leading: const Icon(OpenRemiseIcons.accessory),
                         showDividers: true,
@@ -801,15 +706,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               data.dccAccyFlags! & 0x02,
                               data.dccAccyFlags! & 0x01,
                             ],
-                            decoration: const InputDecoration(
-                              // icon: Icon(null),
-                              label: Row(
-                                children: [
-                                  Text('DCC accessories '),
-                                  Icon(null),
-                                ],
-                              ),
-                            ),
                             valueTransformer: (value) => value?.fold(
                               0,
                               (prev, cur) => prev | cur,
@@ -853,61 +749,46 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 ),
                               ),
                             ],
+                            orientation: smallWidth
+                                ? OptionsOrientation.vertical
+                                : OptionsOrientation.wrap,
                           ),
                         ],
                       ),
-                    Center(
-                      child: IntrinsicWidth(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 24),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: -12),
-                              child: const Divider(thickness: 1),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState == null) return;
-                                    _formKey.currentState!.reset();
-                                  },
-                                  child: const Text('Cancel'),
-                                ),
-                                const SizedBox(width: 16),
-                                OutlinedButton(
-                                  onPressed: () {
-                                    if (_formKey.currentState
-                                            ?.saveAndValidate() ??
-                                        false) {
-                                      var map =
-                                          Map.of(_formKey.currentState!.value);
-                                      final String staPass = map['sta_pass']!;
-                                      if (staPass.isNotEmpty &&
-                                          staPass == '*' * staPass.length) {
-                                        map.remove('sta_pass');
-                                      }
-                                      ref
-                                          .read(settingsProvider.notifier)
-                                          .updateSettings(Config.fromJson(map));
-                                    }
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: -12),
-                              child: const Divider(thickness: 1),
-                            ),
-                          ],
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              if (_formKey.currentState == null) return;
+                              _formKey.currentState!.reset();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {
+                              if (_formKey.currentState?.saveAndValidate() ??
+                                  false) {
+                                // Remove sta_pass if it only contains *
+                                var map = Map.of(_formKey.currentState!.value);
+                                final String staPass = map['sta_pass']!;
+                                if (staPass.isNotEmpty &&
+                                    staPass == '*' * staPass.length) {
+                                  map.remove('sta_pass');
+                                }
+                                ref
+                                    .read(settingsProvider.notifier)
+                                    .updateSettings(Config.fromJson(map));
+                              }
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
                       ),
                     ),
                   ],

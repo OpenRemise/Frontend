@@ -14,7 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constant/open_remise_icons.dart';
-import 'package:Frontend/provider/small_width_state.dart';
+import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_status.dart';
@@ -49,7 +49,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
     final serviceMode = _selected.elementAtOrNull(0) == 1;
-    final smallLayout = ref.watch(smallWidthStateProvider);
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
 
     // https://github.com/flutter/flutter/issues/112197
     return StreamBuilder(
@@ -110,6 +111,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                     selectedIcon: const Icon(Icons.power_off),
                     icon: const Icon(Icons.power),
                   ),
+                  title: smallWidth ? null : Text('Program'),
                   actions: [
                     IconButton(
                       onPressed: () => setState(() {
@@ -120,36 +122,16 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                       icon: const Icon(Icons.refresh),
                     ),
                   ],
+                  bottom: smallWidth
+                      ? null
+                      : PreferredSize(
+                          preferredSize: Size(double.infinity, 0),
+                          child: Divider(thickness: 2),
+                        ),
                   scrolledUnderElevation: 0,
+                  centerTitle: true,
                   floating: true,
-                  flexibleSpace: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Program',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 4),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
-                if (!smallLayout) ...[
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Divider(
-                        thickness: 1,
-                        height: 1,
-                        color: Theme.of(context).dividerColor.withOpacity(0.5),
-                      ),
-                    ),
-                  ),
-                ],
                 SliverToBoxAdapter(
                   child: Stepper(
                     steps: <Step>[
