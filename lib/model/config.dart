@@ -34,6 +34,7 @@ abstract class Config with _$Config {
     @JsonKey(name: 'sta_gateway') String? stationGateway,
     @JsonKey(name: 'http_rx_timeout') int? httpReceiveTimeout,
     @JsonKey(name: 'http_tx_timeout') int? httpTransmitTimeout,
+    @JsonKey(name: 'http_exit_msg') bool? httpExitMessage,
     @JsonKey(name: 'cur_lim') int? currentLimit,
     @JsonKey(name: 'cur_lim_serv') int? currentLimitService,
     @JsonKey(name: 'cur_sc_time') int? currentShortCircuitTime,

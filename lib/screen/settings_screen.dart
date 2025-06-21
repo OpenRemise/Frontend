@@ -1,4 +1,5 @@
 // Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constant/default_settings.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
+import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/config.dart';
 import 'package:Frontend/provider/settings.dart';
-import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/z21_service.dart';
 import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/utility/ip_address_validator.dart';
-import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
+import 'package:Frontend/widget/persistent_expansion_tile.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -38,15 +40,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 /// \todo document
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  static const List<double> _currentLimitValues = [0.5, 1.3, 2.7, 4.1];
-  static const List<int> _dccBiDiBitDurationValues = [0, 57, 58, 59, 60, 61];
-  static const List<String> _dccProgrammingTypeValues = [
-    'Nothing',
-    'Bit only',
-    'Byte only',
-    'Bit and byte',
-  ];
   final _formKey = GlobalKey<FormBuilderState>();
+  final ValueNotifier<bool> _expandAllNotifier = ValueNotifier<bool>(false);
 
   /// \todo document
   @override
@@ -54,6 +49,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final settings = ref.watch(settingsProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -77,22 +74,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 selectedIcon: const Icon(Icons.power_off),
                 icon: const Icon(Icons.power),
               ),
-              title: IconButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (_) => const ConfirmationDialog(title: 'Restart'),
-                  barrierDismissible: false,
-                ).then(
-                  (value) => value == true
-                      ? ref.read(sysProvider.notifier).restart()
-                      : null,
-                ),
-                tooltip: 'Restart',
-                icon: const Icon(Icons.restart_alt),
-              ),
+              title: smallWidth ? null : Text('Settings'),
               actions: [
+                ValueListenableBuilder<bool>(
+                  valueListenable: _expandAllNotifier,
+                  builder: (context, isExpanded, _) {
+                    return IconButton(
+                      tooltip: isExpanded ? 'Collapse all' : 'Expand all',
+                      icon: Icon(
+                        isExpanded ? Icons.unfold_less : Icons.unfold_more,
+                      ),
+                      onPressed: () => _expandAllNotifier.value = !isExpanded,
+                    );
+                  },
+                ),
                 IconButton(
-                  onPressed: _defaults,
+                  onPressed: () {
+                    _formKey.currentState?.patchValue(DefaultSettings.values());
+                  },
                   tooltip: 'Defaults',
                   icon: const Icon(Icons.settings_suggest),
                 ),
@@ -105,7 +104,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: const Icon(Icons.refresh),
                 ),
               ],
+              bottom: smallWidth
+                  ? null
+                  : PreferredSize(
+                      preferredSize: Size(double.infinity, 0),
+                      child: Divider(thickness: 2),
+                    ),
               scrolledUnderElevation: 0,
+              centerTitle: true,
               floating: true,
             ),
             settings.when(
@@ -116,595 +122,636 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   primary: false,
                   shrinkWrap: true,
                   children: [
-                    Tooltip(
-                      message:
-                          'mDNS hostname under which the device appears (e.g. my-remise.local)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_mdns',
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a mDNS';
-                          } else if (!value.endsWith('remise')) {
-                            return "mDNS must end with 'remise'";
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialValue: data.stationMdns,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.wifi),
-                          labelText: 'mDNS',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Name of the network to connect to',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_ssid',
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a SSID';
-                          } else if (value.length > 32) {
-                            return 'SSID too long';
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialValue: data.stationSsid,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'SSID',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Password of the network to connect to',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_pass',
-                        validator: (String? value) {
-                          if (value == null) {
-                            return 'Please enter a password';
-                          } else if (value.length > 64) {
-                            return 'Password too long';
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialValue: data.stationPassword,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Password',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Name of the alternative network to connect to',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_alt_ssid',
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return null;
-                          } else if (value.length > 32) {
-                            return 'SSID too long';
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialValue: data.stationAlternativeSsid,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Alternative SSID',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Password of the alternative network to connect to',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_alt_pass',
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return null;
-                          } else if (value.length > 64) {
-                            return 'Password too long';
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialValue: data.stationAlternativePassword,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Alternative password',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'IP address',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_ip',
-                        validator: ipAddressValidator,
-                        initialValue: data.stationIp,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'IP',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'IP address of the access point to connect to',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_netmask',
-                        validator: ipAddressValidator,
-                        initialValue: data.stationNetmask,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Netmask',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Range of IP addresses in the network',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderTextField(
-                        name: 'sta_gateway',
-                        validator: ipAddressValidator,
-                        initialValue: data.stationGateway,
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Gateway',
-                        ),
-                        autovalidateMode: AutovalidateMode.always,
-                      ),
-                    ),
-                    const Divider(),
-                    Tooltip(
-                      message:
-                          'Timeout for receiving HTTP requests (also used for USB)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'http_rx_timeout',
-                        initialValue: data.httpReceiveTimeout!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.http),
-                          labelText: 'HTTP receive timeout [s]',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 5,
-                        max: 60,
-                        divisions: 60 - 5,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Timeout for transmitting HTTP response',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'http_tx_timeout',
-                        initialValue: data.httpTransmitTimeout!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'HTTP transmit timeout [s]',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 5,
-                        max: 60,
-                        divisions: 60 - 5,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    const Divider(),
-                    Tooltip(
-                      message: 'Current limit in DCC operation mode',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'cur_lim',
-                        initialValue: data.currentLimit!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.power),
-                          labelText: 'Current limit [A]',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 3,
-                        divisions: 3 - 0,
-                        displayValues: DisplayValues.current,
-                        valueWidget: (value) => Text(
-                          _currentLimitValues[int.parse(value)].toString(),
-                        ),
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Current limit in DCC service mode',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'cur_lim_serv',
-                        validator: (_) => null,
-                        initialValue: data.currentLimitService!.toDouble(),
-                        decoration: InputDecoration(
-                          icon: const Icon(null),
-                          labelText: 'Current limit service mode [A]',
-                          helperText: (_formKey.currentState
-                                          ?.fields['cur_lim_serv']?.value ??
-                                      0) >
-                                  _currentLimitValues.indexOf(1.3)
-                              ? '\u26A0 exceeds recommended limit'
-                              : null,
-                          helperStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                    PersistentExpansionTile(
+                      title: const Text('Network'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(Icons.wifi),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message:
+                              'mDNS hostname under which the device appears (e.g. my-remise.local)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_mdns',
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a mDNS';
+                              } else if (!value.endsWith('remise')) {
+                                return "mDNS must end with 'remise'";
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.stationMdns,
+                            decoration:
+                                const InputDecoration(labelText: 'mDNS'),
+                            autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
-                        onChanged: (_) => setState(() {}),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 3,
-                        divisions: 3 - 0,
-                        displayValues: DisplayValues.current,
-                        valueWidget: (value) => Text(
-                          _currentLimitValues[int.parse(value)].toString(),
+                        Tooltip(
+                          message: 'Name of the network to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_ssid',
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a SSID';
+                              } else if (value.length > 32) {
+                                return 'SSID too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.stationSsid,
+                            decoration: const InputDecoration(
+                              labelText: 'SSID',
+                            ),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Time after which an overcurrent is considered a short circuit',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'cur_sc_time',
-                        initialValue: data.currentShortCircuitTime!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'Current short circuit time [ms]',
+                        Tooltip(
+                          message: 'Password of the network to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_pass',
+                            validator: (String? value) {
+                              if (value == null) {
+                                return 'Please enter a password';
+                              } else if (value.length > 64) {
+                                return 'Password too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.stationPassword,
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 20,
-                        max: 240,
-                        divisions: (240 - 20) ~/ 20,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    const Divider(),
-                    Tooltip(
-                      message: 'Duty cycle for bug LED (blue)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'led_dc_bug',
-                        initialValue: data.ledDutyCycleBug!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.lightbulb),
-                          labelText: 'LED duty cycle bug [%]',
+                        Tooltip(
+                          message:
+                              'Name of the alternative network to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_alt_ssid',
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return null;
+                              } else if (value.length > 32) {
+                                return 'SSID too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.stationAlternativeSsid,
+                            decoration: const InputDecoration(
+                              labelText: 'Alternative SSID',
+                            ),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 100,
-                        divisions: 100 - 0,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Duty cycle for WiFi LED (green)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'led_dc_wifi',
-                        initialValue: data.ledDutyCycleWiFi!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'LED duty cycle WiFi [%]',
+                        Tooltip(
+                          message:
+                              'Password of the alternative network to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_alt_pass',
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return null;
+                              } else if (value.length > 64) {
+                                return 'Password too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.stationAlternativePassword,
+                            decoration: const InputDecoration(
+                              labelText: 'Alternative password',
+                            ),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 100,
-                        divisions: 100 - 0,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    const Divider(),
-                    Tooltip(
-                      message: 'Number of preamble bits',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_preamble',
-                        initialValue: data.dccPreamble!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(OpenRemiseIcons.square_wave),
-                          labelText: 'DCC preamble',
+                        Tooltip(
+                          message: 'IP address',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_ip',
+                            validator: ipAddressValidator,
+                            initialValue: data.stationIp,
+                            decoration: const InputDecoration(labelText: 'IP'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 17,
-                        max: 30,
-                        divisions: 30 - 17,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Duration of a 1 bit',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_bit1_dur',
-                        initialValue: data.dccBit1Duration!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC 1 bit duration [µs]',
+                        Tooltip(
+                          message:
+                              'IP address of the access point to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_netmask',
+                            validator: ipAddressValidator,
+                            initialValue: data.stationNetmask,
+                            decoration:
+                                const InputDecoration(labelText: 'Netmask'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 56,
-                        max: 60,
-                        divisions: 60 - 56,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message: 'Duration of a 0 bit',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_bit0_dur',
-                        initialValue: data.dccBit0Duration!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC 0 bit duration [µs]',
+                        Tooltip(
+                          message: 'Range of IP addresses in the network',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'sta_gateway',
+                            validator: ipAddressValidator,
+                            initialValue: data.stationGateway,
+                            decoration:
+                                const InputDecoration(labelText: 'Gateway'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
                         ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 97,
-                        max: 114,
-                        divisions: 114 - 97,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Duration of a BiDi bit during cutout (0=BiDi off)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_bidibit_dur',
-                        initialValue: _dccBiDiBitDurationValues
-                            .indexOf(data.dccBiDiBitDuration!)
-                            .toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC BiDi bit duration [µs]',
-                        ),
-                        valueTransformer: (value) =>
-                            _dccBiDiBitDurationValues[value!.toInt()],
-                        min: 0,
-                        max: 61 - 57 + 1,
-                        divisions: 61 - 57 + 1,
-                        displayValues: DisplayValues.current,
-                        valueWidget: (value) => Text(
-                          _dccBiDiBitDurationValues[int.parse(value)]
-                              .toString(),
-                        ),
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'How a service mode verify is performed (bitwise, bytewise, or both)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_prog_type',
-                        initialValue: data.dccProgrammingType!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC programming type',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 0,
-                        max: 3,
-                        divisions: 3 - 0,
-                        displayValues: DisplayValues.current,
-                        valueWidget: (value) =>
-                            Text(_dccProgrammingTypeValues[int.parse(value)]),
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Number of reset packets at the start of the service mode programming sequence',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_strtp_rs_pc',
-                        initialValue:
-                            data.dccStartupResetPacketCount!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC startup reset packets',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 25,
-                        max: 255,
-                        divisions: (255 - 25) ~/ 5,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Number of reset packets when continuing the service mode programming sequence',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_cntn_rs_pc',
-                        initialValue:
-                            data.dccContinueResetPacketCount!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC continue reset packets',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 3,
-                        max: 64,
-                        divisions: 64 - 3,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Number of programming packets in the service mode programming sequence',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_prog_pc',
-                        initialValue: data.dccProgramPacketCount!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC program packets',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 2,
-                        max: 64,
-                        divisions: 64 - 2,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Comparing bits to either 0 or 1 during a service mode verify',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_verify_bit1',
-                        initialValue:
-                            (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC verify to bit',
-                        ),
-                        valueTransformer: (value) => value! == 1,
-                        min: 0,
-                        max: 1,
-                        divisions: 1 - 0,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    Tooltip(
-                      message:
-                          'Acknowledge pulse current (60mA according to S-9.2.3)',
-                      waitDuration: const Duration(seconds: 1),
-                      child: FormBuilderSlider(
-                        name: 'dcc_ack_cur',
-                        initialValue: data.dccProgrammingAckCurrent!.toDouble(),
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          labelText: 'DCC programming ack current [mA]',
-                        ),
-                        valueTransformer: (value) => value!.toInt(),
-                        min: 10,
-                        max: 250,
-                        divisions: (250 - 10) ~/ 5,
-                        displayValues: DisplayValues.current,
-                      ),
-                    ),
-                    FormBuilderCheckboxGroup(
-                      name: 'dcc_loco_flags',
-                      initialValue: [
-                        data.dccLocoFlags! & 0x80,
-                        data.dccLocoFlags! & 0x40,
-                        data.dccLocoFlags! & 0x20,
                       ],
-                      decoration: const InputDecoration(
-                        icon: Icon(null),
-                        label: Row(
-                          children: [Text('DCC locos '), Icon(Icons.train)],
-                        ),
-                      ),
-                      valueTransformer: (value) => value?.fold(
-                        0x02,
-                        (prev, cur) => prev | cur,
-                      ),
-                      options: const [
-                        FormBuilderFieldOption(
-                          value: 0x80,
-                          child: Tooltip(
-                            message:
-                                'Short loco addresses range from 1 to 127 (instead of 99)',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('Short loco addresses to 127'),
+                    ),
+                    PersistentExpansionTile(
+                      title: const Text('Site'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(Icons.http),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message:
+                              'Timeout for receiving HTTP requests (also used for USB)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'http_rx_timeout',
+                            initialValue: data.httpReceiveTimeout!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Receive timeout [s]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 5,
+                            max: 60,
+                            divisions: 60 - 5,
+                            displayValues: DisplayValues.current,
                           ),
                         ),
-                        FormBuilderFieldOption(
-                          value: 0x40,
-                          child: Tooltip(
-                            message: 'Repeat high function of locos cyclically',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('Repeat high loco functions (≥F13)'),
+                        Tooltip(
+                          message: 'Timeout for transmitting HTTP response',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'http_tx_timeout',
+                            initialValue: data.httpTransmitTimeout!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Transmit timeout [s]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 5,
+                            max: 60,
+                            divisions: 60 - 5,
+                            displayValues: DisplayValues.current,
                           ),
                         ),
-                        FormBuilderFieldOption(
-                          value: 0x20,
-                          child: Tooltip(
-                            message:
-                                'Set CV29 automatically if loco address changes',
-                            waitDuration: Duration(seconds: 1),
-                            child: Text('CV29 automatic address'),
+                        FormBuilderCheckboxGroup(
+                          name: 'http_exit_msg',
+                          initialValue: [data.httpExitMessage!],
+                          decoration: const InputDecoration(
+                            labelText: 'Show Message on page leave',
                           ),
+                          options: const [
+                            FormBuilderFieldOption(
+                              value: true,
+                              child: Tooltip(
+                                  message:
+                                      'Display a query when leaving the page',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('Message on page leave')),
+                            ),
+                          ],
+                          valueTransformer: (value) => value?.contains(true),
+                        ),
+                      ],
+                    ),
+                    PersistentExpansionTile(
+                      title: const Text('Current'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(Icons.power),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message: 'Current limit in DCC operation mode',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'cur_lim',
+                            initialValue: data.currentLimit!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Limit [A]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 0,
+                            max: 3,
+                            divisions: 3 - 0,
+                            displayValues: DisplayValues.current,
+                            valueWidget: (value) => Text(
+                              DefaultSettings.currentLimit[int.parse(value)]
+                                  .toString(),
+                            ),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Current limit in DCC service mode',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'cur_lim_serv',
+                            validator: (_) => null,
+                            initialValue: data.currentLimitService!.toDouble(),
+                            decoration: InputDecoration(
+                              labelText: 'Limit service mode [A]',
+                              helperText: (_formKey.currentState
+                                              ?.fields['cur_lim_serv']?.value ??
+                                          0) >
+                                      DefaultSettings.currentLimit.indexOf(1.3)
+                                  ? '\u26A0 exceeds recommended limit'
+                                  : null,
+                              helperStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                            onChanged: (_) => setState(() {}),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 0,
+                            max: 3,
+                            divisions: 3 - 0,
+                            displayValues: DisplayValues.current,
+                            valueWidget: (value) => Text(
+                              DefaultSettings.currentLimit[int.parse(value)]
+                                  .toString(),
+                            ),
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Time after which an overcurrent is considered a short circuit',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'cur_sc_time',
+                            initialValue:
+                                data.currentShortCircuitTime!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Short circuit time [ms]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 20,
+                            max: 240,
+                            divisions: (240 - 20) ~/ 20,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                      ],
+                    ),
+                    PersistentExpansionTile(
+                      title: const Text('LED'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(Icons.lightbulb),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message: 'Duty cycle for bug LED (blue)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'led_dc_bug',
+                            initialValue: data.ledDutyCycleBug!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Duty cycle bug [%]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 0,
+                            max: 100,
+                            divisions: 100 - 0,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Duty cycle for WiFi LED (green)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'led_dc_wifi',
+                            initialValue: data.ledDutyCycleWiFi!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Duty cycle WiFi [%]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 0,
+                            max: 100,
+                            divisions: 100 - 0,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                      ],
+                    ),
+                    PersistentExpansionTile(
+                      title: const Text('DCC'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(OpenRemiseIcons.square_wave),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message: 'Number of preamble bits',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_preamble',
+                            initialValue: data.dccPreamble!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Preamble',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 17,
+                            max: 30,
+                            divisions: 30 - 17,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Duration of a 1 bit',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_bit1_dur',
+                            initialValue: data.dccBit1Duration!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: '1 bit duration [µs]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 56,
+                            max: 60,
+                            divisions: 60 - 56,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Duration of a 0 bit',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_bit0_dur',
+                            initialValue: data.dccBit0Duration!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: '0 bit duration [µs]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 97,
+                            max: 114,
+                            divisions: 114 - 97,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Duration of a BiDi bit during cutout (0=BiDi off)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_bidibit_dur',
+                            initialValue: DefaultSettings.dccBiDiDurations
+                                .indexOf(data.dccBiDiBitDuration!)
+                                .toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'BiDi bit duration [µs]',
+                            ),
+                            valueTransformer: (value) => DefaultSettings
+                                .dccBiDiDurations[value!.toInt()],
+                            min: 0,
+                            max: 61 - 57 + 1,
+                            divisions: 61 - 57 + 1,
+                            displayValues: DisplayValues.current,
+                            valueWidget: (value) => Text(
+                              DefaultSettings.dccBiDiDurations[int.parse(value)]
+                                  .toString(),
+                            ),
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'How a service mode verify is performed (bitwise, bytewise, or both)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_prog_type',
+                            initialValue: data.dccProgrammingType!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Programming type',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 0,
+                            max: 3,
+                            divisions: 3 - 0,
+                            displayValues: DisplayValues.current,
+                            valueWidget: (value) => Text(
+                              DefaultSettings
+                                  .dccProgrammingTypes[int.parse(value)],
+                            ),
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Number of reset packets at the start of the service mode programming sequence',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_strtp_rs_pc',
+                            initialValue:
+                                data.dccStartupResetPacketCount!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Startup reset packets',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 25,
+                            max: 255,
+                            divisions: (255 - 25) ~/ 5,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Number of reset packets when continuing the service mode programming sequence',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_cntn_rs_pc',
+                            initialValue:
+                                data.dccContinueResetPacketCount!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Continue reset packets',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 3,
+                            max: 64,
+                            divisions: 64 - 3,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Number of programming packets in the service mode programming sequence',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_prog_pc',
+                            initialValue:
+                                data.dccProgramPacketCount!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Program packets',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 2,
+                            max: 64,
+                            divisions: 64 - 2,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Comparing bits to either 0 or 1 during a service mode verify',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_verify_bit1',
+                            initialValue:
+                                (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Verify to bit',
+                            ),
+                            valueTransformer: (value) => value! == 1,
+                            min: 0,
+                            max: 1,
+                            divisions: 1 - 0,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'Acknowledge pulse current (60mA according to S-9.2.3)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_ack_cur',
+                            initialValue:
+                                data.dccProgrammingAckCurrent!.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Programming ack current [mA]',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 10,
+                            max: 250,
+                            divisions: (250 - 10) ~/ 5,
+                            displayValues: DisplayValues.current,
+                          ),
+                        ),
+                      ],
+                    ),
+                    PersistentExpansionTile(
+                      title: const Text('Locos'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(Icons.train),
+                      showDividers: true,
+                      children: [
+                        FormBuilderCheckboxGroup(
+                          name: 'dcc_loco_flags',
+                          initialValue: [
+                            data.dccLocoFlags! & 0x80,
+                            data.dccLocoFlags! & 0x40,
+                            data.dccLocoFlags! & 0x20,
+                          ],
+                          valueTransformer: (value) => value?.fold(
+                            0x02,
+                            (prev, cur) => prev | cur,
+                          ),
+                          options: const [
+                            FormBuilderFieldOption(
+                              value: 0x80,
+                              child: Tooltip(
+                                message:
+                                    'Short loco addresses range from 1 to 127 (instead of 99)',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Short addresses to 127'),
+                              ),
+                            ),
+                            FormBuilderFieldOption(
+                              value: 0x40,
+                              child: Tooltip(
+                                message:
+                                    'Repeat high function of locos cyclically',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Repeat high functions (≥F13)'),
+                              ),
+                            ),
+                            FormBuilderFieldOption(
+                              value: 0x20,
+                              child: Tooltip(
+                                message:
+                                    'Set CV29 automatically if loco address changes',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('CV29 automatic address'),
+                              ),
+                            ),
+                          ],
+                          orientation: smallWidth
+                              ? OptionsOrientation.vertical
+                              : OptionsOrientation.wrap,
                         ),
                       ],
                     ),
                     if (kDebugMode)
-                      FormBuilderCheckboxGroup(
-                        name: 'dcc_accy_flags',
-                        initialValue: [
-                          data.dccAccyFlags! & 0x40,
-                          data.dccAccyFlags! & 0x04,
-                          data.dccAccyFlags! & 0x02,
-                          data.dccAccyFlags! & 0x01,
-                        ],
-                        decoration: const InputDecoration(
-                          icon: Icon(null),
-                          label: Row(
-                            children: [
-                              Text('DCC accessories '),
-                              Icon(OpenRemiseIcons.accessory),
+                      PersistentExpansionTile(
+                        title: const Text('Accessories'),
+                        externalController: _expandAllNotifier,
+                        leading: const Icon(OpenRemiseIcons.accessory),
+                        showDividers: true,
+                        children: [
+                          FormBuilderCheckboxGroup(
+                            name: 'dcc_accy_flags',
+                            initialValue: [
+                              data.dccAccyFlags! & 0x40,
+                              data.dccAccyFlags! & 0x04,
+                              data.dccAccyFlags! & 0x02,
+                              data.dccAccyFlags! & 0x01,
                             ],
-                          ),
-                        ),
-                        valueTransformer: (value) => value?.fold(
-                          0,
-                          (prev, cur) => prev | cur,
-                        ),
-                        options: const [
-                          FormBuilderFieldOption(
-                            value: 0x40,
-                            child: Tooltip(
-                              message:
-                                  'Invert meaning of straight/branch or green/red',
-                              waitDuration: Duration(seconds: 1),
-                              child: Text('Invert green/red'),
+                            valueTransformer: (value) => value?.fold(
+                              0,
+                              (prev, cur) => prev | cur,
                             ),
-                          ),
-                          FormBuilderFieldOption(
-                            value: 0x04,
-                            child: Tooltip(
-                              message: 'Addressing compliant with RCN-213',
-                              waitDuration: Duration(seconds: 1),
-                              child: Text('RCN-213 addressing'),
-                            ),
-                          ),
-                          FormBuilderFieldOption(
-                            value: 0x02,
-                            child: Tooltip(
-                              message:
-                                  'Workaround for incompatible clients that only activate outputs',
-                              waitDuration: Duration(seconds: 1),
-                              child: Text(
-                                'Automatically deactivate complementary output',
+                            options: const [
+                              FormBuilderFieldOption(
+                                value: 0x40,
+                                child: Tooltip(
+                                  message:
+                                      'Invert meaning of straight/branch or green/red',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('Invert green/red'),
+                                ),
                               ),
-                            ),
-                          ),
-                          FormBuilderFieldOption(
-                            value: 0x01,
-                            child: Tooltip(
-                              message: 'Disable automatic timeout of outputs',
-                              waitDuration: Duration(seconds: 1),
-                              child: Text('Disable timeout'),
-                            ),
+                              FormBuilderFieldOption(
+                                value: 0x04,
+                                child: Tooltip(
+                                  message: 'Addressing compliant with RCN-213',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('RCN-213 addressing'),
+                                ),
+                              ),
+                              FormBuilderFieldOption(
+                                value: 0x02,
+                                child: Tooltip(
+                                  message:
+                                      'Workaround for incompatible clients that only activate outputs',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text(
+                                    'Automatically deactivate complementary output',
+                                  ),
+                                ),
+                              ),
+                              FormBuilderFieldOption(
+                                value: 0x01,
+                                child: Tooltip(
+                                  message:
+                                      'Disable automatic timeout of outputs',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('Disable timeout'),
+                                ),
+                              ),
+                            ],
+                            orientation: smallWidth
+                                ? OptionsOrientation.vertical
+                                : OptionsOrientation.wrap,
                           ),
                         ],
                       ),
@@ -758,31 +805,5 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
-  }
-
-  /// \todo document
-  void _defaults() {
-    _formKey.currentState?.patchValue({
-      'http_rx_timeout': 5.0,
-      'http_tx_timeout': 5.0,
-      'cur_lim': _currentLimitValues.indexOf(4.1).toDouble(),
-      'cur_lim_serv': _currentLimitValues.indexOf(1.3).toDouble(),
-      'cur_sc_time': 100.0,
-      'led_dc_bug': 5.0,
-      'led_dc_wifi': 50.0,
-      'dcc_preamble': 17.0,
-      'dcc_bit1_dur': 58.0,
-      'dcc_bit0_dur': 100.0,
-      'dcc_bidibit_dur': _dccBiDiBitDurationValues.indexOf(60).toDouble(),
-      'dcc_prog_type':
-          _dccProgrammingTypeValues.indexOf('Bit and byte').toDouble(),
-      'dcc_strtp_rs_pc': 25.0,
-      'dcc_cntn_rs_pc': 6.0,
-      'dcc_verify_bit1': 1.0,
-      'dcc_prog_pc': 7.0,
-      'dcc_ack_cur': 50.0,
-      'dcc_loco_flags': [0x80, 0x40, 0x20],
-      'dcc_accy_flags': [0x04],
-    });
   }
 }

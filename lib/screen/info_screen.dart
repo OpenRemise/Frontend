@@ -15,6 +15,7 @@
 
 import 'dart:async';
 
+import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
 import 'package:Frontend/provider/domain.dart';
 import 'package:Frontend/provider/internet_status.dart';
@@ -26,6 +27,7 @@ import 'package:Frontend/widget/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 /// \todo document
@@ -64,6 +66,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -85,6 +89,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               selectedIcon: const Icon(Icons.power_off),
               icon: const Icon(Icons.power),
             ),
+            title: smallWidth ? null : Text('Info'),
             actions: [
               IconButton(
                 onPressed: () => ref.read(sysProvider.notifier).refresh(),
@@ -92,7 +97,14 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 icon: const Icon(Icons.refresh),
               ),
             ],
+            bottom: smallWidth
+                ? null
+                : PreferredSize(
+                    preferredSize: Size(double.infinity, 0),
+                    child: Divider(thickness: 2),
+                  ),
             scrolledUnderElevation: 0,
+            centerTitle: true,
             floating: true,
           ),
           ...sys.when(
@@ -122,6 +134,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                         ),
                     ],
                   ),
+                  const Text('Build date'),
+                  Text(() {
+                    try {
+                      final raw = '${data.compileDate} ${data.compileTime}';
+                      final parsed =
+                          DateFormat('MMM dd yyyy HH:mm:ss').parseStrict(raw);
+                      return DateFormat('dd/MM/yyyy, HH:mm').format(parsed);
+                    } catch (e) {
+                      return 'Invalid timestamp';
+                    }
+                  }()),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion!),
                 ],

@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constant/open_remise_icons.dart';
+import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/zpp.dart';
 import 'package:Frontend/model/zsu.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
@@ -63,6 +64,8 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final sys = ref.watch(sysProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
+    final bool smallWidth =
+        MediaQuery.of(context).size.width < smallScreenWidth;
 
     final bool online = internetStatus.hasValue &&
         internetStatus.requireValue == InternetStatus.connected;
@@ -93,6 +96,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
               selectedIcon: const Icon(Icons.power_off),
               icon: const Icon(Icons.power),
             ),
+            title: smallWidth ? null : Text('Update'),
             actions: [
               IconButton(
                 onPressed: () => setState(() {
@@ -103,7 +107,14 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                 icon: const Icon(Icons.refresh),
               ),
             ],
+            bottom: smallWidth
+                ? null
+                : PreferredSize(
+                    preferredSize: Size(double.infinity, 0),
+                    child: Divider(thickness: 2),
+                  ),
             scrolledUnderElevation: 0,
+            centerTitle: true,
             floating: true,
           ),
           SliverToBoxAdapter(
