@@ -9,17 +9,16 @@ FetchContent_MakeAvailable(CMakeModules)
 
 set(OPENREMISE_FRONTEND_BASE_HREF
     "/./"
-    CACHE STRING
-          "Overrides the href attribute of the <base> tag in web/index.html")
+    CACHE STRING "href attribute of the <base> tag in web/index.html")
 set(OPENREMISE_FRONTEND_DOMAIN
     remise.local
     CACHE STRING "Default domain for non-kIsWeb builds")
+set(OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
+    800
+    CACHE STRING "Width under which a small screen is assumed")
 set(OPENREMISE_FRONTEND_FAKE_SERVICES
     false
     CACHE STRING "Fake services (for e.g. demo)")
-set(OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
-    800
-    CACHE STRING "Width from which a small device is assumed")
 
 version_from_git()
 project(Frontend VERSION ${VERSION_FROM_GIT})
@@ -39,8 +38,8 @@ add_custom_command(
     --web-renderer=html #
     --no-web-resources-cdn #
     --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
-    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
     --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
+    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
   # https://github.com/flutter/flutter/issues/126738
   COMMAND
     ${CMAKE_COMMAND} -E rm -rf #

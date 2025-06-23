@@ -31,7 +31,7 @@ Stream<ConnectionStatus> connectionStatus(ref) async* {
     settingsProvider.select(
       (config) =>
           config.value?.httpReceiveTimeout ??
-          DefaultSettings.values()['http_rx_timeout'].toInt(),
+          defaultSettings['http_rx_timeout'].toInt(),
     ),
   );
 

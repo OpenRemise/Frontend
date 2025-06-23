@@ -28,10 +28,10 @@
 /// can be found on the main page at [openremise.at](https://openremise.at).
 ///
 /// \mainpage Introduction
-/// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              |
-/// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-/// | [![](stopwatch.svg)](page_getting_started.html)                                                                                                                                                            | [![](api.svg)](page_api_reference.html)                                                                                                                                                                    |
-/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the frontends architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the frontends individual modules. It assumes an understanding of the key concepts.</div> |
+/// | Getting Started                                                                                                                                                                                            | API Reference                                                                                                                                                                                              | Demo                                                                                                                                                                                                                         |
+/// | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+/// | [![](stopwatch.svg)](page_getting_started.html)                                                                                                                                                            | [![](api.svg)](page_api_reference.html)                                                                                                                                                                    | [![](demo.svg)](/Frontend/demo)                                                                                                                                                                                              |
+/// | <div style="max-width:200px">New to the codebase? Check out the \ref page_getting_started guides. Set up a development environment and learn about the frontends architecture and it's key concepts.</div> | <div style="max-width:200px">The \ref page_api_reference contains a detailed description of the inner workings of the frontends individual modules. It assumes an understanding of the key concepts.</div> | <div style="max-width:200px">For those who want to see what they're getting into first. Of course, the [Demo](/Frontend/demo) doesn't let you control a real OpenRemise board, but at least you get a feel for the UI.</div> |
 ///
 /// <div class="section_buttons">
 /// | Next                      |
@@ -278,13 +278,18 @@
 /// </div>
 
 /// \page page_configuration Configuration
-/// \todo
-/// Environmental variable stuff... invocations, fakes?
+/// As already seen in \ref page_development, compilation is done with CMake for
+/// easier integration into the [Firmware](https://openremise.at/Firmware). The
+/// CMake file contains some options that define constant environment variables
+/// in the build via `--dart-define`. These options can, for example, specify
+/// the root path of the app or replace the real services with fake ones.
 ///
-/// - OPENREMISE_FRONTEND_BASE_HREF
-/// - OPENREMISE_FRONTEND_DOMAIN
-/// - OPENREMISE_FRONTEND_FAKE_SERVICES
-/// - OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH
+/// | Option                                 | Description                                            | Default      |
+/// | -------------------------------------- | ------------------------------------------------------ | ------------ |
+/// | OPENREMISE_FRONTEND_BASE_HREF          | href attribute of the `<base>` tag in `web/index.html` | /./          |
+/// | OPENREMISE_FRONTEND_DOMAIN             | Default domain for non-kIsWeb builds                   | remise.local |
+/// | OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH | Width under which a small screen is assumed            | 800          |
+/// | OPENREMISE_FRONTEND_FAKE_SERVICES      | Fake services (for e.g. demo)                          | false        |
 ///
 /// <div class="section_buttons">
 /// | Previous              | Next                   |
@@ -339,6 +344,13 @@
 /// communication is necessary. This applies, for example, to the API for adding
 /// or deleting locomotives, changing device settings or querying the current
 /// system status. The following endpoints are defined for HTTP.
+/// - /dcc/
+///   - GET
+///   - POST
+/// - /dcc/accessories/
+///   - DELETE
+///   - GET
+///   - PUT
 /// - /dcc/locos/
 ///   - DELETE
 ///   - GET
@@ -358,13 +370,13 @@
 /// [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI), but also the
 /// [Z21](https://github.com/ZIMO-Elektronik/Z21) endpoint. The following
 /// endpoints are defined for WebSockets.
-/// - /decup/zpp/
-/// - /decup/zsu/
-/// - /mdu/zpp/
-/// - /mdu/zsu/
 /// - /ota/
-/// - /z21/
-/// - /zusi/
+/// - /roco/z21/
+/// - /zimo/decup/zpp/
+/// - /zimo/decup/zsu/
+/// - /zimo/mdu/zpp/
+/// - /zimo/mdu/zsu/
+/// - /zimo/zusi/
 ///
 /// \section section_architecture_providers Providers
 /// The frontend uses [Riverpod](https://riverpod.dev) providers as a state
