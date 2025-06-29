@@ -13,7 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// MX decoder IDs for fake services
+/// MX decoder IDs
+///
+/// A list of [ZIMO MX decoder](https://www.zimo.at/web2010/products/lokdecoder_EN.htm)
+/// IDs.
 final mxDecoderIds = Set.unmodifiable({
   0xC6,
   0x8E,

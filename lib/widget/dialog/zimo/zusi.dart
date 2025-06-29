@@ -17,8 +17,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:Frontend/constant/ws_batch_size.dart';
-import 'package:Frontend/model/zpp.dart';
-import 'package:Frontend/provider/zusi_service.dart';
+import 'package:Frontend/model/zimo/zpp.dart';
+import 'package:Frontend/provider/zimo/zusi_service.dart';
 import 'package:Frontend/service/zimo/zusi_service.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';

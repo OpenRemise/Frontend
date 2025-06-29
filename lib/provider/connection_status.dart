@@ -18,9 +18,8 @@ import 'dart:async';
 
 import 'package:Frontend/constant/default_settings.dart';
 import 'package:Frontend/model/connection_status.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/settings.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'connection_status.g.dart';
@@ -44,14 +43,12 @@ Stream<ConnectionStatus> connectionStatus(ref) async* {
       await for (final _ in z21.stream.timeout(Duration(seconds: timeout))) {
         if (previousStatus != ConnectionStatus.connected) {
           previousStatus = ConnectionStatus.connected;
-          debugPrint("conn");
           yield previousStatus;
         }
       }
     } catch (_) {
       if (previousStatus != ConnectionStatus.disconnected) {
         previousStatus = ConnectionStatus.disconnected;
-        debugPrint("disc");
         yield previousStatus;
       }
     }

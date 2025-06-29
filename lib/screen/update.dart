@@ -15,22 +15,22 @@
 
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
-import 'package:Frontend/model/zpp.dart';
-import 'package:Frontend/model/zsu.dart';
+import 'package:Frontend/model/zimo/zpp.dart';
+import 'package:Frontend/model/zimo/zsu.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/internet_status.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/widget/dialog/confirmation.dart';
-import 'package:Frontend/widget/dialog/decup.dart';
 import 'package:Frontend/widget/dialog/download.dart';
-import 'package:Frontend/widget/dialog/mdu.dart';
 import 'package:Frontend/widget/dialog/ota.dart';
-import 'package:Frontend/widget/dialog/zimo_sound.dart';
-import 'package:Frontend/widget/dialog/zusi.dart';
+import 'package:Frontend/widget/dialog/zimo/decup.dart';
+import 'package:Frontend/widget/dialog/zimo/mdu.dart';
+import 'package:Frontend/widget/dialog/zimo/sound.dart';
+import 'package:Frontend/widget/dialog/zimo/zusi.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -641,7 +641,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   Future<void> _zimoSoundFromWeb() async {
     showDialog<String>(
       context: context,
-      builder: (_) => const ZimoSoundDialog(),
+      builder: (_) => const SoundDialog(),
       barrierDismissible: true,
     ).then(
       (value) {

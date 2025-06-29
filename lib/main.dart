@@ -15,9 +15,9 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/controller_size.dart';
 import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
+import 'package:Frontend/constant/throttle_size.dart';
 import 'package:Frontend/model/connection_status.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/register.dart';
@@ -28,13 +28,13 @@ import 'package:Frontend/provider/locos.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/provider/z21_short_circuit.dart';
-import 'package:Frontend/screen/decoders_screen.dart';
-import 'package:Frontend/screen/info_screen.dart';
-import 'package:Frontend/screen/program_screen.dart';
-import 'package:Frontend/screen/settings_screen.dart';
-import 'package:Frontend/screen/update_screen.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_short_circuit.dart';
+import 'package:Frontend/screen/decoders.dart';
+import 'package:Frontend/screen/info.dart';
+import 'package:Frontend/screen/program.dart';
+import 'package:Frontend/screen/settings.dart';
+import 'package:Frontend/screen/update.dart';
 import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
@@ -53,7 +53,7 @@ void main() async {
 
   // Set minimum window size for Desktop
   if (!kIsWeb) {
-    await DesktopWindow.setMinWindowSize(controllerSize * 1.2);
+    await DesktopWindow.setMinWindowSize(throttleSize * 1.2);
   }
 
   // Shared preferences
@@ -371,8 +371,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                width: controllerSize.width,
-                height: controllerSize.height,
+                width: throttleSize.width,
+                height: throttleSize.height,
                 child: Throttle(
                   key: ValueKey(throttle.address),
                   initialLoco: ref

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-///
+/// Documentation
 ///
 /// \file   main.dart
 /// \author Vincent Hamp
@@ -347,11 +347,15 @@
 /// - /dcc/
 ///   - GET
 ///   - POST
-/// - /dcc/accessories/
+/// - /dcc/locos/
 ///   - DELETE
 ///   - GET
 ///   - PUT
-/// - /dcc/locos/
+/// - /dcc/turnouts/
+///   - DELETE
+///   - GET
+///   - PUT
+/// - /dcc/accessories/
 ///   - DELETE
 ///   - GET
 ///   - PUT
@@ -385,7 +389,7 @@
 /// changes through their reactive API. The created providers are injected into
 /// the user code by inheriting from special so-called `ConsumerWidgets`.
 ///
-/// For a detailed description of each provider see \ref page_providers.
+/// For a detailed description of each provider see \ref page_provider.
 ///
 /// \section section_architecture_screens Screens
 /// Screens are... well, screens. A screen is essentially a display-filling
@@ -396,14 +400,14 @@
 /// explain a list of tiles on the decoder screen to someone than a list of
 /// widgets on a widget (although that is essentially what it is).
 ///
-/// For a detailed description of each screen see \ref page_screens.
+/// For a detailed description of each screen see \ref page_screen.
 ///
 /// \section section_architecture_widgets Widgets
 /// Widgets are user-defined GUI elements that combine Flutter’s own classes. A
 /// classic example of such a widget are the dialogs shown during firmware and
 /// sound updates or the locomotive controller.
 ///
-/// For a detailed description of each widget see \ref page_widgets.
+/// For a detailed description of each widget see \ref page_widget.
 ///
 /// <div class="section_buttons">
 /// | Previous                | Next                    |
@@ -412,21 +416,20 @@
 /// </div>
 
 /// \page page_api_reference API Reference
-/// \todo
-/// Write API Reference page
+/// The project layout follows a typical type-first structure.
 ///
-/// | Chapter                 | Content                                        |
-/// | ----------------------- | ---------------------------------------------- |
-/// | \subpage page_constants | ?                                              |
-/// | \subpage page_models    | ?                                              |
-/// | \subpage page_providers | ?                                              |
-/// | \subpage page_screens   | ?                                              |
-/// | \subpage page_services  | ?                                              |
-/// | \subpage page_utilities | ?                                              |
-/// | \subpage page_widgets   | ?                                              |
+/// | Chapter                | Content                                                                                                                                                                              |
+/// | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+/// | \subpage page_constant | Constants used throughout the app                                                                                                                                                    |
+/// | \subpage page_model    | [freezed](https://pub.dev/packages/freezed) models for settings, file formats, HTTP requests, etc.                                                                                   |
+/// | \subpage page_provider | State management through [Riverpod](https://riverpod.dev/) providers                                                                                                                 |
+/// | \subpage page_screen   | [NavigationBar](https://api.flutter.dev/flutter/material/NavigationBar-class.html) or -[rail](https://api.flutter.dev/flutter/material/NavigationRail-class.html) selectable screens |
+/// | \subpage page_service  | HTTP, WebSocket and fake services                                                                                                                                                    |
+/// | \subpage page_utility  | Checksums, validators, etc.                                                                                                                                                          |
+/// | \subpage page_widget   | More complex widgets such as throttle or dialogs                                                                                                                                     |
 ///
 /// <div class="section_buttons">
-/// | Previous               | Next                |
-/// | :--------------------- | ------------------: |
-/// | \ref page_architecture | \ref page_constants |
+/// | Previous               | Next               |
+/// | :--------------------- | -----------------: |
+/// | \ref page_architecture | \ref page_constant |
 /// </div>

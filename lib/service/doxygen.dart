@@ -13,13 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Services documentation
 ///
-///
-/// \file   services/doxygen.dart
+/// \file   service/doxygen.dart
 /// \author Vincent Hamp
 /// \date   09/11/2024
 
-/// \page page_services Services
+/// \page page_service Services
 /// \tableofcontents
 /// \todo document services
 ///
+/// <div class="section_buttons">
+/// | Previous         | Next              |
+/// | :--------------- | ----------------: |
+/// | \ref page_screen | \ref page_utility |
+/// </div>

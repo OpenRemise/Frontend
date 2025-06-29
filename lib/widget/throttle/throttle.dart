@@ -21,9 +21,9 @@ import 'package:Frontend/model/bidi.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/widget/dialog/delete_loco.dart';
 import 'package:Frontend/widget/dialog/edit_loco.dart';
@@ -40,6 +40,8 @@ import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
+/// Throttle
+///
 /// \todo document
 class Throttle extends ConsumerStatefulWidget {
   final Loco initialLoco;

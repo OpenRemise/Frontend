@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Screens documentation
 ///
-///
-/// \file   screens/doxygen.dart
+/// \file   screen/doxygen.dart
 /// \author Vincent Hamp
 /// \date   09/11/2024
 
-/// \page page_screens Screens
+/// \page page_screen Screens
 /// \tableofcontents
 /// \todo document screens
 ///
@@ -28,3 +28,11 @@
 /// - Program
 /// - Update
 /// - Settings
+///
+/// \section section_screen_program Program
+///
+/// <div class="section_buttons">
+/// | Previous           | Next              |
+/// | :----------------- | ----------------: |
+/// | \ref page_provider | \ref page_service |
+/// </div>

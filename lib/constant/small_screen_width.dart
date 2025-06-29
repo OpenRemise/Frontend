@@ -13,7 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Width at which the display switches between small and large screens
+/// Small screen width
+///
+/// This is the width over which a large screen is assumed. The app changes its
+/// layout depending on the screen size. This value is therefore often compared
+/// to `MediaQuery.of(context).size.width`.
 final int smallScreenWidth = int.parse(
   const String.fromEnvironment('OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH'),
 );

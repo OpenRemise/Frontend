@@ -16,9 +16,9 @@
 import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/provider/dcc.dart';
 import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/widget/dialog/delete_loco.dart';
 import 'package:Frontend/widget/dialog/edit_loco.dart';
 import 'package:Frontend/widget/error_gif.dart';

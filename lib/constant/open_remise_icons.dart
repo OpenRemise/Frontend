@@ -17,7 +17,8 @@ import 'package:flutter/widgets.dart';
 
 /// OpenRemise icons
 ///
-/// These icons were created by https://fluttericon.com.
+/// An icon set with specific \ref OpenRemiseIcons "OpenRemise icons" created
+/// using [fluttericon.com](https://fluttericon.com).
 class OpenRemiseIcons {
   OpenRemiseIcons._();
 
