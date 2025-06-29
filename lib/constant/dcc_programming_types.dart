@@ -13,6 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// DCC programming types
+///
+/// The four \ref dccProgrammingTypes "DCC programming types" are part of the
+/// firmware settings. The index of the current value ​​can be read or written
+/// as `dcc_prog_type` at the `/settings/` endpoint.
 const List<String> dccProgrammingTypes = [
   'Nothing',
   'Bit only',

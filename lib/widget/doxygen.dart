@@ -13,13 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Widgets documentation
 ///
-///
-/// \file   widgets/doxygen.dart
+/// \file   widget/doxygen.dart
 /// \author Vincent Hamp
 /// \date   09/11/2024
 
-/// \page page_widgets Widgets
+/// \page page_widget Widgets
 /// \tableofcontents
 /// \todo document widgets
 ///
+/// <div class="section_buttons">
+/// | Previous          |
+/// | :---------------- |
+/// | \ref page_utility |
+/// </div>

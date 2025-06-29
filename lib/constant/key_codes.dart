@@ -13,7 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Keypad values
+/// Keypad codes
+///
+/// The KeyCodes class contains constant integer values ​​that are used when
+/// throttle buttons are pressed. The values have the following scheme:
+/// - <0 for special inputs
+/// - 0-63 for the function keys
+/// - 100-109 for long presses of the function keys
 class KeyCodes {
   static const int enter = -15;
   static const int enterLong = -115;

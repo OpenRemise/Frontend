@@ -18,16 +18,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-class ZimoSoundDialog extends ConsumerStatefulWidget {
-  const ZimoSoundDialog({super.key});
+class SoundDialog extends ConsumerStatefulWidget {
+  const SoundDialog({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ZimoSoundDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _SoundDialogState();
 }
 
 /// \todo document
-class _ZimoSoundDialogState extends ConsumerState<ZimoSoundDialog> {
+class _SoundDialogState extends ConsumerState<SoundDialog> {
   List<String> _urls = [];
   String _str = '.*';
 

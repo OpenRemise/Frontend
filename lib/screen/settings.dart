@@ -21,9 +21,9 @@ import 'package:Frontend/constant/default_settings.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/config.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/settings.dart';
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/provider/z21_status.dart';
 import 'package:Frontend/utility/ip_address_validator.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
@@ -323,10 +323,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             FormBuilderFieldOption(
                               value: true,
                               child: Tooltip(
-                                  message:
-                                      'Display a query when leaving the page',
-                                  waitDuration: Duration(seconds: 1),
-                                  child: Text('Message on page leave')),
+                                message:
+                                    'Display a query when leaving the page',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Message on page leave'),
+                              ),
                             ),
                           ],
                           valueTransformer: (value) => value?.contains(true),

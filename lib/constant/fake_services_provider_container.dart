@@ -15,10 +15,27 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Bad practice, but we need a common provider container for all fake services.
+/// Fake services provider container
+///
+/// This is a global container for providers. Please not that this is **bad
+/// practice**, but we need a common provider container for all fake services.
 /// This is the only way we can inject this container to fake services as well
 /// as the entire widget tree.
 ///
-/// https://github.com/rrousselGit/riverpod/issues/295
-/// https://github.com/rrousselGit/riverpod/discussions/1387
+/// When faking services this container gets injected into [runApp](https://api.flutter.dev/flutter/widgets/runApp.html).
+/// ```dart
+/// // Expose global `ProviderContainer` to widget tree for fake services
+/// if (const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
+///     'true') {
+///   runApp(
+///     UncontrolledProviderScope(
+///       container: fakeServicesProviderContainer,
+///       child: const MyApp(),
+///     ),
+///   );
+/// }
+/// ```
+///
+/// See also [#295](https://github.com/rrousselGit/riverpod/issues/295) and
+/// [#1387](https://github.com/rrousselGit/riverpod/discussions/1387).
 final fakeServicesProviderContainer = ProviderContainer();

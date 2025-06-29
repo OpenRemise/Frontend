@@ -13,22 +13,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/provider/z21_service.dart';
-import 'package:Frontend/service/roco/z21_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter/widgets.dart';
 
-part 'z21_short_circuit.g.dart';
-
-/// \todo document
-@Riverpod(keepAlive: true)
-Stream<LanXBcTrackShortCircuit> z21ShortCircuit(ref) async* {
-  final z21 = ref.watch(z21ServiceProvider);
-  await for (final shortCircuit in z21.stream
-      .where(
-        (command) =>
-            switch (command) { LanXBcTrackShortCircuit() => true, _ => false },
-      )
-      .distinct()) {
-    yield shortCircuit;
-  }
-}
+/// Throttle size
+///
+/// The \ref throttleSize "throttle size" is the size of the Throttle widget on
+/// larger screens. In `!kIsWeb` builds, this value is also used to set the
+/// minimum window size.
+const Size throttleSize = Size(400, 800);

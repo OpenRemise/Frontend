@@ -16,7 +16,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:Frontend/constant/ms_decoder_ids.dart';
+import 'package:Frontend/constant/zimo/ms_decoder_ids.dart';
 import 'package:Frontend/service/zimo/mdu_service.dart';
 import 'package:flutter/foundation.dart';
 

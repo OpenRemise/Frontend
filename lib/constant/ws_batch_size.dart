@@ -19,6 +19,7 @@
 ///
 /// \warning
 /// Extreme caution is advised when increasing this value. Many small messages
-/// Many small packets quickly overload the input buffers of the ESP32:
-/// https://github.com/OpenRemise/Firmware/issues/45
+/// Many small packets quickly overload the input buffers of the ESP32.
+///
+/// See also [#45](https://github.com/OpenRemise/Firmware/issues/45).
 const int wsBatchSize = 32;

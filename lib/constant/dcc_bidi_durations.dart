@@ -13,4 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// DCC BiDi durations
+///
+/// The five \ref dccBiDiDurations "DCC BiDi durations" are part of the firmware
+/// settings. Using the first value (0) BiDi can be switched off. The current
+/// value ​​can be read or written as `dcc_bidibit_dur` at the `/settings/`
+/// endpoint.
 const List<int> dccBiDiDurations = [0, 57, 58, 59, 60, 61];

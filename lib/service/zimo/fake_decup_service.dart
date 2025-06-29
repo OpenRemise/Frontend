@@ -16,7 +16,7 @@
 import 'dart:async';
 
 import 'package:Frontend/constant/fake_initial_cvs.dart';
-import 'package:Frontend/constant/mx_decoder_ids.dart';
+import 'package:Frontend/constant/zimo/mx_decoder_ids.dart';
 import 'package:Frontend/service/zimo/decup_service.dart';
 import 'package:flutter/foundation.dart';
 

@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Initial loco CVs for fake services
+/// Fake initial loco CVs
+///
+/// A list of initial CVs for locomotives for use with fake services.
 const List<int> fakeInitialLocoCvs = [
   3,
   1,
@@ -1041,5 +1043,7 @@ const List<int> fakeInitialLocoCvs = [
   0,
 ];
 
-/// Initial accessory CVs for fake services
+/// Fake initial accessory CVs
+///
+/// A list of initial CVs for accessories for use with fake services.
 const List<int> fakeInitialAccessoryCvs = [];

@@ -13,13 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Models documentation
 ///
-///
-/// \file   models/doxygen.dart
+/// \file   model/doxygen.dart
 /// \author Vincent Hamp
 /// \date   09/11/2024
 
-/// \page page_models Models
+/// \page page_model Models
 /// \tableofcontents
 /// \todo document models
 ///
+/// <div class="section_buttons">
+/// | Previous           | Next               |
+/// | :----------------- | -----------------: |
+/// | \ref page_constant | \ref page_provider |
+/// </div>

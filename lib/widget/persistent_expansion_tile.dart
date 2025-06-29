@@ -14,8 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PersistentExpansionTile extends StatefulWidget {
+class PersistentExpansionTile extends ConsumerStatefulWidget {
   final ValueNotifier<bool>? externalController;
   final Widget title;
   final List<Widget> children;
@@ -38,11 +39,12 @@ class PersistentExpansionTile extends StatefulWidget {
   });
 
   @override
-  State<PersistentExpansionTile> createState() =>
+  ConsumerState<PersistentExpansionTile> createState() =>
       _PersistentExpansionTileState();
 }
 
-class _PersistentExpansionTileState extends State<PersistentExpansionTile> {
+class _PersistentExpansionTileState
+    extends ConsumerState<PersistentExpansionTile> {
   late bool _expanded;
 
   @override

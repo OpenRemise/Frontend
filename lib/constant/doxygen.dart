@@ -13,13 +13,63 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Constants documentation
 ///
-///
-/// \file   constants/doxygen.dart
+/// \file   constant/doxygen.dart
 /// \author Vincent Hamp
 /// \date   09/11/2024
 
-/// \page page_constants Constants
+/// \page page_constant Constants
 /// \tableofcontents
-/// \todo document constants
+/// The app uses a lot of constants which are listed here in no particular
+/// order.
 ///
+/// \section section_constant_current_limits Current limits
+/// \copydetails currentLimits
+///
+/// \section section_constant_dcc_bidi_durations DCC BiDi durations
+/// \copydetails dccBiDiDurations
+///
+/// \section section_constant_dcc_programming_types DCC programming types
+/// \copydetails dccProgrammingTypes
+///
+/// \section section_constant_default_settings Default settings
+/// \copydetails defaultSettings
+///
+/// \section section_constant_fake_initial_cvs Fake initial CVs
+/// \subsection subsection_constant_fake_initial_loco_cvs Fake initial loco CVs
+/// \copydetails fakeInitialLocoCvs
+///
+/// \subsection subsection_constant_fake_initial_accessory_cvs Fake initial accessory CVs
+/// \copydetails fakeInitialAccessoryCvs
+///
+/// \section section_constant_fake_services_provider_container Fake services provider container
+/// \copydetails fakeServicesProviderContainer
+///
+/// \section section_constant_key_codes Key codes
+/// \copydetails KeyCodes
+///
+/// \section section_constant_open_remise_icons OpenRemiseIcons
+/// \copydetails OpenRemiseIcons
+///
+/// \section section_constant_small_screen_width Small screen width
+/// \copydetails smallScreenWidth
+///
+/// \section section_constant_throttle_size Throttle size
+/// \copydetails throttleSize
+///
+/// \section section_constant_ws_batch_size WebSocket batch size
+/// \copydetails wsBatchSize
+///
+/// \section section_constant_zimo ZIMO
+/// \subsection subsection_constant_zimo_ms_deocder_ids MS decoder IDs
+/// \copydetails msDecoderIds
+///
+/// \subsection subsection_constant_zimo_mx_deocder_ids MX decoder IDs
+/// \copydetails mxDecoderIds
+///
+/// <div class="section_buttons">
+/// | Previous                | Next            |
+/// | :---------------------- | --------------: |
+/// | \ref page_api_reference | \ref page_model |
+/// </div>

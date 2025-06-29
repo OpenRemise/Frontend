@@ -18,7 +18,16 @@ import 'package:Frontend/constant/current_limits.dart';
 import 'package:Frontend/constant/dcc_bidi_durations.dart';
 import 'package:Frontend/constant/dcc_programming_types.dart';
 
-Map<String, dynamic> defaultSettings = {
+/// Default settings
+///
+/// This map of \ref defaultSettings "default settings" is used in the \ref
+/// section_screen_program "program screen" to restore the defaults. The
+/// defaults ​​should match those of the [firmware](https://openremise.at/Firmware/page_mem_nvs.html#subsection_mem_nvs_settings).
+///
+/// \note
+/// Unfortunately the map cannot be `const` because Dart does not support method
+/// calls at compile time.
+final Map<String, dynamic> defaultSettings = {
   'http_rx_timeout': 5.0,
   'http_tx_timeout': 5.0,
   'http_exit_msg': [true],

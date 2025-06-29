@@ -13,46 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// MS decoder IDs for fake services
-final msDecoderIds = Set.unmodifiable({
-  0x7C114600,
-  0x7F115000,
-  0x7D130000,
-  0x7E131E00,
-  0x7B132800,
-  0x04042800,
-  0x06043200,
-  0x02045000,
-  0x03045A00,
-  0x0C045B00,
-  0x01050000,
-  0x0A053C00,
-  0x05055000,
-  0x0D055100,
-  0x08055A00,
-  0x09093200,
-  0x07095A00,
-  0x04042801,
-  0x06043201,
-  0x02045001,
-  0x03045A01,
-  0x01050001,
-  0x0A053C01,
-  0x05055001,
-  0x08055A01,
-  0x09093201,
-  0x07095A01,
-  0x04042802,
-  0x06043202,
-  0x02045002,
-  0x03045A02,
-  0x01050002,
-  0x0A053C02,
-  0x05055002,
-  0x08055A02,
-  0x09093202,
-  0x07095A02,
-  0x06043203,
-  0x0B000100,
-  0x0B000101,
-});
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'z21_status.g.dart';
+
+/// \todo document
+@Riverpod(keepAlive: true)
+Stream<LanXStatusChanged> z21Status(ref) async* {
+  final z21 = ref.watch(z21ServiceProvider);
+  await for (final status in z21.stream.where(
+    (command) => switch (command) { LanXStatusChanged() => true, _ => false },
+  )) {
+    yield status;
+  }
+}
