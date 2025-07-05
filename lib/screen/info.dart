@@ -136,13 +136,14 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   ),
                   const Text('Build date'),
                   Text(() {
+                    final raw = '${data.compileDate} ${data.compileTime}';
                     try {
-                      final raw = '${data.compileDate} ${data.compileTime}';
-                      final parsed =
-                          DateFormat('MMM dd yyyy HH:mm:ss').parseStrict(raw);
+                      final cleaned = raw.replaceAll(RegExp(r'\s+'), ' ');
+                      final parsed = DateFormat('MMM dd yyyy HH:mm:ss')
+                          .parseStrict(cleaned);
                       return DateFormat('dd/MM/yyyy, HH:mm').format(parsed);
                     } catch (e) {
-                      return 'Invalid timestamp';
+                      return raw;
                     }
                   }()),
                   const Text('ESP-IDF version'),
