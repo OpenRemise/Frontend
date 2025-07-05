@@ -69,7 +69,7 @@
 /// \copydetails mxDecoderIds
 ///
 /// <div class="section_buttons">
-/// | Previous                | Next            |
-/// | :---------------------- | --------------: |
-/// | \ref page_api_reference | \ref page_model |
+/// | Previous        | Next              |
+/// | :-------------- | ----------------: |
+/// | \ref page_model | \ref page_utility |
 /// </div>

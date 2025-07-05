@@ -24,7 +24,7 @@
 /// \todo document services
 ///
 /// <div class="section_buttons">
-/// | Previous         | Next              |
-/// | :--------------- | ----------------: |
-/// | \ref page_screen | \ref page_utility |
+/// | Previous         | Next               |
+/// | :--------------- | -----------------: |
+/// | \ref page_widget | \ref page_provider |
 /// </div>

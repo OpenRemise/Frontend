@@ -24,7 +24,7 @@
 /// \todo document utilities
 ///
 /// <div class="section_buttons">
-/// | Previous          | Next             |
-/// | :---------------- | ---------------: |
-/// | \ref page_service | \ref page_widget |
+/// | Previous           |
+/// | :----------------- |
+/// | \ref page_constant |
 /// </div>
