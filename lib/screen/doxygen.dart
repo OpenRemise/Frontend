@@ -32,7 +32,7 @@
 /// \section section_screen_program Program
 ///
 /// <div class="section_buttons">
-/// | Previous           | Next              |
-/// | :----------------- | ----------------: |
-/// | \ref page_provider | \ref page_service |
+/// | Previous                | Next             |
+/// | :---------------------- | ---------------: |
+/// | \ref page_api_reference | \ref page_widget |
 /// </div>

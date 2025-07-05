@@ -26,5 +26,5 @@
 /// <div class="section_buttons">
 /// | Previous           | Next               |
 /// | :----------------- | -----------------: |
-/// | \ref page_constant | \ref page_provider |
+/// | \ref page_provider | \ref page_constant |
 /// </div>

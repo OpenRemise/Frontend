@@ -24,7 +24,7 @@
 /// \todo document providers
 ///
 /// <div class="section_buttons">
-/// | Previous        | Next             |
-/// | :-------------- | ---------------: |
-/// | \ref page_model | \ref page_screen |
+/// | Previous          | Next            |
+/// | :---------------- | --------------: |
+/// | \ref page_service | \ref page_model |
 /// </div>
