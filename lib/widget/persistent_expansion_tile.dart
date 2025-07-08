@@ -72,9 +72,7 @@ class _PersistentExpansionTileState
       children: [
         if (widget.showDividers) const Divider(thickness: 1),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: contentOnly,
         ),
         if (widget.showDividers) const Divider(thickness: 1),
@@ -100,7 +98,7 @@ class _PersistentExpansionTileState
           ),
         ),
         AnimatedSize(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
           child: Offstage(
             offstage: !_expanded,

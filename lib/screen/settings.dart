@@ -33,7 +33,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Settings screen
+///
+/// In the settings screen, the settings of the `/settings/` endpoint can be
+/// read and changed. For the sake of clarity, the settings are arranged in
+/// categories that can be expanded or collapsed at the touch of a button. For
+/// this purpose, a custom expansion tile class called PersistentExpansionTile
+/// is used.
+///
+/// Buttons in the upper right corner of the [app bar](https://api.flutter.dev/flutter/material/SliverAppBar-class.html)
+/// allow you to expand/collapse all or restore the defaults.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -690,7 +699,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     if (kDebugMode)
                       PersistentExpansionTile(
-                        title: const Text('Accessories'),
+                        title: const Text('Turnouts/accessories'),
                         externalController: _expandAllNotifier,
                         leading: const Icon(OpenRemiseIcons.accessory),
                         showDividers: true,
