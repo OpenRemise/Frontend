@@ -42,7 +42,16 @@ import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-/// \todo document
+/// Update screen
+///
+/// The update screen is used to perform updates or uploads (e.g. firmware,
+/// sound, ...) for various devices from different manufacturers. A [stepper](https://api.flutter.dev/flutter/material/Stepper-class.html)
+/// widget guides users through the process. Some update files can be selected
+/// from different sources, for example from a local file or directly from the
+/// internet.
+///
+/// The update processes themselves run in modal dialogs. The data exchange then
+/// usually takes place via WebSockets to the respective endpoint (e.g. `/ota/`).
 class UpdateScreen extends ConsumerStatefulWidget {
   const UpdateScreen({super.key});
 

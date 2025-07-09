@@ -355,10 +355,6 @@
 ///   - DELETE
 ///   - GET
 ///   - PUT
-/// - /dcc/accessories/
-///   - DELETE
-///   - GET
-///   - PUT
 /// - /settings/
 ///   - GET
 ///   - POST
@@ -418,15 +414,15 @@
 /// \page page_api_reference API Reference
 /// The project layout follows a typical type-first structure.
 ///
-/// | Chapter                | Content                                                                                                                                                                              |
-/// | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-/// | \subpage page_screen   | [NavigationBar](https://api.flutter.dev/flutter/material/NavigationBar-class.html) or -[rail](https://api.flutter.dev/flutter/material/NavigationRail-class.html) selectable screens |
-/// | \subpage page_widget   | More complex widgets such as throttle or dialogs                                                                                                                                     |
-/// | \subpage page_service  | HTTP, WebSocket and fake services                                                                                                                                                    |
-/// | \subpage page_provider | State management through [Riverpod](https://riverpod.dev/) providers                                                                                                                 |
-/// | \subpage page_model    | [freezed](https://pub.dev/packages/freezed) models for settings, file formats, HTTP requests, etc.                                                                                   |
-/// | \subpage page_constant | Constants used throughout the app                                                                                                                                                    |
-/// | \subpage page_utility  | Checksums, validators, etc.                                                                                                                                                          |
+/// | Chapter                | Content                                                                                            |
+/// | ---------------------- | -------------------------------------------------------------------------------------------------- |
+/// | \subpage page_screen   | Responsive layout with selectable screens                                                          |
+/// | \subpage page_widget   | More complex widgets such as throttle or dialogs                                                   |
+/// | \subpage page_service  | HTTP, WebSocket and fake services                                                                  |
+/// | \subpage page_provider | State management through [Riverpod](https://riverpod.dev/) providers                               |
+/// | \subpage page_model    | [freezed](https://pub.dev/packages/freezed) models for settings, file formats, HTTP requests, etc. |
+/// | \subpage page_constant | Constants used throughout the app                                                                  |
+/// | \subpage page_utility  | Checksums, validators, etc.                                                                        |
 ///
 /// <div class="section_buttons">
 /// | Previous               | Next             |

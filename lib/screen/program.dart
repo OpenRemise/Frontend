@@ -27,7 +27,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Program screen
+///
+/// The program screen allows programming of CVs in service- and PoM
+/// (<b>P</b>rogramming <b>o</b>n <b>M</b>ain) mode. A [stepper](https://api.flutter.dev/flutter/material/Stepper-class.html)
+/// widget guides users through the process. Before a CV can be entered for
+/// reading or writing, the programming mode and decoder type must be selected.
 class ProgramScreen extends ConsumerStatefulWidget {
   const ProgramScreen({super.key});
 
@@ -142,7 +147,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                             Card.outlined(
                               child: ListTile(
                                 leading: const Icon(OpenRemiseIcons.pom),
-                                title: const Text('POM'),
+                                title: const Text('PoM'),
                                 enabled: z21Status.hasValue &&
                                     !z21Status.requireValue.trackVoltageOff(),
                                 onTap: () => setState(() {
@@ -193,7 +198,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 child: ListTile(
                                   leading:
                                       const Icon(OpenRemiseIcons.accessory),
-                                  title: const Text('Accessory'),
+                                  title: const Text('Turnout/accessory'),
                                   enabled: false,
                                   onTap: () => setState(() {
                                     ++_index;

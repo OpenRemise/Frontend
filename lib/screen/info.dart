@@ -30,7 +30,11 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:intl/intl.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-/// \todo document
+/// Info screen
+///
+/// The info screen is displayed first by default. It shows the system status
+/// (e.g. IP address, voltage, available memory, ...), which is updated
+/// regularly through a GET request to the `/sys/` endpoint.
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
 

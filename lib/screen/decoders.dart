@@ -26,7 +26,21 @@ import 'package:Frontend/widget/loading_gif.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Decoders screen
+///
+/// The decoders screen displays a list of all available decoders in the system.
+/// They are organized into the categories locomotives and turnouts. The
+/// corresponding data is retrieved via GET requests: locomotives from
+/// `/dcc/locos/`, and turnouts from `/dcc/turnouts`.
+///
+/// The individual decoders are displayed as [tiles](https://api.flutter.dev/flutter/material/ListTile-class.html)
+/// within the list. Clicking on a decoder opens the corresponding control
+/// element (e.g. a Throttle for locomotives). Depending on the current screen
+/// width, this control either takes up the entire screen or is displayed as a
+/// draggable window as an overlay.
+///
+/// Buttons in the upper right corner of the [app bar](https://api.flutter.dev/flutter/material/SliverAppBar-class.html)
+/// allow you to add, edit and delete decoders.
 class DecodersScreen extends ConsumerStatefulWidget {
   const DecodersScreen({super.key});
 

@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-enum ConnectionStatus {
-  connected,
-  disconnected,
-}
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+
+typedef ConnectionStatus = InternetStatus;
