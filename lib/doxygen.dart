@@ -344,17 +344,17 @@
 /// communication is necessary. This applies, for example, to the API for adding
 /// or deleting locomotives, changing device settings or querying the current
 /// system status. The following endpoints are defined for HTTP.
+/// - /dcc/locos/
+///   - GET
+///   - PUT
+///   - DELETE
+/// - /dcc/turnouts/
+///   - GET
+///   - PUT
+///   - DELETE
 /// - /dcc/
 ///   - GET
 ///   - POST
-/// - /dcc/locos/
-///   - DELETE
-///   - GET
-///   - PUT
-/// - /dcc/turnouts/
-///   - DELETE
-///   - GET
-///   - PUT
 /// - /settings/
 ///   - GET
 ///   - POST
