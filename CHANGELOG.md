@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix Z21 service big endian loco addresses ([#81](https://github.com/OpenRemise/Frontend/pull/81))
+
 ## 0.4.0
 - Add connection status ([#91](https://github.com/OpenRemise/Frontend/pull/91))
 - New settings screen design ([#91](https://github.com/OpenRemise/Frontend/pull/91))
