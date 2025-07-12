@@ -61,7 +61,7 @@ int bigEndianLocoAddressLsb(int locoAddress) {
 
 /// \todo document
 int littleEndianLocoAddressMsb(int locoAddress) {
-  return (locoAddress >> 0) & 0xFF;
+  return bigEndianLocoAddressLsb(locoAddress);
 }
 
 /// \todo document

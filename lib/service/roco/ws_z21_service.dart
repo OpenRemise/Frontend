@@ -289,8 +289,8 @@ class WsZ21Service implements Z21Service {
       Header.LAN_RAILCOM_GETDATA,
       0x00,
       0x01,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      littleEndianLocoAddressMsb(locoAddress), // Loco address
+      littleEndianLocoAddressLsb(locoAddress),
     ];
     _channel.sink.add(Uint8List.fromList(data));
   }
