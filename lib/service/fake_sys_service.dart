@@ -24,7 +24,7 @@ import 'package:flutter/foundation.dart';
 enum State {
   // Flags (8 bits)
   Suspended,
-  Suspend,
+  Suspending,
   ShortCircuit,
 
   // Outputs

@@ -133,6 +133,10 @@ int encodeRvvvvvvv(int speedSteps, bool dir, int speed) {
 class Header {
   // Client to Z21
   static const int LAN_GET_SERIAL_NUMBER = 0x10;
+  static const int LAN_GET_COMMON_SETTINGS = 0x12;
+  static const int LAN_SET_COMMON_SETTINGS = 0x13;
+  static const int LAN_GET_MMDCC_SETTINGS = 0x16;
+  static const int LAN_SET_MMDCC_SETTINGS = 0x17;
   static const int LAN_GET_CODE = 0x18;
   static const int LAN_GET_HWINFO = 0x1A;
   static const int LAN_LOGOFF = 0x30;
@@ -196,6 +200,8 @@ class Header {
 
   // Z21 to Client
   static const int Reply_to_LAN_GET_SERIAL_NUMBER = 0x10;
+  static const int Reply_to_LAN_GET_COMMON_SETTINGS = 0x12;
+  static const int Reply_to_LAN_GET_MMDCC_SETTINGS = 0x16;
   static const int Reply_to_LAN_GET_CODE = 0x18;
   static const int Reply_to_LAN_GET_HWINFO = 0x1A;
   static const int LAN_X_TURNOUT_INFO = 0x40;
