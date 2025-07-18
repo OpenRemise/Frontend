@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.4.1
 - Bugfix Z21 service big endian loco addresses ([#81](https://github.com/OpenRemise/Frontend/pull/81))
 - Bugfix Z21 service `LAN_RAILCOM_GETDATA` uses little endian loco address ([#95](https://github.com/OpenRemise/Frontend/pull/95))
 
