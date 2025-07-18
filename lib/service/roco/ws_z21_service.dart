@@ -145,8 +145,8 @@ class WsZ21Service implements Z21Service {
       Header.LAN_X_SET_LOCO_E_STOP,
       0x00,
       XHeader.LAN_X_SET_LOCO_E_STOP,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
     ];
     data.add(exor(data.sublist(4)));
     _channel.sink.add(Uint8List.fromList(data));
@@ -162,8 +162,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_GET_LOCO_INFO,
       DB0.LAN_X_GET_LOCO_INFO,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
     ];
     data.add(exor(data.sublist(4)));
     _channel.sink.add(Uint8List.fromList(data));
@@ -187,8 +187,8 @@ class WsZ21Service implements Z21Service {
           : speedSteps == 2
               ? DB0.LAN_X_SET_LOCO_DRIVE_28
               : DB0.LAN_X_SET_LOCO_DRIVE_128,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
       rvvvvvvv,
     ];
     data.add(exor(data.sublist(4)));
@@ -205,8 +205,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_SET_LOCO_FUNCTION,
       DB0.LAN_X_SET_LOCO_FUNCTION,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
       state << 6 | index,
     ];
     data.add(exor(data.sublist(4)));
@@ -223,8 +223,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_CV_POM_WRITE_BYTE,
       DB0.LAN_X_CV_POM_WRITE_BYTE,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
       0xEC | (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF, //
       byte & 0xFF, // CV value
@@ -243,8 +243,8 @@ class WsZ21Service implements Z21Service {
       0x00,
       XHeader.LAN_X_CV_POM_READ_BYTE,
       DB0.LAN_X_CV_POM_READ_BYTE,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      bigEndianLocoAddressMsb(locoAddress), // Loco address
+      bigEndianLocoAddressLsb(locoAddress),
       0xE4 | (cvAddress >> 8) & 0xFF, // CV address
       (cvAddress >> 0) & 0xFF, //
       0 & 0xFF, // CV value
@@ -289,8 +289,8 @@ class WsZ21Service implements Z21Service {
       Header.LAN_RAILCOM_GETDATA,
       0x00,
       0x01,
-      (locoAddress >> 8) & 0xFF, // Loco address
-      (locoAddress >> 0) & 0xFF,
+      littleEndianLocoAddressMsb(locoAddress), // Loco address
+      littleEndianLocoAddressLsb(locoAddress),
     ];
     _channel.sink.add(Uint8List.fromList(data));
   }

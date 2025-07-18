@@ -138,7 +138,10 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
 
   /// \todo document
   Future<void> _disconnect() async {
-    _updateEphemeralState(status: 'Done', option: 'OK');
+    _updateEphemeralState(
+      status: 'Done (\u{26A0} reload recommended)',
+      option: 'OK',
+    );
     await _ota.close();
   }
 

@@ -40,13 +40,33 @@ int littleEndianData2uint32(Uint8List data) {
 }
 
 /// \todo document
-int data2locoAddress(Uint8List data) {
+int bigEndianData2locoAddress(Uint8List data) {
   return bigEndianData2uint16(data) & 0x3FFF;
 }
 
 /// \todo document
-int data2cvAddress(Uint8List data) {
+int bigEndianData2cvAddress(Uint8List data) {
   return bigEndianData2uint16(data) & 0x03FF;
+}
+
+/// \todo document
+int bigEndianLocoAddressMsb(int locoAddress) {
+  return (locoAddress >= 128 ? 0xC0 : 0x00) | ((locoAddress >> 8) & 0xFF);
+}
+
+/// \todo document
+int bigEndianLocoAddressLsb(int locoAddress) {
+  return (locoAddress >> 0) & 0xFF;
+}
+
+/// \todo document
+int littleEndianLocoAddressMsb(int locoAddress) {
+  return bigEndianLocoAddressLsb(locoAddress);
+}
+
+/// \todo document
+int littleEndianLocoAddressLsb(int locoAddress) {
+  return (locoAddress >> 8) & 0xFF;
 }
 
 /// \todo document
@@ -113,6 +133,10 @@ int encodeRvvvvvvv(int speedSteps, bool dir, int speed) {
 class Header {
   // Client to Z21
   static const int LAN_GET_SERIAL_NUMBER = 0x10;
+  static const int LAN_GET_COMMON_SETTINGS = 0x12;
+  static const int LAN_SET_COMMON_SETTINGS = 0x13;
+  static const int LAN_GET_MMDCC_SETTINGS = 0x16;
+  static const int LAN_SET_MMDCC_SETTINGS = 0x17;
   static const int LAN_GET_CODE = 0x18;
   static const int LAN_GET_HWINFO = 0x1A;
   static const int LAN_LOGOFF = 0x30;
@@ -176,6 +200,8 @@ class Header {
 
   // Z21 to Client
   static const int Reply_to_LAN_GET_SERIAL_NUMBER = 0x10;
+  static const int Reply_to_LAN_GET_COMMON_SETTINGS = 0x12;
+  static const int Reply_to_LAN_GET_MMDCC_SETTINGS = 0x16;
   static const int Reply_to_LAN_GET_CODE = 0x18;
   static const int Reply_to_LAN_GET_HWINFO = 0x1A;
   static const int LAN_X_TURNOUT_INFO = 0x40;
@@ -457,7 +483,7 @@ class LanXCvResult implements Command {
   LanXCvResult({required this.cvAddress, required this.value});
 
   LanXCvResult.fromDataset(Uint8List dataset)
-      : cvAddress = data2cvAddress(dataset.sublist(6)),
+      : cvAddress = bigEndianData2cvAddress(dataset.sublist(6)),
         value = dataset[8] {
     assert(dataset.length == 0x0A);
   }
@@ -494,7 +520,7 @@ class LanXLocoInfo implements Command {
   });
 
   LanXLocoInfo.fromDataset(Uint8List dataset)
-      : locoAddress = data2locoAddress(dataset.sublist(5)),
+      : locoAddress = bigEndianData2locoAddress(dataset.sublist(5)),
         mode = dataset[7] & 0x07,
         busy = dataset[7] & (1 << 3) == (1 << 3),
         speedSteps = dataset[7] & 0x07,
