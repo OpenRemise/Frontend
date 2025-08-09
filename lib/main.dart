@@ -34,6 +34,7 @@ import 'package:Frontend/screen/info.dart';
 import 'package:Frontend/screen/program.dart';
 import 'package:Frontend/screen/settings.dart';
 import 'package:Frontend/screen/update.dart';
+import 'package:Frontend/utility/fixed_color_mapper.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
 import 'package:Frontend/widget/throttle/throttle.dart';
@@ -229,17 +230,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/icons/icon_dark.svg'
-                    : 'data/icons/icon_light.svg',
+                'data/icons/icon.svg',
+                colorMapper:
+                    FixedColorMapper(Theme.of(context).colorScheme.primary),
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/images/logo_dark.svg'
-                    : 'data/images/logo_light.svg',
+                'data/images/logo.svg',
+                colorMapper:
+                    FixedColorMapper(Theme.of(context).colorScheme.primary),
               ),
         actions: [
           IconButton(
