@@ -13,24 +13,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:collection';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:Frontend/model/loco.dart';
-import 'package:Frontend/model/turnout.dart';
+part 'turnout.freezed.dart';
+part 'turnout.g.dart';
 
 /// \todo document
-abstract interface class DccService {
-  Future<Loco> fetchLoco(int address);
-  Future<SplayTreeSet<Loco>> fetchLocos();
-  Future<void> updateLoco(int address, Loco loco);
-  Future<void> updateLocos(SplayTreeSet<Loco> locos);
-  Future<void> deleteLoco(int address);
-  Future<void> deleteLocos();
+@freezed
+abstract class Turnout with _$Turnout implements Comparable<Turnout> {
+  const Turnout._();
 
-  Future<Turnout> fetchTurnout(int address);
-  Future<SplayTreeSet<Turnout>> fetchTurnouts();
-  Future<void> updateTurnout(int address, Turnout turnout);
-  Future<void> updateTurnouts(SplayTreeSet<Turnout> turnouts);
-  Future<void> deleteTurnout(int address);
-  Future<void> deleteTurnouts();
+  const factory Turnout({
+    @JsonKey(name: 'address') required int address,
+    @Default('') @JsonKey(name: 'name', defaultValue: '') String name,
+    @Default(0) @JsonKey(name: 'mode', defaultValue: 0) int mode,
+    @Default(0) @JsonKey(name: 'position', defaultValue: 0) int position,
+  }) = _Turnout;
+
+  factory Turnout.fromJson(Map<String, Object?> json) =>
+      _$TurnoutFromJson(json);
+
+  @override
+  int compareTo(Turnout other) {
+    return address.compareTo(other.address);
+  }
 }

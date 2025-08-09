@@ -16,21 +16,25 @@
 import 'dart:collection';
 
 import 'package:Frontend/model/loco.dart';
-import 'package:Frontend/model/turnout.dart';
+import 'package:Frontend/provider/decoder_filter.dart';
+import 'package:Frontend/provider/locos.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'filtered_locos.g.dart';
 
 /// \todo document
-abstract interface class DccService {
-  Future<Loco> fetchLoco(int address);
-  Future<SplayTreeSet<Loco>> fetchLocos();
-  Future<void> updateLoco(int address, Loco loco);
-  Future<void> updateLocos(SplayTreeSet<Loco> locos);
-  Future<void> deleteLoco(int address);
-  Future<void> deleteLocos();
-
-  Future<Turnout> fetchTurnout(int address);
-  Future<SplayTreeSet<Turnout>> fetchTurnouts();
-  Future<void> updateTurnout(int address, Turnout turnout);
-  Future<void> updateTurnouts(SplayTreeSet<Turnout> turnouts);
-  Future<void> deleteTurnout(int address);
-  Future<void> deleteTurnouts();
+@Riverpod(keepAlive: true)
+SplayTreeSet<Loco> filteredLocos(ref) {
+  final locos = ref.watch(locosProvider);
+  try {
+    final exp = RegExp(ref.watch(decoderFilterProvider));
+    return SplayTreeSet<Loco>.of(
+      locos.where(
+        (loco) =>
+            exp.hasMatch(loco.name) || exp.hasMatch(loco.address.toString()),
+      ),
+    );
+  } on FormatException {
+    return locos;
+  }
 }

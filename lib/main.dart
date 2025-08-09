@@ -25,17 +25,16 @@ import 'package:Frontend/prefs.dart';
 import 'package:Frontend/provider/connection_status.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/locos.dart';
-import 'package:Frontend/provider/sys.dart';
-import 'package:Frontend/provider/text_scaler.dart';
-import 'package:Frontend/provider/throttle_registry.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_short_circuit.dart';
+import 'package:Frontend/provider/text_scaler.dart';
+import 'package:Frontend/provider/throttle_registry.dart';
 import 'package:Frontend/screen/decoders.dart';
 import 'package:Frontend/screen/info.dart';
 import 'package:Frontend/screen/program.dart';
 import 'package:Frontend/screen/settings.dart';
 import 'package:Frontend/screen/update.dart';
-import 'package:Frontend/widget/dialog/confirmation.dart';
+import 'package:Frontend/utility/fixed_color_mapper.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
 import 'package:Frontend/widget/throttle/throttle.dart';
@@ -231,32 +230,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/icons/icon_dark.svg'
-                    : 'data/icons/icon_light.svg',
+                'data/icons/icon.svg',
+                colorMapper:
+                    FixedColorMapper(Theme.of(context).colorScheme.primary),
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
-                ref.watch(darkModeProvider)
-                    ? 'data/images/logo_dark.svg'
-                    : 'data/images/logo_light.svg',
+                'data/images/logo.svg',
+                colorMapper:
+                    FixedColorMapper(Theme.of(context).colorScheme.primary),
               ),
         actions: [
-          IconButton(
-            onPressed: () => showDialog<bool>(
-              context: context,
-              builder: (_) => const ConfirmationDialog(title: 'Restart'),
-              barrierDismissible: false,
-            ).then(
-              (value) => value == true
-                  ? ref.read(sysProvider.notifier).restart()
-                  : null,
-            ),
-            tooltip: 'Restart',
-            icon: const Icon(Icons.restart_alt),
-          ),
           IconButton(
             onPressed: () {
               final scale = ref.read(textScalerProvider) + 0.2;

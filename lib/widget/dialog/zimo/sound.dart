@@ -28,7 +28,7 @@ class SoundDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _SoundDialogState extends ConsumerState<SoundDialog> {
   List<String> _urls = [];
-  String _str = '.*';
+  String _str = '';
 
   /// \todo document
   @override
@@ -79,15 +79,14 @@ class _SoundDialogState extends ConsumerState<SoundDialog> {
       ),
       children: [
         ..._urls.isEmpty
-            ? [
-                const SimpleDialogOption(child: LinearProgressIndicator()),
-              ]
+            ? [const SimpleDialogOption(child: LinearProgressIndicator())]
             : [
                 SimpleDialogOption(
-                  child: TextField(
+                  child: TextFormField(
                     decoration: const InputDecoration(
                       icon: Icon(Icons.search),
                       labelText: 'Search',
+                      isDense: true,
                     ),
                     onChanged: (str) => setState(() => _str = str),
                   ),

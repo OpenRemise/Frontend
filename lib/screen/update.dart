@@ -18,12 +18,13 @@ import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/zimo/zpp.dart';
 import 'package:Frontend/model/zimo/zsu.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
-import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/internet_status.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
+import 'package:Frontend/utility/fixed_color_mapper.dart';
+import 'package:Frontend/utility/grayscale_color_mapper.dart';
 import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/download.dart';
 import 'package:Frontend/widget/dialog/ota.dart';
@@ -136,11 +137,12 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       Card.outlined(
                         child: ListTile(
                           title: SvgPicture.asset(
-                            trackVoltageOff
-                                ? ref.watch(darkModeProvider)
-                                    ? 'data/images/logo_dark.svg'
-                                    : 'data/images/logo_light.svg'
-                                : 'data/images/logo_grayscale.svg',
+                            'data/images/logo.svg',
+                            colorMapper: trackVoltageOff
+                                ? FixedColorMapper(
+                                    Theme.of(context).colorScheme.primary,
+                                  )
+                                : GrayscaleColorMapper(),
                             width: 100,
                             height: 100,
                             fit: BoxFit.scaleDown,
@@ -157,9 +159,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       Card.outlined(
                         child: ListTile(
                           title: SvgPicture.asset(
-                            trackVoltageOff
-                                ? 'data/images/zimo.svg'
-                                : 'data/images/zimo_grayscale.svg',
+                            'data/images/zimo.svg',
+                            colorMapper:
+                                trackVoltageOff ? null : GrayscaleColorMapper(),
                             width: 100,
                             height: 100,
                             fit: BoxFit.scaleDown,
@@ -177,9 +179,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                         Card.outlined(
                           child: ListTile(
                             title: SvgPicture.asset(
-                              trackVoltageOff
-                                  ? 'data/images/tams.svg'
-                                  : 'data/images/tams_grayscale.svg',
+                              'data/images/tams.svg',
+                              colorMapper: trackVoltageOff
+                                  ? null
+                                  : GrayscaleColorMapper(),
                               width: 100,
                               height: 100,
                               fit: BoxFit.scaleDown,

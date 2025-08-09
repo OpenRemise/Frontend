@@ -55,7 +55,7 @@ class FakeSysService implements SysService {
       const Duration(milliseconds: 500),
       () => Info(
         state: state.toString().split('.')[1],
-        version: '0.3.1',
+        version: '0.4.0',
         projectName: 'Frontend',
         compileTime: '18:31:28',
         compileDate: 'Jul 28 2024',

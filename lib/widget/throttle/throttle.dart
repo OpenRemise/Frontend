@@ -168,19 +168,19 @@ class _ThrottleState extends ConsumerState<Throttle> {
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => const EditLocoDialog(null),
-                    ),
-                    tooltip: 'Add',
-                    icon: const Icon(Icons.add_circle),
-                  ),
-                  IconButton(
-                    onPressed: () => showDialog(
-                      context: context,
                       builder: (_) =>
                           EditLocoDialog(widget.initialLoco.address),
                     ),
                     tooltip: 'Edit',
                     icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => const EditLocoDialog(null),
+                    ),
+                    tooltip: 'Add',
+                    icon: const Icon(Icons.add_circle),
                   ),
                   IconButton(
                     onPressed: () => showDialog(
