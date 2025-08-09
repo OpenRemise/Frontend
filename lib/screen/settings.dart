@@ -24,7 +24,9 @@ import 'package:Frontend/model/config.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/settings.dart';
+import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/utility/ip_address_validator.dart';
+import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
 import 'package:Frontend/widget/persistent_expansion_tile.dart';
@@ -86,7 +88,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 selectedIcon: const Icon(Icons.power_off),
                 icon: const Icon(Icons.power),
               ),
-              title: smallWidth ? null : Text('Settings'),
+              title: Stack(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => showDialog<bool>(
+                          context: context,
+                          builder: (_) =>
+                              const ConfirmationDialog(title: 'Restart'),
+                          barrierDismissible: false,
+                        ).then(
+                          (value) => value == true
+                              ? ref.read(sysProvider.notifier).restart()
+                              : null,
+                        ),
+                        tooltip: 'Restart',
+                        icon: const Icon(Icons.restart_alt),
+                      ),
+                    ],
+                  ),
+                  if (!smallWidth) Center(child: Text('Settings')),
+                ],
+              ),
               actions: [
                 ValueListenableBuilder<bool>(
                   valueListenable: _expandAllNotifier,
@@ -699,7 +723,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     if (kDebugMode)
                       PersistentExpansionTile(
-                        title: const Text('Turnouts/accessories'),
+                        title: const Text('Accessories'),
                         externalController: _expandAllNotifier,
                         leading: const Icon(OpenRemiseIcons.accessory),
                         showDividers: true,

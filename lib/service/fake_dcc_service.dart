@@ -16,7 +16,9 @@
 import 'dart:collection';
 
 import 'package:Frontend/model/loco.dart';
+import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/turnouts.dart';
 import 'package:Frontend/service/dcc_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,33 +28,23 @@ class FakeDccService implements DccService {
 
   FakeDccService(this.ref);
 
-  SplayTreeSet<Loco> _readFile() {
-    return ref.read(locosProvider);
-  }
-
-  void _writeFile(SplayTreeSet<Loco> locos) {
-    ref.read(locosProvider.notifier).updateLocos(locos);
-  }
-
-  @override
-  Future<SplayTreeSet<Loco>> fetchLocos() {
-    return Future.delayed(const Duration(seconds: 1), _readFile);
-  }
-
   @override
   Future<Loco> fetchLoco(int address) {
     return Future.delayed(
       const Duration(milliseconds: 250),
-      () => _readFile().firstWhere(
-        (l) => l.address == address,
-        orElse: () => throw Exception('Failed to fetch loco'),
-      ),
+      () => ref.read(locosProvider).firstWhere(
+            (l) => l.address == address,
+            orElse: () => throw Exception('Failed to fetch loco'),
+          ),
     );
   }
 
   @override
-  Future<void> updateLocos(SplayTreeSet<Loco> locos) {
-    return Future.delayed(const Duration(seconds: 1), () => _writeFile(locos));
+  Future<SplayTreeSet<Loco>> fetchLocos() {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => ref.read(locosProvider),
+    );
   }
 
   @override
@@ -61,15 +53,70 @@ class FakeDccService implements DccService {
   }
 
   @override
-  Future<void> deleteLocos() {
+  Future<void> updateLocos(SplayTreeSet<Loco> locos) {
     return Future.delayed(
       const Duration(seconds: 1),
-      () => _writeFile(SplayTreeSet<Loco>()),
+      () => ref.read(locosProvider.notifier).updateLocos(locos),
     );
   }
 
   @override
   Future<void> deleteLoco(int address) {
     return Future.delayed(const Duration(milliseconds: 250));
+  }
+
+  @override
+  Future<void> deleteLocos() {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => ref.read(locosProvider.notifier).updateLocos(SplayTreeSet<Loco>()),
+    );
+  }
+
+  @override
+  Future<Turnout> fetchTurnout(int address) {
+    return Future.delayed(
+      const Duration(milliseconds: 250),
+      () => ref.read(turnoutsProvider).firstWhere(
+            (t) => t.address == address,
+            orElse: () => throw Exception('Failed to fetch turnout'),
+          ),
+    );
+  }
+
+  @override
+  Future<SplayTreeSet<Turnout>> fetchTurnouts() {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => ref.read(turnoutsProvider),
+    );
+  }
+
+  @override
+  Future<void> updateTurnout(int address, Turnout turnout) {
+    return Future.delayed(const Duration(milliseconds: 250));
+  }
+
+  @override
+  Future<void> updateTurnouts(SplayTreeSet<Turnout> turnouts) {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => ref.read(turnoutsProvider.notifier).updateTurnouts(turnouts),
+    );
+  }
+
+  @override
+  Future<void> deleteTurnout(int address) {
+    return Future.delayed(const Duration(milliseconds: 250));
+  }
+
+  @override
+  Future<void> deleteTurnouts() {
+    return Future.delayed(
+      const Duration(seconds: 1),
+      () => ref
+          .read(turnoutsProvider.notifier)
+          .updateTurnouts(SplayTreeSet<Turnout>()),
+    );
   }
 }

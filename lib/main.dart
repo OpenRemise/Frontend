@@ -25,17 +25,15 @@ import 'package:Frontend/prefs.dart';
 import 'package:Frontend/provider/connection_status.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/locos.dart';
-import 'package:Frontend/provider/sys.dart';
-import 'package:Frontend/provider/text_scaler.dart';
-import 'package:Frontend/provider/throttle_registry.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_short_circuit.dart';
+import 'package:Frontend/provider/text_scaler.dart';
+import 'package:Frontend/provider/throttle_registry.dart';
 import 'package:Frontend/screen/decoders.dart';
 import 'package:Frontend/screen/info.dart';
 import 'package:Frontend/screen/program.dart';
 import 'package:Frontend/screen/settings.dart';
 import 'package:Frontend/screen/update.dart';
-import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
 import 'package:Frontend/widget/throttle/throttle.dart';
@@ -244,19 +242,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     : 'data/images/logo_light.svg',
               ),
         actions: [
-          IconButton(
-            onPressed: () => showDialog<bool>(
-              context: context,
-              builder: (_) => const ConfirmationDialog(title: 'Restart'),
-              barrierDismissible: false,
-            ).then(
-              (value) => value == true
-                  ? ref.read(sysProvider.notifier).restart()
-                  : null,
-            ),
-            tooltip: 'Restart',
-            icon: const Icon(Icons.restart_alt),
-          ),
           IconButton(
             onPressed: () {
               final scale = ref.read(textScalerProvider) + 0.2;

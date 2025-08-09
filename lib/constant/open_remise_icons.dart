@@ -27,16 +27,20 @@ class OpenRemiseIcons {
 
   static const IconData accessory =
       IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData pom =
+  static const IconData accessory_outlined =
       IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData signal =
+  static const IconData pom =
       IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData square_wave =
+  static const IconData signal =
       IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData susi =
+  static const IconData signal_outlined =
       IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData track =
+  static const IconData square_wave =
       IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData turnout =
+  static const IconData susi =
       IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData track =
+      IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData turnout =
+      IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

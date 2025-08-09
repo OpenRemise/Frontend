@@ -15,51 +15,49 @@
 
 import 'dart:collection';
 
-import 'package:Frontend/model/loco.dart';
+import 'package:Frontend/model/turnout.dart';
 import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'locos.g.dart';
+part 'turnouts.g.dart';
 
 /// \todo document
 @Riverpod(keepAlive: true)
-class Locos extends _$Locos {
+class Turnouts extends _$Turnouts {
   /// \todo document
   @override
-  SplayTreeSet<Loco> build() {
+  SplayTreeSet<Turnout> build() {
     return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
             'true'
-        ? SplayTreeSet<Loco>.of([
-            Loco(address: 3, name: 'Vectron'),
-            Loco(address: 98, name: 'L45H'),
-            Loco(address: 208, name: 'Gruppo 740'),
-            Loco(address: 726, name: 'Gem 4/4'),
-            Loco(address: 1337, name: 'Reihe 498'),
-            Loco(address: 2811, name: 'ASF EL 16'),
+        ? SplayTreeSet<Turnout>.of([
+            Turnout(address: 5, name: 'North right'),
+            Turnout(address: 20, name: 'South left'),
+            Turnout(address: 21, name: 'South right'),
+            Turnout(address: 30, name: 'Yard'),
           ])
-        : SplayTreeSet<Loco>();
+        : SplayTreeSet<Turnout>();
   }
 
   /// \todo document
-  void updateLocos(SplayTreeSet<Loco> locos) {
-    state = locos;
+  void updateTurnouts(SplayTreeSet<Turnout> turnouts) {
+    state = turnouts;
   }
 
   /// \todo document
-  void updateLoco(int address, Loco loco) {
-    state = SplayTreeSet<Loco>.from(state)
+  void updateTurnout(int address, Turnout turnout) {
+    state = SplayTreeSet<Turnout>.from(state)
       ..remove(state.firstWhereOrNull((l) => l.address == address))
-      ..add(loco);
+      ..add(turnout);
   }
 
   /// \todo document
-  void deleteLocos() {
-    state = SplayTreeSet<Loco>();
+  void deleteTurnouts() {
+    state = SplayTreeSet<Turnout>();
   }
 
   /// \todo document
-  void deleteLoco(int address) {
-    state = SplayTreeSet<Loco>.from(state)
+  void deleteTurnout(int address) {
+    state = SplayTreeSet<Turnout>.from(state)
       ..remove(state.firstWhereOrNull((l) => l.address == address));
   }
 }

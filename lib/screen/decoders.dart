@@ -13,9 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
+import 'package:Frontend/model/decoder_selection.dart';
 import 'package:Frontend/provider/dcc.dart';
-import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/decoder_filter.dart';
+import 'package:Frontend/provider/decoder_selection.dart';
+import 'package:Frontend/provider/filtered_locos.dart';
+import 'package:Frontend/provider/filtered_turnouts.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/throttle_registry.dart';
@@ -50,11 +55,13 @@ class DecodersScreen extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DecodersScreenState extends ConsumerState<DecodersScreen> {
+  bool _showSearch = false;
+
   /// \todo document
   @override
   Widget build(BuildContext context) {
     final dcc = ref.watch(dccProvider);
-    final locos = ref.watch(locosProvider);
+    final decoderSelection = ref.watch(decoderSelectionProvider);
     final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
     final bool smallWidth =
@@ -80,28 +87,102 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               selectedIcon: const Icon(Icons.power_off),
               icon: const Icon(Icons.power),
             ),
-            title: smallWidth ? null : Text('Decoders'),
+            title: Stack(
+              children: [
+                Row(
+                  children: [
+                    SegmentedButton(
+                      segments: [
+                        ButtonSegment(
+                          value: DecoderSelection.locos,
+                          icon: Icon(
+                            decoderSelection.contains(DecoderSelection.locos)
+                                ? Icons.train
+                                : Icons.train_outlined,
+                          ),
+                        ),
+                        ButtonSegment(
+                          value: DecoderSelection.accessories,
+                          icon: Icon(
+                            decoderSelection
+                                    .contains(DecoderSelection.accessories)
+                                ? OpenRemiseIcons.accessory
+                                : OpenRemiseIcons.accessory_outlined,
+                          ),
+                        ),
+                      ],
+                      selected: ref.watch(decoderSelectionProvider),
+                      onSelectionChanged:
+                          (Set<DecoderSelection> newSelection) => ref
+                              .read(decoderSelectionProvider.notifier)
+                              .update(newSelection),
+                      multiSelectionEnabled: true,
+                      showSelectedIcon: false,
+                    ),
+                  ],
+                ),
+                if (!smallWidth) Center(child: Text('Decoders')),
+              ],
+            ),
             actions: [
               IconButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => const EditLocoDialog(null),
-                ),
-                tooltip: 'Add',
-                icon: const Icon(Icons.add_circle),
+                onPressed: () => setState(() => _showSearch = !_showSearch),
+                tooltip: 'Search',
+                icon: const Icon(Icons.search),
               ),
-              IconButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => const DeleteLocoDialog(null),
-                ),
-                tooltip: 'Delete all',
-                icon: const Icon(Icons.delete),
-              ),
-              IconButton(
-                onPressed: () => ref.read(dccProvider.notifier).refresh(),
-                tooltip: 'Refresh',
-                icon: const Icon(Icons.refresh),
+              Stack(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (_) => const EditLocoDialog(null),
+                        ),
+                        tooltip: 'Add',
+                        icon: const Icon(Icons.add_circle),
+                      ),
+                      IconButton(
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (_) => const DeleteLocoDialog(null),
+                        ),
+                        tooltip: 'Delete all',
+                        icon: const Icon(Icons.delete),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          ref.read(dccProvider.notifier).refresh();
+                          ref.read(decoderFilterProvider.notifier).update(
+                                ref
+                                    .read(decoderFilterProvider.notifier)
+                                    .defaultValue,
+                              );
+                        },
+                        tooltip: 'Refresh',
+                        icon: const Icon(Icons.refresh),
+                      ),
+                    ],
+                  ),
+                  if (_showSearch)
+                    Positioned.fill(
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        color: Theme.of(context).colorScheme.surface,
+                        child: TextFormField(
+                          initialValue: ref.read(decoderFilterProvider),
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            isDense: true,
+                          ),
+                          autofocus: true,
+                          onChanged: (str) => ref
+                              .read(decoderFilterProvider.notifier)
+                              .update(str),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
             bottom: smallWidth
@@ -114,66 +195,115 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
             centerTitle: true,
             floating: true,
           ),
-          dcc.when(
-            data: (data) => SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => index < locos.length ? _tile(index) : null,
-                childCount: locos.length,
-              ),
-            ),
-            error: (error, stackTrace) => const SliverFillRemaining(
-              child: Center(child: ErrorGif()),
-            ),
-            loading: () => const SliverFillRemaining(
-              child: Center(child: LoadingGif()),
-            ),
+          ...dcc.when(
+            data: (data) => [
+              if (decoderSelection.contains(DecoderSelection.locos))
+                _locoList(),
+              if (decoderSelection.contains(DecoderSelection.accessories))
+                _turnoutList(),
+            ],
+            error: (error, stackTrace) => [
+              const SliverFillRemaining(child: Center(child: ErrorGif())),
+            ],
+            loading: () => [
+              const SliverFillRemaining(child: Center(child: LoadingGif())),
+            ],
           ),
         ],
       ),
     );
   }
 
-  /// \todo document
-  Widget _tile(int index) {
-    final locos = ref.watch(locosProvider);
-    final loco = locos.elementAt(index);
-    final active = ref
-        .watch(throttleRegistryProvider)
-        .any((c) => c.address == loco.address);
+  Widget _locoList() {
+    final locos = ref.watch(filteredLocosProvider);
 
-    return Card.outlined(
-      child: ListTile(
-        leading: Icon(active ? Icons.train : Icons.train_outlined),
-        title: Text(loco.name),
-        subtitle: Text(
-          'Address ${loco.address}',
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              onPressed: () => showDialog(
-                context: context,
-                builder: (_) => EditLocoDialog(loco.address),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index >= locos.length) return null;
+
+          final loco = locos.elementAt(index);
+          final active = ref
+              .watch(throttleRegistryProvider)
+              .any((c) => c.address == loco.address);
+
+          return Card.outlined(
+            child: ListTile(
+              leading: Icon(active ? Icons.train : Icons.train_outlined),
+              title: Text(loco.name),
+              subtitle: Text(
+                'Address ${loco.address}',
               ),
-              icon: const Icon(Icons.edit),
-            ),
-            IconButton(
-              onPressed: () => showDialog(
-                context: context,
-                builder: (_) => DeleteLocoDialog(loco.address),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => EditLocoDialog(loco.address),
+                    ),
+                    icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => DeleteLocoDialog(loco.address),
+                    ),
+                    icon: const Icon(Icons.delete),
+                  ),
+                ],
               ),
-              icon: const Icon(Icons.delete),
+              onTap: () => active
+                  ? ref
+                      .read(throttleRegistryProvider.notifier)
+                      .deleteLoco(loco.address)
+                  : ref
+                      .read(throttleRegistryProvider.notifier)
+                      .updateLoco(loco.address, loco),
             ),
-          ],
-        ),
-        onTap: () => active
-            ? ref
-                .read(throttleRegistryProvider.notifier)
-                .deleteLoco(loco.address)
-            : ref
-                .read(throttleRegistryProvider.notifier)
-                .updateLoco(loco.address, loco),
+          );
+        },
+        childCount: locos.length,
+      ),
+    );
+  }
+
+  /// \todo document
+  Widget _turnoutList() {
+    final turnouts = ref.watch(filteredTurnoutsProvider);
+
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index >= turnouts.length) return null;
+
+          final turnout = turnouts.elementAt(index);
+
+          return Card.outlined(
+            child: ListTile(
+              leading: Icon(OpenRemiseIcons.accessory_outlined),
+              title: Text(turnout.name),
+              subtitle: Text(
+                'Address ${turnout.address}',
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.delete),
+                  ),
+                ],
+              ),
+              onTap: () {},
+            ),
+          );
+        },
+        childCount: turnouts.length,
       ),
     );
   }
