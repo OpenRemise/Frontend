@@ -30,10 +30,130 @@ class Turnouts extends _$Turnouts {
     return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
             'true'
         ? SplayTreeSet<Turnout>.of([
-            Turnout(address: 5, name: 'North right'),
-            Turnout(address: 20, name: 'South left'),
-            Turnout(address: 21, name: 'South right'),
-            Turnout(address: 30, name: 'Yard'),
+            //
+            Turnout(
+              address: 4,
+              name: 'Turnout right',
+              type: 256 + 0,
+              position: 1,
+              group: Group(
+                addresses: [4],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
+
+            //
+            Turnout(
+              address: 8,
+              name: 'Turnout 3-way',
+              type: 256 + 3,
+              position: 2,
+              group: Group(
+                addresses: [
+                  8,
+                  9,
+                ],
+                positions: [
+                  List.unmodifiable([1, 1]),
+                  List.unmodifiable([1, 2]),
+                  List.unmodifiable([2, 1]),
+                ],
+              ),
+            ),
+            Turnout(
+              address: 9,
+              name: '9',
+              type: 0 + 1,
+              position: 1,
+              group: Group(
+                addresses: [8],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
+
+            //
+            Turnout(
+              address: 100,
+              name: 'Signal 4 aspects',
+              type: 512 + 2,
+              position: 1,
+              group: Group(
+                addresses: [
+                  100,
+                  101,
+                ],
+                positions: [
+                  List.unmodifiable([1, 1]),
+                  List.unmodifiable([1, 2]),
+                  List.unmodifiable([2, 1]),
+                  List.unmodifiable([2, 2]),
+                ],
+              ),
+            ),
+            Turnout(
+              address: 101,
+              name: '101',
+              type: 0 + 1,
+              position: 2,
+              group: Group(
+                addresses: [101],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
+
+            //
+            Turnout(
+              address: 200,
+              name: 'Light',
+              type: 768 + 0,
+              position: 1,
+              group: Group(
+                addresses: [200],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
+
+            //
+            Turnout(
+              address: 201,
+              name: 'Crossing gate',
+              type: 768 + 1,
+              position: 1,
+              group: Group(
+                addresses: [201],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
+
+            //
+            Turnout(
+              address: 202,
+              name: 'Relay',
+              type: 768 + 2,
+              position: 1,
+              group: Group(
+                addresses: [202],
+                positions: [
+                  List.unmodifiable([1]),
+                  List.unmodifiable([2]),
+                ],
+              ),
+            ),
           ])
         : SplayTreeSet<Turnout>();
   }
@@ -46,7 +166,7 @@ class Turnouts extends _$Turnouts {
   /// \todo document
   void updateTurnout(int address, Turnout turnout) {
     state = SplayTreeSet<Turnout>.from(state)
-      ..remove(state.firstWhereOrNull((l) => l.address == address))
+      ..remove(state.firstWhereOrNull((t) => t.address == address))
       ..add(turnout);
   }
 
@@ -58,6 +178,6 @@ class Turnouts extends _$Turnouts {
   /// \todo document
   void deleteTurnout(int address) {
     state = SplayTreeSet<Turnout>.from(state)
-      ..remove(state.firstWhereOrNull((l) => l.address == address));
+      ..remove(state.firstWhereOrNull((t) => t.address == address));
   }
 }

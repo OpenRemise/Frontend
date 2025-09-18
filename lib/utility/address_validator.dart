@@ -14,13 +14,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /// \todo document
-String? addressValidator(String? value) {
+String? addressValidator(String? value, {required int min, required int max}) {
   if (value == null || value.isEmpty) return 'Please enter an address';
   final number = int.tryParse(value);
   if (number == null) {
     return 'Address invalid';
-  } else if (number > 9999) {
-    return 'Address out of range';
+  } else if (number < min || number > max) {
+    return 'Address out of range [$min, $max]';
   } else {
     return null;
   }

@@ -28,8 +28,8 @@ class LoadingGif extends ConsumerWidget {
     return Gif(
       image: AssetImage(
         ref.watch(darkModeProvider)
-            ? 'data/images/loading_dark.gif'
-            : 'data/images/loading_light.gif',
+            ? 'data/images/gifs/loading_dark.gif'
+            : 'data/images/gifs/loading_light.gif',
       ),
       autostart: Autostart.loop,
       width: 200,

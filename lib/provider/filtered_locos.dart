@@ -25,13 +25,12 @@ part 'filtered_locos.g.dart';
 /// \todo document
 @Riverpod(keepAlive: true)
 SplayTreeSet<Loco> filteredLocos(ref) {
-  final locos = ref.watch(locosProvider);
+  final SplayTreeSet<Loco> locos = ref.watch(locosProvider);
   try {
     final exp = RegExp(ref.watch(decoderFilterProvider));
     return SplayTreeSet<Loco>.of(
       locos.where(
-        (loco) =>
-            exp.hasMatch(loco.name) || exp.hasMatch(loco.address.toString()),
+        (l) => exp.hasMatch(l.name) || exp.hasMatch(l.address.toString()),
       ),
     );
   } on FormatException {

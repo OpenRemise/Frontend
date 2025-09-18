@@ -17,12 +17,9 @@
 import 'package:Frontend/constant/current_limits.dart';
 import 'package:Frontend/constant/dcc_bidi_durations.dart';
 import 'package:Frontend/constant/dcc_programming_types.dart';
-import 'package:Frontend/constant/default_settings.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/config.dart';
-import 'package:Frontend/provider/roco/z21_service.dart';
-import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/settings.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/utility/ip_address_validator.dart';
@@ -30,6 +27,7 @@ import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
 import 'package:Frontend/widget/persistent_expansion_tile.dart';
+import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -61,8 +59,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    final z21 = ref.watch(z21ServiceProvider);
-    final z21Status = ref.watch(z21StatusProvider);
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
@@ -73,21 +69,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              leading: IconButton(
-                onPressed: z21Status.hasValue
-                    ? (z21Status.requireValue.trackVoltageOff()
-                        ? z21.lanXSetTrackPowerOn
-                        : z21.lanXSetTrackPowerOff)
-                    : null,
-                tooltip: z21Status.hasValue &&
-                        !z21Status.requireValue.trackVoltageOff()
-                    ? 'Power off'
-                    : 'Power on',
-                isSelected: z21Status.hasValue &&
-                    !z21Status.requireValue.trackVoltageOff(),
-                selectedIcon: const Icon(Icons.power_off),
-                icon: const Icon(Icons.power),
-              ),
+              leading: PowerIconButton(),
               title: Stack(
                 children: [
                   Row(
@@ -125,8 +107,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                 ),
                 IconButton(
-                  onPressed: () =>
-                      _formKey.currentState?.patchValue(defaultSettings),
+                  onPressed: () {
+                    final json = Config().toJson();
+
+                    // Convert to types used by FormBuilder
+                    json['http_exit_msg'] = <bool>[
+                      json['http_exit_msg'] as bool,
+                    ];
+                    json['dcc_bidibit_dur'] = dccBiDiDurations
+                        .indexOf(json['dcc_bidibit_dur'])
+                        .toDouble();
+                    json['dcc_verify_bit1'] =
+                        json['dcc_verify_bit1'] ? 1.0 : 0.0;
+                    json['dcc_loco_flags'] = <int>[
+                      json['dcc_loco_flags'] & 0x80,
+                      json['dcc_loco_flags'] & 0x40,
+                      json['dcc_loco_flags'] & 0x20,
+                    ];
+                    json['dcc_accy_flags'] = <int>[
+                      json['dcc_accy_flags'] & 0x40,
+                      json['dcc_accy_flags'] & 0x04,
+                      json['dcc_accy_flags'] & 0x02,
+                      json['dcc_accy_flags'] & 0x01,
+                    ];
+                    json.updateAll((k, v) => v is int ? v.toDouble() : v);
+
+                    _formKey.currentState?.patchValue(json);
+                  },
                   tooltip: 'Defaults',
                   icon: const Icon(Icons.settings_suggest),
                 ),
@@ -319,7 +326,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'http_rx_timeout',
-                            initialValue: data.httpReceiveTimeout!.toDouble(),
+                            initialValue: data.httpReceiveTimeout.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Receive timeout [s]',
                             ),
@@ -335,7 +342,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'http_tx_timeout',
-                            initialValue: data.httpTransmitTimeout!.toDouble(),
+                            initialValue: data.httpTransmitTimeout.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Transmit timeout [s]',
                             ),
@@ -348,7 +355,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         FormBuilderCheckboxGroup(
                           name: 'http_exit_msg',
-                          initialValue: [data.httpExitMessage!],
+                          initialValue: [data.httpExitMessage],
                           decoration: const InputDecoration(
                             labelText: 'Show Message on page leave',
                           ),
@@ -378,7 +385,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'cur_lim',
-                            initialValue: data.currentLimit!.toDouble(),
+                            initialValue: data.currentLimit.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Limit [A]',
                             ),
@@ -398,7 +405,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'cur_lim_serv',
                             validator: (_) => null,
-                            initialValue: data.currentLimitService!.toDouble(),
+                            initialValue: data.currentLimitService.toDouble(),
                             decoration: InputDecoration(
                               labelText: 'Limit service mode [A]',
                               helperText: (_formKey.currentState
@@ -428,7 +435,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'cur_sc_time',
                             initialValue:
-                                data.currentShortCircuitTime!.toDouble(),
+                                data.currentShortCircuitTime.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Short circuit time [ms]',
                             ),
@@ -452,7 +459,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'led_dc_bug',
-                            initialValue: data.ledDutyCycleBug!.toDouble(),
+                            initialValue: data.ledDutyCycleBug.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Duty cycle bug [%]',
                             ),
@@ -468,7 +475,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'led_dc_wifi',
-                            initialValue: data.ledDutyCycleWiFi!.toDouble(),
+                            initialValue: data.ledDutyCycleWiFi.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Duty cycle WiFi [%]',
                             ),
@@ -492,7 +499,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_preamble',
-                            initialValue: data.dccPreamble!.toDouble(),
+                            initialValue: data.dccPreamble.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Preamble',
                             ),
@@ -508,7 +515,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_bit1_dur',
-                            initialValue: data.dccBit1Duration!.toDouble(),
+                            initialValue: data.dccBit1Duration.toDouble(),
                             decoration: const InputDecoration(
                               labelText: '1 bit duration [µs]',
                             ),
@@ -524,7 +531,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_bit0_dur',
-                            initialValue: data.dccBit0Duration!.toDouble(),
+                            initialValue: data.dccBit0Duration.toDouble(),
                             decoration: const InputDecoration(
                               labelText: '0 bit duration [µs]',
                             ),
@@ -542,7 +549,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'dcc_bidibit_dur',
                             initialValue: dccBiDiDurations
-                                .indexOf(data.dccBiDiBitDuration!)
+                                .indexOf(data.dccBiDiBitDuration)
                                 .toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'BiDi bit duration [µs]',
@@ -564,7 +571,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_prog_type',
-                            initialValue: data.dccProgrammingType!.toDouble(),
+                            initialValue: data.dccProgrammingType.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Programming type',
                             ),
@@ -584,7 +591,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'dcc_strtp_rs_pc',
                             initialValue:
-                                data.dccStartupResetPacketCount!.toDouble(),
+                                data.dccStartupResetPacketCount.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Startup reset packets',
                             ),
@@ -602,7 +609,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'dcc_cntn_rs_pc',
                             initialValue:
-                                data.dccContinueResetPacketCount!.toDouble(),
+                                data.dccContinueResetPacketCount.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Continue reset packets',
                             ),
@@ -619,8 +626,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_prog_pc',
-                            initialValue:
-                                data.dccProgramPacketCount!.toDouble(),
+                            initialValue: data.dccProgramPacketCount.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Program packets',
                             ),
@@ -638,7 +644,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'dcc_verify_bit1',
                             initialValue:
-                                (data.dccBitVerifyTo1! ? 1 : 0).toDouble(),
+                                (data.dccBitVerifyTo1 ? 1 : 0).toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Verify to bit',
                             ),
@@ -656,7 +662,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderSlider(
                             name: 'dcc_ack_cur',
                             initialValue:
-                                data.dccProgrammingAckCurrent!.toDouble(),
+                                data.dccProgrammingAckCurrent.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Programming ack current [mA]',
                             ),
@@ -678,9 +684,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         FormBuilderCheckboxGroup(
                           name: 'dcc_loco_flags',
                           initialValue: [
-                            data.dccLocoFlags! & 0x80,
-                            data.dccLocoFlags! & 0x40,
-                            data.dccLocoFlags! & 0x20,
+                            data.dccLocoFlags & 0x80,
+                            data.dccLocoFlags & 0x40,
+                            data.dccLocoFlags & 0x20,
                           ],
                           valueTransformer: (value) => value?.fold(
                             0x02,
@@ -705,15 +711,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 child: Text('Repeat high functions (≥F13)'),
                               ),
                             ),
-                            FormBuilderFieldOption(
-                              value: 0x20,
-                              child: Tooltip(
-                                message:
-                                    'Set CV29 automatically if loco address changes',
-                                waitDuration: Duration(seconds: 1),
-                                child: Text('CV29 automatic address'),
+                            if (kDebugMode)
+                              FormBuilderFieldOption(
+                                value: 0x20,
+                                child: Tooltip(
+                                  message:
+                                      'Set CV29 automatically if loco address changes',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text('CV29 automatic address'),
+                                ),
                               ),
-                            ),
                           ],
                           orientation: smallWidth
                               ? OptionsOrientation.vertical
@@ -721,26 +728,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    if (kDebugMode)
-                      PersistentExpansionTile(
-                        title: const Text('Accessories'),
-                        externalController: _expandAllNotifier,
-                        leading: const Icon(OpenRemiseIcons.accessory),
-                        showDividers: true,
-                        children: [
-                          FormBuilderCheckboxGroup(
-                            name: 'dcc_accy_flags',
-                            initialValue: [
-                              data.dccAccyFlags! & 0x40,
-                              data.dccAccyFlags! & 0x04,
-                              data.dccAccyFlags! & 0x02,
-                              data.dccAccyFlags! & 0x01,
-                            ],
-                            valueTransformer: (value) => value?.fold(
-                              0,
-                              (prev, cur) => prev | cur,
+                    PersistentExpansionTile(
+                      title: const Text('Accessories'),
+                      externalController: _expandAllNotifier,
+                      leading: const Icon(OpenRemiseIcons.accessory),
+                      showDividers: true,
+                      children: [
+                        Tooltip(
+                          message: 'Time an output remains switched on',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_accy_swtime',
+                            initialValue: data.dccAccySwitchTime.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Switch time [ms]',
                             ),
-                            options: const [
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 1,
+                            max: 5,
+                            divisions: 5 - 1,
+                            displayValues: DisplayValues.current,
+                            valueWidget: (value) => Text(
+                              (int.parse(value) * 100).toString(),
+                            ),
+                          ),
+                        ),
+                        FormBuilderCheckboxGroup(
+                          name: 'dcc_accy_flags',
+                          initialValue: [
+                            data.dccAccyFlags & 0x40,
+                            data.dccAccyFlags & 0x04,
+                            data.dccAccyFlags & 0x02,
+                            data.dccAccyFlags & 0x01,
+                          ],
+                          valueTransformer: (value) => value?.fold(
+                            0,
+                            (prev, cur) => prev | cur,
+                          ),
+                          options: const [
+                            if (kDebugMode)
                               FormBuilderFieldOption(
                                 value: 0x40,
                                 child: Tooltip(
@@ -750,6 +776,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   child: Text('Invert green/red'),
                                 ),
                               ),
+                            if (kDebugMode)
                               FormBuilderFieldOption(
                                 value: 0x04,
                                 child: Tooltip(
@@ -758,33 +785,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   child: Text('RCN-213 addressing'),
                                 ),
                               ),
-                              FormBuilderFieldOption(
-                                value: 0x02,
-                                child: Tooltip(
-                                  message:
-                                      'Workaround for incompatible clients that only activate outputs',
-                                  waitDuration: Duration(seconds: 1),
-                                  child: Text(
-                                    'Automatically deactivate complementary output',
-                                  ),
+                            FormBuilderFieldOption(
+                              value: 0x02,
+                              child: Tooltip(
+                                message:
+                                    'Workaround for incompatible clients that only activate outputs',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text(
+                                  'Automatically deactivate complementary output',
                                 ),
                               ),
-                              FormBuilderFieldOption(
-                                value: 0x01,
-                                child: Tooltip(
-                                  message:
-                                      'Disable automatic timeout of outputs',
-                                  waitDuration: Duration(seconds: 1),
-                                  child: Text('Disable timeout'),
-                                ),
+                            ),
+                            FormBuilderFieldOption(
+                              value: 0x01,
+                              child: Tooltip(
+                                message: 'Disable automatic timeout of outputs',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Disable timeout'),
                               ),
-                            ],
-                            orientation: smallWidth
-                                ? OptionsOrientation.vertical
-                                : OptionsOrientation.wrap,
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                          orientation: smallWidth
+                              ? OptionsOrientation.vertical
+                              : OptionsOrientation.wrap,
+                        ),
+                      ],
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(

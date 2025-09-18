@@ -15,6 +15,12 @@
 
 /// DCC BiDi durations
 ///
+/// \file   constant/dcc_bidi_durations.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
+/// DCC BiDi durations
+///
 /// The five \ref dccBiDiDurations "DCC BiDi durations" are part of the firmware
 /// settings. Using the first value (0) BiDi can be switched off. The current
 /// value ​​can be read or written as `dcc_bidibit_dur` at the `/settings/`

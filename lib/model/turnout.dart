@@ -25,9 +25,11 @@ abstract class Turnout with _$Turnout implements Comparable<Turnout> {
 
   const factory Turnout({
     @JsonKey(name: 'address') required int address,
-    @Default('') @JsonKey(name: 'name', defaultValue: '') String name,
-    @Default(0) @JsonKey(name: 'mode', defaultValue: 0) int mode,
-    @Default(0) @JsonKey(name: 'position', defaultValue: 0) int position,
+    @Default('') @JsonKey(name: 'name') String name,
+    @Default(0) @JsonKey(name: 'type') int type,
+    @Default(0) @JsonKey(name: 'mode') int mode,
+    @Default(0) @JsonKey(name: 'position') int position,
+    @Default(Group()) @JsonKey(name: 'group') Group group,
   }) = _Turnout;
 
   factory Turnout.fromJson(Map<String, Object?> json) =>
@@ -37,4 +39,30 @@ abstract class Turnout with _$Turnout implements Comparable<Turnout> {
   int compareTo(Turnout other) {
     return address.compareTo(other.address);
   }
+}
+
+@freezed
+abstract class Group with _$Group {
+  const factory Group({
+    @Default(<int>[]) @JsonKey(name: 'addresses') List<int> addresses,
+    @Default(<List<int>>[])
+    @JsonKey(
+      name: 'positions',
+      fromJson: _positionsFromJson,
+      toJson: _positionsToJson,
+    )
+    List<List<int>> positions,
+  }) = _Group;
+
+  factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
+}
+
+List<List<int>> _positionsFromJson(List<dynamic> json) {
+  return json
+      .map<List<int>>((e) => List.unmodifiable((e as List).cast<int>()))
+      .toList(growable: false);
+}
+
+List<List<int>> _positionsToJson(List<List<int>> positions) {
+  return positions.map((e) => e.toList()).toList();
 }

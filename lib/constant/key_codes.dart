@@ -13,10 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Key codes
+///
+/// \file   constant/key_codes.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 /// Keypad codes
 ///
 /// The KeyCodes class contains constant integer values ​​that are used when
-/// throttle buttons are pressed. The values have the following scheme:
+/// controller buttons are pressed. The values have the following scheme:
 /// - <0 for special inputs
 /// - 0-63 for the function keys
 /// - 100-109 for long presses of the function keys

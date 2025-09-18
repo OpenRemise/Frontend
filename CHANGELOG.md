@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+- Add accessories
+  - Add `/dcc/turnouts/` API
+  - Add `Turnout` model
+  - Add `Turnout` controller
+- Add search function to decoder screen
+- Bugfix `FormBuilderDropdown` does not grow with text size ([#100](https://github.com/OpenRemise/Frontend/pull/100))
+
 ## 0.4.1
 - Bugfix Z21 service big endian loco addresses ([#81](https://github.com/OpenRemise/Frontend/pull/81))
 - Bugfix Z21 service `LAN_RAILCOM_GETDATA` uses little endian loco address ([#95](https://github.com/OpenRemise/Frontend/pull/95))
@@ -16,12 +24,12 @@
 - Add update confirmation for `from web` dialogs ([#76](https://github.com/OpenRemise/Frontend/issues/76))
 
 ## 0.3.0
-- Add CV read/write to throttle ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- Add CV read/write to loco controller ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - Bugfix typo JSON key `internal_heap` ([#83](https://github.com/OpenRemise/Frontend/issues/83))
 - Bugfix add border to dialogs ([#85](https://github.com/OpenRemise/Frontend/issues/85))
 
 ## 0.2.1
-- Bugfix various throttle issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- Bugfix various loco controller issues ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 
 ## 0.2.0
 - Support static IP ([#68](https://github.com/OpenRemise/Frontend/issues/68))
@@ -30,7 +38,7 @@
 - Remove current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 
 ## 0.0.9
-- New throttle (beta) ([#36](https://github.com/OpenRemise/Frontend/issues/36))
+- New loco controller (beta) ([#36](https://github.com/OpenRemise/Frontend/issues/36))
 - LED duty cycle settings ([#62](https://github.com/OpenRemise/Frontend/issues/62))
 - Current limit during updates setting ([#63](https://github.com/OpenRemise/Frontend/issues/63))
 - App close confirmation ([#58](https://github.com/OpenRemise/Frontend/issues/58))
@@ -50,7 +58,7 @@
 ## 0.0.6
 - Show available firmware version ([#44](https://github.com/OpenRemise/Frontend/issues/44))
 - Bugfix sort locos by ascending address to mirror state on device ([#42](https://github.com/OpenRemise/Frontend/issues/42))
-- Bugfix loco throttle slider scales with speed steps ([#43](https://github.com/OpenRemise/Frontend/issues/43))
+- Bugfix loco loco controller slider scales with speed steps ([#43](https://github.com/OpenRemise/Frontend/issues/43))
 
 ## 0.0.5
 - Bugfix `LAN_X_CV_POM_WRITE` not acknowledged ([#26](https://github.com/OpenRemise/Frontend/issues/26))

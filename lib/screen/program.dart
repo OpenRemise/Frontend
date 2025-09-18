@@ -15,14 +15,18 @@
 
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
+import 'package:Frontend/model/loco.dart';
+import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/service/roco/z21_service.dart';
-import 'package:Frontend/utility/address_validator.dart';
 import 'package:Frontend/utility/cv_number_validator.dart';
 import 'package:Frontend/utility/cv_value_validator.dart';
-import 'package:flutter/foundation.dart';
+import 'package:Frontend/utility/loco_address_validator.dart';
+import 'package:stream_summary_builder/stream_summary_builder.dart';
+import 'package:Frontend/utility/turnout_address_validator.dart';
+import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,42 +61,19 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
-    // https://github.com/flutter/flutter/issues/112197
-    return StreamBuilder(
+    return StreamSummaryBuilder(
+      initialData: <Command>[],
+      fold: (summary, value) => [...summary, value],
       stream: z21.stream.where(
         (command) => switch (command) {
           LanXCvNackSc() => true,
           LanXCvNack() => true,
-          LanXStatusChanged() => true,
           LanXCvResult() => true,
           _ => false
         },
       ),
       builder: (context, snapshot) {
-        if (snapshot.hasData && _pending) {
-          switch (snapshot.requireData) {
-            case LanXCvNackSc():
-            case LanXCvNack():
-              WidgetsBinding.instance
-                  .addPostFrameCallback((_) => _updateIconData(Icons.error));
-              _pending = false;
-            case LanXCvResult(cvAddress: final cvAddress, value: final value):
-              if (int.parse(_formKey.currentState?.value['CV number']) ==
-                  (cvAddress + 1)) {
-                WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _updateIconData(Icons.check_circle),
-                );
-                _formKey.currentState?.fields['CV value']
-                    ?.didChange(value.toString());
-              } else {
-                WidgetsBinding.instance
-                    .addPostFrameCallback((_) => _updateIconData(Icons.error));
-                _formKey.currentState?.fields['CV value']?.didChange(null);
-              }
-              _pending = false;
-            default:
-          }
-        }
+        if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
 
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -101,21 +82,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  leading: IconButton(
-                    onPressed: z21Status.hasValue
-                        ? (z21Status.requireValue.trackVoltageOff()
-                            ? z21.lanXSetTrackPowerOn
-                            : z21.lanXSetTrackPowerOff)
-                        : null,
-                    tooltip: z21Status.hasValue &&
-                            !z21Status.requireValue.trackVoltageOff()
-                        ? 'Power off'
-                        : 'Power on',
-                    isSelected: z21Status.hasValue &&
-                        !z21Status.requireValue.trackVoltageOff(),
-                    selectedIcon: const Icon(Icons.power_off),
-                    icon: const Icon(Icons.power),
-                  ),
+                  leading: PowerIconButton(),
                   title: smallWidth ? null : Text('Program'),
                   actions: [
                     IconButton(
@@ -193,21 +160,18 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 }),
                               ),
                             ),
-                            if (kDebugMode)
-                              Card.outlined(
-                                child: ListTile(
-                                  leading:
-                                      const Icon(OpenRemiseIcons.accessory),
-                                  title: const Text('Accessory'),
-                                  enabled: false,
-                                  onTap: () => setState(() {
-                                    ++_index;
-                                    _selected
-                                      ..removeRange(1, _selected.length)
-                                      ..add(1);
-                                  }),
-                                ),
+                            Card.outlined(
+                              child: ListTile(
+                                leading: const Icon(OpenRemiseIcons.accessory),
+                                title: const Text('Accessory'),
+                                onTap: () => setState(() {
+                                  ++_index;
+                                  _selected
+                                    ..removeRange(1, _selected.length)
+                                    ..add(1);
+                                }),
                               ),
+                            ),
                           ],
                         ),
                       ),
@@ -220,7 +184,9 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                             if (!serviceMode)
                               FormBuilderTextField(
                                 name: 'address',
-                                validator: addressValidator,
+                                validator: _selected.elementAtOrNull(1) == 0
+                                    ? locoAddressValidator
+                                    : turnoutAddressValidator,
                                 decoration: const InputDecoration(
                                   icon: Icon(Icons.alternate_email),
                                   labelText: 'Address',
@@ -325,6 +291,40 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   }
 
   /// \todo document
+  void _syncFromCommands(List<Command> commands) {
+    if (!_pending || commands.isEmpty) return;
+
+    for (final command in commands) {
+      switch (command) {
+        case LanXCvNackSc():
+        case LanXCvNack():
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _updateIconData(Icons.error));
+          _pending = false;
+          break;
+
+        case LanXCvResult(cvAddress: final cvAddress, value: final value):
+          if (int.parse(_formKey.currentState?.value['CV number']) ==
+              (cvAddress + 1)) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => _updateIconData(Icons.check_circle),
+            );
+            _formKey.currentState?.fields['CV value']
+                ?.didChange(value.toString());
+          } else {
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => _updateIconData(Icons.error));
+            _formKey.currentState?.fields['CV value']?.didChange(null);
+          }
+          _pending = false;
+
+        default:
+          break;
+      }
+    }
+  }
+
+  /// \todo document
   Step _step({
     required Widget title,
     Widget? subtitle,
@@ -361,13 +361,26 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       final number = int.parse(_formKey.currentState?.value['CV number']);
       _updateIconData(Icons.pending);
 
+      //
       if (serviceMode) {
         z21.lanXCvRead(number - 1);
         _pending = true;
-      } else {
+      }
+      //
+      else {
+        final type = _selected.elementAtOrNull(1) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
-        z21.lanXCvPomReadByte(address, number - 1);
-        _pending = true;
+        switch (type) {
+          case const (Loco):
+            z21.lanXCvPomReadByte(address, number - 1);
+            _pending = true;
+            break;
+
+          case const (Turnout):
+            z21.lanXCvPomAccessoryReadByte(address, number - 1);
+            _pending = true;
+            break;
+        }
       }
     }
   }
@@ -385,10 +398,22 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       if (serviceMode) {
         z21.lanXCvWrite(number - 1, value);
         _pending = true;
-      } else {
+      }
+      //
+      else {
+        final type = _selected.elementAtOrNull(1) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
-        z21.lanXCvPomWriteByte(address, number - 1, value);
-        // Don't set pending flag for POM
+        switch (type) {
+          case const (Loco):
+            z21.lanXCvPomWriteByte(address, number - 1, value);
+            // Don't set pending flag for POM
+            break;
+
+          case const (Turnout):
+            z21.lanXCvPomAccessoryWriteByte(address, number - 1, value);
+            // Don't set pending flag for POM
+            break;
+        }
       }
     }
   }

@@ -21,6 +21,7 @@ import 'package:Frontend/model/zimo/zsu.dart';
 import 'package:Frontend/provider/zimo/mdu_service.dart';
 import 'package:Frontend/service/zimo/mdu_service.dart';
 import 'package:Frontend/utility/crc32.dart';
+import 'package:Frontend/widget/default_animated_size.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -79,10 +80,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         children: [
           LinearProgressIndicator(value: _progress),
           Text(_status),
-          AnimatedSize(
-            alignment: Alignment.topCenter,
-            curve: Curves.easeIn,
-            duration: const Duration(milliseconds: 500),
+          DefaultAnimateSize(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [for (final tile in _decoders.values) tile],

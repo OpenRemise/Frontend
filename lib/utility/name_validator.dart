@@ -13,11 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:flutter/widgets.dart';
-
-/// Throttle size
-///
-/// The \ref throttleSize "throttle size" is the size of the Throttle widget on
-/// larger screens. In `!kIsWeb` builds, this value is also used to set the
-/// minimum window size.
-const Size throttleSize = Size(400, 800);
+/// \todo document
+String? nameValidator(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter a name';
+  }
+  return null;
+}

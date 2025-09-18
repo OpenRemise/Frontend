@@ -18,12 +18,12 @@ import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/zimo/zpp.dart';
 import 'package:Frontend/model/zimo/zsu.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
+import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/internet_status.dart';
-import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
-import 'package:Frontend/utility/fixed_color_mapper.dart';
+import 'package:Frontend/utility/dark_mode_color_mapper.dart';
 import 'package:Frontend/utility/grayscale_color_mapper.dart';
 import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/download.dart';
@@ -32,6 +32,7 @@ import 'package:Frontend/widget/dialog/zimo/decup.dart';
 import 'package:Frontend/widget/dialog/zimo/mdu.dart';
 import 'package:Frontend/widget/dialog/zimo/sound.dart';
 import 'package:Frontend/widget/dialog/zimo/zusi.dart';
+import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -72,40 +73,25 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         ref.watch(availableFirmwareVersionProvider);
     final internetStatus = ref.watch(internetStatusProvider);
     final sys = ref.watch(sysProvider);
-    final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
-    final bool online = internetStatus.hasValue &&
-        internetStatus.requireValue == InternetStatus.connected;
+    final bool online =
+        internetStatus.asData?.value == InternetStatus.connected;
     final bool firmwareUpdateAvailable = availableFirmwareVersion.hasValue &&
         sys.hasValue &&
         Version.parse(availableFirmwareVersion.requireValue) >
-            Version.parse(sys.requireValue.version!);
+            Version.parse(sys.requireValue.version);
     final bool trackVoltageOff =
-        z21Status.hasValue && z21Status.requireValue.trackVoltageOff();
+        z21Status.asData?.value.trackVoltageOff() == true;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
-            leading: IconButton(
-              onPressed: z21Status.hasValue
-                  ? (z21Status.requireValue.trackVoltageOff()
-                      ? z21.lanXSetTrackPowerOn
-                      : z21.lanXSetTrackPowerOff)
-                  : null,
-              tooltip: z21Status.hasValue &&
-                      !z21Status.requireValue.trackVoltageOff()
-                  ? 'Power off'
-                  : 'Power on',
-              isSelected: z21Status.hasValue &&
-                  !z21Status.requireValue.trackVoltageOff(),
-              selectedIcon: const Icon(Icons.power_off),
-              icon: const Icon(Icons.power),
-            ),
+            leading: PowerIconButton(),
             title: smallWidth ? null : Text('Update'),
             actions: [
               IconButton(
@@ -137,10 +123,10 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       Card.outlined(
                         child: ListTile(
                           title: SvgPicture.asset(
-                            'data/images/logo.svg',
+                            'data/images/logos/openremise.svg',
                             colorMapper: trackVoltageOff
-                                ? FixedColorMapper(
-                                    Theme.of(context).colorScheme.primary,
+                                ? DarkModeColorMapper(
+                                    ref.watch(darkModeProvider),
                                   )
                                 : GrayscaleColorMapper(),
                             width: 100,
@@ -159,7 +145,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                       Card.outlined(
                         child: ListTile(
                           title: SvgPicture.asset(
-                            'data/images/zimo.svg',
+                            'data/images/logos/zimo.svg',
                             colorMapper:
                                 trackVoltageOff ? null : GrayscaleColorMapper(),
                             width: 100,
@@ -179,7 +165,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                         Card.outlined(
                           child: ListTile(
                             title: SvgPicture.asset(
-                              'data/images/tams.svg',
+                              'data/images/logos/tams.svg',
                               colorMapper: trackVoltageOff
                                   ? null
                                   : GrayscaleColorMapper(),

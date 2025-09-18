@@ -15,6 +15,12 @@
 
 /// Current limits
 ///
+/// \file   constant/current_limits.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
+/// Current limits
+///
 /// The four \ref currentLimits "current limits" are part of the firmware
 /// settings. The index of the current value ​​can be read or written as
 /// `cur_lim` at the `/settings/` endpoint.

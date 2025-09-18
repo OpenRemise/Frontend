@@ -59,7 +59,7 @@ class FakeSysService implements SysService {
         projectName: 'Frontend',
         compileTime: '18:31:28',
         compileDate: 'Jul 28 2024',
-        idfVersion: '5.5.0',
+        idfVersion: '5.5.1',
         mdns: 'remise.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',

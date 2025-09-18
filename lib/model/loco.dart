@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/model/bidi.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'loco.freezed.dart';
@@ -26,12 +25,12 @@ abstract class Loco with _$Loco implements Comparable<Loco> {
 
   const factory Loco({
     @JsonKey(name: 'address') required int address,
-    @Default('') @JsonKey(name: 'name', defaultValue: '') String name,
-    @Default(0) @JsonKey(name: 'mode', defaultValue: 0) int mode,
-    @Default(false) @JsonKey(name: 'busy', defaultValue: false) bool busy,
-    @Default(4) @JsonKey(name: 'speed_steps', defaultValue: 4) int speedSteps,
-    @JsonKey(name: 'rvvvvvvv') int? rvvvvvvv,
-    @JsonKey(name: 'f31_0') int? f31_0,
+    @Default('') @JsonKey(name: 'name') String name,
+    @Default(0) @JsonKey(name: 'mode') int mode,
+    @Default(false) @JsonKey(name: 'busy') bool busy,
+    @Default(4) @JsonKey(name: 'speed_steps') int speedSteps,
+    @Default(0x80) @JsonKey(name: 'rvvvvvvv') int rvvvvvvv,
+    @Default(0) @JsonKey(name: 'f31_0') int f31_0,
     @JsonKey(name: 'bidi') BiDi? bidi,
   }) = _Loco;
 
@@ -41,4 +40,17 @@ abstract class Loco with _$Loco implements Comparable<Loco> {
   int compareTo(Loco other) {
     return address.compareTo(other.address);
   }
+}
+
+@freezed
+abstract class BiDi with _$BiDi {
+  const factory BiDi({
+    @Default(0) @JsonKey(name: 'receive_counter') int receiveCounter,
+    @Default(0) @JsonKey(name: 'error_counter') int errorCounter,
+    @Default(0) @JsonKey(name: 'options') int options,
+    @Default(0) @JsonKey(name: 'speed') int speed,
+    @Default(0) @JsonKey(name: 'qos') int qos,
+  }) = _BiDi;
+
+  factory BiDi.fromJson(Map<String, dynamic> json) => _$BiDiFromJson(json);
 }

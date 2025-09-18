@@ -15,31 +15,34 @@
 
 import 'package:Frontend/constant/key_codes.dart';
 import 'package:Frontend/model/loco.dart';
-import 'package:Frontend/widget/throttle/key_press_notifier.dart';
-import 'package:flutter/foundation.dart';
+import 'package:Frontend/model/turnout.dart';
+import 'package:Frontend/widget/controller/key_press_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_grid_button/flutter_grid_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
-class Keypad extends ConsumerStatefulWidget {
+class Keypad<T> extends ConsumerStatefulWidget {
+  final dynamic item;
+  Loco get loco => item as Loco;
+  Turnout get turnout => item as Turnout;
+
   final FocusNode focusNode;
-  final Loco loco;
   final KeyPressNotifier keyPressNotifier;
 
   const Keypad({
     super.key,
+    required this.item,
     required this.focusNode,
-    required this.loco,
     required this.keyPressNotifier,
-  });
+  }) : assert(T == Loco || T == Turnout);
 
   @override
-  ConsumerState<Keypad> createState() => KeypadState();
+  ConsumerState<Keypad<T>> createState() => KeypadState<T>();
 }
 
 /// \todo document
-class KeypadState extends ConsumerState<Keypad> {
+class KeypadState<T> extends ConsumerState<Keypad<T>> {
   int _level = 0;
 
   /// Workaround for GridButton stealing focus
@@ -76,9 +79,11 @@ class KeypadState extends ConsumerState<Keypad> {
             GridButtonItem(
               value: -3,
               child: Icon(
-                (widget.loco.rvvvvvvv ?? 0x80) & 0x80 != 0
-                    ? Icons.switch_left
-                    : Icons.switch_right,
+                T == Turnout
+                    ? null
+                    : widget.loco.rvvvvvvv & 0x80 != 0
+                        ? Icons.switch_left
+                        : Icons.switch_right,
                 size: 32,
               ),
             ),
@@ -106,9 +111,9 @@ class KeypadState extends ConsumerState<Keypad> {
               _ => throw UnimplementedError(),
             },
             const GridButtonItem(
-              title: kDebugMode ? 'MAN' : '',
-              textStyle: TextStyle(fontFamily: 'DSEG14'),
+              title: '',
               value: KeyCodes.man,
+              textStyle: TextStyle(fontFamily: 'DSEG14'),
             ),
           ],
           [
@@ -172,7 +177,9 @@ class KeypadState extends ConsumerState<Keypad> {
 
           // Delay to post frame callback to make sure focus is set correctly
           WidgetsBinding.instance.addPostFrameCallback(
-            (_) => widget.keyPressNotifier.notifyKeyPress(keyCode),
+            (_) {
+              if (mounted) widget.keyPressNotifier.notifyKeyPress(keyCode);
+            },
           );
         },
         hideSurroundingBorder: true,
@@ -184,7 +191,7 @@ class KeypadState extends ConsumerState<Keypad> {
   GridButtonItem _functionButtonItem(int i, [bool empty = false]) {
     return GridButtonItem(
       title: empty ? '' : i.toString(),
-      color: (widget.loco.f31_0 ?? 0) & (1 << i) != 0
+      color: T == Loco && (widget.loco.f31_0 & (1 << i) != 0)
           ? Theme.of(context).focusColor
           : null,
       textStyle: const TextStyle(fontFamily: 'DSEG14'),

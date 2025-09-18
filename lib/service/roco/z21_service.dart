@@ -17,6 +17,7 @@
 
 import 'dart:typed_data';
 
+import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/utility/exor.dart';
 
 /// \todo document
@@ -60,6 +61,16 @@ int bigEndianLocoAddressLsb(int locoAddress) {
 }
 
 /// \todo document
+int bigEndianAccessoryAddressMsb(int accyAddress) {
+  return (accyAddress >> 8) & 0xFF;
+}
+
+/// \todo document
+int bigEndianAccessoryAddressLsb(int accyAddress) {
+  return (accyAddress >> 0) & 0xFF;
+}
+
+/// \todo document
 int littleEndianLocoAddressMsb(int locoAddress) {
   return bigEndianLocoAddressLsb(locoAddress);
 }
@@ -67,6 +78,16 @@ int littleEndianLocoAddressMsb(int locoAddress) {
 /// \todo document
 int littleEndianLocoAddressLsb(int locoAddress) {
   return (locoAddress >> 8) & 0xFF;
+}
+
+/// \todo document
+int stupidAccessoryAddressMsb(int accyAddress) {
+  return (accyAddress >> 6) & 0xFF;
+}
+
+/// \todo document
+int stupidAccessoryAddressLsb(int accyAddress) {
+  return ((accyAddress & 0x3C) << 2) | (accyAddress & 0x03);
 }
 
 /// \todo document
@@ -414,7 +435,26 @@ class ReplyToLanGetCode implements Command {}
 class ReplyToLanGetHwInfo implements Command {}
 
 /// \todo document
-class LanXTurnoutInfo implements Command {}
+class LanXTurnoutInfo implements Command {
+  final int accyAddress;
+  final int zz;
+
+  LanXTurnoutInfo({
+    required this.accyAddress,
+    required this.zz,
+  });
+
+  LanXTurnoutInfo.fromDataset(Uint8List dataset)
+      : accyAddress = bigEndianData2locoAddress(dataset.sublist(5)),
+        zz = dataset[7] {
+    assert(dataset.length == 0x09);
+  }
+
+  @override
+  String toString() {
+    return 'LanXTurnoutInfo(accyAddress: $accyAddress, zz: $zz)';
+  }
+}
 
 /// \todo document
 class LanXExtAccessoryInfo implements Command {}
@@ -537,6 +577,10 @@ class LanXLocoInfo implements Command {
     assert(dataset.length >= 0x0F);
   }
 
+  int speed() {
+    return decodeRvvvvvvv(speedSteps, rvvvvvvv);
+  }
+
   @override
   String toString() {
     return 'LanXLocoInfo(locoAddress: $locoAddress, mode: $mode, busy: $busy, speedSteps: $speedSteps, rvvvvvvv: $rvvvvvvv, doubleTraction: $doubleTraction, smartSearch: $smartSearch, f31_0: 0x${f31_0.toRadixString(16)})';
@@ -647,6 +691,10 @@ class LanRailComDataChanged implements Command {
     return options & 0x04 != 0 ? 100 - qos.clamp(0, 100) : null;
   }
 
+  BiDi bidi() {
+    return BiDi(options: options, speed: speed, qos: qos);
+  }
+
   @override
   String toString() {
     return 'LanRailComDataChanged(locoAddress: $locoAddress, receiveCounter: $receiveCounter, errorCounter: $errorCounter, options: $options, speed: $speed, qos: $qos)';
@@ -711,12 +759,16 @@ abstract interface class Z21Service {
   void lanXSetTrackPowerOn();
   void lanXCvRead(int cvAddress);
   void lanXCvWrite(int cvAddress, int byte);
+  void lanXGetTurnoutInfo(int accyAddress);
+  void lanXSetTurnout(int accyAddress, bool p, bool a, [bool q = false]);
   void lanXSetLocoEStop(int locoAddress);
   void lanXGetLocoInfo(int locoAddress);
   void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv);
   void lanXSetLocoFunction(int locoAddress, int state, int index);
   void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte);
   void lanXCvPomReadByte(int locoAddress, int cvAddress);
+  void lanXCvPomAccessoryWriteByte(int accyAddress, int cvAddress, int byte);
+  void lanXCvPomAccessoryReadByte(int accyAddress, int cvAddress);
   void lanSetBroadcastFlags(BroadcastFlags broadcastFlags);
   void lanSystemStateGetData();
   void lanRailComGetData(int locoAddress);
@@ -739,7 +791,7 @@ abstract interface class Z21Service {
         if (exor(dataset.sublist(4)) != 0) break;
         switch (dataset[4]) {
           case XHeader.LAN_X_TURNOUT_INFO:
-            return LanXTurnoutInfo();
+            return LanXTurnoutInfo.fromDataset(dataset);
 
           case XHeader.LAN_X_EXT_ACCESSORY_INFO:
             return LanXExtAccessoryInfo();

@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Shared preferences
+///
+/// \file   prefs.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Shared preferences

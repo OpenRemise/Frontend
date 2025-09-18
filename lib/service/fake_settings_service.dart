@@ -46,6 +46,7 @@ class FakeSettingsService implements SettingsService {
     dccProgrammingAckCurrent: 50,
     dccLocoFlags: 0x80 | 0x40 | 0x20 | 0x02,
     dccAccyFlags: 0x04,
+    dccAccySwitchTime: 5,
   );
 
   @override
@@ -75,36 +76,27 @@ class FakeSettingsService implements SettingsService {
         stationIp: config.stationIp ?? _config.stationIp,
         stationNetmask: config.stationNetmask ?? _config.stationNetmask,
         stationGateway: config.stationGateway ?? _config.stationGateway,
-        httpReceiveTimeout:
-            config.httpReceiveTimeout ?? _config.httpReceiveTimeout,
-        httpTransmitTimeout:
-            config.httpTransmitTimeout ?? _config.httpTransmitTimeout,
-        httpExitMessage: config.httpExitMessage ?? _config.httpExitMessage,
-        currentLimit: config.currentLimit ?? _config.currentLimit,
-        currentLimitService:
-            config.currentLimitService ?? _config.currentLimitService,
-        currentShortCircuitTime:
-            config.currentShortCircuitTime ?? _config.currentShortCircuitTime,
-        ledDutyCycleBug: config.ledDutyCycleBug ?? _config.ledDutyCycleBug,
-        ledDutyCycleWiFi: config.ledDutyCycleWiFi ?? _config.ledDutyCycleWiFi,
-        dccPreamble: config.dccPreamble ?? _config.dccPreamble,
-        dccBit1Duration: config.dccBit1Duration ?? _config.dccBit1Duration,
-        dccBit0Duration: config.dccBit0Duration ?? _config.dccBit0Duration,
-        dccBiDiBitDuration:
-            config.dccBiDiBitDuration ?? _config.dccBiDiBitDuration,
-        dccProgrammingType:
-            config.dccProgrammingType ?? _config.dccProgrammingType,
-        dccStartupResetPacketCount: config.dccStartupResetPacketCount ??
-            _config.dccStartupResetPacketCount,
-        dccContinueResetPacketCount: config.dccContinueResetPacketCount ??
-            _config.dccContinueResetPacketCount,
-        dccProgramPacketCount:
-            config.dccProgramPacketCount ?? _config.dccProgramPacketCount,
-        dccBitVerifyTo1: config.dccBitVerifyTo1 ?? _config.dccBitVerifyTo1,
-        dccProgrammingAckCurrent:
-            config.dccProgrammingAckCurrent ?? _config.dccProgrammingAckCurrent,
-        dccLocoFlags: config.dccLocoFlags ?? _config.dccLocoFlags,
-        dccAccyFlags: config.dccAccyFlags ?? _config.dccAccyFlags,
+        httpReceiveTimeout: config.httpReceiveTimeout,
+        httpTransmitTimeout: config.httpTransmitTimeout,
+        httpExitMessage: config.httpExitMessage,
+        currentLimit: config.currentLimit,
+        currentLimitService: config.currentLimitService,
+        currentShortCircuitTime: config.currentShortCircuitTime,
+        ledDutyCycleBug: config.ledDutyCycleBug,
+        ledDutyCycleWiFi: config.ledDutyCycleWiFi,
+        dccPreamble: config.dccPreamble,
+        dccBit1Duration: config.dccBit1Duration,
+        dccBit0Duration: config.dccBit0Duration,
+        dccBiDiBitDuration: config.dccBiDiBitDuration,
+        dccProgrammingType: config.dccProgrammingType,
+        dccStartupResetPacketCount: config.dccStartupResetPacketCount,
+        dccContinueResetPacketCount: config.dccContinueResetPacketCount,
+        dccProgramPacketCount: config.dccProgramPacketCount,
+        dccBitVerifyTo1: config.dccBitVerifyTo1,
+        dccProgrammingAckCurrent: config.dccProgrammingAckCurrent,
+        dccLocoFlags: config.dccLocoFlags,
+        dccAccyFlags: config.dccAccyFlags,
+        dccAccySwitchTime: config.dccAccySwitchTime,
       ),
     );
   }

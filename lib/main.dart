@@ -13,31 +13,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Main
+///
+/// \file   main.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'dart:async';
 
+import 'package:Frontend/constant/controller_size.dart';
 import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
-import 'package:Frontend/constant/throttle_size.dart';
 import 'package:Frontend/model/connection_status.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/register.dart';
+import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:Frontend/provider/connection_status.dart';
+import 'package:Frontend/provider/controller_registry.dart';
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:Frontend/provider/locos.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_short_circuit.dart';
 import 'package:Frontend/provider/text_scaler.dart';
-import 'package:Frontend/provider/throttle_registry.dart';
+import 'package:Frontend/provider/turnouts.dart';
 import 'package:Frontend/screen/decoders.dart';
 import 'package:Frontend/screen/info.dart';
 import 'package:Frontend/screen/program.dart';
 import 'package:Frontend/screen/settings.dart';
 import 'package:Frontend/screen/update.dart';
-import 'package:Frontend/utility/fixed_color_mapper.dart';
+import 'package:Frontend/utility/dark_mode_color_mapper.dart';
+import 'package:Frontend/widget/controller/controller.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
-import 'package:Frontend/widget/throttle/throttle.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';
@@ -52,7 +60,7 @@ void main() async {
 
   // Set minimum window size for Desktop
   if (!kIsWeb) {
-    await DesktopWindow.setMinWindowSize(throttleSize * 1.2);
+    await DesktopWindow.setMinWindowSize(controllerSize * 1.2);
   }
 
   // Shared preferences
@@ -145,7 +153,6 @@ class HomeView extends ConsumerStatefulWidget {
 
 /// \todo document
 class _HomeViewState extends ConsumerState<HomeView> {
-  late final Timer _timer;
   bool _smallWidth = true;
   Key _layoutKey = UniqueKey();
   int _index = 0;
@@ -190,15 +197,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), _heartbeat);
+    Timer.periodic(const Duration(seconds: 1), _heartbeat);
 
     // Add listener for short circuit events
     ref.listenManual(
       z21ShortCircuitProvider,
       (previous, next) {
         final connectionStatus = ref.read(connectionStatusProvider);
-        final bool connected = connectionStatus.hasValue &&
-            connectionStatus.value == ConnectionStatus.connected;
+        final bool connected =
+            connectionStatus.asData?.value == ConnectionStatus.connected;
 
         if (ModalRoute.of(context)?.isCurrent == true && connected) {
           showDialog(
@@ -216,10 +223,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
-    final throttleRegistry = ref.watch(throttleRegistryProvider);
+    final controllerRegistry = ref.watch(controllerRegistryProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
-    final bool connected = connectionStatus.hasValue &&
-        connectionStatus.value == ConnectionStatus.connected;
+    final bool connected =
+        connectionStatus.asData?.value == ConnectionStatus.connected;
 
     if (smallWidth != _smallWidth) {
       _smallWidth = smallWidth;
@@ -230,17 +237,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
             ? SvgPicture.asset(
-                'data/icons/icon.svg',
-                colorMapper:
-                    FixedColorMapper(Theme.of(context).colorScheme.primary),
+                'data/images/icon.svg',
+                colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),
               )
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
             : SvgPicture.asset(
-                'data/images/logo.svg',
-                colorMapper:
-                    FixedColorMapper(Theme.of(context).colorScheme.primary),
+                'data/images/logos/openremise.svg',
+                colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),
               ),
         actions: [
           IconButton(
@@ -277,27 +282,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: _smallWidth
-            ? _smallLayout(throttleRegistry)
-            : _largeLayout(throttleRegistry),
+            ? _smallLayout(controllerRegistry)
+            : _largeLayout(controllerRegistry),
       ),
     );
   }
 
   /// \todo document
-  Widget _smallLayout(Set<Register> throttleRegistry) {
-    final throttle = throttleRegistry.firstOrNull;
+  Widget _smallLayout(Set<Register> controllerRegistry) {
+    final register = controllerRegistry.lastOrNull;
 
     return Column(
       key: _layoutKey,
       children: [
         Expanded(
-          child: _index == 1 && throttle != null
-              ? Throttle(
-                  key: ValueKey(throttle.address),
-                  initialLoco: ref
-                      .read(locosProvider)
-                      .firstWhere((l) => l.address == throttle.address),
-                )
+          child: _index == 1 && register != null
+              ? _buildController(register: register)
               : _pages[_index],
         ),
         NavigationBar(
@@ -310,7 +310,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _largeLayout(Set<Register> throttleRegistry) {
+  Widget _largeLayout(Set<Register> controllerRegistry) {
     return Stack(
       key: _layoutKey,
       children: [
@@ -337,40 +337,82 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
-        ...throttleRegistry.map(
-          (throttle) {
-            void moveToTop() =>
-                ref.read(throttleRegistryProvider.notifier).updateLoco(
-                      throttle.address,
-                      Loco(address: throttle.address),
-                    );
-            return PositionedDraggable(
-              key: throttle.key,
-              onTap: moveToTop,
-              onPanUpdate: (_) => moveToTop(),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                width: throttleSize.width,
-                height: throttleSize.height,
-                child: Throttle(
-                  key: ValueKey(throttle.address),
-                  initialLoco: ref
-                      .read(locosProvider)
-                      .firstWhere((l) => l.address == throttle.address),
-                ),
-              ),
-            );
+        ...controllerRegistry.map(
+          (register) => switch (register.type) {
+            const (Loco) => () {
+                return _buildDraggable<Loco>(register: register);
+              }(),
+            const (Turnout) => () {
+                return _buildDraggable<Turnout>(register: register);
+              }(),
+            _ => ErrorWidget(Exception('Invalid type'))
           },
         ),
       ],
     );
+  }
+
+  /// \todo document
+  Widget _buildDraggable<T>({required Register register}) {
+    void moveToTop() {
+      ref.read(controllerRegistryProvider.notifier).updateItem<T>(
+            register.address,
+            register.address,
+          );
+    }
+
+    return PositionedDraggable(
+      key: register.key,
+      onTap: moveToTop,
+      onPanUpdate: (_) => moveToTop(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        width: controllerSize.width,
+        height: controllerSize.height,
+        child: _buildController(register: register),
+      ),
+    );
+  }
+
+  /// \todo document
+  Widget _buildController({required Register register}) {
+    return switch (register.type) {
+      const (Loco) => () {
+          final loco = ref.watch(locosProvider).firstWhere(
+                (l) => l.address == register.address,
+              );
+          return Controller<Loco>(
+            key: ValueKey(
+              Object.hash(Loco, loco.address, loco.speedSteps),
+            ),
+            item: loco,
+          );
+        }(),
+      const (Turnout) => () {
+          final turnout = ref
+              .watch(turnoutsProvider)
+              .firstWhere((t) => t.address == register.address);
+          return Controller<Turnout>(
+            key: ValueKey(
+              Object.hash(
+                Turnout,
+                turnout.address,
+                turnout.type,
+                turnout.group,
+              ),
+            ),
+            item: turnout,
+          );
+        }(),
+      _ => ErrorWidget(Exception('Invalid type'))
+    };
   }
 
   /// \todo document
