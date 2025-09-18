@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Fake services provider container
+///
+/// \file   constant/fake_services_provider_container.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Fake services provider container

@@ -22,5 +22,9 @@ part 'register.freezed.dart';
 
 @freezed
 abstract class Register with _$Register {
-  const factory Register({Key? key, @Default(0) int address}) = _Register;
+  const factory Register({
+    Key? key,
+    required Type type,
+    @Default(0) int address,
+  }) = _Register;
 }

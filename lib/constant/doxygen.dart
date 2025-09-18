@@ -24,6 +24,9 @@
 /// The app uses a lot of constants which are listed here in no particular
 /// order.
 ///
+/// \section section_constant_controller_size Controller size
+/// \copydetails controllerSize
+///
 /// \section section_constant_current_limits Current limits
 /// \copydetails currentLimits
 ///
@@ -32,9 +35,6 @@
 ///
 /// \section section_constant_dcc_programming_types DCC programming types
 /// \copydetails dccProgrammingTypes
-///
-/// \section section_constant_default_settings Default settings
-/// \copydetails defaultSettings
 ///
 /// \section section_constant_fake_initial_cvs Fake initial CVs
 /// \subsection subsection_constant_fake_initial_loco_cvs Fake initial loco CVs
@@ -55,8 +55,8 @@
 /// \section section_constant_small_screen_width Small screen width
 /// \copydetails smallScreenWidth
 ///
-/// \section section_constant_throttle_size Throttle size
-/// \copydetails throttleSize
+/// \section section_constant_turnout_map Turnout map
+/// \copydetails turnoutMap
 ///
 /// \section section_constant_ws_batch_size WebSocket batch size
 /// \copydetails wsBatchSize

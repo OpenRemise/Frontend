@@ -15,7 +15,7 @@
 
 /// Documentation
 ///
-/// \file   main.dart
+/// \file   doxygen.dart
 /// \author Vincent Hamp
 /// \date   03/11/2024
 
@@ -221,11 +221,13 @@
 /// something like this.
 /// ```json
 /// {
-///   "name": "Frontend (debug mode) OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
+///   "name": "Frontend (debug mode) OPENREMISE_FRONTEND_DOMAIN=remise.local OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",
 ///   "request": "launch",
 ///   "type": "dart",
 ///   "flutterMode": "debug",
 ///   "args": [
+///     "--dart-define",
+///     "OPENREMISE_FRONTEND_DOMAIN=remise.local",
 ///     "--dart-define",
 ///     "OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800"
 ///   ]
@@ -417,7 +419,7 @@
 /// | Chapter                | Content                                                                                            |
 /// | ---------------------- | -------------------------------------------------------------------------------------------------- |
 /// | \subpage page_screen   | Responsive layout with selectable screens                                                          |
-/// | \subpage page_widget   | More complex widgets such as throttle or dialogs                                                   |
+/// | \subpage page_widget   | More complex widgets such as controllers or dialogs                                                |
 /// | \subpage page_service  | HTTP, WebSocket and fake services                                                                  |
 /// | \subpage page_provider | State management through [Riverpod](https://riverpod.dev/) providers                               |
 /// | \subpage page_model    | [freezed](https://pub.dev/packages/freezed) models for settings, file formats, HTTP requests, etc. |

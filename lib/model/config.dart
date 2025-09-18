@@ -32,26 +32,33 @@ abstract class Config with _$Config {
     @JsonKey(name: 'sta_ip') String? stationIp,
     @JsonKey(name: 'sta_netmask') String? stationNetmask,
     @JsonKey(name: 'sta_gateway') String? stationGateway,
-    @JsonKey(name: 'http_rx_timeout') int? httpReceiveTimeout,
-    @JsonKey(name: 'http_tx_timeout') int? httpTransmitTimeout,
-    @JsonKey(name: 'http_exit_msg') bool? httpExitMessage,
-    @JsonKey(name: 'cur_lim') int? currentLimit,
-    @JsonKey(name: 'cur_lim_serv') int? currentLimitService,
-    @JsonKey(name: 'cur_sc_time') int? currentShortCircuitTime,
-    @JsonKey(name: 'led_dc_bug') int? ledDutyCycleBug,
-    @JsonKey(name: 'led_dc_wifi') int? ledDutyCycleWiFi,
-    @JsonKey(name: 'dcc_preamble') int? dccPreamble,
-    @JsonKey(name: 'dcc_bit1_dur') int? dccBit1Duration,
-    @JsonKey(name: 'dcc_bit0_dur') int? dccBit0Duration,
-    @JsonKey(name: 'dcc_bidibit_dur') int? dccBiDiBitDuration,
-    @JsonKey(name: 'dcc_prog_type') int? dccProgrammingType,
-    @JsonKey(name: 'dcc_strtp_rs_pc') int? dccStartupResetPacketCount,
-    @JsonKey(name: 'dcc_cntn_rs_pc') int? dccContinueResetPacketCount,
-    @JsonKey(name: 'dcc_prog_pc') int? dccProgramPacketCount,
-    @JsonKey(name: 'dcc_verify_bit1') bool? dccBitVerifyTo1,
-    @JsonKey(name: 'dcc_ack_cur') int? dccProgrammingAckCurrent,
-    @JsonKey(name: 'dcc_loco_flags') int? dccLocoFlags,
-    @JsonKey(name: 'dcc_accy_flags') int? dccAccyFlags,
+    @Default(5) @JsonKey(name: 'http_rx_timeout') int httpReceiveTimeout,
+    @Default(5) @JsonKey(name: 'http_tx_timeout') int httpTransmitTimeout,
+    @Default(true) @JsonKey(name: 'http_exit_msg') bool httpExitMessage,
+    @Default(3) @JsonKey(name: 'cur_lim') int currentLimit,
+    @Default(1) @JsonKey(name: 'cur_lim_serv') int currentLimitService,
+    @Default(100) @JsonKey(name: 'cur_sc_time') int currentShortCircuitTime,
+    @Default(5) @JsonKey(name: 'led_dc_bug') int ledDutyCycleBug,
+    @Default(50) @JsonKey(name: 'led_dc_wifi') int ledDutyCycleWiFi,
+    @Default(17) @JsonKey(name: 'dcc_preamble') int dccPreamble,
+    @Default(58) @JsonKey(name: 'dcc_bit1_dur') int dccBit1Duration,
+    @Default(100) @JsonKey(name: 'dcc_bit0_dur') int dccBit0Duration,
+    @Default(60) @JsonKey(name: 'dcc_bidibit_dur') int dccBiDiBitDuration,
+    @Default(3) @JsonKey(name: 'dcc_prog_type') int dccProgrammingType,
+    @Default(25)
+    @JsonKey(name: 'dcc_strtp_rs_pc')
+    int dccStartupResetPacketCount,
+    @Default(6)
+    @JsonKey(name: 'dcc_cntn_rs_pc')
+    int dccContinueResetPacketCount,
+    @Default(7) @JsonKey(name: 'dcc_prog_pc') int dccProgramPacketCount,
+    @Default(true) @JsonKey(name: 'dcc_verify_bit1') bool dccBitVerifyTo1,
+    @Default(50) @JsonKey(name: 'dcc_ack_cur') int dccProgrammingAckCurrent,
+    @Default(0xE2) // 0x80 | 0x40 | 0x20
+    @JsonKey(name: 'dcc_loco_flags')
+    int dccLocoFlags,
+    @Default(0x04) @JsonKey(name: 'dcc_accy_flags') int dccAccyFlags,
+    @Default(5) @JsonKey(name: 'dcc_accy_swtime') int dccAccySwitchTime,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

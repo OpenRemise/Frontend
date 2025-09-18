@@ -15,6 +15,12 @@
 
 /// DCC programming types
 ///
+/// \file   constant/dcc_programming_types.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
+/// DCC programming types
+///
 /// The four \ref dccProgrammingTypes "DCC programming types" are part of the
 /// firmware settings. The index of the current value ​​can be read or written
 /// as `dcc_prog_type` at the `/settings/` endpoint.

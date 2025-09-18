@@ -15,6 +15,12 @@
 
 /// WebSocket batch size
 ///
+/// \file   constant/ws_batch_size.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
+/// WebSocket batch size
+///
 /// This is the maximum number of WebSocket messages grouped and sent at once.
 ///
 /// \warning

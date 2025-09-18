@@ -32,9 +32,9 @@ class Locos extends _$Locos {
         ? SplayTreeSet<Loco>.of([
             Loco(address: 3, name: 'Vectron'),
             Loco(address: 98, name: 'L45H'),
-            Loco(address: 208, name: 'Gruppo 740'),
+            Loco(address: 208, name: 'Gruppo 740', speedSteps: 2),
             Loco(address: 726, name: 'Gem 4/4'),
-            Loco(address: 1337, name: 'Reihe 498'),
+            Loco(address: 1337, name: 'Reihe 498', speedSteps: 0),
             Loco(address: 2811, name: 'ASF EL 16'),
           ])
         : SplayTreeSet<Loco>();

@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Fake initial CVs
+///
+/// \file   constant/fake_initial_cvs.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 /// Fake initial loco CVs
 ///
 /// A list of initial CVs for locomotives for use with fake services.

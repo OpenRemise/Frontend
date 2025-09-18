@@ -13,13 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/model/decoder_selection.dart';
+import 'package:Frontend/model/loco.dart';
+import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/prefs.dart';
 import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
 
 /// \todo document
-final decoderSelectionProvider = createPrefProvider<Set<DecoderSelection>>(
+final decoderSelectionProvider = createPrefProvider<Set<Type>>(
   prefs: (_) => prefs,
   prefKey: 'decoderSelection',
-  defaultValue: {DecoderSelection.locos, DecoderSelection.accessories},
+  defaultValue: {Loco, Turnout},
 );

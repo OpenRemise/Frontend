@@ -13,4 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-enum DecoderSelection { locos, accessories }
+/// Controller size
+///
+/// \file   constant/controller_size.dart
+/// \author Vincent Hamp
+/// \date   27/04/2025
+
+import 'package:flutter/widgets.dart';
+
+/// Controller size
+///
+/// The \ref controllerSize "controller size" is the size of the controller
+/// widgets on larger screens. In `!kIsWeb` builds, this value is also used to
+/// set the minimum window size.
+const Size controllerSize = Size(400, 800);

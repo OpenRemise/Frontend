@@ -16,7 +16,7 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/default_settings.dart';
+import 'package:Frontend/model/config.dart';
 import 'package:Frontend/model/connection_status.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/settings.dart';
@@ -29,8 +29,7 @@ Stream<ConnectionStatus> connectionStatus(ref) async* {
   final timeout = ref.watch(
     settingsProvider.select(
       (config) =>
-          config.value?.httpReceiveTimeout ??
-          defaultSettings['http_rx_timeout'].toInt(),
+          config.value?.httpReceiveTimeout ?? Config().httpReceiveTimeout,
     ),
   );
 

@@ -28,8 +28,8 @@ class ErrorGif extends ConsumerWidget {
     return Gif(
       image: AssetImage(
         ref.watch(darkModeProvider)
-            ? 'data/images/error_dark.gif'
-            : 'data/images/error_light.gif',
+            ? 'data/images/gifs/error_dark.gif'
+            : 'data/images/gifs/error_light.gif',
       ),
       autostart: Autostart.loop,
       width: 200,

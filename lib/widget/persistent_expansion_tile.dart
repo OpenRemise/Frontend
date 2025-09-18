@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/widget/default_animated_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -97,9 +98,7 @@ class _PersistentExpansionTileState
             onTap: _toggle,
           ),
         ),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
+        DefaultAnimateSize(
           child: Offstage(
             offstage: !_expanded,
             child: innerContent,

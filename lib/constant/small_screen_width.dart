@@ -15,6 +15,12 @@
 
 /// Small screen width
 ///
+/// \file   constant/small_screen_width.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
+/// Small screen width
+///
 /// This is the width over which a large screen is assumed. The app changes its
 /// layout depending on the screen size. This value is therefore often compared
 /// to `MediaQuery.of(context).size.width`.

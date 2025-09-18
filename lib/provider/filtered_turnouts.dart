@@ -25,14 +25,12 @@ part 'filtered_turnouts.g.dart';
 /// \todo document
 @Riverpod(keepAlive: true)
 SplayTreeSet<Turnout> filteredTurnouts(ref) {
-  final turnouts = ref.watch(turnoutsProvider);
+  final SplayTreeSet<Turnout> turnouts = ref.watch(turnoutsProvider);
   try {
     final exp = RegExp(ref.watch(decoderFilterProvider));
     return SplayTreeSet<Turnout>.of(
       turnouts.where(
-        (turnout) =>
-            exp.hasMatch(turnout.name) ||
-            exp.hasMatch(turnout.address.toString()),
+        (t) => exp.hasMatch(t.name) || exp.hasMatch(t.address.toString()),
       ),
     );
   } on FormatException {

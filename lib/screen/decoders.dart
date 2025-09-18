@@ -13,21 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:collection';
+
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
-import 'package:Frontend/model/decoder_selection.dart';
+import 'package:Frontend/model/loco.dart';
+import 'package:Frontend/model/turnout.dart';
+import 'package:Frontend/provider/controller_registry.dart';
 import 'package:Frontend/provider/dcc.dart';
 import 'package:Frontend/provider/decoder_filter.dart';
 import 'package:Frontend/provider/decoder_selection.dart';
 import 'package:Frontend/provider/filtered_locos.dart';
 import 'package:Frontend/provider/filtered_turnouts.dart';
-import 'package:Frontend/provider/roco/z21_service.dart';
-import 'package:Frontend/provider/roco/z21_status.dart';
-import 'package:Frontend/provider/throttle_registry.dart';
-import 'package:Frontend/widget/dialog/delete_loco.dart';
-import 'package:Frontend/widget/dialog/edit_loco.dart';
+import 'package:Frontend/widget/dialog/add_edit.dart';
+import 'package:Frontend/widget/dialog/delete.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
+import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,31 +64,25 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
   Widget build(BuildContext context) {
     final dcc = ref.watch(dccProvider);
     final decoderSelection = ref.watch(decoderSelectionProvider);
-    final z21 = ref.watch(z21ServiceProvider);
-    final z21Status = ref.watch(z21StatusProvider);
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
+    final addEditDialog = decoderSelection.containsAll([Loco, Turnout])
+        ? AddEditDialog()
+        : decoderSelection.contains(Loco)
+            ? AddEditDialog<Loco>()
+            : AddEditDialog<Turnout>();
+    final deleteDialog = decoderSelection.containsAll([Loco, Turnout])
+        ? DeleteDialog()
+        : decoderSelection.contains(Loco)
+            ? DeleteDialog<Loco>()
+            : DeleteDialog<Turnout>();
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
-            leading: IconButton(
-              onPressed: z21Status.hasValue
-                  ? (z21Status.requireValue.trackVoltageOff()
-                      ? z21.lanXSetTrackPowerOn
-                      : z21.lanXSetTrackPowerOff)
-                  : null,
-              tooltip: z21Status.hasValue &&
-                      !z21Status.requireValue.trackVoltageOff()
-                  ? 'Power off'
-                  : 'Power on',
-              isSelected: z21Status.hasValue &&
-                  !z21Status.requireValue.trackVoltageOff(),
-              selectedIcon: const Icon(Icons.power_off),
-              icon: const Icon(Icons.power),
-            ),
+            leading: PowerIconButton(),
             title: Stack(
               children: [
                 Row(
@@ -94,28 +90,30 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                     SegmentedButton(
                       segments: [
                         ButtonSegment(
-                          value: DecoderSelection.locos,
+                          value: Loco,
                           icon: Icon(
-                            decoderSelection.contains(DecoderSelection.locos)
+                            decoderSelection.contains(Loco)
                                 ? Icons.train
                                 : Icons.train_outlined,
                           ),
+                          tooltip:
+                              '${decoderSelection.contains(Loco) ? 'Hide' : 'Show'} locos',
                         ),
                         ButtonSegment(
-                          value: DecoderSelection.accessories,
+                          value: Turnout,
                           icon: Icon(
-                            decoderSelection
-                                    .contains(DecoderSelection.accessories)
+                            decoderSelection.contains(Turnout)
                                 ? OpenRemiseIcons.accessory
                                 : OpenRemiseIcons.accessory_outlined,
                           ),
+                          tooltip:
+                              '${decoderSelection.contains(Turnout) ? 'Hide' : 'Show'} turnouts',
                         ),
                       ],
                       selected: ref.watch(decoderSelectionProvider),
-                      onSelectionChanged:
-                          (Set<DecoderSelection> newSelection) => ref
-                              .read(decoderSelectionProvider.notifier)
-                              .update(newSelection),
+                      onSelectionChanged: (Set<Type> newSelection) => ref
+                          .read(decoderSelectionProvider.notifier)
+                          .update(newSelection),
                       multiSelectionEnabled: true,
                       showSelectedIcon: false,
                     ),
@@ -137,17 +135,17 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                       IconButton(
                         onPressed: () => showDialog(
                           context: context,
-                          builder: (_) => const EditLocoDialog(null),
+                          builder: (_) => addEditDialog,
                         ),
-                        tooltip: 'Add',
+                        tooltip: addEditDialog.tooltip(),
                         icon: const Icon(Icons.add_circle),
                       ),
                       IconButton(
                         onPressed: () => showDialog(
                           context: context,
-                          builder: (_) => const DeleteLocoDialog(null),
+                          builder: (_) => deleteDialog,
                         ),
-                        tooltip: 'Delete all',
+                        tooltip: deleteDialog.tooltip(),
                         icon: const Icon(Icons.delete),
                       ),
                       IconButton(
@@ -197,10 +195,8 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           ),
           ...dcc.when(
             data: (data) => [
-              if (decoderSelection.contains(DecoderSelection.locos))
-                _locoList(),
-              if (decoderSelection.contains(DecoderSelection.accessories))
-                _turnoutList(),
+              if (decoderSelection.contains(Loco)) _locoList(),
+              if (decoderSelection.contains(Turnout)) _turnoutList(),
             ],
             error: (error, stackTrace) => [
               const SliverFillRemaining(child: Center(child: ErrorGif())),
@@ -224,8 +220,8 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
 
           final loco = locos.elementAt(index);
           final active = ref
-              .watch(throttleRegistryProvider)
-              .any((c) => c.address == loco.address);
+              .watch(controllerRegistryProvider)
+              .any((c) => c.type == Loco && c.address == loco.address);
 
           return Card.outlined(
             child: ListTile(
@@ -240,26 +236,28 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => EditLocoDialog(loco.address),
+                      builder: (_) => AddEditDialog<Loco>(item: loco),
                     ),
                     icon: const Icon(Icons.edit),
+                    tooltip: 'Edit',
                   ),
                   IconButton(
                     onPressed: () => showDialog(
                       context: context,
-                      builder: (_) => DeleteLocoDialog(loco.address),
+                      builder: (_) => DeleteDialog<Loco>(item: loco),
                     ),
                     icon: const Icon(Icons.delete),
+                    tooltip: 'Delete',
                   ),
                 ],
               ),
               onTap: () => active
                   ? ref
-                      .read(throttleRegistryProvider.notifier)
-                      .deleteLoco(loco.address)
+                      .read(controllerRegistryProvider.notifier)
+                      .deleteItem<Loco>(loco.address)
                   : ref
-                      .read(throttleRegistryProvider.notifier)
-                      .updateLoco(loco.address, loco),
+                      .read(controllerRegistryProvider.notifier)
+                      .updateItem<Loco>(loco.address, loco.address),
             ),
           );
         },
@@ -270,7 +268,9 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
 
   /// \todo document
   Widget _turnoutList() {
-    final turnouts = ref.watch(filteredTurnoutsProvider);
+    final turnouts = SplayTreeSet<Turnout>.of(
+      ref.watch(filteredTurnoutsProvider).where((t) => t.type != 1),
+    );
 
     return SliverList(
       delegate: SliverChildBuilderDelegate(
@@ -278,10 +278,17 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= turnouts.length) return null;
 
           final turnout = turnouts.elementAt(index);
+          final active = ref
+              .watch(controllerRegistryProvider)
+              .any((c) => c.type == Turnout && c.address == turnout.address);
 
           return Card.outlined(
             child: ListTile(
-              leading: Icon(OpenRemiseIcons.accessory_outlined),
+              leading: Icon(
+                active
+                    ? OpenRemiseIcons.accessory
+                    : OpenRemiseIcons.accessory_outlined,
+              ),
               title: Text(turnout.name),
               subtitle: Text(
                 'Address ${turnout.address}',
@@ -290,16 +297,30 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => AddEditDialog<Turnout>(item: turnout),
+                    ),
                     icon: const Icon(Icons.edit),
+                    tooltip: 'Edit',
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => DeleteDialog<Turnout>(item: turnout),
+                    ),
                     icon: const Icon(Icons.delete),
+                    tooltip: 'Delete',
                   ),
                 ],
               ),
-              onTap: () {},
+              onTap: () => active
+                  ? ref
+                      .read(controllerRegistryProvider.notifier)
+                      .deleteItem<Turnout>(turnout.address)
+                  : ref
+                      .read(controllerRegistryProvider.notifier)
+                      .updateItem<Turnout>(turnout.address, turnout.address),
             ),
           );
         },

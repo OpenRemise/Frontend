@@ -19,11 +19,10 @@ import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/provider/available_firmware_version.dart';
 import 'package:Frontend/provider/domain.dart';
 import 'package:Frontend/provider/internet_status.dart';
-import 'package:Frontend/provider/roco/z21_service.dart';
-import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/widget/error_gif.dart';
 import 'package:Frontend/widget/loading_gif.dart';
+import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
@@ -68,8 +67,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final domain = ref.watch(domainProvider);
     final internetStatus = ref.watch(internetStatusProvider);
     final sys = ref.watch(sysProvider);
-    final z21 = ref.watch(z21ServiceProvider);
-    final z21Status = ref.watch(z21StatusProvider);
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
@@ -78,21 +75,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
       child: CustomScrollView(
         slivers: [
           SliverAppBar(
-            leading: IconButton(
-              onPressed: z21Status.hasValue
-                  ? (z21Status.requireValue.trackVoltageOff()
-                      ? z21.lanXSetTrackPowerOn
-                      : z21.lanXSetTrackPowerOff)
-                  : null,
-              tooltip: z21Status.hasValue &&
-                      !z21Status.requireValue.trackVoltageOff()
-                  ? 'Power off'
-                  : 'Power on',
-              isSelected: z21Status.hasValue &&
-                  !z21Status.requireValue.trackVoltageOff(),
-              selectedIcon: const Icon(Icons.power_off),
-              icon: const Icon(Icons.power),
-            ),
+            leading: PowerIconButton(),
             title: smallWidth ? null : Text('Info'),
             actions: [
               IconButton(
@@ -119,17 +102,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     (MediaQuery.of(context).size.height / 10),
                 children: [
                   const Text('State'),
-                  Text(data.state!),
+                  Text(data.state),
                   const Text('Firmware version'),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data.version!),
+                      Text(data.version),
                       if (availableFirmwareVersion.hasValue == true &&
                           Version.parse(
                                 availableFirmwareVersion.requireValue,
                               ) >
-                              Version.parse(data.version!))
+                              Version.parse(data.version))
                         Tooltip(
                           message: 'New version available',
                           child: Text(
@@ -151,7 +134,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     }
                   }()),
                   const Text('ESP-IDF version'),
-                  Text(data.idfVersion!),
+                  Text(data.idfVersion),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -165,11 +148,11 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   const Text('mDNS'),
                   Text(domain),
                   const Text('IP'),
-                  Text(data.ip!),
+                  Text(data.ip),
                   const Text('MAC'),
-                  Text(data.mac!),
+                  Text(data.mac),
                   const Text('RSSI'),
-                  Text('${(2 * (data.rssi! + 100)).clamp(0, 100)}%'),
+                  Text('${(2 * (data.rssi + 100)).clamp(0, 100)}%'),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -182,15 +165,15 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 children: [
                   const Text('Voltage'),
                   Text(
-                    '${(data.voltage! / 1000).toStringAsFixed(2)}V',
+                    '${(data.voltage / 1000).toStringAsFixed(2)}V',
                   ),
                   const Text('Current'),
                   Text(
-                    '${(data.current! / 1000).toStringAsFixed(2)}A',
+                    '${(data.current / 1000).toStringAsFixed(2)}A',
                   ),
                   const Text('Temperature'),
                   Text(
-                    '${data.temperature!.toStringAsFixed(0)}°C',
+                    '${data.temperature.toStringAsFixed(0)}°C',
                   ),
                   const Text('Heap memory'),
                   Text('${data.heap}'),

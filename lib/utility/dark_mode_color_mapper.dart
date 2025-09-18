@@ -16,10 +16,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class FixedColorMapper extends ColorMapper {
-  final Color _color;
+class DarkModeColorMapper extends ColorMapper {
+  final bool _darkMode;
 
-  const FixedColorMapper(this._color);
+  const DarkModeColorMapper(this._darkMode);
 
   @override
   Color substitute(
@@ -28,6 +28,14 @@ class FixedColorMapper extends ColorMapper {
     String attributeName,
     Color color,
   ) {
-    return _color;
+    if (_darkMode) {
+      if (color == Colors.black) {
+        return Colors.white;
+      } else if (color == Colors.white) {
+        return Colors.black;
+      }
+    }
+
+    return color;
   }
 }
