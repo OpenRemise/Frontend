@@ -98,7 +98,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   bool _initialized = false;
 
   /// \todo document
-  List<int> _turnoutGroupPositions = [];
+  List<int> _turnoutPositions = [];
 
   /// \todo document
   int _turnoutState = -1;
@@ -210,9 +210,9 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
     // Set missing ephemeral state
     setState(() {
-      _turnoutGroupPositions = turnoutInfos.map((e) => e.zz).toList();
+      _turnoutPositions = turnoutInfos.map((e) => e.zz).toList();
       _turnoutState = turnout.group.positions.indexWhere(
-        (p) => ListEquality<int>().equals(p, _turnoutGroupPositions),
+        (p) => ListEquality<int>().equals(p, _turnoutPositions),
       );
       _initialized = true;
     });
@@ -364,12 +364,12 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
               .indexWhere((a) => a == turnoutInfo.accyAddress);
 
           // Update group positions (must be immutable)
-          _turnoutGroupPositions = List.from(_turnoutGroupPositions)
+          _turnoutPositions = List.from(_turnoutPositions)
             ..[i] = turnoutInfo.zz;
 
           // Find new state
           final state = turnout.group.positions.indexWhere(
-            (p) => ListEquality<int>().equals(p, _turnoutGroupPositions),
+            (p) => ListEquality<int>().equals(p, _turnoutPositions),
           );
 
           // Only update if known
@@ -881,7 +881,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
     }
 
     setState(() {
-      _turnoutGroupPositions = List.from(turnout.group.positions[state]);
+      _turnoutPositions = List.from(turnout.group.positions[state]);
       _turnoutState = state;
     });
   }

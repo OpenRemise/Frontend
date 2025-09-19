@@ -126,7 +126,11 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               IconButton(
                 onPressed: () => setState(() => _showSearch = !_showSearch),
                 tooltip: 'Search',
-                icon: const Icon(Icons.search),
+                icon: Icon(
+                  ref.watch(decoderFilterProvider).isEmpty
+                      ? Icons.search
+                      : Icons.saved_search,
+                ),
               ),
               Stack(
                 children: [

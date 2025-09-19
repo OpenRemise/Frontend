@@ -48,8 +48,8 @@ abstract class Group with _$Group {
     @Default(<List<int>>[])
     @JsonKey(
       name: 'positions',
-      fromJson: _positionsFromJson,
-      toJson: _positionsToJson,
+      fromJson: _groupPositionsFromJson,
+      toJson: _groupPositionsToJson,
     )
     List<List<int>> positions,
   }) = _Group;
@@ -57,12 +57,12 @@ abstract class Group with _$Group {
   factory Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
 }
 
-List<List<int>> _positionsFromJson(List<dynamic> json) {
+List<List<int>> _groupPositionsFromJson(List<dynamic> json) {
   return json
       .map<List<int>>((e) => List.unmodifiable((e as List).cast<int>()))
       .toList(growable: false);
 }
 
-List<List<int>> _positionsToJson(List<List<int>> positions) {
+List<List<int>> _groupPositionsToJson(List<List<int>> positions) {
   return positions.map((e) => e.toList()).toList();
 }
