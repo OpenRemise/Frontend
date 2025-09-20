@@ -722,8 +722,14 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
   /// \todo document
   Widget _turnoutImageGridArea() {
-    return Center(
-      child: SvgPicture.asset(
+    return IconButton(
+      onPressed: () => _turnoutOnPressed(KeyCodes.add),
+      style: ButtonStyle(
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      icon: SvgPicture.asset(
         _turnoutState > -1
             ? turnoutMap[turnout.type]!.assets[_turnoutState]
             : 'data/images/unknown.svg',
