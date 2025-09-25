@@ -116,12 +116,20 @@ const turnoutMap =
     ]
   ),
   512 + 4: (
-    label: 'Signal semaphore',
-    previewAsset: 'data/images/signals/semaphore_0.svg',
+    label: 'Signal semaphore 2 aspects',
+    previewAsset: 'data/images/signals/2_semaphore_0.svg',
     assets: [
-      'data/images/signals/semaphore_0.svg',
-      'data/images/signals/semaphore_1.svg',
-      'data/images/signals/semaphore_2.svg',
+      'data/images/signals/2_semaphore_0.svg',
+      'data/images/signals/2_semaphore_1.svg',
+    ]
+  ),
+  512 + 5: (
+    label: 'Signal semaphore 3 aspects',
+    previewAsset: 'data/images/signals/3_semaphore_0.svg',
+    assets: [
+      'data/images/signals/3_semaphore_0.svg',
+      'data/images/signals/3_semaphore_1.svg',
+      'data/images/signals/3_semaphore_2.svg',
     ]
   ),
 

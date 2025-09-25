@@ -37,13 +37,13 @@
       "label": "Run Python http.server docs",
       "type": "shell",
       "isBackground": true,
-      "command": "python -m http.server --directory ${workspaceFolder}/build/docs/html"
+      "command": "python -m http.server --directory ${workspaceFolder}/build/docs/html --bind 127.0.0.1"
     },
     {
       "label": "Run Python http.server web",
       "type": "shell",
       "isBackground": true,
-      "command": "python -m http.server --directory ${workspaceFolder}/build/web"
+      "command": "python -m http.server --directory ${workspaceFolder}/build/web --bind 127.0.0.1"
     }
   ]
 }
