@@ -45,8 +45,9 @@ class FakeSettingsService implements SettingsService {
     dccBitVerifyTo1: true,
     dccProgrammingAckCurrent: 50,
     dccLocoFlags: 0x80 | 0x40 | 0x20 | 0x02,
-    dccAccyFlags: 0x04,
-    dccAccySwitchTime: 5,
+    dccAccessoryFlags: 0x04,
+    dccAccessorySwitchTime: 5,
+    dccAccessoryPacketCount: 2,
   );
 
   @override
@@ -95,8 +96,9 @@ class FakeSettingsService implements SettingsService {
         dccBitVerifyTo1: config.dccBitVerifyTo1,
         dccProgrammingAckCurrent: config.dccProgrammingAckCurrent,
         dccLocoFlags: config.dccLocoFlags,
-        dccAccyFlags: config.dccAccyFlags,
-        dccAccySwitchTime: config.dccAccySwitchTime,
+        dccAccessoryFlags: config.dccAccessoryFlags,
+        dccAccessorySwitchTime: config.dccAccessorySwitchTime,
+        dccAccessoryPacketCount: config.dccAccessoryPacketCount,
       ),
     );
   }

@@ -17,5 +17,5 @@ import 'package:Frontend/utility/address_validator.dart';
 
 /// \todo document
 String? turnoutAddressValidator(String? value) {
-  return addressValidator(value, min: 4, max: 2047);
+  return addressValidator(value, min: 0, max: 2047);
 }
