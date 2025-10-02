@@ -868,9 +868,10 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
       // Turn off after accessory switch time
       Future.delayed(
         Duration(
-          milliseconds: (ref.read(settingsProvider).value?.dccAccySwitchTime ??
-                  Config().dccAccySwitchTime) *
-              100,
+          milliseconds:
+              (ref.read(settingsProvider).value?.dccAccessorySwitchTime ??
+                      Config().dccAccessorySwitchTime) *
+                  10,
         ),
         () => z21.lanXSetTurnout(address, position == 2, false),
       );

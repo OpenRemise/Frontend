@@ -24,48 +24,48 @@
 /// The app uses a lot of constants which are listed here in no particular
 /// order.
 ///
-/// \section section_constant_controller_size Controller size
+/// \section section_constant_controller_size Controller Size
 /// \copydetails controllerSize
 ///
-/// \section section_constant_current_limits Current limits
+/// \section section_constant_current_limits Current Limits
 /// \copydetails currentLimits
 ///
-/// \section section_constant_dcc_bidi_durations DCC BiDi durations
+/// \section section_constant_dcc_bidi_durations DCC BiDi Durations
 /// \copydetails dccBiDiDurations
 ///
-/// \section section_constant_dcc_programming_types DCC programming types
+/// \section section_constant_dcc_programming_types DCC Programming Types
 /// \copydetails dccProgrammingTypes
 ///
-/// \section section_constant_fake_initial_cvs Fake initial CVs
-/// \subsection subsection_constant_fake_initial_loco_cvs Fake initial loco CVs
+/// \section section_constant_fake_initial_cvs Fake Initial CVs
+/// \subsection subsection_constant_fake_initial_loco_cvs Fake Initial Loco CVs
 /// \copydetails fakeInitialLocoCvs
 ///
-/// \subsection subsection_constant_fake_initial_accessory_cvs Fake initial accessory CVs
+/// \subsection subsection_constant_fake_initial_accessory_cvs Fake Initial Accessory CVs
 /// \copydetails fakeInitialAccessoryCvs
 ///
-/// \section section_constant_fake_services_provider_container Fake services provider container
+/// \section section_constant_fake_services_provider_container Fake Services Provider Container
 /// \copydetails fakeServicesProviderContainer
 ///
-/// \section section_constant_key_codes Key codes
+/// \section section_constant_key_codes Key Codes
 /// \copydetails KeyCodes
 ///
-/// \section section_constant_open_remise_icons OpenRemiseIcons
+/// \section section_constant_open_remise_icons OpenRemise Icons
 /// \copydetails OpenRemiseIcons
 ///
-/// \section section_constant_small_screen_width Small screen width
+/// \section section_constant_small_screen_width Small Screen Width
 /// \copydetails smallScreenWidth
 ///
-/// \section section_constant_turnout_map Turnout map
+/// \section section_constant_turnout_map Turnout Map
 /// \copydetails turnoutMap
 ///
-/// \section section_constant_ws_batch_size WebSocket batch size
+/// \section section_constant_ws_batch_size WebSocket Batch Size
 /// \copydetails wsBatchSize
 ///
 /// \section section_constant_zimo ZIMO
-/// \subsection subsection_constant_zimo_ms_deocder_ids MS decoder IDs
+/// \subsection subsection_constant_zimo_ms_deocder_ids MS Decoder IDs
 /// \copydetails msDecoderIds
 ///
-/// \subsection subsection_constant_zimo_mx_deocder_ids MX decoder IDs
+/// \subsection subsection_constant_zimo_mx_deocder_ids MX Decoder IDs
 /// \copydetails mxDecoderIds
 ///
 /// <div class="section_buttons">

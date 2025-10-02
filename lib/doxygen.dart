@@ -101,7 +101,7 @@
 /// - [Ninja](https://ninja-build.org) ( >= 1.10.2 )
 /// - Optional
 ///   - for building documentation
-///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.12.0 )
+///     - [Doxygen](https://www.doxygen.nl/index.html) ( >= 1.14.0 )
 ///     - [Graphviz](https://graphviz.org) ( >= 12.1.1 )
 ///
 /// <div class="tabbed">
@@ -267,10 +267,17 @@
 /// ```
 ///
 /// \section section_development_doc Doc
-/// If Doxygen was found during CMake's configuration phase, the `FrontendDocs`
-/// target can be built to create the documentation.
+/// If the optional prerequisites for building the docs were found during
+/// CMake's configuration phase, the `FrontendDocs` target can be built to
+/// create the documentation.
 /// ```sh
 /// cmake --build build --target FrontendDocs
+/// ```
+///
+/// If the build was successful, the website can be viewed simply with a browser
+/// by opening "build/docs/html/index.html" or by creating a small web server.
+/// ```sh
+/// python -m http.server --directory build/docs/html --bind 127.0.0.1
 /// ```
 ///
 /// <div class="section_buttons">

@@ -17,6 +17,7 @@ import 'package:Frontend/widget/default_animated_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// \todo document
 class PersistentExpansionTile extends ConsumerStatefulWidget {
   final ValueNotifier<bool>? externalController;
   final Widget title;

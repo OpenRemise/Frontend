@@ -739,43 +739,60 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderSlider(
                             name: 'dcc_accy_swtime',
-                            initialValue: data.dccAccySwitchTime.toDouble(),
+                            initialValue:
+                                data.dccAccessorySwitchTime.toDouble(),
                             decoration: const InputDecoration(
                               labelText: 'Switch time [ms]',
                             ),
                             valueTransformer: (value) => value!.toInt(),
-                            min: 1,
-                            max: 5,
-                            divisions: 5 - 1,
+                            min: 10,
+                            max: 255,
+                            divisions: 255 - 10,
                             displayValues: DisplayValues.current,
                             valueWidget: (value) => Text(
-                              (int.parse(value) * 100).toString(),
+                              (int.parse(value) * 10).toString(),
                             ),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Number of accessory packets',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderSlider(
+                            name: 'dcc_accy_pc',
+                            initialValue:
+                                data.dccAccessoryPacketCount.toDouble(),
+                            decoration: const InputDecoration(
+                              labelText: 'Accessory packets',
+                            ),
+                            valueTransformer: (value) => value!.toInt(),
+                            min: 1,
+                            max: 64,
+                            divisions: 64 - 1,
+                            displayValues: DisplayValues.current,
                           ),
                         ),
                         FormBuilderCheckboxGroup(
                           name: 'dcc_accy_flags',
                           initialValue: [
-                            data.dccAccyFlags & 0x40,
-                            data.dccAccyFlags & 0x04,
-                            data.dccAccyFlags & 0x02,
-                            data.dccAccyFlags & 0x01,
+                            data.dccAccessoryFlags & 0x40,
+                            data.dccAccessoryFlags & 0x04,
+                            data.dccAccessoryFlags & 0x02,
+                            data.dccAccessoryFlags & 0x01,
                           ],
                           valueTransformer: (value) => value?.fold(
                             0,
                             (prev, cur) => prev | cur,
                           ),
                           options: const [
-                            if (kDebugMode)
-                              FormBuilderFieldOption(
-                                value: 0x40,
-                                child: Tooltip(
-                                  message:
-                                      'Invert meaning of straight/branch or green/red',
-                                  waitDuration: Duration(seconds: 1),
-                                  child: Text('Invert green/red'),
-                                ),
+                            FormBuilderFieldOption(
+                              value: 0x40,
+                              child: Tooltip(
+                                message:
+                                    'Invert meaning of green/red or straight/diverging',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Invert green/red'),
                               ),
+                            ),
                             if (kDebugMode)
                               FormBuilderFieldOption(
                                 value: 0x04,
@@ -785,17 +802,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   child: Text('RCN-213 addressing'),
                                 ),
                               ),
-                            FormBuilderFieldOption(
-                              value: 0x02,
-                              child: Tooltip(
-                                message:
-                                    'Workaround for incompatible clients that only activate outputs',
-                                waitDuration: Duration(seconds: 1),
-                                child: Text(
-                                  'Automatically deactivate complementary output',
+                            if (kDebugMode)
+                              FormBuilderFieldOption(
+                                value: 0x02,
+                                child: Tooltip(
+                                  message:
+                                      'Workaround for incompatible clients that only activate outputs',
+                                  waitDuration: Duration(seconds: 1),
+                                  child: Text(
+                                    'Automatically deactivate complementary output',
+                                  ),
                                 ),
                               ),
-                            ),
                             FormBuilderFieldOption(
                               value: 0x01,
                               child: Tooltip(

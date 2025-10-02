@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// \todo document
 class PngPicture extends StatelessWidget {
   final String name;
   final double scale;
