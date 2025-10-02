@@ -58,7 +58,7 @@ abstract class Config with _$Config {
     @JsonKey(name: 'dcc_loco_flags')
     int dccLocoFlags,
     @Default(0x04) @JsonKey(name: 'dcc_accy_flags') int dccAccessoryFlags,
-    @Default(5) @JsonKey(name: 'dcc_accy_swtime') int dccAccessorySwitchTime,
+    @Default(20) @JsonKey(name: 'dcc_accy_swtime') int dccAccessorySwitchTime,
     @Default(2) @JsonKey(name: 'dcc_accy_pc') int dccAccessoryPacketCount,
   }) = _Config;
 

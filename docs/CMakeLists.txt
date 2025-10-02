@@ -62,6 +62,8 @@ if(TARGET Doxygen::dot)
   set(DOXYGEN_FILE_PATTERNS *.dart)
   set(DOXYGEN_EXCLUDE_PATTERNS */*.freezed.dart */*.g.dart)
   set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_LIST_DIR})
+  set(DOXYGEN_FILTER_PATTERNS
+      *.dart=${CMAKE_CURRENT_LIST_DIR}/strip_dart_generics_filter.sh)
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/header.html)
   set(DOXYGEN_HTML_FOOTER ${CMAKE_CURRENT_LIST_DIR}/footer.html)
   set(DOXYGEN_HTML_EXTRA_STYLESHEET

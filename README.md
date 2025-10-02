@@ -8,3 +8,7 @@
   <img src="https://github.com/OpenRemise/.github/raw/master/data/icons/icon_light.svg" width="20%" align="right">
 </picture>
 </a>
+
+Frontend contains the source code powering the [OpenRemise](https://openremise.at) web interface.
+- 📚 **Developers**: See the [frontend documentation](https://openremise.at/Frontend)
+- 🚂 **Users**: Check out the main page at [openremise.at](https://openremise.at)

@@ -16,6 +16,8 @@
 import 'package:flutter/material.dart';
 
 /// A wrapper around [AnimatedSize]
+///
+/// \todo document
 class DefaultAnimateSize extends StatelessWidget {
   final Widget? child;
   final Duration duration;

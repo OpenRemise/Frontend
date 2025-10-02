@@ -871,7 +871,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
           milliseconds:
               (ref.read(settingsProvider).value?.dccAccessorySwitchTime ??
                       Config().dccAccessorySwitchTime) *
-                  100,
+                  10,
         ),
         () => z21.lanXSetTurnout(address, position == 2, false),
       );

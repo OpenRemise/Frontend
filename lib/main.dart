@@ -316,7 +316,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       children: [
         Row(
           children: <Widget>[
-            // create a navigation rail
             NavigationRail(
               destinations: _destinations
                   .map(
