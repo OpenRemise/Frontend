@@ -21,6 +21,7 @@ import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:universal_html/html.dart' as html;
 
 /// \todo document
 class OtaDialog extends ConsumerStatefulWidget {
@@ -77,7 +78,9 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => kIsWeb && _option == 'OK'
+              ? html.window.location.reload()
+              : Navigator.pop(context),
           child: Text(_option),
         ),
       ],
@@ -139,7 +142,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   /// \todo document
   Future<void> _disconnect() async {
     _updateEphemeralState(
-      status: 'Done (\u{26A0} reload recommended)',
+      status: 'Done (\u{26A0} page will reload)',
       option: 'OK',
     );
     await _ota.close();

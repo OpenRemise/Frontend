@@ -53,6 +53,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_html/html.dart' as html;
 
 /// \todo document
 void main() async {
@@ -236,17 +237,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return Scaffold(
       appBar: AppBar(
         leading: MediaQuery.of(context).size.width < smallScreenWidth
-            ? SvgPicture.asset(
-                'data/images/icon.svg',
-                colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),
-              )
+            ? _reloadOnClickSvgPicture('data/images/icon.svg')
             : null,
         title: MediaQuery.of(context).size.width < smallScreenWidth
             ? const Text('Open|Remise')
-            : SvgPicture.asset(
-                'data/images/logos/openremise.svg',
-                colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),
-              ),
+            : _reloadOnClickSvgPicture('data/images/logos/openremise.svg'),
         actions: [
           IconButton(
             onPressed: () {
@@ -412,6 +407,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
         }(),
       _ => ErrorWidget(Exception('Invalid type'))
     };
+  }
+
+  /// \todo document
+  Widget _reloadOnClickSvgPicture(String assetName) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: Tooltip(
+        message: 'Reload',
+        waitDuration: const Duration(seconds: 1),
+        child: GestureDetector(
+          onTap: () =>
+              kIsWeb ? html.window.location.reload() : debugPrint('reload'),
+          child: SvgPicture.asset(
+            assetName,
+            colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),
+          ),
+        ),
+      ),
+    );
   }
 
   /// \todo document
