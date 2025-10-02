@@ -6,6 +6,8 @@
   - Add `Turnout` model
   - Add `Turnout` controller
 - Add search function to decoder screen
+- Add page reload on icon/logo click ([#105](https://github.com/OpenRemise/Frontend/pull/105))
+- Force page reload after OTA update
 - Bugfix `FormBuilderDropdown` does not grow with text size ([#100](https://github.com/OpenRemise/Frontend/pull/100))
 
 ## 0.4.1
