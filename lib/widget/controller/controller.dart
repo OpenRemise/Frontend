@@ -589,87 +589,91 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
         }
       },
       behavior: HitTestBehavior.translucent,
-      child: GestureDetector(
-        onTap: () {
-          final weight = _locoSliderController!.maxWeight.toDouble();
-          _locoSliderController!.jumpTo(weight);
-          _lanXSetLocoDrive(
-            loco.copyWith(
-              rvvvvvvv: encodeRvvvvvvv(
-                loco.speedSteps,
-                loco.rvvvvvvv >= 0x80,
-                (_locoSliderController!.maxWeight - weight).toInt(),
-              ),
-            ),
-          );
-        },
-        onDoubleTap: () {
-          // Weight out of slider limits does not trigger onChanged
-          final weight = (_locoSliderController!.maxWeight + 1).toDouble();
-          _locoSliderController!.jumpTo(weight);
-          _lanXSetLocoDrive(
-            loco.copyWith(
-              rvvvvvvv: encodeRvvvvvvv(
-                loco.speedSteps,
-                loco.rvvvvvvv >= 0x80,
-                (_locoSliderController!.maxWeight - weight).toInt(),
-              ),
-            ),
-          );
-        },
-        onVerticalDragUpdate: (details) {
-          final weight =
-              _locoSliderController!.maxWeight - speed - details.delta.dy / 2;
-          _locoSliderController!.jumpTo(
-            weight.clamp(0, _locoSliderController!.maxWeight.toDouble()),
-          );
-        },
-        child: VerticalWeightSlider(
-          controller: _locoSliderController!,
-          height: double.infinity,
-          decoration: PointerDecoration(
-            height: 3.0,
-            largeColor: Color(darkMode ? 0xFF898989 : 0xFF767676),
-            mediumColor: Color(darkMode ? 0xFFC5C5C5 : 0xFF3A3A3A),
-            smallColor: Color(darkMode ? 0xFFF0F0F0 : 0xFF0F0F0F),
-            gap: 30.0,
-          ),
-          indicator: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                color: Theme.of(context).colorScheme.error,
-                height: 3.0,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  speed.isNegative
-                      ? 'ETS'
-                      : speed
-                          .clamp(0, _locoSliderController!.maxWeight)
-                          .toString()
-                          .padLeft(3, '0'),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                    fontFamily: 'DSEG14',
-                  ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.allScroll,
+        child: GestureDetector(
+          onTap: () {
+            final weight = _locoSliderController!.maxWeight.toDouble();
+            _locoSliderController!.jumpTo(weight);
+            _lanXSetLocoDrive(
+              loco.copyWith(
+                rvvvvvvv: encodeRvvvvvvv(
+                  loco.speedSteps,
+                  loco.rvvvvvvv >= 0x80,
+                  (_locoSliderController!.maxWeight - weight).toInt(),
                 ),
               ),
-            ],
-          ),
-          onChanged: (weight) => _lanXSetLocoDrive(
-            loco.copyWith(
-              rvvvvvvv: encodeRvvvvvvv(
-                loco.speedSteps,
-                loco.rvvvvvvv >= 0x80,
-                (_locoSliderController!.maxWeight - weight).toInt(),
+            );
+          },
+          onDoubleTap: () {
+            // Weight out of slider limits does not trigger onChanged
+            final weight = (_locoSliderController!.maxWeight + 1).toDouble();
+            _locoSliderController!.jumpTo(weight);
+            _lanXSetLocoDrive(
+              loco.copyWith(
+                rvvvvvvv: encodeRvvvvvvv(
+                  loco.speedSteps,
+                  loco.rvvvvvvv >= 0x80,
+                  (_locoSliderController!.maxWeight - weight).toInt(),
+                ),
+              ),
+            );
+          },
+          onVerticalDragUpdate: (details) {
+            final weight =
+                _locoSliderController!.maxWeight - speed - details.delta.dy / 2;
+            _locoSliderController!.jumpTo(
+              weight.clamp(0, _locoSliderController!.maxWeight.toDouble()),
+            );
+          },
+          onHorizontalDragUpdate: (details) {},
+          child: VerticalWeightSlider(
+            controller: _locoSliderController!,
+            height: double.infinity,
+            decoration: PointerDecoration(
+              height: 3.0,
+              largeColor: Color(darkMode ? 0xFF898989 : 0xFF767676),
+              mediumColor: Color(darkMode ? 0xFFC5C5C5 : 0xFF3A3A3A),
+              smallColor: Color(darkMode ? 0xFFF0F0F0 : 0xFF0F0F0F),
+              gap: 30.0,
+            ),
+            indicator: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  color: Theme.of(context).colorScheme.error,
+                  height: 3.0,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border.all(
+                      color: Theme.of(context).dividerColor,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    speed.isNegative
+                        ? 'ETS'
+                        : speed
+                            .clamp(0, _locoSliderController!.maxWeight)
+                            .toString()
+                            .padLeft(3, '0'),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontFamily: 'DSEG14',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            onChanged: (weight) => _lanXSetLocoDrive(
+              loco.copyWith(
+                rvvvvvvv: encodeRvvvvvvv(
+                  loco.speedSteps,
+                  loco.rvvvvvvv >= 0x80,
+                  (_locoSliderController!.maxWeight - weight).toInt(),
+                ),
               ),
             ),
           ),

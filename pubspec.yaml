@@ -57,6 +57,7 @@ dependencies:
   shared_preferences: ^2.5.3
   shared_preferences_riverpod: ^0.3.0
   stream_summary_builder: ^1.0.0
+  universal_html: ^2.2.4
   universal_io: ^2.2.2
   validator_regex: ^1.1.1
   version: ^3.0.2

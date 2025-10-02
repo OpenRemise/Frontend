@@ -43,7 +43,7 @@
       "label": "Run Python http.server web",
       "type": "shell",
       "isBackground": true,
-      "command": "python -m http.server --directory ${workspaceFolder}/build/web --bind 127.0.0.1"
+      "command": "python -m http.server --directory ${workspaceFolder}/build/web"
     }
   ]
 }
