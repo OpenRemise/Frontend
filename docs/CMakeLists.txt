@@ -90,7 +90,7 @@ if(TARGET Doxygen::dot)
 
   doxygen_add_docs(${PROJECT_NAME}Docs ${CMAKE_SOURCE_DIR}/lib
                    ${CMAKE_SOURCE_DIR}/CHANGELOG.md)
-  add_dependencies(FrontendDocs Frontend)
+  # add_dependencies(FrontendDocs Frontend)
 
   add_custom_command(
     TARGET ${PROJECT_NAME}Docs

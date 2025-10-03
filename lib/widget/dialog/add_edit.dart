@@ -32,7 +32,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// AddEditDialog
+/// Dialog to add or edit loco or turnout
 ///
 /// \todo document
 class AddEditDialog<T> extends ConsumerStatefulWidget {

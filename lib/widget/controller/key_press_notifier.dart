@@ -15,6 +15,7 @@
 
 import 'package:flutter/foundation.dart';
 
+/// \todo document
 class KeyPressNotifier extends ChangeNotifier {
   int? _lastKeyCode;
   int? get lastKeyCode => _lastKeyCode;

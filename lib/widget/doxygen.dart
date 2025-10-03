@@ -31,10 +31,10 @@
 /// \subsection subsection_widgets_default_animated_size Default Animated Size
 /// \copydetails DefaultAnimateSize
 ///
-/// \subsection subsection_widgets_error_gif Error Gif
+/// \subsection subsection_widgets_error_gif Error GIF
 /// \copydetails ErrorGif
 ///
-/// \subsection subsection_widgets_loading_gif Loading Gif
+/// \subsection subsection_widgets_loading_gif Loading GIF
 /// \copydetails LoadingGif
 ///
 /// \subsection subsection_widgets_persistent_expansion_tile Persistent Expansion Tile

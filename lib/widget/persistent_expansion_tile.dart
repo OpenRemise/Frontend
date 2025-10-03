@@ -17,7 +17,10 @@ import 'package:Frontend/widget/default_animated_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// ExpansionTile with external expanded state
+///
+/// An [ExpansionTile](https://api.flutter.dev/flutter/material/ExpansionTile-class.html)-like
+/// class whose expanded state comes from a [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html).
 class PersistentExpansionTile extends ConsumerStatefulWidget {
   final ValueNotifier<bool>? externalController;
   final Widget title;

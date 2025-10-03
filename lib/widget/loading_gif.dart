@@ -18,7 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gif/gif.dart';
 
-/// \todo document
+/// Loading animation GIF
+///
+/// A looping GIF with a width of 200px showing the loading animation.
 class LoadingGif extends ConsumerWidget {
   const LoadingGif({super.key});
 
