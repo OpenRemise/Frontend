@@ -21,7 +21,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Dialog to delete loco or turnout
 ///
-/// \todo document
+/// DeleteDialog is used to delete locomotives or accessories. The class is
+/// generic so the type to be deleted must be passed when creating the dialog
+/// (e.g. `%DeleteDialog<Loco>`). If no type is passed it will default to
+/// deleting all locomotives and accessories. If a type is passed, you can
+/// optionally also pass a specific item that should be deleted, instead of
+/// deleting the entire category.
 class DeleteDialog<T> extends ConsumerStatefulWidget {
   final dynamic item;
 

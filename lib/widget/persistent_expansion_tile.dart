@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Persistent expansion tile
+///
+/// \file   widget/persistent_expansion_tile.dart
+/// \author Franziska Walter
+/// \date   21/05/2025
+
 import 'package:Frontend/widget/default_animated_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,26 +27,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// An [ExpansionTile](https://api.flutter.dev/flutter/material/ExpansionTile-class.html)-like
 /// class whose expanded state comes from a [ValueNotifier](https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html).
+/// The widget is used in the \ref SettingsScreen "settings screen". An
+/// expand/collapse all button allows all tiles to be expanded or collapsed at
+/// once.
 class PersistentExpansionTile extends ConsumerStatefulWidget {
-  final ValueNotifier<bool>? externalController;
+  final Widget? leading;
   final Widget title;
+  final Widget? trailing;
   final List<Widget> children;
   final bool initiallyExpanded;
-  final Widget? leading;
-  final Widget? trailing;
   final EdgeInsetsGeometry? tilePadding;
-  final bool showDividers;
+  final ValueNotifier<bool>? controller;
 
   const PersistentExpansionTile({
     super.key,
+    this.leading,
     required this.title,
+    this.trailing,
     required this.children,
     this.initiallyExpanded = false,
-    this.leading,
-    this.trailing,
     this.tilePadding,
-    this.showDividers = false,
-    this.externalController,
+    this.controller,
   });
 
   @override
@@ -56,42 +63,22 @@ class _PersistentExpansionTileState
   void initState() {
     super.initState();
     _expanded = widget.initiallyExpanded;
-
-    widget.externalController?.addListener(() {
+    widget.controller?.addListener(() {
       setState(() {
-        _expanded = widget.externalController!.value;
+        _expanded = widget.controller!.value;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final contentOnly = Column(
-      children: [
-        ...widget.children,
-      ],
-    );
-
-    final innerContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (widget.showDividers) const Divider(thickness: 1),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: contentOnly,
-        ),
-        if (widget.showDividers) const Divider(thickness: 1),
-      ],
-    );
-
     return Column(
       children: [
         AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
           color:
               _expanded ? Theme.of(context).highlightColor : Colors.transparent,
+          duration: const Duration(milliseconds: 200),
           child: ListTile(
-            contentPadding: widget.tilePadding,
             leading: widget.leading,
             title: widget.title,
             trailing: widget.trailing ??
@@ -99,13 +86,24 @@ class _PersistentExpansionTileState
                   icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
                   onPressed: _toggle,
                 ),
+            contentPadding: widget.tilePadding,
             onTap: _toggle,
           ),
         ),
         DefaultAnimateSize(
           child: Offstage(
             offstage: !_expanded,
-            child: innerContent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Divider(thickness: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(children: [...widget.children]),
+                ),
+                const Divider(thickness: 1),
+              ],
+            ),
           ),
         ),
       ],

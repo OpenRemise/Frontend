@@ -21,7 +21,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:universal_io/io.dart';
 
-/// \todo document
+/// Download file and show progress
+///
+/// The DownloadDialog downloads files from a URL and displays the progress
+/// during the download. If the download is successful, the file is returned as
+/// a `Uint8List`.
 class DownloadDialog extends ConsumerStatefulWidget {
   final String _url;
 

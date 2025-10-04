@@ -52,16 +52,18 @@ add_custom_command(
 add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
 
 # Create Frontend-${PROJECT_VERSION}.zip
-add_custom_target(
-  FrontendRelease
-  COMMAND ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
-          --format=zip *
-  COMMAND
-    ${CMAKE_COMMAND} -E rename
-    ${CMAKE_CURRENT_BINARY_DIR}/web/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}.zip
-  DEPENDS Frontend
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/web)
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+  add_custom_target(
+    FrontendRelease
+    COMMAND ${CMAKE_COMMAND} -E tar "cf" ${PROJECT_NAME}-${PROJECT_VERSION}.zip
+            --format=zip *
+    COMMAND
+      ${CMAKE_COMMAND} -E rename
+      ${CMAKE_CURRENT_BINARY_DIR}/web/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-${PROJECT_VERSION}.zip
+    DEPENDS Frontend
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/web)
+endif()
 
 if(PROJECT_IS_TOP_LEVEL)
   include(CTest)

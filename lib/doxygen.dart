@@ -280,6 +280,13 @@
 /// python -m http.server --directory build/docs/html --bind 127.0.0.1
 /// ```
 ///
+/// \note
+/// Doxygen isn't actually designed for documenting Dart code. When parsing
+/// [metadata](https://dart.dev/language/metadata) or [generics](https://dart.dev/language/generics),
+/// strange compound names are generated, making it impossible to link classes
+/// later. For this reason, the [FILTER_PATTERNS](https://www.doxygen.nl/manual/config.html#cfg_filter_patterns)
+/// option is used to remove generics before parsing using a [bash script](https://github.com/OpenRemise/Frontend/raw/master/docs/strip_dart_annotations_and_generics_filter.sh.sh).
+///
 /// <div class="section_buttons">
 /// | Previous                  | Next                    |
 /// | :------------------------ | ----------------------: |

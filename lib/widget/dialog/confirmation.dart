@@ -16,7 +16,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Dialog with 'Cancel' and 'OK' option
+///
+/// ConfirmationDialog displays the 'Cancel' and 'OK' options. Pressing 'Cancel'
+/// returns `false` and pressing 'OK' returns `true`.
 class ConfirmationDialog extends ConsumerWidget {
   final String title;
 

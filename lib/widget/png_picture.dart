@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// PNG picture
+///
+/// \file   widget/png_picture.dart
+/// \author Vincent Hamp
+/// \date   27/04/2025
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// \todo document
+/// PNG picture
+///
+/// PngPicture does what [Image.asset](https://api.flutter.dev/flutter/widgets/Image/Image.asset.html)
+/// should do on Web. For some reason, this doesn't work on embedded systems. As
+/// a workaround, this class uses [rootBundle.load](https://api.flutter.dev/flutter/services/rootBundle.html)
+/// and feeds the raw data into [Image.memory](https://api.flutter.dev/flutter/widgets/Image/Image.memory.html).
 class PngPicture extends StatelessWidget {
   final String name;
   final double scale;

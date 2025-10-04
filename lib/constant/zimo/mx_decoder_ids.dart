@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// ZIMO MX decoder IDs
+///
+/// \file   constant/zimo/mx_decoder_ids.dart
+/// \author Vincent Hamp
+/// \date   13/11/2024
+
 /// MX decoder IDs
 ///
 /// A list of [ZIMO MX decoder](https://www.zimo.at/web2010/products/lokdecoder_EN.htm)

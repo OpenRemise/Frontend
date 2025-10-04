@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Default animated size
+///
+/// \file   widget/default_animated_size.dart
+/// \author Vincent Hamp
+/// \date   18/09/2025
+
 import 'package:flutter/material.dart';
 
 /// Wrapper around AnimatedSize

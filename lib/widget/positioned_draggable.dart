@@ -13,11 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Positioned draggable
+///
+/// \file   widget/positioned_draggable.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Positioned widget which is draggable
+///
+/// PositionedDraggable wraps [Positioned](https://api.flutter.dev/flutter/widgets/Positioned-class.html)
+/// in a [GestureDetector](https://api.flutter.dev/flutter/widgets/GestureDetector-class.html)
+/// to make it draggable. It stores its own offset and updates it when panning.
 class PositionedDraggable extends ConsumerStatefulWidget {
   final Widget? child;
   final void Function(TapDownDetails)? onTapDown;

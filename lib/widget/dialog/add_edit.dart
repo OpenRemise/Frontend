@@ -34,7 +34,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 /// Dialog to add or edit loco or turnout
 ///
-/// \todo document
+/// AddEditDialog is used to add or edit locomotives or accessories. The class
+/// is generic so the type to be edited must be passed when creating the dialog
+/// (e.g. `%AddEditDialog<Loco>`). If no type is passed, a query will be made at
+/// runtime. Internally, the class uses a [FormBuilder](https://pub.dev/documentation/flutter_form_builder/latest/flutter_form_builder/FormBuilder-class.html)
+/// that sends a POST request via DccService upon completion and successful
+/// validation.
 class AddEditDialog<T> extends ConsumerStatefulWidget {
   final dynamic item;
   Loco? get loco => item as Loco?;
@@ -396,11 +401,9 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
 
   /// \todo document
   List<DropdownMenuItem<int>> _turnoutDropdownItems() {
-    const dividerKeys = [256, 512, 768];
-
     return [
       for (final entry in turnoutMap.entries) ...[
-        if (dividerKeys.contains(entry.key))
+        if (entry.key > 0 && entry.key % 256 == 0)
           const DropdownMenuItem<int>(enabled: false, child: Divider()),
         DropdownMenuItem<int>(
           value: entry.key,

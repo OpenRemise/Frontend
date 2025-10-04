@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// ZIMO MS decoder IDs
+///
+/// \file   constant/zimo/ms_decoder_ids.dart
+/// \author Vincent Hamp
+/// \date   13/11/2024
+
 /// MS decoder IDs
 ///
 /// A (not complete) list of [ZIMO MS decoder](https://www.zimo.at/web2010/products/ms-sound-decoder_EN.htm)
