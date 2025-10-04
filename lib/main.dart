@@ -376,6 +376,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
+  ///
+  /// Flutters rendering pipeline which relies on keys as unique identifiers to
+  /// determine which widgets down the widget tree have changed and need to be
+  /// rebuilt make MDI windows rather tedious.
   Widget _buildController({required Register register}) {
     return switch (register.type) {
       const (Loco) => () {

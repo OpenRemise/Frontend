@@ -13,12 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Power icon button
+///
+/// \file   widget/power_icon_button.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// IconButton to turn power on and off
+///
+/// Wraps the very frequently used power button via [IconButton](https://api.flutter.dev/flutter/material/IconButton-class.html).
+/// The track voltage is switched on and off via Z21Service.
 class PowerIconButton extends ConsumerWidget {
   const PowerIconButton({super.key});
 

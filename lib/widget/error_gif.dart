@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Error GIF
+///
+/// \file   widget/error_gif.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:Frontend/provider/dark_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

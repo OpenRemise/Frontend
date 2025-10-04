@@ -24,10 +24,16 @@
 /// Widgets are currently divided into three categories depending on their
 /// intended use.
 /// - General widgets are used wherever
-/// - Dialog widgets are displayed by the [showDialog](https://api.flutter.dev/flutter/material/showDialog.html) function
-/// - Controller widgets make up the complex locomotives and turnout controllers
+/// - Dialog widgets are displayed by the [showDialog](https://api.flutter.dev/flutter/material/showDialog.html)
+///   function
+/// - Controller widgets make up the complex locomotive and accessory
+///   controllers
 ///
 /// \section section_widgets_general General Widgets
+/// General widgets can be used generally and have no predefined use cases. They
+/// are often just small wrappers over existing classes or helper widgets that,
+/// in turn, accept a child.
+///
 /// \subsection subsection_widgets_default_animated_size Default Animated Size
 /// \copydetails DefaultAnimateSize
 ///
@@ -50,6 +56,12 @@
 /// \copydetails PowerIconButton
 ///
 /// \section section_widgets_dialog Dialog Widgets
+/// Dialog widgets are, as the name suggests, either [SimpleDialog](https://api.flutter.dev/flutter/material/SimpleDialog-class.html)
+/// or [AlertDialog](https://api.flutter.dev/flutter/material/AlertDialog-class.html)
+/// widgets. All dialogs must be launched using the [showDialog](https://api.flutter.dev/flutter/material/showDialog.html)
+/// function. A common use case for dialogs are various updates, such as
+/// \ref OtaDialog "OTA updates".
+///
 /// \subsection subsection_widgets_add_edit AddEdit
 /// \copydetails AddEditDialog
 ///
@@ -80,23 +92,26 @@
 /// \subsection subsection_widgets_zimo_zusi Zusi
 /// \copydetails ZusiDialog
 ///
-/// \section section_widgets_controller Controller Widgets
+/// \section section_widgets_controller %Controller Widgets
+/// Controller widgets are a collection of widgets that make up the complex
+/// throttle or signal box.
+///
 /// \subsection subsection_widgets_controller Controller
 /// \copydetails Controller
 ///
-/// \subsection subsection_widgets_cv_editing_controller CV Editing Controller
+/// \subsubsection subsubsection_widgets_cv_editing_controller CV Editing Controller
 /// \copydetails CvEditingController
 ///
-/// \subsection subsection_widgets_cv_terminal CV Terminal
+/// \subsubsection subsubsection_widgets_cv_terminal CV Terminal
 /// \copydetails CvTerminal
 ///
-/// \subsection subsection_widgets_key_press_notifier Key Press Notifier
+/// \subsubsection subsubsection_widgets_key_press_notifier Key Press Notifier
 /// \copydetails KeyPressNotifier
 ///
-/// \subsection subsection_widgets_keypad Keypad
+/// \subsubsection subsubsection_widgets_keypad Keypad
 /// \copydetails Keypad
 ///
-/// \subsection subsection_widgets_railcom RailCom
+/// \subsubsection subsubsection_widgets_railcom RailCom
 /// \copydetails RailCom
 ///
 /// <div class="section_buttons">

@@ -63,7 +63,8 @@ if(TARGET Doxygen::dot)
   set(DOXYGEN_EXCLUDE_PATTERNS */*.freezed.dart */*.g.dart)
   set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_LIST_DIR})
   set(DOXYGEN_FILTER_PATTERNS
-      *.dart=${CMAKE_CURRENT_LIST_DIR}/strip_dart_generics_filter.sh)
+      *.dart=${CMAKE_CURRENT_LIST_DIR}/strip_dart_metadata_and_generics_filter.sh
+  )
   set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_LIST_DIR}/header.html)
   set(DOXYGEN_HTML_FOOTER ${CMAKE_CURRENT_LIST_DIR}/footer.html)
   set(DOXYGEN_HTML_EXTRA_STYLESHEET
@@ -90,11 +91,14 @@ if(TARGET Doxygen::dot)
 
   doxygen_add_docs(${PROJECT_NAME}Docs ${CMAKE_SOURCE_DIR}/lib
                    ${CMAKE_SOURCE_DIR}/CHANGELOG.md)
-  # add_dependencies(FrontendDocs Frontend)
 
-  add_custom_command(
-    TARGET ${PROJECT_NAME}Docs
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/web
-            ${CMAKE_CURRENT_BINARY_DIR}/html/demo)
+  # Only build demo for Release
+  if(CMAKE_BUILD_TYPE STREQUAL Release)
+    add_dependencies(FrontendDocs Frontend)
+    add_custom_command(
+      TARGET ${PROJECT_NAME}Docs
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/web
+              ${CMAKE_CURRENT_BINARY_DIR}/html/demo)
+  endif()
 endif()

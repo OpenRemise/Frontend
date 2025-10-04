@@ -50,7 +50,12 @@ import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
 /// Controller
 ///
-/// \todo document
+/// The Controller class creates an input widget for controlling locomotives or
+/// accessories. Depending on the screen width, this widget is displayed either
+/// full screen instead of the decoder screen or as a draggable MDI overlay
+/// above all other screens. In the latter case, multiple controller instances
+/// can be open simultaneously. The class ControllerRegistry keeps track of open
+/// instances for us.
 class Controller<T> extends ConsumerStatefulWidget {
   final dynamic item;
 
