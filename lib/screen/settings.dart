@@ -55,6 +55,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ValueNotifier<bool> _expandAllNotifier = ValueNotifier<bool>(false);
 
+  @override
+  void dispose() {
+    _expandAllNotifier.dispose();
+    super.dispose();
+  }
+
   /// \todo document
   @override
   Widget build(BuildContext context) {

@@ -19,6 +19,8 @@ import 'package:Frontend/provider/dcc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Dialog to delete loco or turnout
+///
 /// \todo document
 class DeleteDialog<T> extends ConsumerStatefulWidget {
   final dynamic item;

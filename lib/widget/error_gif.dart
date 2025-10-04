@@ -18,7 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gif/gif.dart';
 
-/// \todo document
+/// Error animation GIF
+///
+/// A looping GIF with a width of 200px showing the error animation.
 class ErrorGif extends ConsumerWidget {
   const ErrorGif({super.key});
 
