@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to add or edit loco or turnout
+///
+/// \file   widget/dialog/add_edit.dart
+/// \author Vincent Hamp
+/// \date   18/09/2025
+
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/turnout_map.dart';
 import 'package:Frontend/model/loco.dart';
