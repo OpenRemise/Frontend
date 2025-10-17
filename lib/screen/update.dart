@@ -165,6 +165,27 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                         Card.outlined(
                           child: ListTile(
                             title: SvgPicture.asset(
+                              'data/images/logos/dh.svg',
+                              colorMapper: trackVoltageOff
+                                  ? null
+                                  : GrayscaleColorMapper(),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.scaleDown,
+                            ),
+                            enabled: trackVoltageOff,
+                            onTap: () => setState(() {
+                              ++_index;
+                              _selected
+                                ..removeRange(0, _selected.length)
+                                ..add(2);
+                            }),
+                          ),
+                        ),
+                      if (kDebugMode)
+                        Card.outlined(
+                          child: ListTile(
+                            title: SvgPicture.asset(
                               'data/images/logos/tams.svg',
                               colorMapper: trackVoltageOff
                                   ? null
@@ -178,7 +199,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               ++_index;
                               _selected
                                 ..removeRange(0, _selected.length)
-                                ..add(1);
+                                ..add(3);
                             }),
                           ),
                         ),

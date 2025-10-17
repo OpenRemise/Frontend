@@ -321,7 +321,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     PersistentExpansionTile(
                       leading: const Icon(Icons.http),
-                      title: const Text('Site'),
+                      title: const Text('HTTP'),
                       controller: _expandAllNotifier,
                       children: [
                         Tooltip(
