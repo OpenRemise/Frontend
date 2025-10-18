@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to update OpenRemise boards
+///
+/// \file   widget/dialog/ota.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'dart:math';
 
 import 'package:Frontend/provider/ota_service.dart';
@@ -23,7 +29,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:universal_html/html.dart' as html;
 
-/// \todo document
+/// Dialog to update OpenRemise boards
+///
+/// The OtaDialog is an update dialog for OpenRemise boards. [OTA](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/system/ota.html)
+/// stands for over-the-air and is the update mechanism developed by Espressif.
 class OtaDialog extends ConsumerStatefulWidget {
   final Uint8List _bin;
 

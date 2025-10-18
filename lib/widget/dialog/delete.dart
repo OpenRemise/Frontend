@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to delete loco or turnout
+///
+/// \file   widget/dialog/delete.dart
+/// \author Vincent Hamp
+/// \date   18/09/2025
+
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/provider/dcc.dart';

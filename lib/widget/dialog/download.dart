@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to download file and show progress
+///
+/// \file   widget/dialog/download.dart
+/// \author Vincent Hamp
+/// \date   25/02/2025
+
 import 'dart:typed_data';
 
 import 'package:Frontend/provider/http_client.dart';
@@ -21,7 +27,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:universal_io/io.dart';
 
-/// Download file and show progress
+/// Dialog to download file and show progress
 ///
 /// The DownloadDialog downloads files from a URL and displays the progress
 /// during the download. If the download is successful, the file is returned as

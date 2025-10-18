@@ -61,6 +61,7 @@ if(TARGET Doxygen::dot)
   set(DOXYGEN_LAYOUT_FILE ${CMAKE_CURRENT_LIST_DIR}/DoxygenLayout.xml)
   set(DOXYGEN_FILE_PATTERNS *.dart)
   set(DOXYGEN_EXCLUDE_PATTERNS */*.freezed.dart */*.g.dart)
+  set(DOXYGEN_EXCLUDE_SYMBOLS _$*)
   set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_LIST_DIR})
   set(DOXYGEN_FILTER_PATTERNS
       *.dart=${CMAKE_CURRENT_LIST_DIR}/strip_dart_metadata_and_generics_filter.sh

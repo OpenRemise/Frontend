@@ -321,7 +321,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     PersistentExpansionTile(
                       leading: const Icon(Icons.http),
-                      title: const Text('Site'),
+                      title: const Text('HTTP'),
                       controller: _expandAllNotifier,
                       children: [
                         Tooltip(
@@ -632,9 +632,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               labelText: 'Program packets',
                             ),
                             valueTransformer: (value) => value!.toInt(),
-                            min: 2,
+                            min: 5,
                             max: 64,
-                            divisions: 64 - 2,
+                            divisions: 64 - 5,
                             displayValues: DisplayValues.current,
                           ),
                         ),

@@ -13,11 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to download ZPP project from ZIMO sound database
+///
+/// \file   widget/dialog/zimo/sound.dart
+/// \author Vincent Hamp
+/// \date   07/03/2025
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Dialog to download ZPP project from ZIMO sound database
+///
+/// SoundDialog parses the [ZIMO sound database](https://www.zimo.at/web2010/sound/tableindex.htm)
+/// and creates a searchable list of [ZPP](https://github.com/ZIMO-Elektronik/ZPP)
+/// projects. These projects can then be downloaded directly.
 class SoundDialog extends ConsumerStatefulWidget {
   const SoundDialog({super.key});
 

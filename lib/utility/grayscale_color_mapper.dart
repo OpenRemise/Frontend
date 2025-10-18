@@ -30,15 +30,19 @@ class GrayscaleColorMapper extends ColorMapper {
     if (color == Colors.white || color == Colors.black) {
       return Color(0xFF626262);
     }
-    // Tams
-    else if (color == const Color(0xFF231F20) ||
-        color == const Color(0xFFED1C24)) {
-      return Color(0xFF626262);
-    }
     // ZIMO
     else if (color == const Color(0xFFB2D2F0) ||
         color == const Color(0xFF41569F)) {
       return Color(color == const Color(0xFFB2D2F0) ? 0xFF626262 : 0xFF222222);
+    }
+    // D&H 0xFF005292
+    else if (color == const Color(0xFF005292)) {
+      return Color(0xFF626262);
+    }
+    // Tams
+    else if (color == const Color(0xFF231F20) ||
+        color == const Color(0xFFED1C24)) {
+      return Color(0xFF626262);
     }
     // Unknown
     else {

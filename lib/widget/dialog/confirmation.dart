@@ -13,10 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to cancel or confirm action
+///
+/// \file   widget/dialog/confirmation.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Dialog with 'Cancel' and 'OK' option
+/// Dialog to cancel or confirm action
 ///
 /// ConfirmationDialog displays the 'Cancel' and 'OK' options. Pressing 'Cancel'
 /// returns `false` and pressing 'OK' returns `true`.

@@ -80,16 +80,18 @@
 /// \subsection subsection_widgets_short_circuit ShortCircuit
 /// \copydetails ShortCircuitDialog
 ///
-/// \subsection subsection_widgets_zimo_decup Decup
+/// \subsection subsection_widgets_zimo ZIMO
+///
+/// \subsubsection subsubsection_widgets_zimo_decup Decup
 /// \copydetails DecupDialog
 ///
-/// \subsection subsection_widgets_zimo_mdu Mdu
+/// \subsubsection subsubsection_widgets_zimo_mdu Mdu
 /// \copydetails MduDialog
 ///
-/// \subsection subsection_widgets_zimo_sound Sound
+/// \subsubsection subsubsection_widgets_zimo_sound Sound
 /// \copydetails SoundDialog
 ///
-/// \subsection subsection_widgets_zimo_zusi Zusi
+/// \subsubsection subsubsection_widgets_zimo_zusi Zusi
 /// \copydetails ZusiDialog
 ///
 /// \section section_widgets_controller %Controller Widgets

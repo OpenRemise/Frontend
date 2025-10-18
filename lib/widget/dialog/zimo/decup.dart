@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to update or upload ZIMO MX decoders
+///
+/// \file   widget/dialog/zimo/decup.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'dart:math';
 
 import 'package:Frontend/constant/ws_batch_size.dart';
@@ -28,7 +34,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Dialog to update or upload ZIMO MX decoders
+///
+/// DecupDialog is a manufacturer-specific dialog for ZIMO MX decoders. It uses
+/// the eponymous [DECUP](https://github.com/ZIMO-Elektronik/DECUP) protocol to
+/// update or load sound via tracks.
 class DecupDialog extends ConsumerStatefulWidget {
   final Zpp? _zpp;
   final Zsu? _zsu;
