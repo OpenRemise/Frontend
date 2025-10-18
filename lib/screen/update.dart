@@ -229,7 +229,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                           Card.outlined(
                             child: ListTile(
                               leading: const Icon(Icons.memory),
-                              title: const Text('Update MS/N decoder'),
+                              title: const Text('Update MS/N or FS/N decoder'),
                               enabled: trackVoltageOff,
                               onTap: () => setState(() {
                                 ++_index;
@@ -257,7 +257,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               leading: const Icon(Icons.music_note),
                               title: RichText(
                                 text: TextSpan(
-                                  text: 'Upload to MS/N decoder via ',
+                                  text: 'Upload to MS/N or FS/N decoder via ',
                                   children: const [
                                     WidgetSpan(
                                       child: Icon(OpenRemiseIcons.track),
@@ -374,7 +374,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.language),
                                   title: Text(
-                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from web',
+                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N or FS/N' : 'MX'} decoder from web',
                                   ),
                                   enabled: trackVoltageOff && online,
                                   onTap: _zimoFirmwareFromWeb,
@@ -384,7 +384,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 child: ListTile(
                                   leading: const Icon(Icons.file_open),
                                   title: Text(
-                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N' : 'MX'} decoder from file',
+                                    'Update ${_selected.elementAtOrNull(1) == 0 ? 'MS/N or FS/N' : 'MX'} decoder from file',
                                   ),
                                   enabled: trackVoltageOff,
                                   onTap: _zimoFromFile,
@@ -398,7 +398,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
+                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N or FS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),
@@ -422,7 +422,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   title: RichText(
                                     text: TextSpan(
                                       text:
-                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N' : 'MX'} decoder via ',
+                                          'Upload to ${_selected.elementAtOrNull(1) == 2 ? 'MS/N or FS/N' : 'MX'} decoder via ',
                                       children: const [
                                         WidgetSpan(
                                           child: Icon(OpenRemiseIcons.track),

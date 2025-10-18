@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to update or upload ZIMO MS, MN, FS and FN decoders
+///
+/// \file   widget/dialog/zimo/mdu.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'dart:math';
 
 import 'package:Frontend/constant/ws_batch_size.dart';
@@ -28,9 +34,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Dialog to update or upload ZIMO MS, MN, FS and FN decoders
 ///
-/// MduDialog is a manufacturer-specific dialog for ZIMO MS decoders. It uses the eponymous [MDU](https://github.com/ZIMO-Elektronik/MDU) protocol to update or load sound via tracks.
+/// MduDialog is a manufacturer-specific dialog for ZIMO MS, MN, FS and FN
+/// decoders. It uses the eponymous [MDU](https://github.com/ZIMO-Elektronik/MDU)
+/// protocol to update or load sound via tracks.
 class MduDialog extends ConsumerStatefulWidget {
   final Zpp? _zpp;
   final Zsu? _zsu;

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.1
+- Bugfix increase minimum number of service mode programming packets to 5
+
 ## 0.5.0
 - Add accessories
   - Add `/dcc/turnouts/` API

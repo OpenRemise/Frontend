@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Dialog to upload sound to ZIMO decoders
+///
+/// \file   widget/dialog/zimo/zusi.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -25,9 +31,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Dialog to upload sound to ZIMO decoders
 ///
-/// ZusiDialog is a manufacturer-specific dialog for ZIMO decoders. It uses the eponymous [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) protocol to load sound via SUSI bus.
+/// ZusiDialog is a manufacturer-specific dialog for ZIMO decoders. It uses the
+/// eponymous [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) protocol to load
+/// sound via [SUSI](https://normen.railcommunity.de/RCN-600.pdf) bus.
 class ZusiDialog extends ConsumerStatefulWidget {
   final Zpp _zpp;
 
