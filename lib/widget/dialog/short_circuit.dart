@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// Short circuit popup dialog
+///
+/// \file   widget/dialog/short_circuit.dart
+/// \author Vincent Hamp
+/// \date   01/11/2024
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// \todo document
+/// Short circuit popup dialog
+///
+/// ShortCircuitDialog is a popup dialog that informs the user about short
+/// circuits. The necessary listener for the status provided by the
+/// z21ShortCircuitProvider is created in the [initState](https://api.flutter.dev/flutter/widgets/State/initState.html)
+/// of the HomeView.
 class ShortCircuitDialog extends ConsumerWidget {
   const ShortCircuitDialog({super.key});
 

@@ -26,6 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
+///
+/// ZusiDialog is a manufacturer-specific dialog for ZIMO decoders. It uses the eponymous [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI) protocol to load sound via SUSI bus.
 class ZusiDialog extends ConsumerStatefulWidget {
   final Zpp _zpp;
 

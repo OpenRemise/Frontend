@@ -29,6 +29,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
+///
+/// MduDialog is a manufacturer-specific dialog for ZIMO MS decoders. It uses the eponymous [MDU](https://github.com/ZIMO-Elektronik/MDU) protocol to update or load sound via tracks.
 class MduDialog extends ConsumerStatefulWidget {
   final Zpp? _zpp;
   final Zsu? _zsu;

@@ -29,6 +29,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
+///
+/// DecupDialog is a manufacturer-specific dialog for ZIMO MX decoders. It uses the eponymous [DECUP](https://github.com/ZIMO-Elektronik/DECUP) protocol to update or load sound via tracks.
 class DecupDialog extends ConsumerStatefulWidget {
   final Zpp? _zpp;
   final Zsu? _zsu;
