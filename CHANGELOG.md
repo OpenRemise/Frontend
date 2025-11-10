@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.2
+- Disable ZIMO MX decoder updates and uploads ([#115](https://github.com/OpenRemise/Frontend/pull/115))
+
 ## 0.5.1
 - Bugfix increase minimum number of service mode programming packets to 5
 

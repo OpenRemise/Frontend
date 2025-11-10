@@ -243,7 +243,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                             child: ListTile(
                               leading: const Icon(Icons.memory),
                               title: const Text('Update MX decoder'),
-                              enabled: trackVoltageOff,
+                              enabled: false,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
@@ -295,7 +295,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                   ref.watch(textScalerProvider),
                                 ),
                               ),
-                              enabled: trackVoltageOff,
+                              enabled: false,
                               onTap: () => setState(() {
                                 ++_index;
                                 _selected
