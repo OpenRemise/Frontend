@@ -1,7 +1,8 @@
 # Changelog
 
-##
+## 0.6.0
 - Enable ZIMO MX decoder updates and uploads again ([#115](https://github.com/OpenRemise/Frontend/issues/115))
+- Clear CV value when read button is pressed ([#113](https://github.com/OpenRemise/Frontend/issues/113))
 
 ## 0.5.2
 - Disable ZIMO MX decoder updates and uploads ([#115](https://github.com/OpenRemise/Frontend/issues/115))
