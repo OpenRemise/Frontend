@@ -354,6 +354,9 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final z21 = ref.watch(z21ServiceProvider);
     final serviceMode = _selected.elementAtOrNull(0) == 1;
 
+    // Clear value
+    _formKey.currentState?.fields['CV value']?.didChange('');
+
     // Address validator or service mode
     if ((_formKey.currentState?.fields['address']?.validate() ?? serviceMode) &&
         (_formKey.currentState?.fields['CV number']?.validate() ?? false)) {

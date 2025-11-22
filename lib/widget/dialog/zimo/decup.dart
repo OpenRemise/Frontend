@@ -52,6 +52,7 @@ class DecupDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DecupDialogState extends ConsumerState<DecupDialog> {
+  static const int _preamble_count = 300;
   static const int _retries = 10;
   late final DecupService _decup;
   late final StreamQueue<Uint8List> _events;
@@ -118,13 +119,11 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     // ZPP
     if (widget._zpp != null) {
-      for (var i = 0; i < 300; ++i) {
+      for (var i = 0; i < _preamble_count; ++i) {
         await _zppPreamble();
       }
-      var msg = await _zppSearch();
-      if (!msg.contains(DecupService.ack)) return;
-      msg = await _zppErase();
-      if (!msg.contains(DecupService.ack)) return;
+      var msg = await _zppErase();
+      if (!msg.contains(DecupService.nak)) return;
       msg = await _zppUpdate(widget._zpp!.flash);
       if (!msg.contains(DecupService.ack)) return;
       msg = await _zppCvs();
@@ -132,7 +131,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     }
     // ZSU
     else {
-      for (var i = 0; i < 300; ++i) {
+      for (var i = 0; i < _preamble_count; ++i) {
         await _zsuPreamble();
       }
       var msg = await _zsuSearch();
@@ -161,68 +160,18 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   }
 
   /// \todo document
-  Future<Uint8List> _zppSearch() async {
-    _decup.zppReadCv(7);
-    var msgs = await _events.take(8);
-    if (msgs.any((msg) => msg.isEmpty) || _decup.closeReason != null) {
-      _updateEphemeralState(
-        status: _decup.closeReason ?? 'Could not read CV8',
-        progress: 0,
-      );
-      return Uint8List.fromList([]);
-    }
-    final cv8 = msgs.reversed.fold<int>(
-      0,
-      (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
-    );
-    if (cv8 != 145) {
-      _updateEphemeralState(
-        status: 'Unknown decoder manufacturer',
-        progress: 0,
-      );
-      return Uint8List.fromList([]);
-    }
-
-    _decup.zppDecoderId();
-    msgs = await _events.take(8);
-    if (msgs.any((msg) => msg.isEmpty) || _decup.closeReason != null) {
-      _updateEphemeralState(
-        status: _decup.closeReason ?? 'Could not read decoder ID',
-        progress: 0,
-      );
-      return Uint8List.fromList([]);
-    }
-    final id = msgs.reversed.fold<int>(
-      0,
-      (prev, cur) => prev << 1 | (cur.first == DecupService.ack ? 1 : 0),
-    );
-    if (!mxDecoderIds.contains(id)) {
-      _updateEphemeralState(status: 'Unknown decoder ID', progress: 0);
-      return Uint8List.fromList([]);
-    }
-
-    return Uint8List.fromList([DecupService.ack]);
-  }
-
-  /// \todo document
   Future<Uint8List> _zppErase() async {
     _updateEphemeralState(status: 'Erasing');
     _decup.zppErase();
-    await _events.next;
-
-    // and here... check every... 10s with... some command?
-    // return if it returns something useful
-    for (var i = 0; i < 6; ++i) {
-      await Future.delayed(const Duration(seconds: 10));
-      _decup.zppDecoderId();
-      final msgs = await _events.take(8);
-      if (!msgs.any((msg) => msg.isEmpty)) {
-        return Uint8List.fromList([DecupService.ack]);
-      }
+    final msg = await _events.next;
+    if (!msg.contains(DecupService.nak) || _decup.closeReason != null) {
+      _updateEphemeralState(
+        status: _decup.closeReason ?? 'Erasing failed',
+        progress: 0,
+      );
+      return Uint8List.fromList([]);
     }
-
-    _updateEphemeralState(status: 'Erasing failed', progress: 0);
-    return Uint8List.fromList([]);
+    return Uint8List.fromList([DecupService.nak]);
   }
 
   /// \todo document

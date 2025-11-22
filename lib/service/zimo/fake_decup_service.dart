@@ -108,7 +108,7 @@ class FakeDecupService implements DecupService {
       const Duration(seconds: 10),
       () {
         if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([]));
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
       },
     );
   }
