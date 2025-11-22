@@ -38,7 +38,6 @@ enum State {
 
   // USB protocols
   ULF_DCC_EIN,
-  ULF_DECUP_EIN,
   ULF_MDU_EIN,
   ULF_SUSIV2,
 

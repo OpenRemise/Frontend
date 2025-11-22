@@ -1,7 +1,10 @@
 # Changelog
 
+##
+- Enable ZIMO MX decoder updates and uploads again ([#115](https://github.com/OpenRemise/Frontend/issues/115))
+
 ## 0.5.2
-- Disable ZIMO MX decoder updates and uploads ([#115](https://github.com/OpenRemise/Frontend/pull/115))
+- Disable ZIMO MX decoder updates and uploads ([#115](https://github.com/OpenRemise/Frontend/issues/115))
 
 ## 0.5.1
 - Bugfix increase minimum number of service mode programming packets to 5
@@ -14,11 +17,11 @@
 - Add search function to decoder screen
 - Add page reload on icon/logo click ([#105](https://github.com/OpenRemise/Frontend/pull/105))
 - Force page reload after OTA update
-- Bugfix `FormBuilderDropdown` does not grow with text size ([#100](https://github.com/OpenRemise/Frontend/pull/100))
+- Bugfix `FormBuilderDropdown` does not grow with text size ([#100](https://github.com/OpenRemise/Frontend/issues/100))
 
 ## 0.4.1
-- Bugfix Z21 service big endian loco addresses ([#81](https://github.com/OpenRemise/Frontend/pull/81))
-- Bugfix Z21 service `LAN_RAILCOM_GETDATA` uses little endian loco address ([#95](https://github.com/OpenRemise/Frontend/pull/95))
+- Bugfix Z21 service big endian loco addresses ([#81](https://github.com/OpenRemise/Frontend/issues/81))
+- Bugfix Z21 service `LAN_RAILCOM_GETDATA` uses little endian loco address ([#95](https://github.com/OpenRemise/Frontend/issues/95))
 
 ## 0.4.0
 - Add connection status ([#91](https://github.com/OpenRemise/Frontend/pull/91))
