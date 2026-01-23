@@ -37,7 +37,7 @@ class SoundDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _SoundDialogState extends ConsumerState<SoundDialog> {
-  List<String> _urls = [];
+  Set<String> _urls = {};
   String _str = '';
 
   /// \todo document
@@ -49,24 +49,28 @@ class _SoundDialogState extends ConsumerState<SoundDialog> {
     http
         .get(Uri.parse('https://www.zimo.at/web2010/sound/tableindex.htm'))
         .then(
-      (response) {
-        final exp = RegExp(r'href=".+.zpp"');
-        setState(() {
-          _urls = exp
-              .allMatches(response.body)
-              .map(
-                (href) =>
-                    href
-                        .group(0)
-                        ?.replaceAll('href="..', 'https://www.zimo.at/web2010')
-                        .replaceAll('&amp;', '&')
-                        .replaceAll('.zpp"', '.zpp') ??
-                    '',
-              )
-              .toList();
-        });
-      },
-    );
+          (response) => setState(() {
+            _urls = RegExp(r'href=".+.zpp"')
+                .allMatches(response.body)
+                .map(
+                  (href) => href
+                      .group(0)!
+                      .replaceAll('href="..', 'https://www.zimo.at/web2010')
+                      .replaceAll('&amp;', '&')
+                      .replaceAll('.zpp"', '.zpp')
+                      // https://github.com/OpenRemise/Frontend/issues/118
+                      .replaceAllMapped(
+                    RegExp(r'%[0-9A-Fa-f]{2}'),
+                    (match) {
+                      final hex = match.group(0)!.substring(1);
+                      final byte = int.parse(hex, radix: 16);
+                      return String.fromCharCode(byte);
+                    },
+                  ),
+                )
+                .toSet();
+          }),
+        );
   }
 
   /// \todo document

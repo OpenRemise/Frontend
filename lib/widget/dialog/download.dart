@@ -25,7 +25,6 @@ import 'package:Frontend/provider/http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:universal_io/io.dart';
 
 /// Dialog to download file and show progress
 ///
@@ -33,9 +32,10 @@ import 'package:universal_io/io.dart';
 /// during the download. If the download is successful, the file is returned as
 /// a `Uint8List`.
 class DownloadDialog extends ConsumerStatefulWidget {
-  final String _url;
+  final Uri _uri;
+  final String? fileName;
 
-  const DownloadDialog(this._url, {super.key});
+  const DownloadDialog(this._uri, {this.fileName, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _DownloadDialogState();
@@ -59,9 +59,7 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final params = Uri.parse(widget._url).queryParameters;
-    final fileName =
-        params['f'] ?? params['id'] ?? File(widget._url).uri.pathSegments.last;
+    final fileName = widget.fileName ?? widget._uri.pathSegments.last;
 
     return AlertDialog(
       title: const Text('Download'),
@@ -90,7 +88,7 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   /// \todo document
   Future<void> _execute() async {
     final client = ref.read(httpClientProvider);
-    final request = http.Request('GET', Uri.parse(widget._url));
+    final request = http.Request('GET', widget._uri);
     final response = await client.send(request);
     if (response.statusCode == 200) {
       final contentLength = response.contentLength ?? 0;
