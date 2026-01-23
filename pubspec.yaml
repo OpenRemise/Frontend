@@ -36,7 +36,7 @@ dependencies:
   collection: ^1.19.0
   csv: ^6.0.0
   desktop_window: ^0.4.2
-  file_picker: ^10.3.3
+  file_picker: ^10.3.8
   fixnum: ^1.1.1
   flutter_form_builder: ^9.7.0
   flutter_grid_button: ^2.1.0
@@ -47,8 +47,8 @@ dependencies:
   freezed_annotation: ^3.1.0
   gif: ^2.3.0
   html: ^0.15.6
-  http: ^1.5.0
-  internet_connection_checker_plus: ^2.8.0
+  http: ^1.6.0
+  internet_connection_checker_plus: ^2.9.1+2
   intl: ^0.19.0
   json_annotation: ^4.9.0
   pub_semver: ^2.2.0
@@ -57,8 +57,8 @@ dependencies:
   shared_preferences: ^2.5.3
   shared_preferences_riverpod: ^0.3.0
   stream_summary_builder: ^1.0.0
-  universal_html: ^2.2.4
-  universal_io: ^2.2.2
+  universal_html: ^2.3.0
+  universal_io: ^2.3.1
   validator_regex: ^1.1.1
   version: ^3.0.2
   vertical_weight_slider: ^2.6.0

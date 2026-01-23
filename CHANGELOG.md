@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Bugfix broken ZIMO website ([#118](https://github.com/OpenRemise/Frontend/issues/118))
+
 ## 0.6.0
 - Enable ZIMO MX decoder updates and uploads again ([#115](https://github.com/OpenRemise/Frontend/issues/115))
 - Clear CV value when read button is pressed ([#113](https://github.com/OpenRemise/Frontend/issues/113))

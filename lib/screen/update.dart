@@ -25,6 +25,7 @@ import 'package:Frontend/provider/sys.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/utility/dark_mode_color_mapper.dart';
 import 'package:Frontend/utility/grayscale_color_mapper.dart';
+import 'package:Frontend/utility/latin1uri.dart';
 import 'package:Frontend/widget/dialog/confirmation.dart';
 import 'package:Frontend/widget/dialog/download.dart';
 import 'package:Frontend/widget/dialog/ota.dart';
@@ -542,7 +543,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     showDialog<Uint8List>(
       context: context,
       builder: (_) => DownloadDialog(
-        'https://openremise.at/Firmware/releases/download/v${availableFirmwareVersion.requireValue}/Firmware-${availableFirmwareVersion.requireValue}.zip',
+        Uri.parse(
+          'https://openremise.at/Firmware/releases/download/v${availableFirmwareVersion.requireValue}/Firmware-${availableFirmwareVersion.requireValue}.zip',
+        ),
       ),
       barrierDismissible: false,
     ).then((value) {
@@ -620,9 +623,13 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     ).then(
       (url) {
         if (url == null) return;
+        final uri = Uri.parse(url);
         showDialog<Uint8List>(
           context: context,
-          builder: (_) => DownloadDialog(url),
+          builder: (_) => DownloadDialog(
+            Uri.parse(url),
+            fileName: uri.queryParameters['id'],
+          ),
           barrierDismissible: false,
         ).then(
           (value) {
@@ -663,11 +670,14 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       builder: (_) => const SoundDialog(),
       barrierDismissible: true,
     ).then(
-      (value) {
-        if (value == null) return;
+      (url) {
+        if (url == null) return;
         showDialog<Uint8List>(
           context: context,
-          builder: (_) => DownloadDialog(value),
+          builder: (_) => DownloadDialog(
+            latin1Uri(url),
+            fileName: Uri.parse(url).queryParameters['f'],
+          ),
           barrierDismissible: false,
         ).then(
           (value) {
