@@ -118,7 +118,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     // ZPP
     if (widget._zpp != null) {
-      for (var i = 0; i < _preamble_count; ++i) {
+      for (int i = 0; i < _preamble_count; ++i) {
         await _zppPreamble();
       }
       var msg = await _zppErase();
@@ -130,7 +130,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     }
     // ZSU
     else {
-      for (var i = 0; i < _preamble_count; ++i) {
+      for (int i = 0; i < _preamble_count; ++i) {
         await _zsuPreamble();
       }
       var msg = await _zsuSearch();

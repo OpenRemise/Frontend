@@ -26,16 +26,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-/// Dialog to download file and show progress
+/// Dialog to download files and show progress
 ///
-/// The DownloadDialog downloads files from a URL and displays the progress
-/// during the download. If the download is successful, the file is returned as
-/// a `Uint8List`.
+/// The DownloadDialog downloads files from URLs and displays the progress
+/// during the download. If the download is successful, the files are returned
+/// as `List<Uint8List>`.
 class DownloadDialog extends ConsumerStatefulWidget {
-  final Uri _uri;
-  final String? fileName;
+  final List<Uri> _uris;
+  final List<String>? fileNames;
 
-  const DownloadDialog(this._uri, {this.fileName, super.key});
+  const DownloadDialog(this._uris, {this.fileNames, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _DownloadDialogState();
@@ -43,14 +43,16 @@ class DownloadDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DownloadDialogState extends ConsumerState<DownloadDialog> {
-  final List<int> _bytes = [];
+  late List<double?> _progresses;
+  late List<String> _msgs;
   String _status = '';
-  double? _progress;
 
   /// \todo document
   @override
   void initState() {
     super.initState();
+    _progresses = List.filled(widget._uris.length, null);
+    _msgs = List.filled(widget._uris.length, '');
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _execute().catchError((_) {}),
     );
@@ -59,17 +61,20 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final fileName = widget.fileName ?? widget._uri.pathSegments.last;
-
     return AlertDialog(
       title: const Text('Download'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LinearProgressIndicator(value: _progress),
+          for (int i = 0; i < widget._uris.length; i++) ...[
+            Text(
+              widget.fileNames?.asMap()[i] ?? widget._uris[i].pathSegments.last,
+            ),
+            LinearProgressIndicator(value: _progresses[i]),
+            Text(_msgs[i]),
+          ],
           Text(_status),
-          Text(fileName),
         ],
       ),
       actions: <Widget>[
@@ -88,31 +93,45 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
   /// \todo document
   Future<void> _execute() async {
     final client = ref.read(httpClientProvider);
-    final request = http.Request('GET', widget._uri);
-    final response = await client.send(request);
-    if (response.statusCode == 200) {
-      final contentLength = response.contentLength ?? 0;
-      response.stream.listen(
-        (chunk) => setState(() {
-          _bytes.addAll(chunk);
-          _status = 'Downloading';
-          if (contentLength > 0) {
-            _status +=
-                ' ${_bytes.length ~/ 1024} / ${contentLength ~/ 1024} kB';
-            _progress = _bytes.length / contentLength;
+
+    final results = await Future.wait(
+      widget._uris.asMap().entries.map((entry) async {
+        final i = entry.key;
+        final uri = entry.value;
+        final request = http.Request('GET', uri);
+        final response = await client.send(request);
+        if (response.statusCode == 200) {
+          List<int> bytes = [];
+          final contentLength = response.contentLength ?? 0;
+          try {
+            await for (final chunk in response.stream) {
+              bytes.addAll(chunk);
+              setState(() {
+                if (contentLength > 0) {
+                  _progresses[i] = bytes.length / contentLength;
+                  _msgs[i] =
+                      '${bytes.length ~/ 1024} / ${contentLength ~/ 1024} kB';
+                } else {
+                  _msgs[i] = '${bytes.length ~/ 1024} / ? kB';
+                }
+                _status = 'Downloading';
+              });
+            }
+            return bytes;
+          } catch (_) {
+            return null;
           }
-        }),
-        onDone: () {
-          if (mounted) Navigator.pop(context, Uint8List.fromList(_bytes));
-        },
-        onError: (error) => setState(() {
-          _status = 'Downloading failed';
-        }),
+        }
+      }),
+    );
+
+    if (results.contains(null)) {
+      setState(() => _status = 'Downloading failed');
+    } else if (mounted) {
+      Navigator.pop(
+        context,
+        results.map((l) => Uint8List.fromList(l!)).toList(),
       );
-    } else {
-      setState(() {
-        _status = 'Downloading failed';
-      });
     }
   }
 

@@ -15,7 +15,7 @@
 
 /// \todo document
 int _crc32Byte(int crc, int byte) {
-  for (var i = 0; i < 8; ++i) {
+  for (int i = 0; i < 8; ++i) {
     final tmp = crc;
     crc <<= 1;
     if ((byte & 0x80) == 0x80) crc |= 1;

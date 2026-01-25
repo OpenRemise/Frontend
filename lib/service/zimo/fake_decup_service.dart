@@ -62,7 +62,7 @@ class FakeDecupService implements DecupService {
       const Duration(milliseconds: 500),
       () {
         if (_controller.isClosed) return;
-        for (var i = 0; i < 8; ++i) {
+        for (int i = 0; i < 8; ++i) {
           _controller.sink.add(
             Uint8List.fromList(
               [_decoderId & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
@@ -80,7 +80,7 @@ class FakeDecupService implements DecupService {
       () {
         if (_controller.isClosed) return;
         final cv = fakeInitialLocoCvs[cvAddress];
-        for (var i = 0; i < 8; ++i) {
+        for (int i = 0; i < 8; ++i) {
           _controller.sink.add(
             Uint8List.fromList(
               [cv & (1 << i) > 0 ? DecupService.ack : DecupService.nak],

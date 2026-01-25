@@ -236,7 +236,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     /// \warning
     /// During erasing busy must be checked periodically within the HTTP receive timeout.
-    for (var i = 0; i < (200 / 3).ceil(); ++i) {
+    for (int i = 0; i < (200 / 3).ceil(); ++i) {
       await Future.delayed(const Duration(seconds: 3));
       msg = await _retryOnFailure(() => _mdu.busy());
       if (!msg.contains(MduService.ack)) break;
@@ -426,7 +426,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     }
 
     // Busy doesn't work for internal memory so don't check the response
-    for (var i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
       await Future.delayed(const Duration(seconds: 1));
       await _retryOnFailure(() => _mdu.busy());
     }

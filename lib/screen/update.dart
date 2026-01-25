@@ -540,17 +540,19 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   /// \todo document
   Future<void> _openRemiseFromWeb() async {
     final availableFirmwareVersion = ref.read(availableFirmwareVersionProvider);
-    showDialog<Uint8List>(
+    showDialog<List<Uint8List>>(
       context: context,
       builder: (_) => DownloadDialog(
-        Uri.parse(
-          'https://openremise.at/Firmware/releases/download/v${availableFirmwareVersion.requireValue}/Firmware-${availableFirmwareVersion.requireValue}.zip',
-        ),
+        [
+          Uri.parse(
+            'https://openremise.at/Firmware/releases/download/v${availableFirmwareVersion.requireValue}/Firmware-${availableFirmwareVersion.requireValue}.zip',
+          ),
+        ],
       ),
       barrierDismissible: false,
     ).then((value) {
       if (value == null) return;
-      final archive = ZipDecoder().decodeBytes(value);
+      final archive = ZipDecoder().decodeBytes(value.first);
       final bin = archive.findFile('Firmware.bin');
       if (bin == null) return;
       showDialog<bool>(
@@ -624,17 +626,17 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
       (url) {
         if (url == null) return;
         final uri = Uri.parse(url);
-        showDialog<Uint8List>(
+        showDialog<List<Uint8List>>(
           context: context,
           builder: (_) => DownloadDialog(
-            Uri.parse(url),
-            fileName: uri.queryParameters['id'],
+            [Uri.parse(url)],
+            fileNames: [uri.queryParameters['id']!],
           ),
           barrierDismissible: false,
         ).then(
           (value) {
             if (value == null) return;
-            final archive = ZipDecoder().decodeBytes(value);
+            final archive = ZipDecoder().decodeBytes(value.first);
             final archiveFile =
                 archive.files.firstWhereOrNull((f) => f.name.endsWith('.zsu'));
             if (archiveFile == null) return;
@@ -672,17 +674,17 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     ).then(
       (url) {
         if (url == null) return;
-        showDialog<Uint8List>(
+        showDialog<List<Uint8List>>(
           context: context,
           builder: (_) => DownloadDialog(
-            latin1Uri(url),
-            fileName: Uri.parse(url).queryParameters['f'],
+            [latin1Uri(url)],
+            fileNames: [Uri.parse(url).queryParameters['f']!],
           ),
           barrierDismissible: false,
         ).then(
           (value) {
             if (value == null) return;
-            final zpp = Zpp(value);
+            final zpp = Zpp(value.first);
             showDialog(
               context: context,
               builder: (_) => switch (_selected.elementAtOrNull(1)) {

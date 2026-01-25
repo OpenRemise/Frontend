@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## 0.6.1
 - Bugfix broken ZIMO website ([#118](https://github.com/OpenRemise/Frontend/issues/118))
 
 ## 0.6.0

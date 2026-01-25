@@ -48,7 +48,7 @@ class Zpp {
     final int cvsStart =
         _bytes[13] << 24 | _bytes[14] << 16 | _bytes[15] << 8 | _bytes[16] << 0;
     final int cvsLength = _bytes[17] << 8 | _bytes[18] << 0;
-    for (var i = 0; i < cvsLength; i += 3) {
+    for (int i = 0; i < cvsLength; i += 3) {
       final cvAddress =
           _bytes[cvsStart + i] << 8 | _bytes[cvsStart + i + 1] << 0;
       cvs[cvAddress] = _bytes[cvsStart + i + 2];
