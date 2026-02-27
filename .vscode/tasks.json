@@ -5,7 +5,7 @@
       "label": "Run build_runner build",
       "type": "shell",
       "isBackground": true,
-      "command": "dart run build_runner build --delete-conflicting-outputs"
+      "command": "fvm dart run build_runner build --delete-conflicting-outputs"
     },
     {
       "label": "Run build_runner clean",
@@ -17,7 +17,7 @@
       "label": "Run flutter pub upgrade --tighten",
       "type": "shell",
       "isBackground": true,
-      "command": "flutter pub upgrade --tighten"
+      "command": "fvm flutter pub upgrade --tighten"
     },
     {
       "label": "Run Frontend OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=800",

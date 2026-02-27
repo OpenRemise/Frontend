@@ -1,0 +1,47 @@
+name: stable
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  compare_3_27_4_to_stable_size:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Install prerequisites
+        run: |
+          sudo apt update -y
+          curl -fsSL https://fvm.app/install.sh | bash
+          echo "/home/runner/fvm/bin:$PATH" >> $GITHUB_PATH
+      - name: Build release
+        run: |
+          fvm use stable
+          cmake --preset "Release"
+          cmake --build build --target Frontend
+          mv build/web build/stable
+      - uses: actions/download-artifact@v5.0.0
+        with:
+          path: ./build
+      - name: Unpack artifact
+        run: |
+          cd build
+          ARTIFACT=$(ls *.zip | head -n 1)
+          mkdir -p 3.27.4
+          unzip "$ARTIFACT" -d 3.27.4
+      - name: Gzip files and calculate total sizes
+        run: |
+          folders=("build/3.27.4" "build/stable")
+          for folder in "${folders[@]}"; do
+              find "$folder" -type f -exec gzip -k "{}" \;
+              total_size=$(find "$folder" -type f -name "*.gz" -exec stat -c%s {} \; | awk '{sum+=$1} END{print sum}')
+              human_size=$(numfmt --to=iec --suffix=B "$total_size")
+              echo "Total gzipped size for $folder: $human_size"
+          done

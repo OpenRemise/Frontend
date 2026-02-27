@@ -4,7 +4,7 @@ include(FetchContent)
 FetchContent_Declare(
   CMakeModules
   GIT_REPOSITORY "https://github.com/ZIMO-Elektronik/CMakeModules"
-  GIT_TAG v0.9.5)
+  GIT_TAG v0.12.2)
 FetchContent_MakeAvailable(CMakeModules)
 
 set(OPENREMISE_FRONTEND_BASE_HREF
@@ -23,30 +23,77 @@ set(OPENREMISE_FRONTEND_FAKE_SERVICES
 version_from_git()
 project(Frontend VERSION ${VERSION_FROM_GIT})
 
-# For some reason only dart can run the build_runner
+find_program(FVM_EXECUTABLE fvm)
+if(FVM_EXECUTABLE)
+  set(DART_EXECUTABLE fvm dart)
+  set(FLUTTER_EXECUTABLE fvm flutter)
+else()
+  find_program(DART_EXECUTABLE dart REQUIRED)
+  find_program(FLUTTER_EXECUTABLE flutter REQUIRED)
+endif()
+
+# Get flutter version
+execute_process(COMMAND ${FLUTTER_EXECUTABLE} --version
+                OUTPUT_VARIABLE FLUTTER_VERSION_RAW)
+string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" FLUTTER_VERSION
+             ${FLUTTER_VERSION_RAW})
+
+# Get all source files
 file(GLOB_RECURSE LIB lib/*.dart)
-find_program(DART_EXECUTABLE dart PATHS /usr/bin/ REQUIRED)
-find_program(FLUTTER_EXECUTABLE flutter PATHS /usr/bin/ REQUIRED)
-add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web
-  COMMAND ${FLUTTER_EXECUTABLE} pub get
-  COMMAND ${DART_EXECUTABLE} run build_runner build --delete-conflicting-outputs
-  COMMAND
-    ${FLUTTER_EXECUTABLE} build web #
-    --output=${CMAKE_CURRENT_BINARY_DIR}/web #
-    --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
-    --web-renderer=html #
-    --no-web-resources-cdn #
-    --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
-    --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
-    --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
-  # https://github.com/flutter/flutter/issues/126738
-  COMMAND
-    ${CMAKE_COMMAND} -E rm -rf #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
-    ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
-  DEPENDS ${LIB} #
-  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+if(FLUTTER_VERSION VERSION_LESS_EQUAL "3.27.4")
+  # For some reason only dart can run the build_runner
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web
+    COMMAND ${FLUTTER_EXECUTABLE} pub get
+    COMMAND ${DART_EXECUTABLE} run build_runner build
+            --delete-conflicting-outputs
+    COMMAND
+      ${FLUTTER_EXECUTABLE} build web #
+      --output=${CMAKE_CURRENT_BINARY_DIR}/web #
+      --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
+      --web-renderer=html #
+      --no-web-resources-cdn #
+      --optimization-level=4 #
+      --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
+      --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
+      --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
+    # https://github.com/flutter/flutter/issues/126738
+    COMMAND
+      ${CMAKE_COMMAND} -E rm -rf #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit #
+    DEPENDS ${LIB} #
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+else()
+  # For some reason only dart can run the build_runner
+  add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/web
+    COMMAND ${FLUTTER_EXECUTABLE} pub upgrade --major-versions
+    COMMAND ${DART_EXECUTABLE} run build_runner build
+            --delete-conflicting-outputs
+    COMMAND
+      ${FLUTTER_EXECUTABLE} build web #
+      --output=${CMAKE_CURRENT_BINARY_DIR}/web #
+      --base-href=${OPENREMISE_FRONTEND_BASE_HREF} #
+      --no-web-resources-cdn #
+      --dart-define=OPENREMISE_FRONTEND_DOMAIN=${OPENREMISE_FRONTEND_DOMAIN} #
+      --dart-define=OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH=${OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH} #
+      --dart-define=OPENREMISE_FRONTEND_FAKE_SERVICES=${OPENREMISE_FRONTEND_FAKE_SERVICES} #
+    # https://github.com/flutter/flutter/issues/126738
+    COMMAND
+      ${CMAKE_COMMAND} -E rm -rf #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/assets/NOTICES #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/chromium #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm.js #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm.js.symbols #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm.wasm #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.js #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.js.symbols #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.wasm #
+    DEPENDS ${LIB} #
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+endif()
 
 # Build web
 add_custom_target(Frontend ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/web)
