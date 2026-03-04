@@ -27,8 +27,7 @@ class Locos extends _$Locos {
   /// \todo document
   @override
   SplayTreeSet<Loco> build() {
-    return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
-            'true'
+    return const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? SplayTreeSet<Loco>.of([
             Loco(address: 3, name: 'Vectron'),
             Loco(address: 98, name: 'L45H'),

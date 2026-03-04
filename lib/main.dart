@@ -73,8 +73,7 @@ void main() async {
   }
 
   // Expose global `ProviderContainer` to widget tree for fake services
-  if (const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
-      'true') {
+  if (const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')) {
     runApp(
       UncontrolledProviderScope(
         container: fakeServicesProviderContainer,

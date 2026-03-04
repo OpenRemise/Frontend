@@ -31,8 +31,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// When faking services this container gets injected into [runApp](https://api.flutter.dev/flutter/widgets/runApp.html).
 /// ```dart
 /// // Expose global `ProviderContainer` to widget tree for fake services
-/// if (const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
-///     'true') {
+/// if (const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')) {
 ///   runApp(
 ///     UncontrolledProviderScope(
 ///       container: fakeServicesProviderContainer,
