@@ -197,7 +197,31 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), _heartbeat);
+
+    // Heartbeat
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => ref.read(z21ServiceProvider).lanXGetStatus(),
+    );
+
+    // Recover after socket was closed server side
+    ref.listenManual(
+      z21ServiceProvider,
+      (previous, next) {
+        next.stream.listen(
+          null,
+          onError: (e) {
+            debugPrint('Z21 stream onError $e');
+            ref.invalidate(z21ServiceProvider);
+          },
+          onDone: () {
+            debugPrint('Z21 stream onDone');
+            ref.invalidate(z21ServiceProvider);
+          },
+        );
+      },
+      fireImmediately: true,
+    );
 
     // Add listener for short circuit events
     ref.listenManual(
@@ -428,25 +452,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
         ),
       ),
-    );
-  }
-
-  /// \todo document
-  void _heartbeat(_) {
-    final z21 = ref.read(z21ServiceProvider);
-    z21.lanXGetStatus();
-
-    // Recover after socket was closed server side
-    z21.stream.listen(
-      null,
-      onError: (e) {
-        debugPrint('Z21 stream onError $e');
-        ref.invalidate(z21ServiceProvider);
-      },
-      onDone: () {
-        debugPrint('Z21 stream onDone');
-        ref.invalidate(z21ServiceProvider);
-      },
     );
   }
 }
