@@ -49,8 +49,8 @@ class PowerIconButton extends ConsumerWidget {
               : 'Power off',
       isSelected:
           z21Status.hasValue && !z21Status.requireValue.trackVoltageOff(),
-      selectedIcon: const Icon(Icons.power_off),
-      icon: const Icon(Icons.power),
+      selectedIcon: const Icon(Icons.power, color: Colors.green),
+      icon: const Icon(Icons.power_off, color: Colors.red),
     );
   }
 }
