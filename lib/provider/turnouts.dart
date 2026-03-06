@@ -27,8 +27,7 @@ class Turnouts extends _$Turnouts {
   /// \todo document
   @override
   SplayTreeSet<Turnout> build() {
-    return const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') ==
-            'true'
+    return const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? SplayTreeSet<Turnout>.of([
             //
             Turnout(

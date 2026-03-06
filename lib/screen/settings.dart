@@ -136,6 +136,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       json['dcc_accy_flags'] & 0x02,
                       json['dcc_accy_flags'] & 0x01,
                     ];
+                    json['ext_flags'] = <int>[
+                      json['ext_flags'] & 0x01,
+                    ];
                     json.updateAll((k, v) => v is int ? v.toDouble() : v);
 
                     _formKey.currentState?.patchValue(json);
@@ -779,7 +782,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             data.dccAccessoryFlags & 0x01,
                           ],
                           valueTransformer: (value) => value?.fold(
-                            0,
+                            0x00,
                             (prev, cur) => prev | cur,
                           ),
                           options: const [
@@ -819,6 +822,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 message: 'Disable automatic timeout of outputs',
                                 waitDuration: Duration(seconds: 1),
                                 child: Text('Disable timeout'),
+                              ),
+                            ),
+                          ],
+                          orientation: smallWidth
+                              ? OptionsOrientation.vertical
+                              : OptionsOrientation.wrap,
+                        ),
+                      ],
+                    ),
+                    PersistentExpansionTile(
+                      leading: const Icon(Icons.extension),
+                      title: const Text('Extensions'),
+                      controller: _expandAllNotifier,
+                      children: [
+                        FormBuilderCheckboxGroup(
+                          name: 'ext_flags',
+                          initialValue: [
+                            data.extensionFlags & 0x01,
+                          ],
+                          valueTransformer: (value) => value?.fold(
+                            0x00,
+                            (prev, cur) => prev | cur,
+                          ),
+                          options: const [
+                            FormBuilderFieldOption(
+                              value: 0x01,
+                              child: Tooltip(
+                                message: 'Enable display output',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Display'),
                               ),
                             ),
                           ],

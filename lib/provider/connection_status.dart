@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:async';
-
 import 'package:Frontend/model/config.dart';
 import 'package:Frontend/model/connection_status.dart';
 import 'package:Frontend/provider/roco/z21_service.dart';
@@ -33,23 +31,13 @@ Stream<ConnectionStatus> connectionStatus(ref) async* {
     ),
   );
 
-  ConnectionStatus? previousStatus;
+  final z21 = ref.watch(z21ServiceProvider);
 
-  while (true) {
-    final z21 = ref.read(z21ServiceProvider);
-
-    try {
-      await for (final _ in z21.stream.timeout(Duration(seconds: timeout))) {
-        if (previousStatus != ConnectionStatus.connected) {
-          previousStatus = ConnectionStatus.connected;
-          yield previousStatus;
-        }
-      }
-    } catch (_) {
-      if (previousStatus != ConnectionStatus.disconnected) {
-        previousStatus = ConnectionStatus.disconnected;
-        yield previousStatus;
-      }
+  try {
+    await for (final _ in z21.stream.timeout(Duration(seconds: timeout))) {
+      yield ConnectionStatus.connected;
     }
-  }
+  } catch (_) {}
+
+  yield ConnectionStatus.disconnected;
 }

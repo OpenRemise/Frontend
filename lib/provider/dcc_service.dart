@@ -26,7 +26,7 @@ part 'dcc_service.g.dart';
 /// \todo document
 @Riverpod(keepAlive: true)
 DccService dccService(ref) =>
-    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? FakeDccService(fakeServicesProviderContainer)
         : HttpDccService(
             ref.read(httpClientProvider),

@@ -24,6 +24,6 @@ part 'decup_service.g.dart';
 /// \todo document
 @riverpod
 DecupService decupService(ref, String unencodedPath) =>
-    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? FakeDecupService()
         : WsDecupService(ref.read(domainProvider), unencodedPath);

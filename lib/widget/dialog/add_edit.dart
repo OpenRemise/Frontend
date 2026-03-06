@@ -471,7 +471,6 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
       TextButton(
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() ?? false) {
-            debugPrint(_formKey.currentState?.value.toString());
             final map = _formKey.currentState!.value;
             if (widget.loco == null) {
               ref
@@ -488,9 +487,6 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
                   );
             }
             Navigator.pop(context);
-          } else {
-            debugPrint(_formKey.currentState?.value.toString());
-            debugPrint('validation failed');
           }
         },
         child: const Text('OK'),
@@ -508,7 +504,6 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
       TextButton(
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() ?? false) {
-            debugPrint(_formKey.currentState?.value.toString());
             final map = _formKey.currentState!.value;
             if (widget.turnout == null) {
               ref
@@ -526,9 +521,6 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
                   );
             }
             Navigator.pop(context);
-          } else {
-            debugPrint(_formKey.currentState?.value.toString());
-            debugPrint('validation failed');
           }
         },
         child: const Text('OK'),

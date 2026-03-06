@@ -33,6 +33,7 @@ class WsZ21Service implements Z21Service {
           BroadcastFlag.LocoNetDetector,
         ]),
       ),
+      onError: (_) {},
     );
     _stream = _channel.stream
         .asBroadcastStream()

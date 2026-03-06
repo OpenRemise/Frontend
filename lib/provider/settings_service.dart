@@ -25,7 +25,7 @@ part 'settings_service.g.dart';
 /// \todo document
 @Riverpod(keepAlive: true)
 SettingsService settingsService(ref) =>
-    const String.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES') == 'true'
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? FakeSettingsService()
         : HttpSettingsService(
             ref.read(httpClientProvider),

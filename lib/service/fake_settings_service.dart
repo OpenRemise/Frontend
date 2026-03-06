@@ -77,6 +77,7 @@ class FakeSettingsService implements SettingsService {
         dccAccessoryFlags: config.dccAccessoryFlags,
         dccAccessorySwitchTime: config.dccAccessorySwitchTime,
         dccAccessoryPacketCount: config.dccAccessoryPacketCount,
+        extensionFlags: config.extensionFlags,
       ),
     );
   }

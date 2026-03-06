@@ -60,6 +60,7 @@ abstract class Config with _$Config {
     @Default(0x04) @JsonKey(name: 'dcc_accy_flags') int dccAccessoryFlags,
     @Default(20) @JsonKey(name: 'dcc_accy_swtime') int dccAccessorySwitchTime,
     @Default(2) @JsonKey(name: 'dcc_accy_pc') int dccAccessoryPacketCount,
+    @Default(255) @JsonKey(name: 'ext_flags') int extensionFlags,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);
