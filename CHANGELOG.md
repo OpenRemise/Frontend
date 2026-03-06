@@ -1,5 +1,8 @@
 # Changelog
 
+##
+- Power- and dark mode button indicate current status ([#127](https://github.com/OpenRemise/Frontend/issues/127))
+
 ## 0.6.1
 - Bugfix broken ZIMO website ([#118](https://github.com/OpenRemise/Frontend/issues/118))
 

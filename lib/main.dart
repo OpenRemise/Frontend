@@ -278,7 +278,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
           IconButton(
             icon: Icon(
-              ref.watch(darkModeProvider) ? Icons.light_mode : Icons.dark_mode,
+              ref.watch(darkModeProvider) ? Icons.dark_mode : Icons.light_mode,
             ),
             tooltip: ref.watch(darkModeProvider)
                 ? 'Toggle light mode'
