@@ -64,8 +64,8 @@
 /// \details \tableofcontents
 /// In this chapter, we set up a development environment that allows us to
 /// create the frontend, its unit tests, and the documentation. This means that
-/// we will primarily install the [Flutter](https://flutter.dev) framework, as
-/// well as a few tools around it.
+/// we will primarily install the [Flutter](https://flutter.dev) framework via
+/// [FVM](https://fvm.app), as well as a few tools around it.
 ///
 /// We recommend either an [Arch](https://archlinux.org) (e.g.
 /// [Garuda](https://garudalinux.org) or [Manjaro](https://manjaro.org)) or
@@ -89,12 +89,12 @@
 /// </div>
 ///
 /// Without going into detail about each individual dependency, the most
-/// important ones are Flutter, a cross-platform app framework, Chromium, a web
-/// browser, Clang, a host compiler, CMake, a build system, Ninja, a build tool,
-/// Doxygen, a documentation generator, and Graphviz, a graph visualization
-/// software.
+/// important ones are FVM, a [Flutter](https://flutter.dev) version management
+/// tool, Chromium, a web browser, Clang, a host compiler, CMake, a build
+/// system, Ninja, a build tool, Doxygen, a documentation generator, and
+/// Graphviz, a graph visualization software.
 ///
-/// - [Flutter](https://flutter.dev) ( == 3.27.4 )
+/// - [FVM](https://fvm.app) ( >= 4.0.5 )
 /// - [Chromium](https://www.chromium.org) ( >= 134.0.6998.35 )
 /// - [Clang](https://clang.llvm.org) ( >= 16.0.6 )
 /// - [CMake](https://cmake.org) ( >= 3.25 )
@@ -116,12 +116,11 @@
 ///   ```
 /// </div>
 ///
-/// \subsection subsection_development_flutter Flutter
-/// The Flutter framework is the only dependency that we cannot get directly
-/// from the (official) package manager. It's either available from
-/// [AUR](https://aur.archlinux.org) or from the
-/// [flutter releases archive](https://docs.flutter.dev/release/archive). The
-/// problem is that we need a very specific version, namely **3.27.4**. This is
+/// \subsection subsection_development_fvm FVM (Flutter)
+/// Instead of installing Flutter directly, we use FVM, a Flutter version
+/// management tool. On Arch it is included in the official package manager, on
+/// Ubuntu we have to run the install script from the FVM homepage. The problem
+/// is that we need a very specific Flutter version, namely **3.27.4**. This is
 /// the last version that supports the HTML renderer, which as of now simply
 /// produces a much smaller app than the newer canvaskit.
 ///
@@ -141,14 +140,12 @@
 /// <div class="tabbed">
 /// - <b class="tab-title">Arch</b>
 ///   ```sh
-///   git clone https://aur.archlinux.org/flutter-bin.git
-///   cd flutter-bin
-///   git checkout 9dd83f3012fb6b14f7a9453cdfbf2dd097053f79
-///   makepkg -si
+///   sudo pacman -S --noconfirm fvm
 ///   ```
 /// - <b class="tab-title">Ubuntu 24.04</b>
-///   - Manually download [Flutter 3.27.4](https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.4-stable.tar.xz)
-///   - Follow the installation instructions at [docs.flutter.dev](https://docs.flutter.dev/get-started/install/linux/web#install-the-flutter-sdk)
+///   ```sh
+///   curl -fsSL https://fvm.app/install.sh | bash
+///   ```
 /// </div>
 ///
 /// \subsection subsection_development_vscode VSCode (optional)

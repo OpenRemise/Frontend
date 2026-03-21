@@ -2,6 +2,11 @@
 
 ##
 - Power- and dark mode button indicate current status ([#127](https://github.com/OpenRemise/Frontend/issues/127))
+- Bugfix various bugs
+  - `connectionStatusProvider` burns CPU on disconnect ([#123](https://github.com/OpenRemise/Frontend/issues/123))
+  - `_heartbeat` leaks stream subscriptions ([#124](https://github.com/OpenRemise/Frontend/issues/124))
+  - `WsZ21Service` may throw ([#125](https://github.com/OpenRemise/Frontend/issues/125))
+  - Misuse of `StreamSummaryBuilder` and `ref.watch` ([#129](https://github.com/OpenRemise/Frontend/issues/129), [#130](https://github.com/OpenRemise/Frontend/issues/130))
 
 ## 0.6.1
 - Bugfix broken ZIMO website ([#118](https://github.com/OpenRemise/Frontend/issues/118))

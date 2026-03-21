@@ -71,15 +71,24 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   Widget build(BuildContext context) {
     final z21Status = ref.watch(z21StatusProvider);
     final serviceMode = _selected.elementAtOrNull(1) == 1;
+    final enabled = serviceMode ||
+        z21Status.hasValue && !z21Status.requireValue.trackVoltageOff();
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
     return StreamSummaryBuilder(
       initialData: <Command>[],
-      fold: (summary, value) => [...summary, value],
+      fold: (summary, value) => summary..add(value),
       stream: _stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
+        if (snapshot.hasData) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) {
+              _syncFromCommands(snapshot.requireData);
+              snapshot.requireData.clear();
+            },
+          );
+        }
 
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -227,10 +236,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                       // https://github.com/flutter/flutter/issues/15400
                                       helperText: ' ',
                                     ),
-                                    enabled: serviceMode ||
-                                        z21Status.hasValue &&
-                                            !z21Status.requireValue
-                                                .trackVoltageOff(),
+                                    enabled: enabled,
                                     keyboardType: TextInputType.number,
                                     style:
                                         const TextStyle(fontFamily: 'DSEG14'),
@@ -246,10 +252,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                       labelText: 'CV value',
                                       helperText: ' ',
                                     ),
-                                    enabled: serviceMode ||
-                                        z21Status.hasValue &&
-                                            !z21Status.requireValue
-                                                .trackVoltageOff(),
+                                    enabled: enabled,
                                     keyboardType: TextInputType.number,
                                     style:
                                         const TextStyle(fontFamily: 'DSEG14'),
@@ -264,14 +267,14 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   OutlinedButton(
-                                    onPressed: _cvRead,
+                                    onPressed: enabled ? _cvRead : null,
                                     child: const Text('Read'),
                                   ),
                                   const Padding(
                                     padding: EdgeInsets.all(8.0),
                                   ),
                                   OutlinedButton(
-                                    onPressed: _cvWrite,
+                                    onPressed: enabled ? _cvWrite : null,
                                     child: const Text('Write'),
                                   ),
                                 ],
@@ -314,22 +317,18 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       switch (command) {
         case LanXCvNackSc():
         case LanXCvNack():
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => _updateIconData(Icons.error));
+          _updateIconData(Icons.error);
           _pending = false;
           break;
 
         case LanXCvResult(cvAddress: final cvAddress, value: final value):
           if (int.parse(_formKey.currentState?.value['CV number']) ==
               (cvAddress + 1)) {
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _updateIconData(Icons.check_circle),
-            );
+            _updateIconData(Icons.check_circle);
             _formKey.currentState?.fields['CV value']
                 ?.didChange(value.toString());
           } else {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => _updateIconData(Icons.error));
+            _updateIconData(Icons.error);
             _formKey.currentState?.fields['CV value']?.didChange(null);
           }
           _pending = false;
