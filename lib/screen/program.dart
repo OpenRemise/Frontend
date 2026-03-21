@@ -48,14 +48,27 @@ class ProgramScreen extends ConsumerStatefulWidget {
 class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final List<int> _selected = [];
+  late final Stream<Command> _stream;
   int _index = 0;
   IconData _iconData = Icons.circle;
   bool _pending = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _stream = ref.read(z21ServiceProvider).stream.where(
+          (command) => switch (command) {
+            LanXCvNackSc() => true,
+            LanXCvNack() => true,
+            LanXCvResult() => true,
+            _ => false
+          },
+        );
+  }
+
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
     final serviceMode = _selected.elementAtOrNull(1) == 1;
     final bool smallWidth =
@@ -64,14 +77,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     return StreamSummaryBuilder(
       initialData: <Command>[],
       fold: (summary, value) => [...summary, value],
-      stream: z21.stream.where(
-        (command) => switch (command) {
-          LanXCvNackSc() => true,
-          LanXCvNack() => true,
-          LanXCvResult() => true,
-          _ => false
-        },
-      ),
+      stream: _stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
 
@@ -361,7 +367,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   /// \todo document
   void _cvRead() {
-    final z21 = ref.watch(z21ServiceProvider);
+    final z21 = ref.read(z21ServiceProvider);
     final serviceMode = _selected.elementAtOrNull(1) == 1;
 
     // Clear value and error
@@ -401,7 +407,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   /// \todo document
   void _cvWrite() {
-    final z21 = ref.watch(z21ServiceProvider);
+    final z21 = ref.read(z21ServiceProvider);
     final serviceMode = _selected.elementAtOrNull(1) == 1;
 
     if (_formKey.currentState?.saveAndValidate() ?? false) {
