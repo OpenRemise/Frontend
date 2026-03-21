@@ -48,30 +48,36 @@ class ProgramScreen extends ConsumerStatefulWidget {
 class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final List<int> _selected = [];
+  late final Stream<Command> _stream;
   int _index = 0;
   IconData _iconData = Icons.circle;
   bool _pending = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _stream = ref.read(z21ServiceProvider).stream.where(
+          (command) => switch (command) {
+            LanXCvNackSc() => true,
+            LanXCvNack() => true,
+            LanXCvResult() => true,
+            _ => false
+          },
+        );
+  }
+
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final z21 = ref.watch(z21ServiceProvider);
     final z21Status = ref.watch(z21StatusProvider);
-    final serviceMode = _selected.elementAtOrNull(0) == 1;
+    final serviceMode = _selected.elementAtOrNull(1) == 1;
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
     return StreamSummaryBuilder(
       initialData: <Command>[],
       fold: (summary, value) => [...summary, value],
-      stream: z21.stream.where(
-        (command) => switch (command) {
-          LanXCvNackSc() => true,
-          LanXCvNack() => true,
-          LanXCvResult() => true,
-          _ => false
-        },
-      ),
+      stream: _stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
 
@@ -108,15 +114,13 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                   child: Stepper(
                     steps: <Step>[
                       _step(
-                        title: const Text('Select programming mode'),
+                        title: const Text('Select decoder type'),
                         content: Column(
                           children: [
                             Card.outlined(
                               child: ListTile(
-                                leading: const Icon(OpenRemiseIcons.pom),
-                                title: const Text('PoM'),
-                                enabled: z21Status.hasValue &&
-                                    !z21Status.requireValue.trackVoltageOff(),
+                                leading: const Icon(Icons.train),
+                                title: const Text('Loco'),
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected
@@ -127,8 +131,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                             ),
                             Card.outlined(
                               child: ListTile(
-                                leading: const Icon(Icons.build_circle),
-                                title: const Text('Service'),
+                                leading: const Icon(OpenRemiseIcons.accessory),
+                                title: const Text('Accessory'),
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected
@@ -141,29 +145,58 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                         ),
                       ),
                       _step(
-                        title: const Text('Select decoder type'),
+                        title: const Text('Select programming mode'),
                         content: Column(
                           children: [
                             Card.outlined(
                               child: ListTile(
-                                leading: const Icon(Icons.train),
-                                title: const Text('Loco'),
-                                enabled: serviceMode ||
-                                    z21Status.hasValue &&
-                                        !z21Status.requireValue
-                                            .trackVoltageOff(),
-                                onTap: () => setState(() {
-                                  ++_index;
-                                  _selected
-                                    ..removeRange(1, _selected.length)
-                                    ..add(0);
-                                }),
+                                leading: const Icon(OpenRemiseIcons.pom),
+                                title: FormBuilderTextField(
+                                  name: 'address',
+                                  validator: (value) => serviceMode
+                                      ? null
+                                      : _selected.elementAtOrNull(0) == 0
+                                          ? locoAddressValidator(value)
+                                          : turnoutAddressValidator(value),
+                                  decoration: const InputDecoration(
+                                    labelText: 'PoM',
+                                    helperText: ' ',
+                                  ),
+                                  enabled: z21Status.hasValue &&
+                                      !z21Status.requireValue.trackVoltageOff(),
+                                  keyboardType: TextInputType.number,
+                                  style: const TextStyle(fontFamily: 'DSEG14'),
+                                  onSubmitted: (_) {
+                                    if (_formKey.currentState?.fields['address']
+                                            ?.validate() ??
+                                        false) {
+                                      ++_index;
+                                      _selected
+                                        ..removeRange(1, _selected.length)
+                                        ..add(0);
+                                    }
+                                  },
+                                ),
+                                enabled: z21Status.hasValue &&
+                                    !z21Status.requireValue.trackVoltageOff(),
+                                onTap: () {
+                                  if (_formKey.currentState?.fields['address']
+                                          ?.validate() ??
+                                      false) {
+                                    setState(() {
+                                      ++_index;
+                                      _selected
+                                        ..removeRange(1, _selected.length)
+                                        ..add(0);
+                                    });
+                                  }
+                                },
                               ),
                             ),
                             Card.outlined(
                               child: ListTile(
-                                leading: const Icon(OpenRemiseIcons.accessory),
-                                title: const Text('Accessory'),
+                                leading: const Icon(Icons.build_circle),
+                                title: const Text('Service'),
                                 onTap: () => setState(() {
                                   ++_index;
                                   _selected
@@ -181,23 +214,6 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                           primary: false,
                           shrinkWrap: true,
                           children: [
-                            if (!serviceMode)
-                              FormBuilderTextField(
-                                name: 'address',
-                                validator: _selected.elementAtOrNull(1) == 0
-                                    ? locoAddressValidator
-                                    : turnoutAddressValidator,
-                                decoration: const InputDecoration(
-                                  icon: Icon(Icons.alternate_email),
-                                  labelText: 'Address',
-                                ),
-                                enabled: serviceMode ||
-                                    z21Status.hasValue &&
-                                        !z21Status.requireValue
-                                            .trackVoltageOff(),
-                                keyboardType: TextInputType.number,
-                                style: const TextStyle(fontFamily: 'DSEG14'),
-                              ),
                             Row(
                               children: [
                                 Flexible(
@@ -351,14 +367,15 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   /// \todo document
   void _cvRead() {
-    final z21 = ref.watch(z21ServiceProvider);
-    final serviceMode = _selected.elementAtOrNull(0) == 1;
+    final z21 = ref.read(z21ServiceProvider);
+    final serviceMode = _selected.elementAtOrNull(1) == 1;
 
-    // Clear value
-    _formKey.currentState?.fields['CV value']?.didChange('');
+    // Clear value and error
+    _formKey.currentState?.fields['CV value']?.reset();
 
-    // Address validator or service mode
-    if ((_formKey.currentState?.fields['address']?.validate() ?? serviceMode) &&
+    //
+    if ((serviceMode ||
+            (_formKey.currentState?.fields['address']?.validate() ?? false)) &&
         (_formKey.currentState?.fields['CV number']?.validate() ?? false)) {
       _formKey.currentState?.save();
       final number = int.parse(_formKey.currentState?.value['CV number']);
@@ -371,7 +388,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       }
       //
       else {
-        final type = _selected.elementAtOrNull(1) == 0 ? Loco : Turnout;
+        final type = _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
         switch (type) {
           case const (Loco):
@@ -390,8 +407,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
   /// \todo document
   void _cvWrite() {
-    final z21 = ref.watch(z21ServiceProvider);
-    final serviceMode = _selected.elementAtOrNull(0) == 1;
+    final z21 = ref.read(z21ServiceProvider);
+    final serviceMode = _selected.elementAtOrNull(1) == 1;
 
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final number = int.parse(_formKey.currentState?.value['CV number']);
@@ -404,7 +421,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       }
       //
       else {
-        final type = _selected.elementAtOrNull(1) == 0 ? Loco : Turnout;
+        final type = _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
         switch (type) {
           case const (Loco):
