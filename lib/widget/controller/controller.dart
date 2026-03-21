@@ -81,6 +81,9 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   final KeyPressNotifier _functionKeysNotifier = KeyPressNotifier();
 
   /// \todo document
+  late final Stream<Command> _stream;
+
+  /// \todo document
   Timer? _timer;
   static const _period = Duration(milliseconds: 500);
 
@@ -139,6 +142,14 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
     //
     final z21 = ref.read(z21ServiceProvider);
+    _stream = z21.stream.where(
+      (command) => switch (command) {
+        LanXLocoInfo(locoAddress: var a) when a == loco.address => true,
+        LanRailComDataChanged(locoAddress: var a) when a == loco.address =>
+          true,
+        _ => false
+      },
+    );
     final locoInfoFuture = z21.stream
         .where(
           (c) => c is LanXLocoInfo && c.locoAddress == loco.address,
@@ -185,7 +196,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
     //
     _timer = Timer.periodic(
       _period,
-      (_) => ref.watch(z21ServiceProvider).lanRailComGetData(loco.address),
+      (_) => ref.read(z21ServiceProvider).lanRailComGetData(loco.address),
     );
   }
 
@@ -198,6 +209,14 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
     //
     final z21 = ref.read(z21ServiceProvider);
+    _stream = z21.stream.where(
+      (command) => switch (command) {
+        LanXTurnoutInfo(accyAddress: var a)
+            when turnout.group.addresses.contains(a) =>
+          true,
+        _ => false
+      },
+    );
     final turnoutInfoFutures = turnout.group.addresses.map(
       (address) => z21.stream
           .where((c) => c is LanXTurnoutInfo && c.accyAddress == address)
@@ -238,10 +257,17 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   Widget build(BuildContext context) {
     return StreamSummaryBuilder(
       initialData: <Command>[],
-      fold: (summary, value) => [...summary, value],
-      stream: _stream(),
+      fold: (summary, value) => summary..add(value),
+      stream: _stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
+        if (snapshot.hasData) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) {
+              _syncFromCommands(snapshot.requireData);
+              snapshot.requireData.clear();
+            },
+          );
+        }
 
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -349,10 +375,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
     // Update loco at the end of this frame
     if (newLoco != loco) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) =>
-            ref.read(locosProvider.notifier).updateLoco(loco.address, newLoco),
-      );
+      ref.read(locosProvider.notifier).updateLoco(loco.address, newLoco);
     }
   }
 
@@ -383,41 +406,14 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
               .copyWith(position: turnoutInfo.zz);
 
           // Update turnout at the end of this frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() => _turnoutState = state);
-            notifier.updateTurnout(newTurnout.address, newTurnout);
-          });
+          setState(() => _turnoutState = state);
+          notifier.updateTurnout(newTurnout.address, newTurnout);
           break;
 
         default:
           break;
       }
     }
-  }
-
-  /// \todo document
-  Stream<Command> _stream() {
-    final z21 = ref.watch(z21ServiceProvider);
-
-    return switch (T) {
-      const (Loco) => z21.stream.where(
-          (command) => switch (command) {
-            LanXLocoInfo(locoAddress: var a) when a == loco.address => true,
-            LanRailComDataChanged(locoAddress: var a) when a == loco.address =>
-              true,
-            _ => false
-          },
-        ),
-      const (Turnout) => z21.stream.where(
-          (command) => switch (command) {
-            LanXTurnoutInfo(accyAddress: var a)
-                when turnout.group.addresses.contains(a) =>
-              true,
-            _ => false
-          },
-        ),
-      _ => z21.stream
-    };
   }
 
   /// \todo document
@@ -848,7 +844,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   /// \todo document
   void _lanXSetLocoDrive(Loco loco) {
     ref
-        .watch(z21ServiceProvider)
+        .read(z21ServiceProvider)
         .lanXSetLocoDrive(loco.address, loco.speedSteps, loco.rvvvvvvv);
     ref.read(locosProvider.notifier).updateLoco(loco.address, loco);
   }
@@ -856,14 +852,14 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   /// \todo document
   void _lanXSetLocoFunction(Loco loco, int state, int index) {
     ref
-        .watch(z21ServiceProvider)
+        .read(z21ServiceProvider)
         .lanXSetLocoFunction(loco.address, state, index);
     ref.read(locosProvider.notifier).updateLoco(loco.address, loco);
   }
 
   /// \todo document
   void _lanXSetTurnout(int state) {
-    final z21 = ref.watch(z21ServiceProvider);
+    final z21 = ref.read(z21ServiceProvider);
     final turnouts = ref.read(turnoutsProvider);
     final notifier = ref.read(turnoutsProvider.notifier);
 

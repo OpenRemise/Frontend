@@ -50,12 +50,23 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
   final ScrollController _scrollController = ScrollController();
 
+  late final Stream<Command> _stream;
+
   bool _pending = false;
 
   /// \todo document
   @override
   void initState() {
     super.initState();
+
+    _stream = ref.read(z21ServiceProvider).stream.where(
+          (command) => switch (command) {
+            LanXCvNackSc() => true,
+            LanXCvNack() => true,
+            LanXCvResult() => true,
+            _ => false
+          },
+        );
 
     widget.keyPressNotifier.addListener(
       () {
@@ -83,21 +94,19 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final z21 = ref.watch(z21ServiceProvider);
-
     return StreamSummaryBuilder(
       initialData: <Command>[],
-      fold: (summary, value) => [...summary, value],
-      stream: z21.stream.where(
-        (command) => switch (command) {
-          LanXCvNackSc() => true,
-          LanXCvNack() => true,
-          LanXCvResult() => true,
-          _ => false
-        },
-      ),
+      fold: (summary, value) => summary..add(value),
+      stream: _stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData) _syncFromCommands(snapshot.requireData);
+        if (snapshot.hasData) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) {
+              _syncFromCommands(snapshot.requireData);
+              snapshot.requireData.clear();
+            },
+          );
+        }
 
         return TextField(
           controller: _cvEditingController,
@@ -130,18 +139,14 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
       switch (command) {
         case LanXCvNackSc():
         case LanXCvNack():
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _cvEditingController.error(),
-          );
+          _cvEditingController.error();
           _pending = false;
           break;
 
         case LanXCvResult(cvAddress: final cvAddress, value: final value):
           final cv = _cvEditingController.values();
           if (cv.number == cvAddress + 1) {
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _cvEditingController.success(value),
-            );
+            _cvEditingController.success(value);
             _pending = false;
           }
           break;
@@ -161,7 +166,7 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
   /// \todo document
   void _cvReadWrite(int keyCode) {
-    final z21 = ref.watch(z21ServiceProvider);
+    final z21 = ref.read(z21ServiceProvider);
 
     final cv = _cvEditingController.values();
     if (cv.number == null) return;
