@@ -46,6 +46,9 @@
 /// \section section_constant_fake_services_provider_container Fake Services Provider Container
 /// \copydetails fakeServicesProviderContainer
 ///
+/// \section section_constant_icon_size Icon Size
+/// \copydetails iconSize
+///
 /// \section section_constant_key_codes Key Codes
 /// \copydetails KeyCodes
 ///

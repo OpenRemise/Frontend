@@ -19,8 +19,6 @@
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
-import 'dart:async';
-
 import 'package:Frontend/constant/controller_size.dart';
 import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
@@ -197,12 +195,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-
-    // Heartbeat
-    Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => ref.read(z21ServiceProvider).lanXGetStatus(),
-    );
 
     // Recover after socket was closed server side
     ref.listenManual(

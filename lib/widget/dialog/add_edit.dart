@@ -19,6 +19,7 @@
 /// \author Vincent Hamp
 /// \date   18/09/2025
 
+import 'package:Frontend/constant/icon_size.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/turnout_map.dart';
 import 'package:Frontend/model/loco.dart';
@@ -363,8 +364,8 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
                       TableRow(
                         children: [
                           SizedBox(
-                            width: 24,
-                            height: 24,
+                            width: iconSize.width,
+                            height: iconSize.height,
                             child: SvgPicture.asset(
                               turnoutMap[type]!.assets[i],
                               colorMapper: DarkModeColorMapper(
@@ -416,8 +417,8 @@ class _AddEditDialogState<T> extends ConsumerState<AddEditDialog<T>> {
           child: Row(
             children: [
               SizedBox(
-                width: 24,
-                height: 24,
+                width: iconSize.width,
+                height: iconSize.height,
                 child: SvgPicture.asset(
                   entry.value.previewAsset,
                   colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),

@@ -33,24 +33,27 @@ class PowerIconButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final z21 = ref.watch(z21ServiceProvider);
-    final z21Status = ref.watch(z21StatusProvider);
-
-    return IconButton(
-      onPressed: !z21Status.hasValue
-          ? null
-          : z21Status.requireValue.trackVoltageOff()
-              ? z21.lanXSetTrackPowerOn
-              : z21.lanXSetTrackPowerOff,
-      tooltip: !z21Status.hasValue
-          ? null
-          : z21Status.requireValue.trackVoltageOff()
-              ? 'Power on'
-              : 'Power off',
-      isSelected:
-          z21Status.hasValue && !z21Status.requireValue.trackVoltageOff(),
-      selectedIcon: const Icon(Icons.power, color: Colors.green),
-      icon: const Icon(Icons.power_off, color: Colors.red),
-    );
+    return ref.watch(z21StatusProvider).when(
+          data: (status) {
+            final z21 = ref.watch(z21ServiceProvider);
+            final off = status.trackVoltageOff();
+            return IconButton(
+              onPressed:
+                  off ? z21.lanXSetTrackPowerOn : z21.lanXSetTrackPowerOff,
+              tooltip: off ? 'Power on' : 'Power off',
+              isSelected: !off,
+              selectedIcon: const Icon(Icons.power, color: Colors.green),
+              icon: const Icon(Icons.power_off, color: Colors.red),
+            );
+          },
+          error: (_, __) => const IconButton(
+            onPressed: null,
+            icon: Icon(Icons.error),
+          ),
+          loading: () => const IconButton(
+            onPressed: null,
+            icon: Icon(Icons.power_off, color: Colors.red),
+          ),
+        );
   }
 }

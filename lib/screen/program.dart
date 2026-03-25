@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constant/icon_size.dart';
 import 'package:Frontend/constant/open_remise_icons.dart';
 import 'package:Frontend/constant/small_screen_width.dart';
 import 'package:Frontend/model/loco.dart';
@@ -24,12 +25,14 @@ import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/utility/cv_number_validator.dart';
 import 'package:Frontend/utility/cv_value_validator.dart';
 import 'package:Frontend/utility/loco_address_validator.dart';
-import 'package:stream_summary_builder/stream_summary_builder.dart';
 import 'package:Frontend/utility/turnout_address_validator.dart';
 import 'package:Frontend/widget/power_icon_button.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:stream_summary_builder/stream_summary_builder.dart';
 
 /// Program screen
 ///
@@ -71,8 +74,8 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   Widget build(BuildContext context) {
     final z21Status = ref.watch(z21StatusProvider);
     final serviceMode = _selected.elementAtOrNull(1) == 1;
-    final enabled = serviceMode ||
-        z21Status.hasValue && !z21Status.requireValue.trackVoltageOff();
+    final on = z21Status.hasValue && !z21Status.requireValue.trackVoltageOff();
+    final enabled = serviceMode || on;
     final bool smallWidth =
         MediaQuery.of(context).size.width < smallScreenWidth;
 
@@ -162,17 +165,16 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 leading: const Icon(OpenRemiseIcons.pom),
                                 title: FormBuilderTextField(
                                   name: 'address',
-                                  validator: (value) => serviceMode
+                                  validator: (value) => _serviceMode()
                                       ? null
-                                      : _selected.elementAtOrNull(0) == 0
+                                      : _type() == Loco
                                           ? locoAddressValidator(value)
                                           : turnoutAddressValidator(value),
                                   decoration: const InputDecoration(
                                     labelText: 'PoM',
                                     helperText: ' ',
                                   ),
-                                  enabled: z21Status.hasValue &&
-                                      !z21Status.requireValue.trackVoltageOff(),
+                                  enabled: on,
                                   keyboardType: TextInputType.number,
                                   style: const TextStyle(fontFamily: 'DSEG14'),
                                   onSubmitted: (_) {
@@ -186,8 +188,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                     }
                                   },
                                 ),
-                                enabled: z21Status.hasValue &&
-                                    !z21Status.requireValue.trackVoltageOff(),
+                                enabled: on,
                                 onTap: () {
                                   if (_formKey.currentState?.fields['address']
                                           ?.validate() ??
@@ -214,6 +215,41 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                 }),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      _step(
+                        title: const Text('Select method'),
+                        content: Column(
+                          children: [
+                            Card.outlined(
+                              child: ListTile(
+                                leading: const Icon(Icons.code),
+                                title: const Text('Manual'),
+                                onTap: () => setState(() {
+                                  ++_index;
+                                  _selected
+                                    ..removeRange(2, _selected.length)
+                                    ..add(0);
+                                }),
+                              ),
+                            ),
+                            if (kDebugMode)
+                              Card.outlined(
+                                child: ListTile(
+                                  leading: SizedBox(
+                                    width: iconSize.width,
+                                    height: iconSize.height,
+                                    child: SvgPicture.asset(
+                                      'data/images/logos/decoder_db.svg',
+                                    ),
+                                  ),
+                                  title: const Text('Decoder DB'),
+                                  onTap: () => setState(() {
+                                    debugPrint('Decoder DB');
+                                  }),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -266,16 +302,18 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  OutlinedButton(
+                                  OutlinedButton.icon(
                                     onPressed: enabled ? _cvRead : null,
-                                    child: const Text('Read'),
+                                    icon: const Icon(Icons.upload),
+                                    label: const Text('Read'),
                                   ),
                                   const Padding(
                                     padding: EdgeInsets.all(8.0),
                                   ),
-                                  OutlinedButton(
+                                  OutlinedButton.icon(
                                     onPressed: enabled ? _cvWrite : null,
-                                    child: const Text('Write'),
+                                    icon: const Icon(Icons.download),
+                                    label: const Text('Write'),
                                   ),
                                 ],
                               ),
@@ -367,13 +405,12 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   /// \todo document
   void _cvRead() {
     final z21 = ref.read(z21ServiceProvider);
-    final serviceMode = _selected.elementAtOrNull(1) == 1;
 
     // Clear value and error
     _formKey.currentState?.fields['CV value']?.reset();
 
     //
-    if ((serviceMode ||
+    if ((_serviceMode() ||
             (_formKey.currentState?.fields['address']?.validate() ?? false)) &&
         (_formKey.currentState?.fields['CV number']?.validate() ?? false)) {
       _formKey.currentState?.save();
@@ -381,15 +418,14 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       _updateIconData(Icons.pending);
 
       //
-      if (serviceMode) {
+      if (_serviceMode()) {
         z21.lanXCvRead(number - 1);
         _pending = true;
       }
       //
       else {
-        final type = _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
-        switch (type) {
+        switch (_type()) {
           case const (Loco):
             z21.lanXCvPomReadByte(address, number - 1);
             _pending = true;
@@ -407,22 +443,20 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   /// \todo document
   void _cvWrite() {
     final z21 = ref.read(z21ServiceProvider);
-    final serviceMode = _selected.elementAtOrNull(1) == 1;
 
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final number = int.parse(_formKey.currentState?.value['CV number']);
       final value = int.parse(_formKey.currentState?.value['CV value']);
-      _updateIconData(serviceMode ? Icons.pending : Icons.check_circle);
+      _updateIconData(_serviceMode() ? Icons.pending : Icons.check_circle);
 
-      if (serviceMode) {
+      if (_serviceMode()) {
         z21.lanXCvWrite(number - 1, value);
         _pending = true;
       }
       //
       else {
-        final type = _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
         final address = int.parse(_formKey.currentState?.value['address']);
-        switch (type) {
+        switch (_type()) {
           case const (Loco):
             z21.lanXCvPomWriteByte(address, number - 1, value);
             // Don't set pending flag for POM
@@ -435,5 +469,15 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         }
       }
     }
+  }
+
+  /// \todo document
+  bool _serviceMode() {
+    return _selected.elementAtOrNull(1) == 1;
+  }
+
+  /// \todo document
+  Type _type() {
+    return _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
   }
 }

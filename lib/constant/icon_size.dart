@@ -13,27 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:async';
+/// Icon size
+///
+/// \file   constant/icon_size.dart
+/// \author Vincent Hamp
+/// \date   22/03/2026
 
-import 'package:Frontend/provider/roco/z21_service.dart';
-import 'package:Frontend/service/roco/z21_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter/widgets.dart';
 
-part 'z21_status.g.dart';
-
-/// \todo document
-@Riverpod(keepAlive: true)
-Stream<LanXStatusChanged> z21Status(ref) async* {
-  final z21 = ref.watch(z21ServiceProvider);
-
-  // Heartbeat
-  final timer =
-      Timer.periodic(const Duration(seconds: 1), (_) => z21.lanXGetStatus());
-  ref.onDispose(timer.cancel);
-
-  await for (final status in z21.stream.where(
-    (command) => switch (command) { LanXStatusChanged() => true, _ => false },
-  )) {
-    yield status;
-  }
-}
+/// Icon size
+///
+/// The \ref iconSize "icon size" is the default size of the built in icons.
+const Size iconSize = Size(24, 24);
