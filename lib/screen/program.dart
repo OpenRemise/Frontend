@@ -26,6 +26,7 @@ import 'package:Frontend/utility/cv_number_validator.dart';
 import 'package:Frontend/utility/cv_value_validator.dart';
 import 'package:Frontend/utility/loco_address_validator.dart';
 import 'package:Frontend/utility/turnout_address_validator.dart';
+import 'package:Frontend/widget/dialog/bidib/decoder_detection.dart';
 import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -245,8 +246,13 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                     ),
                                   ),
                                   title: const Text('Decoder DB'),
-                                  onTap: () => setState(() {
-                                    debugPrint('Decoder DB');
+                                  onTap: () => showDialog<List<Widget>>(
+                                    context: context,
+                                    builder: (_) => DecoderDetectionDialog(),
+                                    barrierDismissible: false,
+                                  ).then((value) {
+                                    if (value == null) return;
+                                    debugPrint('DecoderDB done!');
                                   }),
                                 ),
                               ),
