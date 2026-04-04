@@ -50,7 +50,7 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
   final ScrollController _scrollController = ScrollController();
 
-  late final Stream<Command> _stream;
+  late final Stream<Z21Command> _stream;
 
   bool _pending = false;
 
@@ -95,7 +95,7 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
   @override
   Widget build(BuildContext context) {
     return StreamSummaryBuilder(
-      initialData: <Command>[],
+      initialData: <Z21Command>[],
       fold: (summary, value) => summary..add(value),
       stream: _stream,
       builder: (context, snapshot) {
@@ -132,7 +132,7 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
   }
 
   /// \todo document
-  void _syncFromCommands(List<Command> commands) {
+  void _syncFromCommands(List<Z21Command> commands) {
     if (!_pending || commands.isEmpty) return;
 
     for (final command in commands) {
@@ -175,21 +175,28 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
     if (cv.value == null) {
       // Service mode
       if (keyCode == KeyCodes.enterLong) {
-        z21.lanXCvRead(cv.number! - 1);
+        z21(LanXCvRead(cvAddress: cv.number! - 1));
         _pending = true;
       }
       // POM
       else {
         switch (T) {
           case const (Loco):
-            z21.lanXCvPomReadByte(widget.loco.address, cv.number! - 1);
+            z21(
+              LanXCvPomReadByte(
+                locoAddress: widget.loco.address,
+                cvAddress: cv.number! - 1,
+              ),
+            );
             _pending = true;
             break;
 
           case const (Turnout):
-            z21.lanXCvPomAccessoryReadByte(
-              widget.turnout.address,
-              cv.number! - 1,
+            z21(
+              LanXCvPomAccessoryReadByte(
+                accyAddress: widget.turnout.address,
+                cvAddress: cv.number! - 1,
+              ),
             );
             _pending = true;
             break;
@@ -200,26 +207,30 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
     else {
       // Service mode
       if (keyCode == KeyCodes.enterLong) {
-        z21.lanXCvWrite(cv.number! - 1, cv.value!);
+        z21(LanXCvWrite(cvAddress: cv.number! - 1, value: cv.value!));
         _pending = true;
       }
       // POM
       else {
         switch (T) {
           case const (Loco):
-            z21.lanXCvPomWriteByte(
-              widget.loco.address,
-              cv.number! - 1,
-              cv.value!,
+            z21(
+              LanXCvPomWriteByte(
+                locoAddress: widget.loco.address,
+                cvAddress: cv.number! - 1,
+                value: cv.value!,
+              ),
             );
             _cvEditingController.success(cv.value!);
             break;
 
           case const (Turnout):
-            z21.lanXCvPomAccessoryWriteByte(
-              widget.turnout.address,
-              cv.number! - 1,
-              cv.value!,
+            z21(
+              LanXCvPomAccessoryWriteByte(
+                accyAddress: widget.turnout.address,
+                cvAddress: cv.number! - 1,
+                value: cv.value!,
+              ),
             );
             _cvEditingController.success(cv.value!);
             break;

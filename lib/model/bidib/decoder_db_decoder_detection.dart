@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+/// DecoderDB decoder detection
+///
+/// \file   model/bidib/decoder_db_decoder_detection.dart
+/// \author Vincent Hamp
+/// \date   27/03/2026
+
 // ignore_for_file: library_private_types_in_public_api, unused_element
 
 import 'package:json_annotation/json_annotation.dart';

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:Frontend/model/decoder_db_decoder_detection.dart';
-import 'package:Frontend/model/decoder_db_manufacturers.dart';
-import 'package:Frontend/model/decoder_db_repository.dart';
+import 'package:Frontend/model/bidib/decoder_db_decoder_detection.dart';
+import 'package:Frontend/model/bidib/decoder_db_manufacturers.dart';
+import 'package:Frontend/model/bidib/decoder_db_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 

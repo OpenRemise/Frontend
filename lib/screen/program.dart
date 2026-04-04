@@ -26,6 +26,7 @@ import 'package:Frontend/utility/cv_number_validator.dart';
 import 'package:Frontend/utility/cv_value_validator.dart';
 import 'package:Frontend/utility/loco_address_validator.dart';
 import 'package:Frontend/utility/turnout_address_validator.dart';
+import 'package:Frontend/widget/dialog/bidib/decoder_detection.dart';
 import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class ProgramScreen extends ConsumerStatefulWidget {
 class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final List<int> _selected = [];
-  late final Stream<Command> _stream;
+  late final Stream<Z21Command> _stream;
   int _index = 0;
   IconData _iconData = Icons.circle;
   bool _pending = false;
@@ -80,7 +81,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         MediaQuery.of(context).size.width < smallScreenWidth;
 
     return StreamSummaryBuilder(
-      initialData: <Command>[],
+      initialData: <Z21Command>[],
       fold: (summary, value) => summary..add(value),
       stream: _stream,
       builder: (context, snapshot) {
@@ -245,8 +246,13 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                     ),
                                   ),
                                   title: const Text('Decoder DB'),
-                                  onTap: () => setState(() {
-                                    debugPrint('Decoder DB');
+                                  onTap: () => showDialog<List<Widget>>(
+                                    context: context,
+                                    builder: (_) => DecoderDetectionDialog(),
+                                    barrierDismissible: false,
+                                  ).then((value) {
+                                    if (value == null) return;
+                                    debugPrint('DecoderDB done!');
                                   }),
                                 ),
                               ),
@@ -348,7 +354,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   }
 
   /// \todo document
-  void _syncFromCommands(List<Command> commands) {
+  void _syncFromCommands(List<Z21Command> commands) {
     if (!_pending || commands.isEmpty) return;
 
     for (final command in commands) {
@@ -419,7 +425,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
 
       //
       if (_serviceMode()) {
-        z21.lanXCvRead(number - 1);
+        z21(LanXCvRead(cvAddress: number - 1));
         _pending = true;
       }
       //
@@ -427,12 +433,17 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         final address = int.parse(_formKey.currentState?.value['address']);
         switch (_type()) {
           case const (Loco):
-            z21.lanXCvPomReadByte(address, number - 1);
+            z21(LanXCvPomReadByte(locoAddress: address, cvAddress: number - 1));
             _pending = true;
             break;
 
           case const (Turnout):
-            z21.lanXCvPomAccessoryReadByte(address, number - 1);
+            z21(
+              LanXCvPomAccessoryReadByte(
+                accyAddress: address,
+                cvAddress: number - 1,
+              ),
+            );
             _pending = true;
             break;
         }
@@ -450,7 +461,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
       _updateIconData(_serviceMode() ? Icons.pending : Icons.check_circle);
 
       if (_serviceMode()) {
-        z21.lanXCvWrite(number - 1, value);
+        z21(LanXCvWrite(cvAddress: number - 1, value: value));
         _pending = true;
       }
       //
@@ -458,12 +469,24 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         final address = int.parse(_formKey.currentState?.value['address']);
         switch (_type()) {
           case const (Loco):
-            z21.lanXCvPomWriteByte(address, number - 1, value);
+            z21(
+              LanXCvPomWriteByte(
+                locoAddress: address,
+                cvAddress: number - 1,
+                value: value,
+              ),
+            );
             // Don't set pending flag for POM
             break;
 
           case const (Turnout):
-            z21.lanXCvPomAccessoryWriteByte(address, number - 1, value);
+            z21(
+              LanXCvPomAccessoryWriteByte(
+                accyAddress: address,
+                cvAddress: number - 1,
+                value: value,
+              ),
+            );
             // Don't set pending flag for POM
             break;
         }

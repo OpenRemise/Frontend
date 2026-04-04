@@ -81,7 +81,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   final KeyPressNotifier _functionKeysNotifier = KeyPressNotifier();
 
   /// \todo document
-  late final Stream<Command> _stream;
+  late final Stream<Z21Command> _stream;
 
   /// \todo document
   Timer? _timer;
@@ -158,7 +158,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
         .first;
 
     //
-    z21.lanXGetLocoInfo(loco.address);
+    z21(LanXGetLocoInfo(locoAddress: loco.address));
 
     //
     final locoInfo = await locoInfoFuture;
@@ -196,7 +196,9 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
     //
     _timer = Timer.periodic(
       _period,
-      (_) => ref.read(z21ServiceProvider).lanRailComGetData(loco.address),
+      (_) => ref.read(z21ServiceProvider)(
+        LanRailComGetData(locoAddress: loco.address),
+      ),
     );
   }
 
@@ -226,7 +228,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
     //
     for (final address in turnout.group.addresses) {
-      z21.lanXGetTurnoutInfo(address);
+      z21(LanXGetTurnoutInfo(accyAddress: address));
     }
 
     //
@@ -256,7 +258,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   @override
   Widget build(BuildContext context) {
     return StreamSummaryBuilder(
-      initialData: <Command>[],
+      initialData: <Z21Command>[],
       fold: (summary, value) => summary..add(value),
       stream: _stream,
       builder: (context, snapshot) {
@@ -325,7 +327,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   }
 
   /// \todo document
-  void _syncFromCommands(List<Command> commands) {
+  void _syncFromCommands(List<Z21Command> commands) {
     if (!_initialized || commands.isEmpty) return;
 
     switch (T) {
@@ -340,7 +342,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   }
 
   /// \todo document
-  void _locoSyncFromCommands(List<Command> commands) {
+  void _locoSyncFromCommands(List<Z21Command> commands) {
     Loco newLoco = loco;
 
     for (final command in commands) {
@@ -380,7 +382,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
   }
 
   /// \todo document
-  void _turnoutSyncFromCommands(List<Command> commands) {
+  void _turnoutSyncFromCommands(List<Z21Command> commands) {
     final turnouts = ref.read(turnoutsProvider);
     final notifier = ref.read(turnoutsProvider.notifier);
 
@@ -843,17 +845,25 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
 
   /// \todo document
   void _lanXSetLocoDrive(Loco loco) {
-    ref
-        .read(z21ServiceProvider)
-        .lanXSetLocoDrive(loco.address, loco.speedSteps, loco.rvvvvvvv);
+    ref.read(z21ServiceProvider)(
+      LanXSetLocoDrive(
+        locoAddress: loco.address,
+        speedSteps: loco.speedSteps,
+        rvvvvvvv: loco.rvvvvvvv,
+      ),
+    );
     ref.read(locosProvider.notifier).updateLoco(loco.address, loco);
   }
 
   /// \todo document
   void _lanXSetLocoFunction(Loco loco, int state, int index) {
-    ref
-        .read(z21ServiceProvider)
-        .lanXSetLocoFunction(loco.address, state, index);
+    ref.read(z21ServiceProvider)(
+      LanXSetLocoFunction(
+        locoAddress: loco.address,
+        state: state,
+        index: index,
+      ),
+    );
     ref.read(locosProvider.notifier).updateLoco(loco.address, loco);
   }
 
@@ -868,7 +878,7 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
       final position = turnout.group.positions[state][i];
 
       // Turn on
-      z21.lanXSetTurnout(address, position == 2, true);
+      z21(LanXSetTurnout(accyAddress: address, p: position == 2, a: true));
 
       // Turn off after accessory switch time
       Future.delayed(
@@ -878,7 +888,9 @@ class _ControllerState<T> extends ConsumerState<Controller<T>> {
                       Config().dccAccessorySwitchTime) *
                   10,
         ),
-        () => z21.lanXSetTurnout(address, position == 2, false),
+        () => z21(
+          LanXSetTurnout(accyAddress: address, p: position == 2, a: false),
+        ),
       );
 
       // Only update if known
