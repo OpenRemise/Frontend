@@ -19,10 +19,10 @@ import 'dart:convert';
 /// \todo document
 class Zpp {
   final Uint8List _bytes;
+  final Map<int, int> cvs = {};
   late final String id;
   late final int version;
   late final Uint8List flash;
-  final Map<int, int> cvs = {};
   late final bool coded;
   late final Uint8List developerCode;
 

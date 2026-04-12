@@ -21,6 +21,7 @@
 
 import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/provider/roco/z21_status.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,12 +38,14 @@ class PowerIconButton extends ConsumerWidget {
           data: (status) {
             final z21 = ref.watch(z21ServiceProvider);
             final off = status.trackVoltageOff();
+            final prog = status.programmingMode();
             return IconButton(
-              onPressed:
-                  off ? z21.lanXSetTrackPowerOn : z21.lanXSetTrackPowerOff,
+              onPressed: () =>
+                  z21(off ? LanXSetTrackPowerOn() : LanXSetTrackPowerOff()),
               tooltip: off ? 'Power on' : 'Power off',
-              isSelected: !off,
-              selectedIcon: const Icon(Icons.power, color: Colors.green),
+              isSelected: !off || prog,
+              selectedIcon:
+                  Icon(Icons.power, color: prog ? Colors.blue : Colors.green),
               icon: const Icon(Icons.power_off, color: Colors.red),
             );
           },

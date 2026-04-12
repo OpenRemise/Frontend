@@ -67,8 +67,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     final domain = ref.watch(domainProvider);
     final internetStatus = ref.watch(internetStatusProvider);
     final sys = ref.watch(sysProvider);
-    final bool smallWidth =
-        MediaQuery.of(context).size.width < smallScreenWidth;
+    final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

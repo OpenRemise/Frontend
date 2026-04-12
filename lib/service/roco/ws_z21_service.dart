@@ -14,24 +14,25 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/service/roco/z21_service.dart';
-import 'package:Frontend/utility/exor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class WsZ21Service implements Z21Service {
   late final WebSocketChannel _channel;
-  late final Stream<Command> _stream;
+  late final Stream<Z21Command> _stream;
 
   WsZ21Service(String domain) {
     _channel = WebSocketChannel.connect(Uri.parse('ws://$domain/roco/z21/'));
     _channel.ready.then(
-      (_) => lanSetBroadcastFlags(
-        BroadcastFlags.fromList([
-          BroadcastFlag.DrivingSwitching,
-          BroadcastFlag.RBus,
-          BroadcastFlag.LocoNet,
-          BroadcastFlag.LocoNetDetector,
-        ]),
+      (_) => this(
+        LanSetBroadcastFlags(
+          broadcastFlags: BroadcastFlags.fromList([
+            BroadcastFlag.DrivingSwitching,
+            BroadcastFlag.RBus,
+            BroadcastFlag.LocoNet,
+            BroadcastFlag.LocoNetDetector,
+          ]),
+        ),
       ),
       // May potentially throw, catch errors
       onError: (_) {},
@@ -52,323 +53,14 @@ class WsZ21Service implements Z21Service {
   Future<void> get ready => _channel.ready;
 
   @override
-  Stream<Command> get stream => _stream;
+  Stream<Z21Command> get stream => _stream;
 
   @override
   Future close([int? closeCode, String? closeReason]) =>
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void lanXGetStatus() {
-    _channel.sink.add(
-      Uint8List.fromList([
-        0x07,
-        0x00,
-        Header.LAN_X_GET_STATUS,
-        0x00,
-        XHeader.LAN_X_GET_STATUS,
-        DB0.LAN_X_GET_STATUS,
-        0x05,
-      ]),
-    );
-  }
-
-  @override
-  void lanXSetTrackPowerOff() {
-    _channel.sink.add(
-      Uint8List.fromList([
-        0x07,
-        0x00,
-        Header.LAN_X_SET_TRACK_POWER_OFF,
-        0x00,
-        XHeader.LAN_X_SET_TRACK_POWER_OFF,
-        DB0.LAN_X_SET_TRACK_POWER_OFF,
-        0xA1,
-      ]),
-    );
-  }
-
-  @override
-  void lanXSetTrackPowerOn() {
-    _channel.sink.add(
-      Uint8List.fromList([
-        0x07,
-        0x00,
-        Header.LAN_X_SET_TRACK_POWER_ON,
-        0x00,
-        XHeader.LAN_X_SET_TRACK_POWER_ON,
-        DB0.LAN_X_SET_TRACK_POWER_ON,
-        0xA0,
-      ]),
-    );
-  }
-
-  @override
-  void lanXCvRead(int cvAddress) {
-    assert(cvAddress <= 1023);
-    List<int> data = [
-      0x09,
-      0x00,
-      Header.LAN_X_CV_READ,
-      0x00,
-      XHeader.LAN_X_CV_READ,
-      DB0.LAN_X_CV_READ,
-      (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXCvWrite(int cvAddress, int byte) {
-    assert(cvAddress <= 1023 && byte <= 255);
-    List<int> data = [
-      0x0A,
-      0x00,
-      Header.LAN_X_CV_WRITE,
-      0x00,
-      XHeader.LAN_X_CV_WRITE,
-      DB0.LAN_X_CV_WRITE,
-      (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-      byte & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXGetTurnoutInfo(int accyAddress) {
-    assert(accyAddress < 2048);
-    List<int> data = [
-      0x08,
-      0x00,
-      Header.LAN_X_GET_TURNOUT_INFO,
-      0x00,
-      XHeader.LAN_X_GET_TURNOUT_INFO,
-      bigEndianAccessoryAddressMsb(accyAddress),
-      bigEndianAccessoryAddressLsb(accyAddress),
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXSetTurnout(int accyAddress, bool p, bool a, [bool q = false]) {
-    assert(accyAddress < 2048);
-    List<int> data = [
-      0x09,
-      0x00,
-      Header.LAN_X_SET_TURNOUT,
-      0x00,
-      XHeader.LAN_X_SET_TURNOUT,
-      bigEndianAccessoryAddressMsb(accyAddress),
-      bigEndianAccessoryAddressLsb(accyAddress),
-      0x80 | (q ? 0x20 : 0x00) | (a ? 0x08 : 0x00) | (p ? 0x01 : 0x00),
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXSetLocoEStop(int locoAddress) {
-    assert(locoAddress <= 9999);
-    List<int> data = [
-      0x08,
-      0x00,
-      Header.LAN_X_SET_LOCO_E_STOP,
-      0x00,
-      XHeader.LAN_X_SET_LOCO_E_STOP,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXGetLocoInfo(int locoAddress) {
-    assert(locoAddress <= 9999);
-    List<int> data = [
-      0x09,
-      0x00,
-      Header.LAN_X_GET_LOCO_INFO,
-      0x00,
-      XHeader.LAN_X_GET_LOCO_INFO,
-      DB0.LAN_X_GET_LOCO_INFO,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv) {
-    assert(
-      locoAddress <= 9999 &&
-          [0, 2, 3, 4].contains(speedSteps) &&
-          rvvvvvvv <= 0xFF,
-    );
-    List<int> data = [
-      0x0A,
-      0x00,
-      Header.LAN_X_SET_LOCO_DRIVE,
-      0x00,
-      XHeader.LAN_X_SET_LOCO_DRIVE,
-      speedSteps == 0
-          ? DB0.LAN_X_SET_LOCO_DRIVE_14
-          : speedSteps == 2
-              ? DB0.LAN_X_SET_LOCO_DRIVE_28
-              : DB0.LAN_X_SET_LOCO_DRIVE_128,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-      rvvvvvvv,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXSetLocoFunction(int locoAddress, int state, int index) {
-    assert(locoAddress <= 9999 && state <= 3 && index <= 0x3F);
-    List<int> data = [
-      0x0A,
-      0x00,
-      Header.LAN_X_SET_LOCO_FUNCTION,
-      0x00,
-      XHeader.LAN_X_SET_LOCO_FUNCTION,
-      DB0.LAN_X_SET_LOCO_FUNCTION,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-      state << 6 | index,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte) {
-    assert(locoAddress <= 9999 && cvAddress <= 1024 && byte <= 255);
-    List<int> data = [
-      0x0C,
-      0x00,
-      Header.LAN_X_CV_POM_WRITE_BYTE,
-      0x00,
-      XHeader.LAN_X_CV_POM_WRITE_BYTE,
-      DB0.LAN_X_CV_POM_WRITE_BYTE,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-      0xEC | (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-      byte & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXCvPomReadByte(int locoAddress, int cvAddress) {
-    assert(locoAddress <= 9999 && cvAddress <= 1024);
-    List<int> data = [
-      0x0C,
-      0x00,
-      Header.LAN_X_CV_POM_READ_BYTE,
-      0x00,
-      XHeader.LAN_X_CV_POM_READ_BYTE,
-      DB0.LAN_X_CV_POM_READ_BYTE,
-      bigEndianLocoAddressMsb(locoAddress),
-      bigEndianLocoAddressLsb(locoAddress),
-      0xE4 | (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-      0 & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXCvPomAccessoryWriteByte(int accyAddress, int cvAddress, int byte) {
-    assert(accyAddress < 2048);
-    const int c = 0x08;
-    List<int> data = [
-      0x0C,
-      0x00,
-      Header.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
-      0x00,
-      XHeader.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
-      DB0.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
-      stupidAccessoryAddressMsb(accyAddress),
-      stupidAccessoryAddressLsb(accyAddress) | c,
-      0xEC | (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-      0 & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanXCvPomAccessoryReadByte(int accyAddress, int cvAddress) {
-    assert(accyAddress < 2048);
-    const int c = 0x08;
-    List<int> data = [
-      0x0C,
-      0x00,
-      Header.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
-      0x00,
-      XHeader.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
-      DB0.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
-      stupidAccessoryAddressMsb(accyAddress),
-      stupidAccessoryAddressLsb(accyAddress) | c,
-      0xE4 | (cvAddress >> 8) & 0xFF,
-      (cvAddress >> 0) & 0xFF,
-      0 & 0xFF,
-    ];
-    data.add(exor(data.sublist(4)));
-    _channel.sink.add(Uint8List.fromList(data));
-  }
-
-  @override
-  void lanSetBroadcastFlags(BroadcastFlags broadcastFlags) {
-    _channel.sink.add(
-      Uint8List.fromList(
-        [
-          0x08,
-          0x00,
-          Header.LAN_SET_BROADCASTFLAGS,
-          0x00,
-          (broadcastFlags.value >> 0) & 0xFF,
-          (broadcastFlags.value >> 8) & 0xFF,
-          (broadcastFlags.value >> 16) & 0xFF,
-          (broadcastFlags.value >> 24) & 0xFF,
-        ],
-      ),
-    );
-  }
-
-  @override
-  void lanSystemStateGetData() {
-    _channel.sink.add(
-      Uint8List.fromList(
-        [0x04, 0x00, Header.LAN_SYSTEMSTATE_GETDATA, 0x00],
-      ),
-    );
-  }
-
-  @override
-  void lanRailComGetData(int locoAddress) {
-    assert(locoAddress <= 9999);
-    List<int> data = [
-      0x07,
-      0x00,
-      Header.LAN_RAILCOM_GETDATA,
-      0x00,
-      0x01,
-      littleEndianLocoAddressMsb(locoAddress), // Loco address
-      littleEndianLocoAddressLsb(locoAddress),
-    ];
-    _channel.sink.add(Uint8List.fromList(data));
+  void call(Z21Command command) {
+    _channel.sink.add(command.toUint8List());
   }
 }

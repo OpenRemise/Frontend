@@ -75,17 +75,13 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     final internetStatus = ref.watch(internetStatusProvider);
     final sys = ref.watch(sysProvider);
     final z21Status = ref.watch(z21StatusProvider);
-    final bool smallWidth =
-        MediaQuery.of(context).size.width < smallScreenWidth;
-
-    final bool online =
-        internetStatus.asData?.value == InternetStatus.connected;
-    final bool firmwareUpdateAvailable = availableFirmwareVersion.hasValue &&
+    final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
+    final online = internetStatus.asData?.value == InternetStatus.connected;
+    final firmwareUpdateAvailable = availableFirmwareVersion.hasValue &&
         sys.hasValue &&
         Version.parse(availableFirmwareVersion.requireValue) >
             Version.parse(sys.requireValue.version);
-    final bool trackVoltageOff =
-        z21Status.asData?.value.trackVoltageOff() == true;
+    final trackVoltageOff = z21Status.asData?.value.trackVoltageOff() == true;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

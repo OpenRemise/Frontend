@@ -15,6 +15,12 @@
 
 // ignore_for_file: library_private_types_in_public_api, unused_element
 
+/// DecoderDB manufacturers
+///
+/// \file   model/bidib/decoder_db_manufacturers.dart
+/// \author Vincent Hamp
+/// \date   27/03/2026
+
 import 'package:json_annotation/json_annotation.dart';
 part 'decoder_db_manufacturers.g.dart';
 

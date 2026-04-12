@@ -53,9 +53,9 @@ class MduDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _MduDialogState extends ConsumerState<MduDialog> {
   static const int _retries = 10;
+  final Map<int, ListTile> _decoders = {};
   late final MduService _mdu;
   late final StreamQueue<Uint8List> _events;
-  final Map<int, ListTile> _decoders = {};
   String _status = '';
   String _option = 'Cancel';
   double? _progress;

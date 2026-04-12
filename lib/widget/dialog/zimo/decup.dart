@@ -51,11 +51,11 @@ class DecupDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DecupDialogState extends ConsumerState<DecupDialog> {
-  static const int _preamble_count = 300;
+  static const int _preambleCount = 300;
   static const int _retries = 10;
+  final Map<int, ListTile> _decoders = {};
   late final DecupService _decup;
   late final StreamQueue<Uint8List> _events;
-  final Map<int, ListTile> _decoders = {};
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -118,7 +118,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     // ZPP
     if (widget._zpp != null) {
-      for (int i = 0; i < _preamble_count; ++i) {
+      for (int i = 0; i < _preambleCount; ++i) {
         await _zppPreamble();
       }
       var msg = await _zppErase();
@@ -130,7 +130,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     }
     // ZSU
     else {
-      for (int i = 0; i < _preamble_count; ++i) {
+      for (int i = 0; i < _preambleCount; ++i) {
         await _zsuPreamble();
       }
       var msg = await _zsuSearch();
