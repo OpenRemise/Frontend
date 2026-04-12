@@ -28,7 +28,7 @@ Stream<LanXStatusChanged> z21Status(ref) async* {
 
   // Heartbeat
   final timer =
-      Timer.periodic(const Duration(seconds: 1), (_) => z21.lanXGetStatus());
+      Timer.periodic(const Duration(seconds: 1), (_) => z21(LanXGetStatus()));
   ref.onDispose(timer.cancel);
 
   await for (final status in z21.stream.where(

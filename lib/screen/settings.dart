@@ -65,8 +65,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    final bool smallWidth =
-        MediaQuery.of(context).size.width < smallScreenWidth;
+    final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

@@ -21,72 +21,77 @@ import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/utility/exor.dart';
 
 /// \todo document
-int bigEndianData2uint16(Uint8List data) {
+int _bigEndianData2uint16(Uint8List data) {
   return data[0] << 8 | data[1] << 0;
 }
 
 /// \todo document
-int bigEndianData2int16(data) {
+int _bigEndianData2int16(data) {
   return data[0] << 8 | data[1] << 0;
 }
 
 /// \todo document
-int littleEndianData2uint16(Uint8List data) {
+int _littleEndianData2uint16(Uint8List data) {
   return data[1] << 8 | data[0] << 0;
 }
 
 /// \todo document
-int littleEndianData2uint32(Uint8List data) {
+int _littleEndianData2uint32(Uint8List data) {
   return data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0] << 0;
 }
 
 /// \todo document
-int bigEndianData2locoAddress(Uint8List data) {
-  return bigEndianData2uint16(data) & 0x3FFF;
+int _bigEndianData2LocoAddress(Uint8List data) {
+  return _bigEndianData2uint16(data) & 0x3FFF;
 }
 
 /// \todo document
-int bigEndianData2cvAddress(Uint8List data) {
-  return bigEndianData2uint16(data) & 0x03FF;
+int _bigEndianData2CvAddress(Uint8List data) {
+  return _bigEndianData2uint16(data) & 0x03FF;
 }
 
 /// \todo document
-int bigEndianLocoAddressMsb(int locoAddress) {
+int _bigEndianData2AccessoryAddress(Uint8List data) {
+  return _bigEndianData2uint16(data) & 0x07FF;
+}
+
+/// \todo document
+int _bigEndianLocoAddressMsb(int locoAddress) {
   return (locoAddress >= 128 ? 0xC0 : 0x00) | ((locoAddress >> 8) & 0xFF);
 }
 
 /// \todo document
-int bigEndianLocoAddressLsb(int locoAddress) {
+int _bigEndianLocoAddressLsb(int locoAddress) {
   return (locoAddress >> 0) & 0xFF;
 }
 
 /// \todo document
-int bigEndianAccessoryAddressMsb(int accyAddress) {
+int _bigEndianAccessoryAddressMsb(int accyAddress) {
   return (accyAddress >> 8) & 0xFF;
 }
 
 /// \todo document
-int bigEndianAccessoryAddressLsb(int accyAddress) {
+int _bigEndianAccessoryAddressLsb(int accyAddress) {
   return (accyAddress >> 0) & 0xFF;
 }
 
 /// \todo document
-int littleEndianLocoAddressMsb(int locoAddress) {
-  return bigEndianLocoAddressLsb(locoAddress);
+int _littleEndianLocoAddressMsb(int locoAddress) {
+  return _bigEndianLocoAddressLsb(locoAddress);
 }
 
 /// \todo document
-int littleEndianLocoAddressLsb(int locoAddress) {
+int _littleEndianLocoAddressLsb(int locoAddress) {
   return (locoAddress >> 8) & 0xFF;
 }
 
 /// \todo document
-int stupidAccessoryAddressMsb(int accyAddress) {
+int _stupidAccessoryAddressMsb(int accyAddress) {
   return (accyAddress >> 6) & 0xFF;
 }
 
 /// \todo document
-int stupidAccessoryAddressLsb(int accyAddress) {
+int _stupidAccessoryAddressLsb(int accyAddress) {
   return ((accyAddress & 0x3C) << 2) | (accyAddress & 0x03);
 }
 
@@ -151,7 +156,7 @@ int encodeRvvvvvvv(int speedSteps, bool dir, int speed) {
 }
 
 /// \todo document
-class Header {
+class _Header {
   // Client to Z21
   static const int LAN_GET_SERIAL_NUMBER = 0x10;
   static const int LAN_GET_COMMON_SETTINGS = 0x12;
@@ -248,25 +253,25 @@ class Header {
   static const int LAN_RAILCOM_DATACHANGED = 0x88;
   static const int LAN_LOCONET_Z21_RX = 0xA0;
   static const int LAN_LOCONET_Z21_TX = 0xA1;
-  // LAN_LOCONET_FROM_LAN = 0xA2u,
-  // LAN_LOCONET_DISPATCH_ADDR = 0xA3u,
-  // LAN_LOCONET_DETECTOR = 0xA4u,
-  // LAN_CAN_DETECTOR = 0xC4u,
+  static const int Reply_to_LAN_LOCONET_FROM_LAN = 0xA2;
+  static const int Reply_to_LAN_LOCONET_DISPATCH_ADDR = 0xA3;
+  static const int Reply_to_LAN_LOCONET_DETECTOR = 0xA4;
+  static const int Reply_to_LAN_CAN_DETECTOR = 0xC4;
   static const int Reply_to_LAN_CAN_DEVICE_GET_DESCRIPTION = 0xC8;
   static const int LAN_CAN_BOOSTER_SYSTEMSTATE_CHANGED = 0xCA;
   static const int LAN_FAST_CLOCK_DATA = 0xCD;
-  // LAN_FAST_CLOCK_SETTINGS_GET = 0xCEu,
+  static const int Reply_to_LAN_FAST_CLOCK_SETTINGS_GET = 0xCE;
   static const int Reply_to_LAN_BOOSTER_GET_DESCRIPTION = 0xB8;
   static const int LAN_BOOSTER_SYSTEMSTATE_DATACHANGED = 0xBA;
   static const int Reply_to_LAN_DECODER_GET_DESCRIPTION = 0xD8;
   static const int LAN_DECODER_SYSTEMSTATE_DATACHANGED = 0xDA;
   static const int Reply_to_LAN_ZLINK_GET_HWINFO = 0xE8;
 
-  const Header._();
+  const _Header._();
 }
 
 /// \todo document
-class XHeader {
+class _XHeader {
   // Client to Z21
   static const int LAN_X_21 = 0x21;
   static const int LAN_X_GET_VERSION = 0x21;
@@ -321,11 +326,11 @@ class XHeader {
   static const int LAN_X_LOCO_INFO = 0xEF;
   static const int Reply_to_LAN_X_GET_FIRMWARE_VERSION = 0xF3;
 
-  const XHeader._();
+  const _XHeader._();
 }
 
 /// \todo document
-class DB0 {
+class _DB0 {
   // Client to Z21
   static const int LAN_X_GET_VERSION = 0x21;
   static const int LAN_X_GET_STATUS = 0x24;
@@ -376,7 +381,7 @@ class DB0 {
   static const int LAN_X_CV_RESULT = 0x14;
   static const int Reply_to_LAN_X_GET_FIRMWARE_VERSION = 0x0A;
 
-  const DB0._();
+  const _DB0._();
 }
 
 enum BroadcastFlag {
@@ -423,19 +428,727 @@ class BroadcastFlags {
 }
 
 /// \todo document
-sealed class Command {}
+sealed class Z21Command {
+  Uint8List toUint8List() {
+    return Uint8List(0);
+  }
+}
+
+// Client to Z21
 
 /// \todo document
-class ReplyToLanGetSerialNumber implements Command {}
+class LanGetSerialNumber extends Z21Command {}
 
 /// \todo document
-class ReplyToLanGetCode implements Command {}
+class LanGetCommonSettings extends Z21Command {}
 
 /// \todo document
-class ReplyToLanGetHwInfo implements Command {}
+class LanSetCommonSettings extends Z21Command {}
 
 /// \todo document
-class LanXTurnoutInfo implements Command {
+class LanGetMmDccSettings extends Z21Command {}
+
+/// \todo document
+class LanSetMmDccSettings extends Z21Command {}
+
+/// \todo document
+class LanGetCode extends Z21Command {}
+
+/// \todo document
+class LanGetHwInfo extends Z21Command {}
+
+/// \todo document
+class LanLogoff extends Z21Command {}
+
+/// \todo document
+class LanXGetVersion extends Z21Command {}
+
+/// \todo document
+class LanXGetStatus implements Z21Command {
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList([
+      0x07,
+      0x00,
+      _Header.LAN_X_GET_STATUS,
+      0x00,
+      _XHeader.LAN_X_GET_STATUS,
+      _DB0.LAN_X_GET_STATUS,
+      0x05,
+    ]);
+  }
+
+  @override
+  String toString() {
+    return 'LanXGetStatus()';
+  }
+}
+
+/// \todo document
+class LanXSetTrackPowerOff implements Z21Command {
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList([
+      0x07,
+      0x00,
+      _Header.LAN_X_SET_TRACK_POWER_OFF,
+      0x00,
+      _XHeader.LAN_X_SET_TRACK_POWER_OFF,
+      _DB0.LAN_X_SET_TRACK_POWER_OFF,
+      0xA1,
+    ]);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetTrackPowerOff()';
+  }
+}
+
+/// \todo document
+class LanXSetTrackPowerOn implements Z21Command {
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList([
+      0x07,
+      0x00,
+      _Header.LAN_X_SET_TRACK_POWER_ON,
+      0x00,
+      _XHeader.LAN_X_SET_TRACK_POWER_ON,
+      _DB0.LAN_X_SET_TRACK_POWER_ON,
+      0xA0,
+    ]);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetTrackPowerOn()';
+  }
+}
+
+/// \todo document
+class LanXDccReadRegister extends Z21Command {}
+
+/// \todo document
+class LanXCvRead implements Z21Command {
+  final int cvAddress;
+
+  LanXCvRead({required this.cvAddress}) {
+    assert(cvAddress <= 1023);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x09,
+      0x00,
+      _Header.LAN_X_CV_READ,
+      0x00,
+      _XHeader.LAN_X_CV_READ,
+      _DB0.LAN_X_CV_READ,
+      (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvRead(cvAddress: $cvAddress)';
+  }
+}
+
+/// \todo document
+class LanXDccWriteRegister extends Z21Command {}
+
+/// \todo document
+class LanXCvWrite implements Z21Command {
+  final int cvAddress;
+  final int value;
+
+  LanXCvWrite({required this.cvAddress, required this.value}) {
+    assert(cvAddress <= 1023 && value <= 255);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x0A,
+      0x00,
+      _Header.LAN_X_CV_WRITE,
+      0x00,
+      _XHeader.LAN_X_CV_WRITE,
+      _DB0.LAN_X_CV_WRITE,
+      (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      value & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvWrite(cvAddress: $cvAddress, value: $value)';
+  }
+}
+
+/// \todo document
+class LanXMmWriteByte extends Z21Command {}
+
+/// \todo document
+class LanXGetTurnoutInfo implements Z21Command {
+  final int accyAddress;
+
+  LanXGetTurnoutInfo({required this.accyAddress}) {
+    assert(accyAddress < 2048);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x08,
+      0x00,
+      _Header.LAN_X_GET_TURNOUT_INFO,
+      0x00,
+      _XHeader.LAN_X_GET_TURNOUT_INFO,
+      _bigEndianAccessoryAddressMsb(accyAddress),
+      _bigEndianAccessoryAddressLsb(accyAddress),
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXGetTurnoutInfo(accyAddress: $accyAddress)';
+  }
+}
+
+/// \todo document
+class LanXGetExtAccessoryInfo extends Z21Command {}
+
+/// \todo document
+class LanXSetTurnout implements Z21Command {
+  final int accyAddress;
+  final bool p;
+  final bool a;
+  final bool q;
+
+  LanXSetTurnout({
+    required this.accyAddress,
+    required this.p,
+    required this.a,
+    this.q = false,
+  }) {
+    assert(accyAddress < 2048);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x09,
+      0x00,
+      _Header.LAN_X_SET_TURNOUT,
+      0x00,
+      _XHeader.LAN_X_SET_TURNOUT,
+      _bigEndianAccessoryAddressMsb(accyAddress),
+      _bigEndianAccessoryAddressLsb(accyAddress),
+      0x80 | (q ? 0x20 : 0x00) | (a ? 0x08 : 0x00) | (p ? 0x01 : 0x00),
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetTurnout(accyAddress: $accyAddress, p: $p, a: $a, q: $q)';
+  }
+}
+
+/// \todo document
+class LanXSetExtAccessory extends Z21Command {}
+
+/// \todo document
+class LanXSetStop extends Z21Command {}
+
+/// \todo document
+class LanXSetLocoEStop implements Z21Command {
+  final int locoAddress;
+
+  LanXSetLocoEStop({required this.locoAddress}) {
+    assert(locoAddress <= 9999);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x08,
+      0x00,
+      _Header.LAN_X_SET_LOCO_E_STOP,
+      0x00,
+      _XHeader.LAN_X_SET_LOCO_E_STOP,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetLocoEStop(locoAddress: $locoAddress)';
+  }
+}
+
+/// \todo document
+class LanXPurgeLoco extends Z21Command {}
+
+/// \todo document
+class LanXGetLocoInfo implements Z21Command {
+  final int locoAddress;
+
+  LanXGetLocoInfo({required this.locoAddress}) {
+    assert(locoAddress <= 9999);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x09,
+      0x00,
+      _Header.LAN_X_GET_LOCO_INFO,
+      0x00,
+      _XHeader.LAN_X_GET_LOCO_INFO,
+      _DB0.LAN_X_GET_LOCO_INFO,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXGetLocoInfo(locoAddress: $locoAddress)';
+  }
+}
+
+/// \todo document
+class LanXSetLocoDrive extends Z21Command {
+  final int locoAddress;
+  final int speedSteps;
+  final int rvvvvvvv;
+
+  LanXSetLocoDrive({
+    required this.locoAddress,
+    required this.speedSteps,
+    required this.rvvvvvvv,
+  }) {
+    assert(
+      locoAddress <= 9999 &&
+          [0, 2, 3, 4].contains(speedSteps) &&
+          rvvvvvvv <= 0xFF,
+    );
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x0A,
+      0x00,
+      _Header.LAN_X_SET_LOCO_DRIVE,
+      0x00,
+      _XHeader.LAN_X_SET_LOCO_DRIVE,
+      speedSteps == 0
+          ? _DB0.LAN_X_SET_LOCO_DRIVE_14
+          : speedSteps == 2
+              ? _DB0.LAN_X_SET_LOCO_DRIVE_28
+              : _DB0.LAN_X_SET_LOCO_DRIVE_128,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+      rvvvvvvv,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetLocoDrive(locoAddress: $locoAddress, speedSteps: $speedSteps, rvvvvvvv: $rvvvvvvv)';
+  }
+}
+
+/// \todo document
+class LanXSetLocoFunction extends Z21Command {
+  final int locoAddress;
+  final int state;
+  final int index;
+
+  LanXSetLocoFunction({
+    required this.locoAddress,
+    required this.state,
+    required this.index,
+  }) {
+    assert(locoAddress <= 9999 && state <= 3 && index <= 0x3F);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x0A,
+      0x00,
+      _Header.LAN_X_SET_LOCO_FUNCTION,
+      0x00,
+      _XHeader.LAN_X_SET_LOCO_FUNCTION,
+      _DB0.LAN_X_SET_LOCO_FUNCTION,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+      state << 6 | index,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetLocoFunction(locoAddress: $locoAddress, state: $state, index: $index)';
+  }
+}
+
+/// \todo document
+class LanXSetLocoFunctionGroup extends Z21Command {}
+
+/// \todo document
+class LanXSetLocoBinaryState extends Z21Command {}
+
+/// \todo document
+class LanXCvPomWriteByte implements Z21Command {
+  final int locoAddress;
+  final int cvAddress;
+  final int value;
+
+  LanXCvPomWriteByte({
+    required this.locoAddress,
+    required this.cvAddress,
+    required this.value,
+  }) {
+    assert(locoAddress <= 9999 && cvAddress <= 1023 && value <= 255);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x0C,
+      0x00,
+      _Header.LAN_X_CV_POM_WRITE_BYTE,
+      0x00,
+      _XHeader.LAN_X_CV_POM_WRITE_BYTE,
+      _DB0.LAN_X_CV_POM_WRITE_BYTE,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+      0xEC | (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      value & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvPomWriteByte(locoAddress: $locoAddress, cvAddress: $cvAddress, value: $value)';
+  }
+}
+
+/// \todo document
+class LanXCvPomWriteBit extends Z21Command {}
+
+/// \todo document
+class LanXCvPomReadByte implements Z21Command {
+  final int locoAddress;
+  final int cvAddress;
+
+  LanXCvPomReadByte({required this.locoAddress, required this.cvAddress}) {
+    assert(locoAddress <= 9999 && cvAddress <= 1023);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0x0C,
+      0x00,
+      _Header.LAN_X_CV_POM_READ_BYTE,
+      0x00,
+      _XHeader.LAN_X_CV_POM_READ_BYTE,
+      _DB0.LAN_X_CV_POM_READ_BYTE,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+      0xE4 | (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      0 & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvPomReadByte(locoAddress: $locoAddress, cvAddress: $cvAddress)';
+  }
+}
+
+/// \todo document
+class LanXCvPomAccessoryWriteByte implements Z21Command {
+  final int accyAddress;
+  final int cvAddress;
+  final int value;
+
+  LanXCvPomAccessoryWriteByte({
+    required this.accyAddress,
+    required this.cvAddress,
+    required this.value,
+  }) {
+    assert(accyAddress < 2048 && cvAddress <= 1023 && value <= 255);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    const int c = 0x08;
+    List<int> data = [
+      0x0C,
+      0x00,
+      _Header.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
+      0x00,
+      _XHeader.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
+      _DB0.LAN_X_CV_POM_ACCESSORY_WRITE_BYTE,
+      _stupidAccessoryAddressMsb(accyAddress),
+      _stupidAccessoryAddressLsb(accyAddress) | c,
+      0xEC | (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      0 & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvPomAccessoryWriteByte(accyAddress: $accyAddress, cvAddress: $cvAddress, value: $value)';
+  }
+}
+
+/// \todo document
+class LanXCvPomAccessoryWriteBit extends Z21Command {}
+
+/// \todo document
+class LanXCvPomAccessoryReadByte implements Z21Command {
+  final int accyAddress;
+  final int cvAddress;
+
+  LanXCvPomAccessoryReadByte({
+    required this.accyAddress,
+    required this.cvAddress,
+  }) {
+    assert(accyAddress < 2048 && cvAddress <= 1023);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    const int c = 0x08;
+    List<int> data = [
+      0x0C,
+      0x00,
+      _Header.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
+      0x00,
+      _XHeader.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
+      _DB0.LAN_X_CV_POM_ACCESSORY_READ_BYTE,
+      _stupidAccessoryAddressMsb(accyAddress),
+      _stupidAccessoryAddressLsb(accyAddress) | c,
+      0xE4 | (cvAddress >> 8) & 0xFF,
+      (cvAddress >> 0) & 0xFF,
+      0 & 0xFF,
+    ];
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXCvPomAccessoryReadByte(accyAddress: $accyAddress, cvAddress: $cvAddress)';
+  }
+}
+
+/// \todo document
+class LanXGetFirmwareVersion extends Z21Command {}
+
+/// \todo document
+class LanSetBroadcastFlags implements Z21Command {
+  final BroadcastFlags broadcastFlags;
+
+  LanSetBroadcastFlags({required this.broadcastFlags});
+
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList(
+      [
+        0x08,
+        0x00,
+        _Header.LAN_SET_BROADCASTFLAGS,
+        0x00,
+        (broadcastFlags.value >> 0) & 0xFF,
+        (broadcastFlags.value >> 8) & 0xFF,
+        (broadcastFlags.value >> 16) & 0xFF,
+        (broadcastFlags.value >> 24) & 0xFF,
+      ],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'LanSetBroadcastFlags(broadcastFlags: $broadcastFlags)';
+  }
+}
+
+/// \todo document
+class LanGetBroadcastFlags extends Z21Command {}
+
+/// \todo document
+class LanGetLocoMode extends Z21Command {}
+
+/// \todo document
+class LanSetLocoMode extends Z21Command {}
+
+/// \todo document
+class LanGetTurnoutMode extends Z21Command {}
+
+/// \todo document
+class LanSetTurnoutMode extends Z21Command {}
+
+/// \todo document
+class LanRmBusGetData extends Z21Command {}
+
+/// \todo document
+class LanRmBusProgramModule extends Z21Command {}
+
+/// \todo document
+class LanSystemStateGetData implements Z21Command {
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList(
+      [0x04, 0x00, _Header.LAN_SYSTEMSTATE_GETDATA, 0x00],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'LanSystemStateGetData()';
+  }
+}
+
+/// \todo document
+class LanRailComGetData implements Z21Command {
+  final int locoAddress;
+
+  LanRailComGetData({required this.locoAddress}) {
+    assert(locoAddress <= 9999);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    return Uint8List.fromList(
+      [
+        0x07,
+        0x00,
+        _Header.LAN_RAILCOM_GETDATA,
+        0x00,
+        0x01,
+        _littleEndianLocoAddressMsb(locoAddress), // Loco address
+        _littleEndianLocoAddressLsb(locoAddress),
+      ],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'LanRailComGetData(locoAddress: $locoAddress)';
+  }
+}
+
+/// \todo document
+class LanLocoNetFromLan extends Z21Command {}
+
+/// \todo document
+class LanLocoNetDispatchAddr extends Z21Command {}
+
+/// \todo document
+class LanLocoNetDetector extends Z21Command {}
+
+/// \todo document
+class LanCanDetector extends Z21Command {}
+
+/// \todo document
+class LanCanDeviceGetDescription extends Z21Command {}
+
+/// \todo document
+class LanCanDeviceSetDescription extends Z21Command {}
+
+/// \todo document
+class LanCanBoosterSetTrackPower extends Z21Command {}
+
+/// \todo document
+class LanFastClockControl extends Z21Command {}
+
+/// \todo document
+class LanFastClockSettingsGet extends Z21Command {}
+
+/// \todo document
+class LanFastClockSettingsSet extends Z21Command {}
+
+/// \todo document
+class LanBoosterSetPower extends Z21Command {}
+
+/// \todo document
+class LanBoosterGetDescription extends Z21Command {}
+
+/// \todo document
+class LanBoosterSetDescription extends Z21Command {}
+
+/// \todo document
+class LanBoosterSystemStateGetData extends Z21Command {}
+
+/// \todo document
+class LanDecoderGetDescription extends Z21Command {}
+
+/// \todo document
+class LanDecoderSetDescription extends Z21Command {}
+
+/// \todo document
+class LanDecoderSystemStateGetData extends Z21Command {}
+
+/// \todo document
+class LanZLinkGetHwInfo extends Z21Command {}
+
+// Z21 to client
+
+/// \todo document
+class ReplyToLanGetSerialNumber extends Z21Command {}
+
+/// \todo document
+class ReplyToLanGetCommonSettings extends Z21Command {}
+
+/// \todo document
+class ReplyToLanGetMmDccSettings extends Z21Command {}
+
+/// \todo document
+class ReplyToLanGetCode extends Z21Command {}
+
+/// \todo document
+class ReplyToLanGetHwInfo extends Z21Command {}
+
+/// \todo document
+class LanXTurnoutInfo extends Z21Command {
   final int accyAddress;
   final int zz;
 
@@ -444,8 +1157,8 @@ class LanXTurnoutInfo implements Command {
     required this.zz,
   });
 
-  LanXTurnoutInfo.fromDataset(Uint8List dataset)
-      : accyAddress = bigEndianData2locoAddress(dataset.sublist(5)),
+  LanXTurnoutInfo.fromUint8List(Uint8List dataset)
+      : accyAddress = _bigEndianData2AccessoryAddress(dataset.sublist(5)),
         zz = dataset[7] {
     assert(dataset.length == 0x09);
   }
@@ -457,36 +1170,37 @@ class LanXTurnoutInfo implements Command {
 }
 
 /// \todo document
-class LanXExtAccessoryInfo implements Command {}
+class LanXExtAccessoryInfo extends Z21Command {}
 
 /// \todo document
-class LanXBcTrackPowerOff implements Command {}
+class LanXBcTrackPowerOff extends Z21Command {}
 
 /// \todo document
-class LanXBcTrackPowerOn implements Command {}
+class LanXBcTrackPowerOn extends Z21Command {}
 
 /// \todo document
-class LanXBcProgrammingMode implements Command {}
+class LanXBcProgrammingMode extends Z21Command {}
 
 /// \todo document
-class LanXBcTrackShortCircuit implements Command {}
+class LanXBcTrackShortCircuit extends Z21Command {}
 
 /// \todo document
-class LanXCvNackSc implements Command {}
+class LanXCvNackSc extends Z21Command {}
 
 /// \todo document
-class LanXCvNack implements Command {}
+class LanXCvNack extends Z21Command {}
 
 /// \todo document
-class LanXUnknownCommand implements Command {}
+class LanXUnknownCommand extends Z21Command {}
 
 /// \todo document
-class LanXStatusChanged implements Command {
+class LanXStatusChanged extends Z21Command {
   final int centralState;
 
   LanXStatusChanged({required this.centralState});
 
-  LanXStatusChanged.fromDataset(Uint8List dataset) : centralState = dataset[6] {
+  LanXStatusChanged.fromUint8List(Uint8List dataset)
+      : centralState = dataset[6] {
     assert(dataset.length == 0x08);
   }
 
@@ -503,7 +1217,7 @@ class LanXStatusChanged implements Command {
   }
 
   bool programmingMode() {
-    return centralState & 0x01 != 0;
+    return centralState & 0x20 != 0;
   }
 
   @override
@@ -513,17 +1227,17 @@ class LanXStatusChanged implements Command {
 }
 
 /// \todo document
-class ReplyToLanXGetVersion implements Command {}
+class ReplyToLanXGetVersion extends Z21Command {}
 
 /// \todo document
-class LanXCvResult implements Command {
+class LanXCvResult extends Z21Command {
   final int cvAddress;
   final int value;
 
   LanXCvResult({required this.cvAddress, required this.value});
 
-  LanXCvResult.fromDataset(Uint8List dataset)
-      : cvAddress = bigEndianData2cvAddress(dataset.sublist(6)),
+  LanXCvResult.fromUint8List(Uint8List dataset)
+      : cvAddress = _bigEndianData2CvAddress(dataset.sublist(6)),
         value = dataset[8] {
     assert(dataset.length == 0x0A);
   }
@@ -535,10 +1249,10 @@ class LanXCvResult implements Command {
 }
 
 /// \todo document
-class LanXBcStopped implements Command {}
+class LanXBcStopped extends Z21Command {}
 
 /// \todo document
-class LanXLocoInfo implements Command {
+class LanXLocoInfo extends Z21Command {
   final int locoAddress;
   final int mode;
   final bool busy;
@@ -559,8 +1273,8 @@ class LanXLocoInfo implements Command {
     required this.f31_0,
   });
 
-  LanXLocoInfo.fromDataset(Uint8List dataset)
-      : locoAddress = bigEndianData2locoAddress(dataset.sublist(5)),
+  LanXLocoInfo.fromUint8List(Uint8List dataset)
+      : locoAddress = _bigEndianData2LocoAddress(dataset.sublist(5)),
         mode = dataset[7] & 0x07,
         busy = dataset[7] & (1 << 3) == (1 << 3),
         speedSteps = dataset[7] & 0x07,
@@ -588,22 +1302,23 @@ class LanXLocoInfo implements Command {
 }
 
 /// \todo document
-class ReplyToLanXGetFirmwareVersion implements Command {}
+class ReplyToLanXGetFirmwareVersion extends Z21Command {}
 
 /// \todo document
-class ReplyToLanGetBroadcastFlags implements Command {}
+class ReplyToLanGetBroadcastFlags extends Z21Command {}
 
 /// \todo document
-class ReplyToLanGetLocoMode implements Command {}
+class ReplyToLanGetLocoMode extends Z21Command {}
 
 /// \todo document
-class ReplyToLanGetTurnoutMode implements Command {}
+class ReplyToLanGetTurnoutMode extends Z21Command {}
 
 /// \todo document
-class LanRmBusDataChanged implements Command {}
+class LanRmBusDataChanged extends Z21Command {}
 
 /// \todo document
-class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
+class LanSystemStateDataChanged extends LanXStatusChanged
+    implements Z21Command {
   final int mainCurrent;
   final int progCurrent;
   final int filteredMainCurrent;
@@ -625,13 +1340,13 @@ class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
     required this.capabilities,
   });
 
-  LanSystemStateDataChanged.fromDataset(Uint8List dataset)
-      : mainCurrent = bigEndianData2int16(dataset.sublist(4)),
-        progCurrent = bigEndianData2int16(dataset.sublist(6)),
-        filteredMainCurrent = bigEndianData2int16(dataset.sublist(8)),
-        temperature = bigEndianData2int16(dataset.sublist(10)),
-        supplyVoltage = bigEndianData2uint16(dataset.sublist(12)),
-        vccVoltage = bigEndianData2uint16(dataset.sublist(14)),
+  LanSystemStateDataChanged.fromUint8List(Uint8List dataset)
+      : mainCurrent = _bigEndianData2int16(dataset.sublist(4)),
+        progCurrent = _bigEndianData2int16(dataset.sublist(6)),
+        filteredMainCurrent = _bigEndianData2int16(dataset.sublist(8)),
+        temperature = _bigEndianData2int16(dataset.sublist(10)),
+        supplyVoltage = _bigEndianData2uint16(dataset.sublist(12)),
+        vccVoltage = _bigEndianData2uint16(dataset.sublist(14)),
         centralStateEx = dataset[16],
         capabilities = dataset[17],
         super(centralState: dataset[15]) {
@@ -645,7 +1360,7 @@ class LanSystemStateDataChanged extends LanXStatusChanged implements Command {
 }
 
 /// \todo document
-class LanRailComDataChanged implements Command {
+class LanRailComDataChanged extends Z21Command {
   final int locoAddress;
   final int receiveCounter;
   final int errorCounter;
@@ -662,10 +1377,10 @@ class LanRailComDataChanged implements Command {
     required this.qos,
   });
 
-  LanRailComDataChanged.fromDataset(Uint8List dataset)
-      : locoAddress = littleEndianData2uint16(dataset.sublist(4)),
-        receiveCounter = littleEndianData2uint32(dataset.sublist(6)),
-        errorCounter = littleEndianData2uint16(dataset.sublist(10)),
+  LanRailComDataChanged.fromUint8List(Uint8List dataset)
+      : locoAddress = _littleEndianData2uint16(dataset.sublist(4)),
+        receiveCounter = _littleEndianData2uint32(dataset.sublist(6)),
+        errorCounter = _littleEndianData2uint16(dataset.sublist(10)),
         options = dataset[13],
         speed = dataset[14],
         qos = dataset[15] {
@@ -702,122 +1417,105 @@ class LanRailComDataChanged implements Command {
 }
 
 /// \todo document
-class LanLoconetZ21Rx implements Command {}
+class LanLocoNetZ21Rx extends Z21Command {}
 
 /// \todo document
-class LanLoconetZ21Tx implements Command {}
+class LanLocoNetZ21Tx extends Z21Command {}
 
 /// \todo document
-class LanLoconetFromLan implements Command {}
+class ReplyToLanLocoNetFromLan extends Z21Command {}
 
 /// \todo document
-class LanLoconetDispatchAddr implements Command {}
+class ReplyToLanLocoNetDispatchAddr extends Z21Command {}
 
 /// \todo document
-class LanLoconetDetector implements Command {}
+class ReplyToLanLocoNetDetector extends Z21Command {}
 
 /// \todo document
-class LanCanDetector implements Command {}
+class ReplyToLanCanDetector extends Z21Command {}
 
 /// \todo document
-class ReplyToLanCanDeviceGetDescription implements Command {}
+class ReplyToLanCanDeviceGetDescription extends Z21Command {}
 
 /// \todo document
-class LanCanBoosterSystemStateChanged implements Command {}
+class LanCanBoosterSystemStateChanged extends Z21Command {}
 
 /// \todo document
-class LanFastClockData implements Command {}
+class LanFastClockData extends Z21Command {}
 
 /// \todo document
-class LanFastClockSettingsGet implements Command {}
+class ReplyToLanFastClockSettingsGet extends Z21Command {}
 
 /// \todo document
-class ReplyToLanBoosterGetDescription implements Command {}
+class ReplyToLanBoosterGetDescription extends Z21Command {}
 
 /// \todo document
-class LanBoosterSystemStateDataChanged implements Command {}
+class LanBoosterSystemStateDataChanged extends Z21Command {}
 
 /// \todo document
-class ReplyToLanDecoderGetDescription implements Command {}
+class ReplyToLanDecoderGetDescription extends Z21Command {}
 
 /// \todo document
-class LanDecoderSystemStateDataChanged implements Command {}
+class LanDecoderSystemStateDataChanged extends Z21Command {}
 
 /// \todo document
-class ReplyToLanZLinkGetHwInfo implements Command {}
+class ReplyToLanZLinkGetHwInfo extends Z21Command {}
 
 /// \todo document
 abstract interface class Z21Service {
   int? get closeCode;
   String? get closeReason;
   Future<void> get ready;
-  Stream<Command> get stream;
+  Stream<Z21Command> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void lanXGetStatus();
-  void lanXSetTrackPowerOff();
-  void lanXSetTrackPowerOn();
-  void lanXCvRead(int cvAddress);
-  void lanXCvWrite(int cvAddress, int byte);
-  void lanXGetTurnoutInfo(int accyAddress);
-  void lanXSetTurnout(int accyAddress, bool p, bool a, [bool q = false]);
-  void lanXSetLocoEStop(int locoAddress);
-  void lanXGetLocoInfo(int locoAddress);
-  void lanXSetLocoDrive(int locoAddress, int speedSteps, int rvvvvvvv);
-  void lanXSetLocoFunction(int locoAddress, int state, int index);
-  void lanXCvPomWriteByte(int locoAddress, int cvAddress, int byte);
-  void lanXCvPomReadByte(int locoAddress, int cvAddress);
-  void lanXCvPomAccessoryWriteByte(int accyAddress, int cvAddress, int byte);
-  void lanXCvPomAccessoryReadByte(int accyAddress, int cvAddress);
-  void lanSetBroadcastFlags(BroadcastFlags broadcastFlags);
-  void lanSystemStateGetData();
-  void lanRailComGetData(int locoAddress);
+  void call(Z21Command command);
 
   /// \todo document
-  static Command convert(Uint8List dataset) {
+  static Z21Command convert(Uint8List dataset) {
     if (dataset.length <= 4) return LanXUnknownCommand();
 
     switch (dataset[2]) {
-      case Header.Reply_to_LAN_GET_SERIAL_NUMBER:
+      case _Header.Reply_to_LAN_GET_SERIAL_NUMBER:
         return ReplyToLanGetSerialNumber();
 
-      case Header.Reply_to_LAN_GET_CODE:
+      case _Header.Reply_to_LAN_GET_CODE:
         return ReplyToLanGetCode();
 
-      case Header.Reply_to_LAN_GET_HWINFO:
+      case _Header.Reply_to_LAN_GET_HWINFO:
         return ReplyToLanGetHwInfo();
 
-      case Header.LAN_X:
+      case _Header.LAN_X:
         if (exor(dataset.sublist(4)) != 0) break;
         switch (dataset[4]) {
-          case XHeader.LAN_X_TURNOUT_INFO:
-            return LanXTurnoutInfo.fromDataset(dataset);
+          case _XHeader.LAN_X_TURNOUT_INFO:
+            return LanXTurnoutInfo.fromUint8List(dataset);
 
-          case XHeader.LAN_X_EXT_ACCESSORY_INFO:
+          case _XHeader.LAN_X_EXT_ACCESSORY_INFO:
             return LanXExtAccessoryInfo();
 
-          case XHeader.LAN_X_61:
+          case _XHeader.LAN_X_61:
             if (dataset.length < 6) break;
             switch (dataset[5]) {
-              case DB0.LAN_X_BC_TRACK_POWER_OFF:
+              case _DB0.LAN_X_BC_TRACK_POWER_OFF:
                 return LanXBcTrackPowerOff();
 
-              case DB0.LAN_X_BC_TRACK_POWER_ON:
+              case _DB0.LAN_X_BC_TRACK_POWER_ON:
                 return LanXBcTrackPowerOn();
 
-              case DB0.LAN_X_BC_PROGRAMMING_MODE:
+              case _DB0.LAN_X_BC_PROGRAMMING_MODE:
                 return LanXBcProgrammingMode();
 
-              case DB0.LAN_X_BC_TRACK_SHORT_CIRCUIT:
+              case _DB0.LAN_X_BC_TRACK_SHORT_CIRCUIT:
                 return LanXBcTrackShortCircuit();
 
-              case DB0.LAN_X_CV_NACK_SC:
+              case _DB0.LAN_X_CV_NACK_SC:
                 return LanXCvNackSc();
 
-              case DB0.LAN_X_CV_NACK:
+              case _DB0.LAN_X_CV_NACK:
                 return LanXCvNack();
 
-              case DB0.LAN_X_UNKNOWN_COMMAND:
+              case _DB0.LAN_X_UNKNOWN_COMMAND:
                 break;
 
               default:
@@ -825,22 +1523,22 @@ abstract interface class Z21Service {
             }
             break;
 
-          case XHeader.LAN_X_STATUS_CHANGED:
-            return LanXStatusChanged.fromDataset(dataset);
+          case _XHeader.LAN_X_STATUS_CHANGED:
+            return LanXStatusChanged.fromUint8List(dataset);
 
-          case XHeader.Reply_to_LAN_X_GET_VERSION:
+          case _XHeader.Reply_to_LAN_X_GET_VERSION:
             return ReplyToLanXGetVersion();
 
-          case XHeader.LAN_X_CV_RESULT:
-            return LanXCvResult.fromDataset(dataset);
+          case _XHeader.LAN_X_CV_RESULT:
+            return LanXCvResult.fromUint8List(dataset);
 
-          case XHeader.LAN_X_BC_STOPPED:
+          case _XHeader.LAN_X_BC_STOPPED:
             return LanXBcStopped();
 
-          case XHeader.LAN_X_LOCO_INFO:
-            return LanXLocoInfo.fromDataset(dataset);
+          case _XHeader.LAN_X_LOCO_INFO:
+            return LanXLocoInfo.fromUint8List(dataset);
 
-          case XHeader.Reply_to_LAN_X_GET_FIRMWARE_VERSION:
+          case _XHeader.Reply_to_LAN_X_GET_FIRMWARE_VERSION:
             return ReplyToLanXGetFirmwareVersion();
 
           default:
@@ -848,67 +1546,67 @@ abstract interface class Z21Service {
         }
         break;
 
-      case Header.Reply_to_LAN_GET_BROADCASTFLAGS:
+      case _Header.Reply_to_LAN_GET_BROADCASTFLAGS:
         return ReplyToLanGetBroadcastFlags();
 
-      case Header.Reply_to_LAN_GET_LOCOMODE:
+      case _Header.Reply_to_LAN_GET_LOCOMODE:
         return ReplyToLanGetLocoMode();
 
-      case Header.Reply_to_LAN_GET_TURNOUTMODE:
+      case _Header.Reply_to_LAN_GET_TURNOUTMODE:
         return ReplyToLanGetTurnoutMode();
 
-      case Header.LAN_RMBUS_DATACHANGED:
+      case _Header.LAN_RMBUS_DATACHANGED:
         return LanRmBusDataChanged();
 
-      case Header.LAN_SYSTEMSTATE_DATACHANGED:
-        return LanSystemStateDataChanged.fromDataset(dataset);
+      case _Header.LAN_SYSTEMSTATE_DATACHANGED:
+        return LanSystemStateDataChanged.fromUint8List(dataset);
 
-      case Header.LAN_RAILCOM_DATACHANGED:
-        return LanRailComDataChanged.fromDataset(dataset);
+      case _Header.LAN_RAILCOM_DATACHANGED:
+        return LanRailComDataChanged.fromUint8List(dataset);
 
-      case Header.LAN_LOCONET_Z21_RX:
-        return LanLoconetZ21Rx();
+      case _Header.LAN_LOCONET_Z21_RX:
+        return LanLocoNetZ21Rx();
 
-      case Header.LAN_LOCONET_Z21_TX:
-        return LanLoconetZ21Tx();
+      case _Header.LAN_LOCONET_Z21_TX:
+        return LanLocoNetZ21Tx();
 
-      case Header.LAN_LOCONET_FROM_LAN:
-        return LanLoconetFromLan();
+      case _Header.Reply_to_LAN_LOCONET_FROM_LAN:
+        return ReplyToLanLocoNetFromLan();
 
-      case Header.LAN_LOCONET_DISPATCH_ADDR:
-        return LanLoconetDispatchAddr();
+      case _Header.Reply_to_LAN_LOCONET_DISPATCH_ADDR:
+        return ReplyToLanLocoNetDispatchAddr();
 
-      case Header.LAN_LOCONET_DETECTOR:
-        return LanLoconetDetector();
+      case _Header.Reply_to_LAN_LOCONET_DETECTOR:
+        return ReplyToLanLocoNetDetector();
 
-      case Header.LAN_CAN_DETECTOR:
-        return LanCanDetector();
+      case _Header.Reply_to_LAN_CAN_DETECTOR:
+        return ReplyToLanCanDetector();
 
-      case Header.Reply_to_LAN_CAN_DEVICE_GET_DESCRIPTION:
+      case _Header.Reply_to_LAN_CAN_DEVICE_GET_DESCRIPTION:
         return ReplyToLanCanDeviceGetDescription();
 
-      case Header.LAN_CAN_BOOSTER_SYSTEMSTATE_CHANGED:
+      case _Header.LAN_CAN_BOOSTER_SYSTEMSTATE_CHANGED:
         return LanCanBoosterSystemStateChanged();
 
-      case Header.LAN_FAST_CLOCK_DATA:
+      case _Header.LAN_FAST_CLOCK_DATA:
         return LanFastClockData();
 
-      case Header.LAN_FAST_CLOCK_SETTINGS_GET:
-        return LanFastClockSettingsGet();
+      case _Header.Reply_to_LAN_FAST_CLOCK_SETTINGS_GET:
+        return ReplyToLanFastClockSettingsGet();
 
-      case Header.Reply_to_LAN_BOOSTER_GET_DESCRIPTION:
+      case _Header.Reply_to_LAN_BOOSTER_GET_DESCRIPTION:
         return ReplyToLanBoosterGetDescription();
 
-      case Header.LAN_BOOSTER_SYSTEMSTATE_DATACHANGED:
+      case _Header.LAN_BOOSTER_SYSTEMSTATE_DATACHANGED:
         return LanBoosterSystemStateDataChanged();
 
-      case Header.Reply_to_LAN_DECODER_GET_DESCRIPTION:
+      case _Header.Reply_to_LAN_DECODER_GET_DESCRIPTION:
         return ReplyToLanDecoderGetDescription();
 
-      case Header.LAN_DECODER_SYSTEMSTATE_DATACHANGED:
+      case _Header.LAN_DECODER_SYSTEMSTATE_DATACHANGED:
         return LanDecoderSystemStateDataChanged();
 
-      case Header.Reply_to_LAN_ZLINK_GET_HWINFO:
+      case _Header.Reply_to_LAN_ZLINK_GET_HWINFO:
         return ReplyToLanZLinkGetHwInfo();
 
       default:

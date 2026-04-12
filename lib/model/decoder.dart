@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,14 +15,12 @@
 
 // ignore_for_file: invalid_annotation_target
 
-import 'package:Frontend/model/decoder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'register.freezed.dart';
+part 'decoder.freezed.dart';
 
 @freezed
-abstract class Register with _$Register {
-  const factory Register({required Key key, required Decoder decoder}) =
-      _Register;
+abstract class Decoder with _$Decoder {
+  const factory Decoder({required Type type, int? address}) = _Decoder;
 }

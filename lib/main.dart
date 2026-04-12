@@ -220,7 +220,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       z21ShortCircuitProvider,
       (previous, next) {
         final connectionStatus = ref.read(connectionStatusProvider);
-        final bool connected =
+        final connected =
             connectionStatus.asData?.value == ConnectionStatus.connected;
 
         if (ModalRoute.of(context)?.isCurrent == true && connected) {
@@ -237,11 +237,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final bool smallWidth =
-        MediaQuery.of(context).size.width < smallScreenWidth;
+    final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
     final controllerRegistry = ref.watch(controllerRegistryProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
-    final bool connected =
+    final connected =
         connectionStatus.asData?.value == ConnectionStatus.connected;
 
     if (smallWidth != _smallWidth) {
@@ -347,7 +346,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ],
         ),
         ...controllerRegistry.map(
-          (register) => switch (register.type) {
+          (register) => switch (register.decoder.type) {
             const (Loco) => () {
                 return _buildDraggable<Loco>(register: register);
               }(),
@@ -365,8 +364,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildDraggable<T>({required Register register}) {
     void moveToTop() {
       ref.read(controllerRegistryProvider.notifier).updateItem<T>(
-            register.address,
-            register.address,
+            register.decoder.address!,
+            register.decoder.address!,
           );
     }
 
@@ -396,10 +395,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// determine which widgets down the widget tree have changed and need to be
   /// rebuilt make MDI windows rather tedious.
   Widget _buildController({required Register register}) {
-    return switch (register.type) {
+    return switch (register.decoder.type) {
       const (Loco) => () {
           final loco = ref.watch(locosProvider).firstWhere(
-                (l) => l.address == register.address,
+                (l) => l.address == register.decoder.address,
               );
           return Controller<Loco>(
             key: ValueKey(
@@ -411,7 +410,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       const (Turnout) => () {
           final turnout = ref
               .watch(turnoutsProvider)
-              .firstWhere((t) => t.address == register.address);
+              .firstWhere((t) => t.address == register.decoder.address);
           return Controller<Turnout>(
             key: ValueKey(
               Object.hash(

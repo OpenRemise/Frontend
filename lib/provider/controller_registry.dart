@@ -15,6 +15,7 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/model/decoder.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/register.dart';
 import 'package:Frontend/model/turnout.dart';
@@ -64,16 +65,22 @@ class ControllerRegistry extends _$ControllerRegistry {
           prevAddresses.length == nextAddresses.length) {
         // Address change detected
         final controller = state.firstWhereOrNull(
-          (r) => r.type == T && r.address == removedAddress,
+          (r) => r.decoder.type == T && r.decoder.address == removedAddress,
         );
         if (controller != null) {
           newState
             ..remove(controller)
-            ..add(controller.copyWith(address: added.first));
+            ..add(
+              controller.copyWith(
+                decoder: controller.decoder.copyWith(address: added.first),
+              ),
+            );
         }
       } else {
         // Normal removal
-        newState.removeWhere((r) => r.type == T && r.address == removedAddress);
+        newState.removeWhere(
+          (r) => r.decoder.type == T && r.decoder.address == removedAddress,
+        );
       }
     }
 
@@ -82,7 +89,9 @@ class ControllerRegistry extends _$ControllerRegistry {
       final hidden =
           next.where((t) => (t as Turnout).type == 1).map(addressSelector);
       for (final address in hidden) {
-        newState.removeWhere((r) => r.type == Turnout && r.address == address);
+        newState.removeWhere(
+          (r) => r.decoder.type == Turnout && r.decoder.address == address,
+        );
       }
     }
 
@@ -92,7 +101,7 @@ class ControllerRegistry extends _$ControllerRegistry {
   // Generic update method for any object type
   void updateItem<T>(int oldAddress, int newAddress) {
     final existing = state.firstWhereOrNull(
-      (c) => c.type == T && c.address == oldAddress,
+      (c) => c.decoder.type == T && c.decoder.address == oldAddress,
     );
 
     final newState = LinkedHashSet<Register>.from(state);
@@ -102,15 +111,18 @@ class ControllerRegistry extends _$ControllerRegistry {
       newState.add(
         Register(
           key: UniqueKey(),
-          type: T,
-          address: newAddress,
+          decoder: Decoder(type: T, address: newAddress),
         ),
       );
     } else if (oldAddress != newAddress) {
       // Address change
       newState
         ..remove(existing)
-        ..add(existing.copyWith(address: newAddress));
+        ..add(
+          existing.copyWith(
+            decoder: existing.decoder.copyWith(address: newAddress),
+          ),
+        );
     } else {
       // Same address → move to end
       newState
@@ -124,6 +136,6 @@ class ControllerRegistry extends _$ControllerRegistry {
   // Generic delete by address & type
   void deleteItem<T>(int address) {
     state = LinkedHashSet<Register>.from(state)
-      ..removeWhere((c) => c.type == T && c.address == address);
+      ..removeWhere((c) => c.decoder.type == T && c.decoder.address == address);
   }
 }

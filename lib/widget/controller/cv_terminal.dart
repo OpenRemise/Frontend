@@ -14,22 +14,19 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/constant/key_codes.dart';
+import 'package:Frontend/model/decoder.dart';
 import 'package:Frontend/model/loco.dart';
 import 'package:Frontend/model/turnout.dart';
-import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/provider/roco/z21_cv.dart';
 import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/widget/controller/cv_editing_controller.dart';
 import 'package:Frontend/widget/controller/key_press_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stream_summary_builder/stream_summary_builder.dart';
 
 /// \todo document
 class CvTerminal<T> extends ConsumerStatefulWidget {
   final dynamic item;
-  Loco get loco => item as Loco;
-  Turnout get turnout => item as Turnout;
-
   final FocusNode focusNode;
   final KeyPressNotifier keyPressNotifier;
 
@@ -47,26 +44,13 @@ class CvTerminal<T> extends ConsumerStatefulWidget {
 /// \todo document
 class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
   final CvEditingController _cvEditingController = CvEditingController();
-
   final ScrollController _scrollController = ScrollController();
-
-  late final Stream<Command> _stream;
-
-  bool _pending = false;
+  late final List<ProviderSubscription> _subs;
 
   /// \todo document
   @override
   void initState() {
     super.initState();
-
-    _stream = ref.read(z21ServiceProvider).stream.where(
-          (command) => switch (command) {
-            LanXCvNackSc() => true,
-            LanXCvNack() => true,
-            LanXCvResult() => true,
-            _ => false
-          },
-        );
 
     widget.keyPressNotifier.addListener(
       () {
@@ -84,77 +68,46 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
         _scrollToMaxExtent();
       },
     );
+
+    _subs = [
+      ref.listenManual<CvMap>(z21CvProvider(Decoder(type: T)), _update),
+      ref.listenManual<CvMap>(
+        z21CvProvider(Decoder(type: T, address: widget.item.address)),
+        _update,
+      ),
+    ];
   }
 
   @override
   void dispose() {
     _cvEditingController.dispose();
+    for (final sub in _subs) {
+      sub.close();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamSummaryBuilder(
-      initialData: <Command>[],
-      fold: (summary, value) => summary..add(value),
-      stream: _stream,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) {
-              _syncFromCommands(snapshot.requireData);
-              snapshot.requireData.clear();
-            },
-          );
-        }
-
-        return TextField(
-          controller: _cvEditingController,
-          focusNode: widget.focusNode,
-          decoration: InputDecoration(
-            icon: const Icon(Icons.integration_instructions_outlined),
-            hintText: 'TERMINAL\nR 1:::_\nW 1:::3',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          style: const TextStyle(fontFamily: 'DSEG14'),
-          readOnly: true,
-          showCursor: true,
-          maxLines: null,
-          minLines: 1024,
-          scrollController: _scrollController,
-          enableInteractiveSelection: false,
-          onTap: _scrollToMaxExtent,
-        );
-      },
+    return TextField(
+      controller: _cvEditingController,
+      focusNode: widget.focusNode,
+      decoration: InputDecoration(
+        icon: const Icon(Icons.integration_instructions_outlined),
+        hintText: 'TERMINAL\nR 1:::_\nW 1:::3',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      style: const TextStyle(fontFamily: 'DSEG14'),
+      readOnly: true,
+      showCursor: true,
+      maxLines: null,
+      minLines: 1024,
+      scrollController: _scrollController,
+      enableInteractiveSelection: false,
+      onTap: _scrollToMaxExtent,
     );
-  }
-
-  /// \todo document
-  void _syncFromCommands(List<Command> commands) {
-    if (!_pending || commands.isEmpty) return;
-
-    for (final command in commands) {
-      switch (command) {
-        case LanXCvNackSc():
-        case LanXCvNack():
-          _cvEditingController.error();
-          _pending = false;
-          break;
-
-        case LanXCvResult(cvAddress: final cvAddress, value: final value):
-          final cv = _cvEditingController.values();
-          if (cv.number == cvAddress + 1) {
-            _cvEditingController.success(value);
-            _pending = false;
-          }
-          break;
-
-        default:
-          break;
-      }
-    }
   }
 
   /// \todo document
@@ -166,8 +119,6 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
   /// \todo document
   void _cvReadWrite(int keyCode) {
-    final z21 = ref.read(z21ServiceProvider);
-
     final cv = _cvEditingController.values();
     if (cv.number == null) return;
 
@@ -175,57 +126,54 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
     if (cv.value == null) {
       // Service mode
       if (keyCode == KeyCodes.enterLong) {
-        z21.lanXCvRead(cv.number! - 1);
-        _pending = true;
+        ref.read(z21CvProvider(Decoder(type: T)).notifier).read(cv.number! - 1);
       }
       // POM
       else {
-        switch (T) {
-          case const (Loco):
-            z21.lanXCvPomReadByte(widget.loco.address, cv.number! - 1);
-            _pending = true;
-            break;
-
-          case const (Turnout):
-            z21.lanXCvPomAccessoryReadByte(
-              widget.turnout.address,
-              cv.number! - 1,
-            );
-            _pending = true;
-            break;
-        }
+        ref
+            .read(
+              z21CvProvider(Decoder(type: T, address: widget.item.address))
+                  .notifier,
+            )
+            .read(cv.number! - 1);
       }
     }
     // Write
     else {
       // Service mode
       if (keyCode == KeyCodes.enterLong) {
-        z21.lanXCvWrite(cv.number! - 1, cv.value!);
-        _pending = true;
+        ref
+            .read(z21CvProvider(Decoder(type: T)).notifier)
+            .write(cv.number! - 1, cv.value!);
       }
       // POM
       else {
-        switch (T) {
-          case const (Loco):
-            z21.lanXCvPomWriteByte(
-              widget.loco.address,
-              cv.number! - 1,
-              cv.value!,
-            );
-            _cvEditingController.success(cv.value!);
-            break;
-
-          case const (Turnout):
-            z21.lanXCvPomAccessoryWriteByte(
-              widget.turnout.address,
-              cv.number! - 1,
-              cv.value!,
-            );
-            _cvEditingController.success(cv.value!);
-            break;
-        }
-        // Don't set pending flag for POM
+        ref
+            .read(
+              z21CvProvider(Decoder(type: T, address: widget.item.address))
+                  .notifier,
+            )
+            .write(cv.number! - 1, cv.value!);
       }
+    }
+  }
+
+  /// \todo document
+  void _update(_, CvMap next) {
+    final cv = _cvEditingController.values();
+    if (cv.number == null || !next.containsKey((cv.number! - 1, 0, 1))) return;
+    switch (next[(cv.number! - 1, 0, 1)]) {
+      case LanXCvNackSc():
+      case LanXCvNack():
+        _cvEditingController.error();
+        break;
+
+      case LanXCvResult(cvAddress: final cvAddress, value: final value):
+        if (cv.number == cvAddress + 1) _cvEditingController.success(value);
+        break;
+
+      default:
+        break;
     }
   }
 }

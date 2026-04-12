@@ -64,8 +64,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
   Widget build(BuildContext context) {
     final dcc = ref.watch(dccProvider);
     final decoderSelection = ref.watch(decoderSelectionProvider);
-    final bool smallWidth =
-        MediaQuery.of(context).size.width < smallScreenWidth;
+    final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
     final addEditDialog = decoderSelection.containsAll([Loco, Turnout])
         ? AddEditDialog()
         : decoderSelection.contains(Loco)
@@ -223,9 +222,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= locos.length) return null;
 
           final loco = locos.elementAt(index);
-          final active = ref
-              .watch(controllerRegistryProvider)
-              .any((c) => c.type == Loco && c.address == loco.address);
+          final active = ref.watch(controllerRegistryProvider).any(
+                (c) =>
+                    c.decoder.type == Loco && c.decoder.address == loco.address,
+              );
 
           return Card.outlined(
             child: ListTile(
@@ -282,9 +282,11 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= turnouts.length) return null;
 
           final turnout = turnouts.elementAt(index);
-          final active = ref
-              .watch(controllerRegistryProvider)
-              .any((c) => c.type == Turnout && c.address == turnout.address);
+          final active = ref.watch(controllerRegistryProvider).any(
+                (c) =>
+                    c.decoder.type == Turnout &&
+                    c.decoder.address == turnout.address,
+              );
 
           return Card.outlined(
             child: ListTile(

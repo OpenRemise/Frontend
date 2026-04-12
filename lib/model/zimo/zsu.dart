@@ -32,8 +32,8 @@ typedef ZsuFirmware = ({
 /// \todo document
 class Zsu {
   final Uint8List _bytes;
-  late final int version;
   final Map<int, ZsuFirmware> firmwares = {};
+  late final int version;
 
   /// \todo document
   Zsu(this._bytes) {
