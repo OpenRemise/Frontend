@@ -36,13 +36,15 @@ class PowerIconButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(z21StatusProvider).when(
           data: (status) {
-            final z21 = ref.watch(z21ServiceProvider);
             final off = status.trackVoltageOff();
             final prog = status.programmingMode();
             return IconButton(
-              onPressed: () =>
-                  z21(off ? LanXSetTrackPowerOn() : LanXSetTrackPowerOff()),
-              tooltip: off ? 'Power on' : 'Power off',
+              onPressed: prog
+                  ? null
+                  : () => ref.read(z21ServiceProvider)(
+                        off ? LanXSetTrackPowerOn() : LanXSetTrackPowerOff(),
+                      ),
+              tooltip: prog ? null : (off ? 'Power on' : 'Power off'),
               isSelected: !off || prog,
               selectedIcon:
                   Icon(Icons.power, color: prog ? Colors.blue : Colors.green),

@@ -59,7 +59,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final type = _selected.elementAtOrNull(0) == 0 ? Loco : Turnout;
     final serviceMode = _selected.elementAtOrNull(1) == 1;
     final address = int.tryParse(_formKey.currentState?.value['address'] ?? '');
-    final decoder = Decoder(type: type, address: address);
+    final decoder = Decoder(type: type, address: serviceMode ? null : address);
     final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
 
     return Padding(
