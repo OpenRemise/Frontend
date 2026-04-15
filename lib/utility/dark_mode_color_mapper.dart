@@ -38,4 +38,12 @@ class DarkModeColorMapper extends ColorMapper {
 
     return color;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DarkModeColorMapper && _darkMode == other._darkMode;
+
+  @override
+  int get hashCode => _darkMode.hashCode;
 }

@@ -204,7 +204,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: FormBuilderTextField(
                             name: 'sta_ssid',
                             validator: (String? value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null) {
                                 return 'Please enter a SSID';
                               } else if (value.length > 32) {
                                 return 'SSID too long';
