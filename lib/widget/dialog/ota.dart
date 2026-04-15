@@ -23,11 +23,11 @@ import 'dart:math';
 
 import 'package:Frontend/provider/ota_service.dart';
 import 'package:Frontend/service/ota_service.dart';
+import 'package:Frontend/utility/reload.dart';
 import 'package:async/async.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:universal_html/html.dart' as html;
 
 /// Dialog to update OpenRemise boards
 ///
@@ -87,9 +87,8 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => kIsWeb && _option == 'OK'
-              ? html.window.location.reload()
-              : Navigator.pop(context),
+          onPressed:
+              kIsWeb && _option == 'OK' ? reload : () => Navigator.pop(context),
           child: Text(_option),
         ),
       ],

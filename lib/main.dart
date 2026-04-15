@@ -41,6 +41,7 @@ import 'package:Frontend/screen/program.dart';
 import 'package:Frontend/screen/settings.dart';
 import 'package:Frontend/screen/update.dart';
 import 'package:Frontend/utility/dark_mode_color_mapper.dart';
+import 'package:Frontend/utility/reload.dart';
 import 'package:Frontend/widget/controller/controller.dart';
 import 'package:Frontend/widget/dialog/short_circuit.dart';
 import 'package:Frontend/widget/positioned_draggable.dart';
@@ -51,7 +52,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_html/html.dart' as html;
 
 /// \todo document
 void main() async {
@@ -435,8 +435,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         message: 'Reload',
         waitDuration: const Duration(seconds: 1),
         child: GestureDetector(
-          onTap: () =>
-              kIsWeb ? html.window.location.reload() : debugPrint('reload'),
+          onTap: kIsWeb ? reload : () => debugPrint('reload'),
           child: SvgPicture.asset(
             assetName,
             colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),

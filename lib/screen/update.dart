@@ -125,7 +125,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                                 ? DarkModeColorMapper(
                                     ref.watch(darkModeProvider),
                                   )
-                                : GrayscaleColorMapper(),
+                                : const GrayscaleColorMapper(),
                             width: 100,
                             height: 100,
                             fit: BoxFit.scaleDown,
@@ -143,8 +143,9 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                         child: ListTile(
                           title: SvgPicture.asset(
                             'data/images/logos/zimo.svg',
-                            colorMapper:
-                                trackVoltageOff ? null : GrayscaleColorMapper(),
+                            colorMapper: trackVoltageOff
+                                ? null
+                                : const GrayscaleColorMapper(),
                             width: 100,
                             height: 100,
                             fit: BoxFit.scaleDown,
@@ -165,7 +166,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               'data/images/logos/dh.svg',
                               colorMapper: trackVoltageOff
                                   ? null
-                                  : GrayscaleColorMapper(),
+                                  : const GrayscaleColorMapper(),
                               width: 100,
                               height: 100,
                               fit: BoxFit.scaleDown,
@@ -186,7 +187,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
                               'data/images/logos/tams.svg',
                               colorMapper: trackVoltageOff
                                   ? null
-                                  : GrayscaleColorMapper(),
+                                  : const GrayscaleColorMapper(),
                               width: 100,
                               height: 100,
                               fit: BoxFit.scaleDown,
