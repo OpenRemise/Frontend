@@ -2,6 +2,7 @@
 
 ## 0.7.1
 - Bugfix empty SSID is valid ([#133](https://github.com/OpenRemise/Frontend/issues/133))
+- Bugfix reload tries to clear caches ([#138](https://github.com/OpenRemise/Frontend/issues/138))
 - Bugfix `DarkModeColorMapper` doesn't override `==/hashCode` ([#139](https://github.com/OpenRemise/Frontend/issues/139))
 
 ## 0.7.0
