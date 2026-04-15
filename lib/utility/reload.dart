@@ -17,14 +17,5 @@ import 'package:universal_html/html.dart' as html;
 
 /// \todo document
 void reload() {
-  final caches = html.window.caches;
-  if (caches != null) {
-    caches.keys().then((keys) {
-      Future.wait(keys.map((key) => caches.delete(key))).then((_) {
-        html.window.location.reload();
-      });
-    });
-  } else {
-    html.window.location.reload();
-  }
+  html.window.location.reload();
 }
