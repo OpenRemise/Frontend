@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:Frontend/model/info.dart';
 import 'package:Frontend/service/sys_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 enum State {
   // Flags (8 bits)
@@ -50,15 +51,16 @@ State state = State.Suspended;
 class FakeSysService implements SysService {
   @override
   Future<Info> fetch() {
+    final now = DateTime.now();
     return Future.delayed(
       const Duration(milliseconds: 500),
       () => Info(
         state: state.toString().split('.')[1],
-        version: '0.6.0',
+        version: '0.7.0',
         projectName: 'Frontend',
-        compileTime: '18:31:28',
-        compileDate: 'Jul 28 2024',
-        idfVersion: '5.5.1',
+        compileTime: DateFormat('HH:mm:ss').format(now),
+        compileDate: DateFormat('MMM dd yyyy').format(now),
+        idfVersion: '5.5.3',
         mdns: 'remise.local',
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.1
+- Bugfix empty SSID is valid ([#133](https://github.com/OpenRemise/Frontend/issues/133))
+
 ## 0.7.0
 - Power- and dark mode button indicate current status ([#127](https://github.com/OpenRemise/Frontend/issues/127))
 - Bugfix various bugs
