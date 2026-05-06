@@ -570,13 +570,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
   /// \todo document
   Future<void> _openRemiseFromFile() async {
-    return FilePicker.platform
-        .pickFiles(
+    return FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['bin', 'zip'],
       withData: true,
-    )
-        .then((FilePickerResult? result) {
+    ).then((FilePickerResult? result) {
       if (result?.files[0].extension == 'bin') {
         showDialog(
           context: context,
@@ -700,13 +698,11 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
 
   /// \todo document
   Future<void> _zimoFromFile() async {
-    return FilePicker.platform
-        .pickFiles(
+    return FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: _selected.elementAt(1) >= 2 ? ['zpp'] : ['zsu'],
       withData: true,
-    )
-        .then((FilePickerResult? result) {
+    ).then((FilePickerResult? result) {
       if (result?.files[0].extension == 'zpp') {
         final zpp = Zpp(result!.files.first.bytes!);
         showDialog(

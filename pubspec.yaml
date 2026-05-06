@@ -36,7 +36,7 @@ dependencies:
   collection: ^1.19.0
   csv: ^6.0.0
   desktop_window: ^0.4.2
-  file_picker: ^10.3.8
+  file_picker: ^11.0.2
   fixnum: ^1.1.1
   flutter_form_builder: ^9.7.0
   flutter_grid_button: ^2.1.0
