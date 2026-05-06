@@ -65,11 +65,12 @@ class FakeSysService implements SysService {
         ip: '127.0.0.1',
         mac: '80:80:80:80:80:80',
         rssi: -70 + Random().nextInt(5),
+        supplyVoltage: 18000 + Random().nextInt(500),
+        vccVoltage: 18000 + Random().nextInt(500),
+        current: 0,
+        temperature: 40.0 + Random().nextDouble() * 2.0,
         heap: 8100000 + Random().nextInt(384),
         internalHeap: 32000 + Random().nextInt(384),
-        current: 0,
-        voltage: 18000 + Random().nextInt(500),
-        temperature: 40.0 + Random().nextDouble() * 2.0,
       ),
     );
   }
