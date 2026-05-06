@@ -91,6 +91,9 @@ else()
       ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.js #
       ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.js.symbols #
       ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/skwasm_heavy.wasm #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/wimp.js #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/wimp.js.symbols #
+      ${CMAKE_CURRENT_BINARY_DIR}/web/canvaskit/wimp.wasm #
     DEPENDS ${LIB} #
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 endif()
