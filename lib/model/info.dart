@@ -30,6 +30,7 @@ abstract class Info with _$Info {
     @JsonKey(name: 'compile_time') required String compileTime,
     @JsonKey(name: 'compile_date') required String compileDate,
     @JsonKey(name: 'idf_version') required String idfVersion,
+    @JsonKey(name: 'revision') required String revision,
     @JsonKey(name: 'mdns') required String mdns,
     @JsonKey(name: 'ip') required String ip,
     @JsonKey(name: 'mac') required String mac,

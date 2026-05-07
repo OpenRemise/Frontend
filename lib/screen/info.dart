@@ -134,6 +134,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   }()),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),
+                  const Text('Hardware revision'),
+                  Text(data.revision),
                 ],
               ),
               const SliverToBoxAdapter(
