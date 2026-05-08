@@ -134,6 +134,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   }()),
                   const Text('ESP-IDF version'),
                   Text(data.idfVersion),
+                  const Text('Hardware revision'),
+                  Text(data.revision),
                 ],
               ),
               const SliverToBoxAdapter(
@@ -162,9 +164,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 childAspectRatio: MediaQuery.of(context).size.width /
                     (MediaQuery.of(context).size.height / 10),
                 children: [
-                  const Text('Voltage'),
+                  const Text('Supply voltage'),
                   Text(
-                    '${(data.voltage / 1000).toStringAsFixed(2)}V',
+                    '${(data.supplyVoltage / 1000).toStringAsFixed(2)}V',
+                  ),
+                  const Text('VCC voltage'),
+                  Text(
+                    '${(data.vccVoltage / 1000).toStringAsFixed(2)}V',
                   ),
                   const Text('Current'),
                   Text(
