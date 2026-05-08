@@ -37,6 +37,7 @@ class PowerIconButton extends ConsumerWidget {
     return ref.watch(z21StatusProvider).when(
           data: (status) {
             final off = status.trackVoltageOff();
+            final short = status.shortCircuit();
             final prog = status.programmingMode();
             return IconButton(
               onPressed: prog
@@ -48,7 +49,10 @@ class PowerIconButton extends ConsumerWidget {
               isSelected: !off || prog,
               selectedIcon:
                   Icon(Icons.power, color: prog ? Colors.blue : Colors.green),
-              icon: const Icon(Icons.power_off, color: Colors.red),
+              icon: Icon(
+                Icons.power_off,
+                color: short ? Colors.blue : Colors.red,
+              ),
             );
           },
           error: (_, __) => const IconButton(
