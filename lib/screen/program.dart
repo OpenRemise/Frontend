@@ -214,7 +214,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                               title: const Text('Decoder DB'),
                               onTap: () => showDialog<List<Widget>>(
                                 context: context,
-                                builder: (_) => DecoderDetectionDialog(),
+                                builder: (_) => DecoderDetectionDialog(
+                                  key: ValueKey(decoder),
+                                  decoder: decoder,
+                                ),
                                 barrierDismissible: false,
                               ).then((value) {
                                 if (value == null) return;

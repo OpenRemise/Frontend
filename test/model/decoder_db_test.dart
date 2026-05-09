@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:Frontend/model/bidib/decoder_db_decoder_detection.dart';
-import 'package:Frontend/model/bidib/decoder_db_manufacturers.dart';
-import 'package:Frontend/model/bidib/decoder_db_repository.dart';
+import 'package:Frontend/model/bidib/decoder_db.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,6 +13,14 @@ void main() {
       final repository =
           DecoderDbRepository.fromJson(jsonDecode(response.body));
       expect(repository.version, 7);
+      expect(
+        repository.manufacturers!.link,
+        'https://decoderdb.bidib.org/Manufacturers.json',
+      );
+      expect(
+        repository.decoderDetections!.link,
+        'https://decoderdb.bidib.org/DecoderDetection.json',
+      );
     });
 
     test('Manufacturers.json', () async {
@@ -33,6 +39,7 @@ void main() {
       final decoderDetection =
           DecoderDbDecoderDetection.fromJson(jsonDecode(response.body));
       expect(decoderDetection.version!.createdBy, 'DecoderDB');
+      expect(decoderDetection.protocols!.length, 3);
     });
   });
 }

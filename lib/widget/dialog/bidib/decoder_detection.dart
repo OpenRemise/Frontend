@@ -21,16 +21,18 @@
 
 import 'dart:convert';
 
-import 'package:Frontend/model/bidib/decoder_db_decoder_detection.dart';
-import 'package:Frontend/model/bidib/decoder_db_manufacturers.dart';
-import 'package:Frontend/model/bidib/decoder_db_repository.dart';
+import 'package:Frontend/model/bidib/decoder_db.dart';
+import 'package:Frontend/model/decoder.dart';
 import 'package:Frontend/provider/http_client.dart';
+import 'package:Frontend/provider/roco/z21_cv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 ///
 class DecoderDetectionDialog extends ConsumerStatefulWidget {
-  const DecoderDetectionDialog({super.key});
+  final Decoder decoder;
+
+  const DecoderDetectionDialog({super.key, required this.decoder});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -40,12 +42,20 @@ class DecoderDetectionDialog extends ConsumerStatefulWidget {
 /// \todo document
 class _DecoderDetectionDialogState
     extends ConsumerState<DecoderDetectionDialog> {
+  String _status = '';
+  String _option = 'Cancel';
+  double? _progress;
+  late final DecoderDbRepository _repository;
+  late final DecoderDbManufacturers _manufacturers;
+  late final DecoderDbDecoderDetection _detection;
+
   /// \todo document
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _execute().catchError((_) {}),
+      (_) => _execute()
+          .catchError((_) => setState(() => _status = 'Internal error')),
     );
   }
 
@@ -57,12 +67,15 @@ class _DecoderDetectionDialogState
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Text('hi')],
+        children: [
+          LinearProgressIndicator(value: _progress),
+          Text(_status),
+        ],
       ),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(_option),
         ),
       ],
       shape: RoundedRectangleBorder(
@@ -74,28 +87,72 @@ class _DecoderDetectionDialogState
 
   /// \todo document
   Future<void> _execute() async {
+    await _download();
+
+    await _readDefaults(
+      _detection.protocols!
+          .firstWhere((element) => element.type == 'dcc')
+          .defaults!,
+    );
+  }
+
+  /// \todo document
+  Future<void> _download() async {
+    setState(() => _status = 'Downloading');
     final client = ref.read(httpClientProvider);
-    final responses = await Future.wait([
-      client.get(Uri.parse('https://decoderdb.bidib.org/repository.json')),
-      client
-          .get(Uri.parse('https://decoderdb.bidib.org/DecoderDetection.json')),
-      client.get(Uri.parse('https://decoderdb.bidib.org/Manufacturers.json')),
-    ]);
-    final json = responses
-        .map((r) => jsonDecode(r.body) as Map<String, dynamic>)
-        .toList();
-    final repository = DecoderDbRepository.fromJson(json[0]);
-    final detection = DecoderDbDecoderDetection.fromJson(json[1]);
-    final manufacturers = DecoderDbManufacturers.fromJson(json[2]);
 
-    // https://forum.opendcc.de/viewtopic.php?p=120545#p120545
-    // Das is scho mal da 1.Bug
-    // Das sollten 3x Sachen sein
-    // CV8 - CV107/108 und CV7
-    // CV107/108 haben a anders Schema... bravo
-    final readFirst = detection.protocols![0].defaultProperty!;
+    var response = await client
+        .get(Uri.parse('https://decoderdb.bidib.org/repository.json'));
+    _repository = DecoderDbRepository.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
 
-    // Wenn CV8 == 0xEE, dann die andern beiden a lesen
+    response = await client.get(Uri.parse(_repository.manufacturers!.link!));
+    _manufacturers = DecoderDbManufacturers.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+
+    response =
+        await client.get(Uri.parse(_repository.decoderDetections!.link!));
+    _detection = DecoderDbDecoderDetection.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  /// \todo document
+  Future<void> _readDefaults(
+    List<DecoderDbDecoderDetectionDefault> defaults,
+  ) async {
+    for (final def in defaults) {
+      def.items?.forEach(
+        (item) async {
+          for (final trigger
+              in item.triggers ?? <DecoderDbDecoderDetectionTriggers>[]) {
+            for (final condition in trigger.conditions ??
+                <DecoderDbDecoderDetectionConditions>[]) {
+              // Check condition here, return if false?
+              debugPrint('$condition');
+            }
+          }
+
+          if (item.number != null) {
+            debugPrint('${item.number}');
+            await ref
+                .read(z21CvProvider(widget.decoder).notifier)
+                .read(item.number! - 1);
+          }
+
+          for (final cv in item.cvs ?? []) {
+            debugPrint('${cv.number}');
+            if (cv.number != null) {
+              await ref
+                  .read(z21CvProvider(widget.decoder).notifier)
+                  .read(cv.number! - 1);
+            }
+          }
+        },
+      );
+    }
   }
 
   /// \todo document
