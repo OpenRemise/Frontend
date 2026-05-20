@@ -13,7 +13,7 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Install prerequisites
@@ -27,7 +27,7 @@ jobs:
           cmake --preset "Release"
           cmake --build build --target Frontend
           mv build/web build/stable
-      - uses: actions/download-artifact@v5.0.0
+      - uses: actions/download-artifact@v7
         with:
           path: ./build
       - name: Unpack artifact
