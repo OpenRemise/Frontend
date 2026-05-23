@@ -49,10 +49,16 @@ class FakeOtaService implements OtaService {
   }
 
   @override
-  void write(Uint8List chunk) async {
-    await Future.delayed(const Duration(milliseconds: 50), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([OtaService.ack]));
-    });
+  void call(OtaCommand command) {
+    if (_controller.isClosed) return;
+
+    switch (command) {
+      case Write():
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([OtaService.ack]));
+        });
+        break;
+    }
   }
 }

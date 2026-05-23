@@ -169,11 +169,14 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     // zpp -> TF starts at 1
     final tfStart = widget._zpp != null ? 1 : 3;
     for (int tf = tfStart; tf <= 4; ++tf) {
-      final msg = await _retryOnFailure(() => _mdu.configTransferRate(tf));
+      final msg = await _retryOnFailure(
+        () => _mdu(ConfigTransferRate(transferRate: tf)),
+      );
       if (!msg.contains(MduService.ack)) return msg;
     }
 
-    final msg = await _retryOnFailure(() => _mdu.configTransferRate(0));
+    final msg =
+        await _retryOnFailure(() => _mdu(ConfigTransferRate(transferRate: 0)));
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
         status: _mdu.closeReason ?? 'No common transfer rate found',
@@ -189,7 +192,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   Future<Uint8List> _zppValid() async {
     _updateEphemeralState(status: 'Check if ZPP is valid');
     final msg = await _retryOnFailure(
-      () => _mdu.zppValidQuery(widget._zpp!.id, widget._zpp!.flash.length),
+      () => _mdu(
+        ZppValidQuery(
+          id: widget._zpp!.id,
+          flashSize: widget._zpp!.flash.length,
+        ),
+      ),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
@@ -208,7 +216,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     }
     _updateEphemeralState(status: 'Check if load code is valid');
     final msg = await _retryOnFailure(
-      () => _mdu.zppLcDcQuery(widget._zpp!.developerCode),
+      () => _mdu(ZppLcDcQuery(developerCode: widget._zpp!.developerCode)),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
@@ -224,7 +232,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   Future<Uint8List> _zppUpdate() async {
     _updateEphemeralState(status: 'Erasing');
     var msg = await _retryOnFailure(
-      () => _mdu.zppErase(0, widget._zpp!.flash.length),
+      () => _mdu(
+        ZppErase(beginAddress: 0, endAddress: widget._zpp!.flash.length),
+      ),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
@@ -238,7 +248,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     /// During erasing busy must be checked periodically within the HTTP receive timeout.
     for (int i = 0; i < (200 / 3).ceil(); ++i) {
       await Future.delayed(const Duration(seconds: 3));
-      msg = await _retryOnFailure(() => _mdu.busy());
+      msg = await _retryOnFailure(() => _mdu(Busy()));
       if (!msg.contains(MduService.ack)) break;
     }
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
@@ -262,7 +272,9 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     //
     msg = await _retryOnFailure(
-      () => _mdu.zppUpdateEnd(0, widget._zpp!.flash.length),
+      () => _mdu(
+        ZppUpdateEnd(beginAddress: 0, endAddress: widget._zpp!.flash.length),
+      ),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
@@ -286,7 +298,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       // Number of blocks transmit at once
       final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _mdu.zppUpdate((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
+        _mdu(
+          ZppUpdate(
+            address: (i + j) * blockSize,
+            chunk: Uint8List.fromList(blocks[i + j]),
+          ),
+        );
       }
 
       // Wait for all responses
@@ -327,8 +344,8 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   Future<Uint8List> _zppExit() async {
     // Don't leave any decoder in MDU
-    await _retryOnFailure(() => _mdu.ping(0, 0));
-    return await _retryOnFailure(() => _mdu.zppExitReset());
+    await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
+    return await _retryOnFailure(() => _mdu(ZppExitReset()));
   }
 
   /// \todo document
@@ -337,9 +354,11 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     for (final entry in widget._zsu!.firmwares.entries) {
       final decoderId = entry.key;
-      await _retryOnFailure(() => _mdu.ping(0, 0));
-      final msg =
-          await _retryOnFailure(() => _mdu.ping(0, decoderId), retries: 1);
+      await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
+      final msg = await _retryOnFailure(
+        () => _mdu(Ping(serialNumber: 0, decoderId: decoderId)),
+        retries: 1,
+      );
       if (msg[0] == MduService.nak && msg[1] == MduService.ack) {
         final exp = RegExp(r'\w{5,}-[0-9]');
         final match = exp.firstMatch(entry.value.name);
@@ -379,10 +398,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
         ),
       ),
     );
-    await _retryOnFailure(() => _mdu.ping(0, 0));
+    await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
 
     // Ping decoder to update
-    var msg = await _retryOnFailure(() => _mdu.ping(0, decoderId));
+    var msg = await _retryOnFailure(
+      () => _mdu(Ping(serialNumber: 0, decoderId: decoderId)),
+    );
     if (msg[0] == MduService.ack ||
         msg[1] == MduService.nak ||
         _mdu.closeReason != null) {
@@ -402,13 +423,15 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     // Salsa20 initialization vector
     final ZsuFirmware zsuFirmware = widget._zsu!.firmwares[decoderId]!;
-    msg = await _retryOnFailure(() => _mdu.zsuSalsa20IV(zsuFirmware.iv!));
+    msg = await _retryOnFailure(() => _mdu(ZsuSalsa20IV(iv: zsuFirmware.iv!)));
     if (msg.contains(MduService.ack)) return msg;
 
     // Erase flash
     _updateEphemeralState(status: 'Erasing');
     msg = await _retryOnFailure(
-      () => _mdu.zsuErase(0, zsuFirmware.bin.length - 1),
+      () => _mdu(
+        ZsuErase(beginAddress: 0, endAddress: zsuFirmware.bin.length - 1),
+      ),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
@@ -428,7 +451,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     // Busy doesn't work for internal memory so don't check the response
     for (int i = 0; i < 5; ++i) {
       await Future.delayed(const Duration(seconds: 1));
-      await _retryOnFailure(() => _mdu.busy());
+      await _retryOnFailure(() => _mdu(Busy()));
     }
 
     // Write flash
@@ -460,10 +483,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     // CRC32 start
     msg = await _retryOnFailure(
-      () => _mdu.zsuCrc32Start(
-        0,
-        zsuFirmware.bin.length - 1,
-        crc32(zsuFirmware.bin),
+      () => _mdu(
+        ZsuCrc32Start(
+          beginAddress: 0,
+          endAddress: zsuFirmware.bin.length - 1,
+          crc32: crc32(zsuFirmware.bin),
+        ),
       ),
     );
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
@@ -482,7 +507,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     }
 
     // CRC32 result
-    msg = await _retryOnFailure(() => _mdu.zsuCrc32Result());
+    msg = await _retryOnFailure(() => _mdu(ZsuCrc32Result()));
     if (msg.contains(MduService.ack) || _mdu.closeReason != null) {
       _updateEphemeralState(
         status: _mdu.closeReason ?? 'ZSU update CRC32 check failed',
@@ -523,7 +548,12 @@ class _MduDialogState extends ConsumerState<MduDialog> {
       // Number of blocks transmit at once
       final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _mdu.zsuUpdate((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
+        _mdu(
+          ZsuUpdate(
+            address: (i + j) * blockSize,
+            chunk: Uint8List.fromList(blocks[i + j]),
+          ),
+        );
       }
 
       // Wait for all responses
@@ -564,8 +594,8 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   Future<Uint8List> _zsuExit() async {
     // Don't leave any decoder in MDU
-    await _retryOnFailure(() => _mdu.ping(0, 0));
-    return _retryOnFailure(() => _mdu.zsuCrc32ResultExit());
+    await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
+    return _retryOnFailure(() => _mdu(ZsuCrc32ResultExit()));
   }
 
   /// \todo document

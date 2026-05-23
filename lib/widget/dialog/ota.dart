@@ -124,7 +124,7 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
       final start = i;
       final end = start + _chunkSize;
       final chunk = _bin.sublist(start, min(end, _bin.length));
-      _ota.write(chunk);
+      _ota(Write(chunk: chunk));
 
       final msg = await _events.next;
       if (!msg.contains(OtaService.ack) || _ota.closeReason != null) {

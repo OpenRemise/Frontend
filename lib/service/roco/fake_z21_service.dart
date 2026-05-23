@@ -340,6 +340,7 @@ class FakeZ21Service implements Z21Service {
             .read(turnoutsProvider)
             .firstWhereOrNull((t) => t.address == accyAddress);
         Future.delayed(Duration(milliseconds: turnout != null ? 250 : 500), () {
+          if (_controller.isClosed) return;
           _controller.sink.add(
             turnout != null && fakeAccessoryCvs[accyAddress] != null
                 ? LanXCvResult(
