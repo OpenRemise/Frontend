@@ -23,7 +23,7 @@ import 'package:Frontend/provider/roco/z21_status.dart';
 import 'package:Frontend/provider/text_scaler.dart';
 import 'package:Frontend/utility/loco_address_validator.dart';
 import 'package:Frontend/utility/turnout_address_validator.dart';
-import 'package:Frontend/widget/dialog/bidib/decoder_detection.dart';
+import 'package:Frontend/widget/dialog/decoderdb/decoder_detection.dart';
 import 'package:Frontend/widget/power_icon_button.dart';
 import 'package:Frontend/widget/program/manual.dart';
 import 'package:flutter/foundation.dart';
@@ -211,10 +211,13 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                                   'data/images/logos/decoder_db.svg',
                                 ),
                               ),
-                              title: const Text('Decoder DB'),
+                              title: const Text('DecoderDB'),
                               onTap: () => showDialog<List<Widget>>(
                                 context: context,
-                                builder: (_) => DecoderDetectionDialog(),
+                                builder: (_) => DecoderDetectionDialog(
+                                  key: ValueKey(decoder),
+                                  decoder: decoder,
+                                ),
                                 barrierDismissible: false,
                               ).then((value) {
                                 if (value == null) return;

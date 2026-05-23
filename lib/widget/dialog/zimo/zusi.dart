@@ -135,7 +135,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
 
   /// \todo document
   Future<Uint8List> _features() async {
-    final msg = await _retryOnFailure(() => _zusi.features());
+    final msg = await _retryOnFailure(() => _zusi(Features()));
     if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
       _updateEphemeralState(
         status: _zusi.closeReason ?? 'No decoder found',
@@ -151,7 +151,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
     if (!widget._zpp.coded) return Uint8List.fromList([ZusiService.ack]);
     _updateEphemeralState(status: 'Check if load code is valid', progress: 0);
     final msg = await _retryOnFailure(
-      () => _zusi.zppLcDcQuery(widget._zpp.developerCode),
+      () => _zusi(ZppLcDcQuery(developerCode: widget._zpp.developerCode)),
     );
     if (!msg.contains(ZusiService.ack) ||
         _zusi.closeReason != null ||
@@ -168,7 +168,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \todo document
   Future<Uint8List> _zppErase() async {
     _updateEphemeralState(status: 'Erasing');
-    final msg = await _retryOnFailure(() => _zusi.zppErase());
+    final msg = await _retryOnFailure(() => _zusi(ZppErase()));
     if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
       _updateEphemeralState(
         status: _zusi.closeReason ?? 'Erasing failed',
@@ -192,7 +192,12 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
       // Number of blocks transmit at once
       final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _zusi.zppWrite((i + j) * blockSize, Uint8List.fromList(blocks[i + j]));
+        _zusi(
+          ZppWrite(
+            address: (i + j) * blockSize,
+            chunk: Uint8List.fromList(blocks[i + j]),
+          ),
+        );
       }
 
       // Wait for all responses
@@ -236,8 +241,9 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   Future<Uint8List> _zppCvs() async {
     int i = 0;
     for (final entry in widget._zpp.cvs.entries) {
-      final msg =
-          await _retryOnFailure(() => _zusi.cvWrite(entry.key, entry.value));
+      final msg = await _retryOnFailure(
+        () => _zusi(CvWrite(cvAddress: entry.key, value: entry.value)),
+      );
       if (!msg.contains(ZusiService.ack) || _zusi.closeReason != null) {
         _updateEphemeralState(
           status: _zusi.closeReason ?? 'Writing CVs failed',
@@ -260,7 +266,7 @@ class _ZusiDialogState extends ConsumerState<ZusiDialog> {
   /// \note
   /// Unfortunately, we cannot check the return value because the command is not implemented in MX decoders.
   Future<Uint8List> _exit() async {
-    await _retryOnFailure(() => _zusi.exit(cv8Reset: true));
+    await _retryOnFailure(() => _zusi(Exit(cv8Reset: true)));
     return Uint8List.fromList([ZusiService.ack]);
   }
 

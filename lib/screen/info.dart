@@ -107,10 +107,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(data.version),
-                      if (availableFirmwareVersion.hasValue == true &&
-                          Version.parse(
-                                availableFirmwareVersion.requireValue,
-                              ) >
+                      if (availableFirmwareVersion.hasValue &&
+                          Version.parse(availableFirmwareVersion.requireValue) >
                               Version.parse(data.version))
                         Tooltip(
                           message: 'New version available',

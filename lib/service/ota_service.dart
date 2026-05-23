@@ -15,6 +15,23 @@
 
 import 'dart:typed_data';
 
+/// \todo document
+sealed class OtaCommand {
+  Uint8List toUint8List();
+}
+
+/// \todo document
+class Write extends OtaCommand {
+  final Uint8List chunk;
+
+  Write({required this.chunk});
+
+  @override
+  Uint8List toUint8List() {
+    return chunk;
+  }
+}
+
 abstract interface class OtaService {
   static const int ack = 0x06;
   static const int nak = 0x15;
@@ -24,5 +41,5 @@ abstract interface class OtaService {
   Stream<Uint8List> get stream;
   Future close([int? closeCode, String? closeReason]);
 
-  void write(Uint8List chunk);
+  void call(OtaCommand command);
 }

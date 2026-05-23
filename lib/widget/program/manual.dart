@@ -36,46 +36,7 @@ class Manual extends ConsumerStatefulWidget {
 /// \todo document
 class _ManualState extends ConsumerState<Manual> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late final ProviderSubscription _sub;
   IconData _iconData = Icons.circle;
-
-  @override
-  void initState() {
-    super.initState();
-    _sub = ref.listenManual<CvMap>(
-      z21CvProvider(widget.decoder),
-      (_, next) {
-        final number = int.tryParse(_formKey.currentState?.value['CV number']);
-        if (number == null || !next.containsKey((number - 1, 0, 1))) return;
-        switch (next[(number - 1, 0, 1)]) {
-          case null:
-            setState(() => _iconData = Icons.pending);
-            break;
-
-          case LanXCvNackSc():
-          case LanXCvNack():
-            setState(() => _iconData = Icons.error);
-            break;
-
-          case LanXCvResult(cvAddress: final cvAddress, value: final value):
-            if (number - 1 == cvAddress) {
-              _formKey.currentState?.patchValue({'CV value': value.toString()});
-              setState(() => _iconData = Icons.check_circle);
-            }
-            break;
-
-          default:
-            break;
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _sub.close();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,25 +114,53 @@ class _ManualState extends ConsumerState<Manual> {
   }
 
   /// \todo document
-  void _read() {
+  void _read() async {
     // Clear value and error
     setState(() => _iconData = Icons.circle);
     _formKey.currentState?.fields['CV value']?.reset();
 
     //
     if (_formKey.currentState?.fields['CV number']?.validate() ?? false) {
+      setState(() => _iconData = Icons.pending);
       _formKey.currentState?.save();
       final number = int.parse(_formKey.currentState?.value['CV number']);
-      ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
+      final response = await ref
+          .read(z21CvProvider(widget.decoder).notifier)
+          .read(number - 1);
+      _result(number, response);
     }
   }
 
   /// \todo document
-  void _write() {
+  void _write() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
+      setState(() => _iconData = Icons.pending);
       final number = int.parse(_formKey.currentState?.value['CV number']);
       final value = int.parse(_formKey.currentState?.value['CV value']);
-      ref.read(z21CvProvider(widget.decoder).notifier).write(number - 1, value);
+      final response = await ref
+          .read(z21CvProvider(widget.decoder).notifier)
+          .write(number - 1, value);
+      _result(number, response);
+    }
+  }
+
+  /// \todo document
+  void _result(int number, Z21Command command) {
+    switch (command) {
+      case LanXCvNackSc():
+      case LanXCvNack():
+        setState(() => _iconData = Icons.error);
+        break;
+
+      case LanXCvResult(cvAddress: final cvAddress, value: final value):
+        if (number - 1 == cvAddress) {
+          _formKey.currentState?.patchValue({'CV value': value.toString()});
+          setState(() => _iconData = Icons.check_circle);
+        }
+        break;
+
+      default:
+        break;
     }
   }
 

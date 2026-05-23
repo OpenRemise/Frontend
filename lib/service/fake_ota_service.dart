@@ -15,11 +15,19 @@
 
 import 'dart:async';
 
+import 'package:Frontend/provider/roco/z21_service.dart';
 import 'package:Frontend/service/ota_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeOtaService implements OtaService {
+  final ProviderContainer ref;
   final _controller = StreamController<Uint8List>();
+
+  FakeOtaService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -34,14 +42,23 @@ class FakeOtaService implements OtaService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      _controller.sink.close();
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
+  }
 
   @override
-  void write(Uint8List chunk) async {
-    await Future.delayed(const Duration(milliseconds: 50), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([OtaService.ack]));
-    });
+  void call(OtaCommand command) {
+    if (_controller.isClosed) return;
+
+    switch (command) {
+      case Write():
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([OtaService.ack]));
+        });
+        break;
+    }
   }
 }

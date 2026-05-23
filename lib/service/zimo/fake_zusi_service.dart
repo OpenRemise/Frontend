@@ -15,13 +15,20 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/fake_initial_cvs.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/zusi_service.dart';
 import 'package:Frontend/utility/crc8.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZusiService implements ZusiService {
+  final ProviderContainer ref;
   final _controller = StreamController<Uint8List>();
+
+  FakeZusiService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -36,78 +43,68 @@ class FakeZusiService implements ZusiService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      Future.delayed(Duration.zero);
-
-  @override
-  void cvRead(int cvAddress) async {
-    await Future.delayed(const Duration(milliseconds: 10), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(
-        Uint8List.fromList(
-          [
-            ZusiService.ack,
-            fakeInitialLocoCvs[cvAddress],
-            crc8([fakeInitialLocoCvs[cvAddress]]),
-          ],
-        ),
-      );
-    });
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
   }
 
   @override
-  void cvWrite(int cvAddress, int byte) async {
-    await Future.delayed(const Duration(milliseconds: 10), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
-    });
-  }
+  void call(ZusiCommand command) {
+    if (_controller.isClosed) return;
 
-  @override
-  void zppErase() async {
-    await Future.delayed(const Duration(seconds: 10), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
-    });
-  }
+    switch (command) {
+      case CvRead():
+        throw UnimplementedError();
 
-  @override
-  void zppWrite(int address, Uint8List chunk) async {
-    await Future.delayed(Duration(milliseconds: 2 * chunk.length), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
-    });
-  }
+      case CvWrite():
+        Future.delayed(const Duration(milliseconds: 10), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
+        });
+        break;
 
-  @override
-  void features() async {
-    await Future.delayed(const Duration(seconds: 2), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([6, 251, 255, 255, 127, 147]));
-    });
-  }
+      case ZppErase():
+        Future.delayed(const Duration(seconds: 10), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
+        });
+        break;
 
-  @override
-  void exit({bool cv8Reset = false, bool restart = false}) async {
-    await Future.delayed(const Duration(seconds: 2), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
-    });
-  }
+      case ZppWrite(chunk: final chunk):
+        Future.delayed(Duration(milliseconds: 2 * chunk.length), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
+        });
+        break;
 
-  @override
-  void zppLcDcQuery(Uint8List developerCode) async {
-    await Future.delayed(const Duration(milliseconds: 10), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(
-        Uint8List.fromList(
-          [
-            ZusiService.ack,
-            0x01,
-            crc8([0x01]),
-          ],
-        ),
-      );
-    });
+      case Features():
+        Future.delayed(const Duration(seconds: 2), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([6, 251, 255, 255, 127, 147]));
+        });
+        break;
+
+      case Exit():
+        Future.delayed(const Duration(seconds: 2), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(Uint8List.fromList([ZusiService.ack]));
+        });
+        break;
+
+      case ZppLcDcQuery():
+        Future.delayed(const Duration(milliseconds: 10), () {
+          if (_controller.isClosed) return;
+          _controller.sink.add(
+            Uint8List.fromList([
+              ZusiService.ack,
+              0x01,
+              crc8([0x01]),
+            ]),
+          );
+        });
+        break;
+    }
   }
 }

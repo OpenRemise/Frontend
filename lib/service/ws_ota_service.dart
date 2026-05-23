@@ -43,7 +43,7 @@ class WsOtaService implements OtaService {
       _channel.sink.close(closeCode, closeReason);
 
   @override
-  void write(Uint8List chunk) {
-    _channel.sink.add(chunk);
+  void call(OtaCommand command) {
+    _channel.sink.add(command.toUint8List());
   }
 }

@@ -16,7 +16,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:Frontend/constant/fake_initial_cvs.dart';
+import 'package:Frontend/constant/fake_cvs.dart';
 import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/provider/locos.dart';
 import 'package:Frontend/provider/turnouts.dart';
@@ -27,10 +27,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZ21Service implements Z21Service {
   final _controller = StreamController<Z21Command>();
-  final List<int> _cvs = List.from(fakeInitialLocoCvs);
   final ProviderContainer ref;
   late final Stream<Z21Command> _stream;
-  int _centralState = 0x02;
+  LanXStatusChanged _status = LanXStatusChanged(centralState: 0x02);
 
   FakeZ21Service(this.ref) {
     _stream = _controller.stream.asBroadcastStream();
@@ -89,21 +88,16 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXGetStatus():
-        _controller.sink.add(LanXStatusChanged(centralState: _centralState));
+        _controller.sink
+            .add(LanXStatusChanged(centralState: _status.centralState));
         break;
 
       case LanXSetTrackPowerOff():
-        _centralState = _centralState | 0x02;
-        state = State.Suspending;
-        Future.delayed(
-          const Duration(seconds: 1),
-          () => state = State.Suspended,
-        );
+        call(LanXBcTrackPowerOff());
         break;
 
       case LanXSetTrackPowerOn():
-        _centralState = _centralState & ~0x02;
-        state = State.DCCOperations;
+        call(LanXBcTrackPowerOn());
         break;
 
       case LanXDccReadRegister():
@@ -115,7 +109,10 @@ class FakeZ21Service implements Z21Service {
           () {
             if (_controller.isClosed) return;
             _controller.sink.add(
-              LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress]),
+              LanXCvResult(
+                cvAddress: cvAddress,
+                value: fakeServiceCvs[cvAddress],
+              ),
             );
           },
         );
@@ -129,9 +126,12 @@ class FakeZ21Service implements Z21Service {
           const Duration(seconds: 1),
           () {
             if (_controller.isClosed) return;
-            _cvs[cvAddress] = value;
+            fakeServiceCvs[cvAddress] = value;
             _controller.sink.add(
-              LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress]),
+              LanXCvResult(
+                cvAddress: cvAddress,
+                value: fakeServiceCvs[cvAddress],
+              ),
             );
           },
         );
@@ -288,7 +288,9 @@ class FakeZ21Service implements Z21Service {
         final loco = ref
             .read(locosProvider)
             .firstWhereOrNull((l) => l.address == locoAddress);
-        if (loco != null && loco.address != 0) _cvs[cvAddress] = value;
+        if (loco != null && loco.address != 0) {
+          fakeLocoCvs[locoAddress]?[cvAddress] = value;
+        }
         break;
 
       case LanXCvPomWriteBit():
@@ -304,8 +306,11 @@ class FakeZ21Service implements Z21Service {
         Future.delayed(Duration(milliseconds: loco != null ? 250 : 500), () {
           if (_controller.isClosed) return;
           _controller.sink.add(
-            loco != null
-                ? LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress])
+            loco != null && fakeLocoCvs[locoAddress] != null
+                ? LanXCvResult(
+                    cvAddress: cvAddress,
+                    value: fakeLocoCvs[locoAddress]![cvAddress],
+                  )
                 : LanXCvNack(),
           );
         });
@@ -320,7 +325,7 @@ class FakeZ21Service implements Z21Service {
             .read(turnoutsProvider)
             .firstWhereOrNull((t) => t.address == accyAddress);
         if (turnout != null && turnout.address != 0) {
-          _cvs[cvAddress] = value;
+          fakeAccessoryCvs[accyAddress]?[cvAddress] = value;
         }
         break;
 
@@ -335,9 +340,13 @@ class FakeZ21Service implements Z21Service {
             .read(turnoutsProvider)
             .firstWhereOrNull((t) => t.address == accyAddress);
         Future.delayed(Duration(milliseconds: turnout != null ? 250 : 500), () {
+          if (_controller.isClosed) return;
           _controller.sink.add(
-            turnout != null
-                ? LanXCvResult(cvAddress: cvAddress, value: _cvs[cvAddress])
+            turnout != null && fakeAccessoryCvs[accyAddress] != null
+                ? LanXCvResult(
+                    cvAddress: cvAddress,
+                    value: fakeAccessoryCvs[accyAddress]![cvAddress],
+                  )
                 : LanXCvNack(),
           );
         });
@@ -470,13 +479,24 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXBcTrackPowerOff():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(centralState: _status.centralState | 0x02);
+        state = State.Suspending;
+        Future.delayed(
+          const Duration(seconds: 1),
+          () => state = State.Suspended,
+        );
+        break;
 
       case LanXBcTrackPowerOn():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(
+          centralState: _status.centralState & ~(0x01 | 0x02 | 0x04 | 0x20),
+        );
+        state = State.DCCOperations;
+        break;
 
       case LanXBcProgrammingMode():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(centralState: _status.centralState | 0x20);
+        break;
 
       case LanXBcTrackShortCircuit():
         throw UnimplementedError();

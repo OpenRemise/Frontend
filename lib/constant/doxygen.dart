@@ -36,12 +36,15 @@
 /// \section section_constant_dcc_programming_types DCC Programming Types
 /// \copydetails dccProgrammingTypes
 ///
-/// \section section_constant_fake_initial_cvs Fake Initial CVs
-/// \subsection subsection_constant_fake_initial_loco_cvs Fake Initial Loco CVs
-/// \copydetails fakeInitialLocoCvs
+/// \section section_constant_fake_cvs Fake CVs
+/// \subsection subsection_constant_fake_service_cvs Fake Service CVs
+/// \copydetails fakeServiceCvs
 ///
-/// \subsection subsection_constant_fake_initial_accessory_cvs Fake Initial Accessory CVs
-/// \copydetails fakeInitialAccessoryCvs
+/// \subsection subsection_constant_fake_loco_cvs Fake Loco CVs
+/// \copydetails fakeLocoCvs
+///
+/// \subsection subsection_constant_fake_accessory_cvs Fake Accessory CVs
+/// \copydetails fakeAccessoryCvs
 ///
 /// \section section_constant_fake_services_provider_container Fake Services Provider Container
 /// \copydetails fakeServicesProviderContainer

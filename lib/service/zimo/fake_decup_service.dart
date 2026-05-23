@@ -15,12 +15,16 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/fake_initial_cvs.dart';
 import 'package:Frontend/constant/zimo/mx_decoder_ids.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/decup_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeDecupService implements DecupService {
+  final ProviderContainer ref;
+
   /// Random ID
   final _decoderId = () {
     final shuffledIds = mxDecoderIds.toList();
@@ -28,6 +32,10 @@ class FakeDecupService implements DecupService {
     return shuffledIds.first;
   }();
   final _controller = StreamController<Uint8List>();
+
+  FakeDecupService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -42,137 +50,119 @@ class FakeDecupService implements DecupService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      _controller.sink.close();
-
-  @override
-  void zppPreamble() async {
-    await Future.delayed(
-      const Duration(milliseconds: 25),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([]));
-      },
-    );
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
   }
 
   @override
-  void zppDecoderId() async {
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-      () {
-        if (_controller.isClosed) return;
-        for (int i = 0; i < 8; ++i) {
-          _controller.sink.add(
-            Uint8List.fromList(
-              [_decoderId & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
-            ),
-          );
-        }
-      },
-    );
-  }
+  void call(DecupCommand command) {
+    if (_controller.isClosed) return;
 
-  @override
-  void zppReadCv(int cvAddress) async {
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-      () {
-        if (_controller.isClosed) return;
-        final cv = fakeInitialLocoCvs[cvAddress];
-        for (int i = 0; i < 8; ++i) {
-          _controller.sink.add(
-            Uint8List.fromList(
-              [cv & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
-            ),
-          );
-        }
-      },
-    );
-  }
+    switch (command) {
+      case ZppPreamble():
+        Future.delayed(
+          const Duration(milliseconds: 25),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([]));
+          },
+        );
+        break;
 
-  @override
-  void zppWriteCv(int cvAddress, int byte) async {
-    await Future.delayed(
-      const Duration(milliseconds: 50),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
-      },
-    );
-  }
+      case ZppDecoderId():
+        Future.delayed(
+          const Duration(milliseconds: 500),
+          () {
+            if (_controller.isClosed) return;
+            for (int i = 0; i < 8; ++i) {
+              _controller.sink.add(
+                Uint8List.fromList(
+                  [
+                    _decoderId & (1 << i) > 0
+                        ? DecupService.ack
+                        : DecupService.nak,
+                  ],
+                ),
+              );
+            }
+          },
+        );
+        break;
 
-  @override
-  void zppErase() async {
-    await Future.delayed(
-      const Duration(seconds: 10),
-      () {
-        if (_controller.isClosed) return;
+      case ZppReadCv():
+        throw UnimplementedError();
+
+      case ZppWriteCv():
+        Future.delayed(
+          const Duration(milliseconds: 50),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+          },
+        );
+        break;
+
+      case ZppErase():
+        Future.delayed(
+          const Duration(seconds: 10),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+          },
+        );
+        break;
+
+      case ZppBlocks(chunk: final chunk):
+        Future.delayed(
+          Duration(milliseconds: 10 * chunk.length),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+          },
+        );
+        break;
+
+      case ZsuPreamble():
+        Future.delayed(
+          const Duration(milliseconds: 25),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([]));
+          },
+        );
+        break;
+
+      case ZsuDecoderId(byte: final byte):
+        _controller.sink.add(
+          Uint8List.fromList(
+            byte == _decoderId ? [DecupService.ack] : [],
+          ),
+        );
+        break;
+
+      case ZsuBlockCount():
         _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-      },
-    );
-  }
+        break;
 
-  @override
-  void zppBlocks(int count, Uint8List chunk) async {
-    assert(chunk.length == 256);
-    await Future.delayed(
-      Duration(milliseconds: 10 * chunk.length),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
-      },
-    );
-  }
+      case ZsuSecurityByte1():
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+        break;
 
-  @override
-  void zsuPreamble() async {
-    await Future.delayed(
-      const Duration(milliseconds: 25),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([]));
-      },
-    );
-  }
+      case ZsuSecurityByte2():
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+        break;
 
-  @override
-  void zsuDecoderId(int byte) {
-    if (_controller.isClosed) return;
-    _controller.sink.add(
-      Uint8List.fromList(
-        byte == _decoderId ? [DecupService.ack] : [],
-      ),
-    );
-  }
-
-  @override
-  void zsuBlockCount(int count) {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-  }
-
-  @override
-  void zsuSecurityByte1() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-  }
-
-  @override
-  void zsuSecurityByte2() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-  }
-
-  @override
-  void zsuBlocks(int count, Uint8List chunk) async {
-    assert(chunk.length == 32 || chunk.length == 64);
-    await Future.delayed(
-      Duration(milliseconds: 50 * chunk.length),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(Uint8List.fromList([DecupService.ack]));
-      },
-    );
+      case ZsuBlocks(chunk: final chunk):
+        Future.delayed(
+          Duration(milliseconds: 50 * chunk.length),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+          },
+        );
+        break;
+    }
   }
 }

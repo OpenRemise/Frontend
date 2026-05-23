@@ -17,10 +17,15 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:Frontend/constant/zimo/ms_decoder_ids.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/mdu_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeMduService implements MduService {
+  final ProviderContainer ref;
+
   /// Up to 3 random IDs
   final _decoderIds = () {
     final shuffledIds = msDecoderIds.toList();
@@ -28,6 +33,10 @@ class FakeMduService implements MduService {
     return shuffledIds.sublist(0, Random().nextInt(3) + 1);
   }();
   final _controller = StreamController<Uint8List>();
+
+  FakeMduService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -42,155 +51,140 @@ class FakeMduService implements MduService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      Future.delayed(Duration.zero);
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
+  }
 
   @override
-  void ping(int serialNumber, int decoderId) async {
-    await Future.delayed(
-      const Duration(milliseconds: 100),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(
-          Uint8List.fromList(
-            [
-              MduService.nak,
-              _decoderIds.contains(decoderId) ? MduService.ack : MduService.nak,
-            ],
-          ),
+  void call(MduCommand command) {
+    if (_controller.isClosed) return;
+
+    switch (command) {
+      case Ping(decoderId: final decoderId):
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(
+              Uint8List.fromList(
+                [
+                  MduService.nak,
+                  _decoderIds.contains(decoderId)
+                      ? MduService.ack
+                      : MduService.nak,
+                ],
+              ),
+            );
+          },
         );
-      },
-    );
-  }
+        break;
 
-  @override
-  void configTransferRate(int transferRate) async {
-    await Future.delayed(
-      const Duration(milliseconds: 100),
-      () {
-        if (_controller.isClosed) return;
-        _controller.sink.add(
-          Uint8List.fromList(
-            [
-              MduService.nak,
-              transferRate < 3 ? MduService.ack : MduService.nak,
-            ],
-          ),
+      case ConfigTransferRate(transferRate: final transferRate):
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(
+              Uint8List.fromList(
+                [
+                  MduService.nak,
+                  transferRate < 3 ? MduService.ack : MduService.nak,
+                ],
+              ),
+            );
+          },
         );
-      },
-    );
-  }
+        break;
 
-  @override
-  void binaryTreeSearch(int byte) {
-    throw UnimplementedError();
-  }
+      case BinaryTreeSearch():
+        throw UnimplementedError();
 
-  @override
-  void busy() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case Busy():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zppValidQuery(String id, int flashSize) {
-    assert(id.length == 2);
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZppValidQuery():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zppLcDcQuery(Uint8List developerCode) async {
-    assert(developerCode.length == 4);
-    await Future.delayed(const Duration(milliseconds: 50), () {
-      if (_controller.isClosed) return;
-      _controller.sink
-          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-    });
-  }
+      case ZppLcDcQuery():
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
 
-  @override
-  void zppErase(int beginAddress, int endAddress) async {
-    await Future.delayed(const Duration(seconds: 20), () {
-      if (_controller.isClosed) return;
-      _controller.sink
-          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-    });
-  }
+      case ZppErase():
+        Future.delayed(const Duration(seconds: 20), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
 
-  @override
-  void zppUpdate(int address, Uint8List chunk) async {
-    assert(chunk.length == 256);
-    await Future.delayed(Duration(milliseconds: 10 * chunk.length), () {
-      if (_controller.isClosed) return;
-      _controller.sink
-          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-    });
-  }
+      case ZppUpdate(chunk: final chunk):
+        Future.delayed(Duration(milliseconds: 10 * chunk.length), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
 
-  @override
-  void zppUpdateEnd(int beginAddress, int endAddress) {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZppUpdateEnd():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zppExit() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZppExit():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zppExitReset() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZppExitReset():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zsuSalsa20IV(Uint8List iv) {
-    assert(iv.length == 8);
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZsuSalsa20IV():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zsuErase(int beginAddress, int endAddress) async {
-    await Future.delayed(const Duration(milliseconds: 5), () {
-      if (_controller.isClosed) return;
-      _controller.sink
-          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-    });
-  }
+      case ZsuErase():
+        Future.delayed(const Duration(milliseconds: 5), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
 
-  @override
-  void zsuUpdate(int address, Uint8List chunk) async {
-    assert(chunk.length == 64);
-    await Future.delayed(Duration(milliseconds: 20 * chunk.length), () {
-      if (_controller.isClosed) return;
-      _controller.sink
-          .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-    });
-  }
+      case ZsuUpdate(chunk: final chunk):
+        Future.delayed(Duration(milliseconds: 20 * chunk.length), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
 
-  @override
-  void zsuCrc32Start(
-    int beginAddress,
-    int endAddress,
-    int crc32,
-  ) {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZsuCrc32Start():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zsuCrc32Result() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
-  }
+      case ZsuCrc32Result():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
 
-  @override
-  void zsuCrc32ResultExit() {
-    if (_controller.isClosed) return;
-    _controller.sink.add(Uint8List.fromList([MduService.nak, MduService.nak]));
+      case ZsuCrc32ResultExit():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
+    }
   }
 }

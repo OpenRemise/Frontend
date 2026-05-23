@@ -30,11 +30,10 @@ class Locos extends _$Locos {
     return const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? SplayTreeSet<Loco>.of([
             Loco(address: 3, name: 'Vectron'),
-            Loco(address: 98, name: 'L45H'),
-            Loco(address: 208, name: 'Gruppo 740', speedSteps: 2),
-            Loco(address: 726, name: 'Gem 4/4'),
-            Loco(address: 1337, name: 'Reihe 498', speedSteps: 0),
-            Loco(address: 2811, name: 'ASF EL 16'),
+            Loco(address: 4, name: 'Gem 4/4', speedSteps: 2),
+            Loco(address: 50, name: 'BR 50'),
+            Loco(address: 498, name: 'Reihe 498', speedSteps: 0),
+            Loco(address: 740, name: 'Gruppo 740', speedSteps: 2),
           ])
         : SplayTreeSet<Loco>();
   }

@@ -154,14 +154,14 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<void> _zppPreamble() async {
-    _decup.zppPreamble();
+    _decup(ZppPreamble());
     await _events.next;
   }
 
   /// \todo document
   Future<Uint8List> _zppErase() async {
     _updateEphemeralState(status: 'Erasing');
-    _decup.zppErase();
+    _decup(ZppErase());
     final msg = await _events.next;
     if (!msg.contains(DecupService.nak) || _decup.closeReason != null) {
       _updateEphemeralState(
@@ -186,7 +186,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       // Number of blocks transmit at once
       final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _decup.zppBlocks(i + j, Uint8List.fromList(blocks[i + j]));
+        _decup(
+          ZppBlocks(count: i + j, chunk: Uint8List.fromList(blocks[i + j])),
+        );
       }
 
       // Wait for all responses
@@ -231,7 +233,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
     int i = 0;
     for (final entry in widget._zpp!.cvs.entries) {
       final msg = await _retryOnFailure(
-        () => _decup.zppWriteCv(entry.key, entry.value),
+        () => _decup(ZppWriteCv(cvAddress: entry.key, value: entry.value)),
       );
       if (!msg.contains(DecupService.ack) || _decup.closeReason != null) {
         _updateEphemeralState(
@@ -252,7 +254,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<void> _zsuPreamble() async {
-    _decup.zsuPreamble();
+    _decup(ZsuPreamble());
     await _events.next;
   }
 
@@ -262,7 +264,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
     for (final entry in widget._zsu!.firmwares.entries) {
       final decoderId = entry.key;
-      _decup.zsuDecoderId(decoderId);
+      _decup(ZsuDecoderId(byte: decoderId));
       final msg = await _events.next;
       if (msg.contains(DecupService.ack)) {
         _updateEphemeralState(
@@ -292,7 +294,7 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
         (widget._zsu!.firmwares[_decoders.keys.first]!.bin.length ~/ 256 +
             8 -
             1);
-    _decup.zsuBlockCount(blockCount);
+    _decup(ZsuBlockCount(count: blockCount));
     final msg = await _events.next;
     if (!msg.contains(DecupService.nak) || _decup.closeReason != null) {
       _updateEphemeralState(
@@ -306,9 +308,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
 
   /// \todo document
   Future<Uint8List> _zsuSecurityBytes() async {
-    _decup.zsuSecurityByte1();
+    _decup(ZsuSecurityByte1());
     final msg1 = await _events.next;
-    _decup.zsuSecurityByte2();
+    _decup(ZsuSecurityByte2());
     final msg2 = await _events.next;
     if (!msg1.contains(DecupService.nak) ||
         !msg2.contains(DecupService.nak) ||
@@ -349,7 +351,9 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
       // Number of blocks transmit at once
       final n = min(wsBatchSize, blocks.length - i);
       for (var j = 0; j < n; ++j) {
-        _decup.zsuBlocks(i + j, Uint8List.fromList(blocks[i + j]));
+        _decup(
+          ZsuBlocks(count: i + j, chunk: Uint8List.fromList(blocks[i + j])),
+        );
       }
 
       // Wait for all responses

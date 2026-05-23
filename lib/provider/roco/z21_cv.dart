@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:Frontend/model/config.dart';
@@ -29,14 +30,14 @@ typedef CvKey = (int, int, int);
 typedef CvMap = Map<CvKey, Z21Command?>;
 
 /// \todo document
-@riverpod
+@Riverpod(keepAlive: true)
 class Z21Cv extends _$Z21Cv {
-  final Queue<Z21Command> _queue = Queue();
+  final Queue<(Z21Command, Completer<Z21Command>)> _queue = Queue();
   late final Z21Service _z21;
   late final Decoder _decoder;
-  Z21Command? _active;
-  int? _cv31 = 0;
-  int? _cv32 = 1;
+  (Z21Command, Completer<Z21Command>)? _active;
+  int _cv31 = 0;
+  int _cv32 = 1;
 
   /// \todo document
   @override
@@ -60,50 +61,62 @@ class Z21Cv extends _$Z21Cv {
   }
 
   /// \todo document
-  void read(int cvAddress) {
+  Future<Z21Command> read(int cvAddress) {
+    final completer = Completer<Z21Command>();
     _queue.addLast(
-      _decoder.address == null
-          ? LanXCvRead(cvAddress: cvAddress)
-          : _decoder.type == Loco
-              ? LanXCvPomReadByte(
-                  locoAddress: _decoder.address!,
-                  cvAddress: cvAddress,
-                )
-              : LanXCvPomAccessoryReadByte(
-                  accyAddress: _decoder.address!,
-                  cvAddress: cvAddress,
-                ),
+      (
+        _decoder.address == null
+            ? LanXCvRead(cvAddress: cvAddress)
+            : _decoder.type == Loco
+                ? LanXCvPomReadByte(
+                    locoAddress: _decoder.address!,
+                    cvAddress: cvAddress,
+                  )
+                : LanXCvPomAccessoryReadByte(
+                    accyAddress: _decoder.address!,
+                    cvAddress: cvAddress,
+                  ),
+        completer,
+      ),
     );
     _execute();
+    return completer.future;
   }
 
   /// \todo document
-  void write(int cvAddress, int value) {
+  Future<Z21Command> write(int cvAddress, int value) {
+    final completer = Completer<Z21Command>();
     _queue.addLast(
-      _decoder.address == null
-          ? LanXCvWrite(cvAddress: cvAddress, value: value)
-          : _decoder.type == Loco
-              ? LanXCvPomWriteByte(
-                  locoAddress: _decoder.address!,
-                  cvAddress: cvAddress,
-                  value: value,
-                )
-              : LanXCvPomAccessoryWriteByte(
-                  accyAddress: _decoder.address!,
-                  cvAddress: cvAddress,
-                  value: value,
-                ),
+      (
+        _decoder.address == null
+            ? LanXCvWrite(cvAddress: cvAddress, value: value)
+            : _decoder.type == Loco
+                ? LanXCvPomWriteByte(
+                    locoAddress: _decoder.address!,
+                    cvAddress: cvAddress,
+                    value: value,
+                  )
+                : LanXCvPomAccessoryWriteByte(
+                    accyAddress: _decoder.address!,
+                    cvAddress: cvAddress,
+                    value: value,
+                  ),
+        completer,
+      ),
     );
     _execute();
+    return completer.future;
   }
 
   /// \todo document
   void response(Z21Command command) {
     if (_active == null) return;
+    final (cmd, completer) = _active!;
     state = {
       ...state,
-      ((_active as dynamic).cvAddress, _cv31!, _cv32!): command,
+      ((cmd as dynamic).cvAddress, _cv31, _cv32): command,
     };
+    completer.complete(command);
     _active = null;
     _execute();
   }
@@ -112,19 +125,20 @@ class Z21Cv extends _$Z21Cv {
   Future<void> _execute() async {
     if (_active != null || _queue.isEmpty) return;
     _active = _queue.removeFirst();
-    final int cvAddress = (_active as dynamic).cvAddress;
-    state = {...state, (cvAddress, _cv31!, _cv32!): null};
-    _z21(_active!);
+    final (cmd, completer) = _active!;
+    final int cvAddress = (cmd as dynamic).cvAddress;
+    state = {...state, (cvAddress, _cv31, _cv32): null};
+    _z21(cmd);
 
     //
-    if (_active is LanXCvPomWriteByte ||
-        _active is LanXCvPomAccessoryWriteByte) {
-      final int value = (_active as dynamic).value;
+    if (cmd is LanXCvPomWriteByte || cmd is LanXCvPomAccessoryWriteByte) {
+      final int value = (cmd as dynamic).value;
+      final result = LanXCvResult(cvAddress: cvAddress, value: value);
       state = {
         ...state,
-        (cvAddress, _cv31!, _cv32!):
-            LanXCvResult(cvAddress: cvAddress, value: value),
+        (cvAddress, _cv31, _cv32): result,
       };
+      completer.complete(result);
 
       // Throttle
       final progCount = ref.read(

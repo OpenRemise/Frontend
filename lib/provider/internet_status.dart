@@ -23,7 +23,7 @@ part 'internet_status.g.dart';
 Stream<InternetStatus> internetStatus(ref) async* {
   final stream = InternetConnection.createInstance(
     customCheckOptions: [
-      InternetCheckOption(uri: Uri.parse('https://decoderdb.bidib.org')),
+      InternetCheckOption(uri: Uri.parse('https://decoderdb.de')),
       InternetCheckOption(uri: Uri.parse('https://github.com')),
       InternetCheckOption(uri: Uri.parse('https://openremise.at')),
       InternetCheckOption(uri: Uri.parse('https://zimo.at')),
