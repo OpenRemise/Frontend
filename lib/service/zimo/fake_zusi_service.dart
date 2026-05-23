@@ -15,7 +15,6 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/fake_initial_cvs.dart';
 import 'package:Frontend/service/zimo/zusi_service.dart';
 import 'package:Frontend/utility/crc8.dart';
 import 'package:flutter/foundation.dart';
@@ -40,19 +39,8 @@ class FakeZusiService implements ZusiService {
       Future.delayed(Duration.zero);
 
   @override
-  void cvRead(int cvAddress) async {
-    await Future.delayed(const Duration(milliseconds: 10), () {
-      if (_controller.isClosed) return;
-      _controller.sink.add(
-        Uint8List.fromList(
-          [
-            ZusiService.ack,
-            fakeInitialLocoCvs[cvAddress],
-            crc8([fakeInitialLocoCvs[cvAddress]]),
-          ],
-        ),
-      );
-    });
+  void cvRead(int cvAddress) {
+    throw UnimplementedError();
   }
 
   @override

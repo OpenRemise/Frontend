@@ -15,7 +15,6 @@
 
 import 'dart:async';
 
-import 'package:Frontend/constant/fake_initial_cvs.dart';
 import 'package:Frontend/constant/zimo/mx_decoder_ids.dart';
 import 'package:Frontend/service/zimo/decup_service.dart';
 import 'package:flutter/foundation.dart';
@@ -74,21 +73,8 @@ class FakeDecupService implements DecupService {
   }
 
   @override
-  void zppReadCv(int cvAddress) async {
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-      () {
-        if (_controller.isClosed) return;
-        final cv = fakeInitialLocoCvs[cvAddress];
-        for (int i = 0; i < 8; ++i) {
-          _controller.sink.add(
-            Uint8List.fromList(
-              [cv & (1 << i) > 0 ? DecupService.ack : DecupService.nak],
-            ),
-          );
-        }
-      },
-    );
+  void zppReadCv(int cvAddress) {
+    throw UnimplementedError();
   }
 
   @override

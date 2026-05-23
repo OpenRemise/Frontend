@@ -36,8 +36,8 @@ class Z21Cv extends _$Z21Cv {
   late final Z21Service _z21;
   late final Decoder _decoder;
   (Z21Command, Completer<Z21Command>)? _active;
-  int? _cv31 = 0;
-  int? _cv32 = 1;
+  int _cv31 = 0;
+  int _cv32 = 1;
 
   /// \todo document
   @override
@@ -114,7 +114,7 @@ class Z21Cv extends _$Z21Cv {
     final (cmd, completer) = _active!;
     state = {
       ...state,
-      ((cmd as dynamic).cvAddress, _cv31!, _cv32!): command,
+      ((cmd as dynamic).cvAddress, _cv31, _cv32): command,
     };
     completer.complete(command);
     _active = null;
@@ -127,7 +127,7 @@ class Z21Cv extends _$Z21Cv {
     _active = _queue.removeFirst();
     final (cmd, completer) = _active!;
     final int cvAddress = (cmd as dynamic).cvAddress;
-    state = {...state, (cvAddress, _cv31!, _cv32!): null};
+    state = {...state, (cvAddress, _cv31, _cv32): null};
     _z21(cmd);
 
     //
@@ -136,7 +136,7 @@ class Z21Cv extends _$Z21Cv {
       final result = LanXCvResult(cvAddress: cvAddress, value: value);
       state = {
         ...state,
-        (cvAddress, _cv31!, _cv32!): result,
+        (cvAddress, _cv31, _cv32): result,
       };
       completer.complete(result);
 
