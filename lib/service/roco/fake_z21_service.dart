@@ -29,7 +29,7 @@ class FakeZ21Service implements Z21Service {
   final _controller = StreamController<Z21Command>();
   final ProviderContainer ref;
   late final Stream<Z21Command> _stream;
-  int _centralState = 0x02;
+  LanXStatusChanged _status = LanXStatusChanged(centralState: 0x02);
 
   FakeZ21Service(this.ref) {
     _stream = _controller.stream.asBroadcastStream();
@@ -88,21 +88,16 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXGetStatus():
-        _controller.sink.add(LanXStatusChanged(centralState: _centralState));
+        _controller.sink
+            .add(LanXStatusChanged(centralState: _status.centralState));
         break;
 
       case LanXSetTrackPowerOff():
-        _centralState = _centralState | 0x02;
-        state = State.Suspending;
-        Future.delayed(
-          const Duration(seconds: 1),
-          () => state = State.Suspended,
-        );
+        call(LanXBcTrackPowerOff());
         break;
 
       case LanXSetTrackPowerOn():
-        _centralState = _centralState & ~0x02;
-        state = State.DCCOperations;
+        call(LanXBcTrackPowerOn());
         break;
 
       case LanXDccReadRegister():
@@ -483,13 +478,24 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXBcTrackPowerOff():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(centralState: _status.centralState | 0x02);
+        state = State.Suspending;
+        Future.delayed(
+          const Duration(seconds: 1),
+          () => state = State.Suspended,
+        );
+        break;
 
       case LanXBcTrackPowerOn():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(
+          centralState: _status.centralState & ~(0x01 | 0x02 | 0x04 | 0x20),
+        );
+        state = State.DCCOperations;
+        break;
 
       case LanXBcProgrammingMode():
-        throw UnimplementedError();
+        _status = LanXStatusChanged(centralState: _status.centralState | 0x20);
+        break;
 
       case LanXBcTrackShortCircuit():
         throw UnimplementedError();

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/provider/domain.dart';
 import 'package:Frontend/service/zimo/fake_zusi_service.dart';
 import 'package:Frontend/service/zimo/ws_zusi_service.dart';
@@ -25,5 +26,5 @@ part 'zusi_service.g.dart';
 @riverpod
 ZusiService zusiService(ref) =>
     const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
-        ? FakeZusiService()
+        ? FakeZusiService(fakeServicesProviderContainer)
         : WsZusiService(ref.read(domainProvider));

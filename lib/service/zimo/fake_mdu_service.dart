@@ -17,10 +17,15 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:Frontend/constant/zimo/ms_decoder_ids.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/mdu_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeMduService implements MduService {
+  final ProviderContainer ref;
+
   /// Up to 3 random IDs
   final _decoderIds = () {
     final shuffledIds = msDecoderIds.toList();
@@ -28,6 +33,10 @@ class FakeMduService implements MduService {
     return shuffledIds.sublist(0, Random().nextInt(3) + 1);
   }();
   final _controller = StreamController<Uint8List>();
+
+  FakeMduService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -42,8 +51,11 @@ class FakeMduService implements MduService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      Future.delayed(Duration.zero);
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
+  }
 
   @override
   void ping(int serialNumber, int decoderId) async {

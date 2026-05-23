@@ -16,10 +16,15 @@
 import 'dart:async';
 
 import 'package:Frontend/constant/zimo/mx_decoder_ids.dart';
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/decup_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeDecupService implements DecupService {
+  final ProviderContainer ref;
+
   /// Random ID
   final _decoderId = () {
     final shuffledIds = mxDecoderIds.toList();
@@ -27,6 +32,10 @@ class FakeDecupService implements DecupService {
     return shuffledIds.first;
   }();
   final _controller = StreamController<Uint8List>();
+
+  FakeDecupService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -41,8 +50,11 @@ class FakeDecupService implements DecupService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      _controller.sink.close();
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
+  }
 
   @override
   void zppPreamble() async {

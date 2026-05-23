@@ -15,12 +15,20 @@
 
 import 'dart:async';
 
+import 'package:Frontend/provider/roco/z21_service.dart';
+import 'package:Frontend/service/roco/z21_service.dart';
 import 'package:Frontend/service/zimo/zusi_service.dart';
 import 'package:Frontend/utility/crc8.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZusiService implements ZusiService {
+  final ProviderContainer ref;
   final _controller = StreamController<Uint8List>();
+
+  FakeZusiService(this.ref) {
+    ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
+  }
 
   @override
   int? get closeCode => _controller.isClosed ? 1005 : null;
@@ -35,8 +43,11 @@ class FakeZusiService implements ZusiService {
   Stream<Uint8List> get stream => _controller.stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      Future.delayed(Duration.zero);
+  Future close([int? closeCode, String? closeReason]) {
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOn());
+    ref.read(z21ServiceProvider)(LanXBcTrackPowerOff());
+    return _controller.sink.close();
+  }
 
   @override
   void cvRead(int cvAddress) {

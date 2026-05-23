@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/constant/fake_services_provider_container.dart';
 import 'package:Frontend/provider/domain.dart';
 import 'package:Frontend/service/zimo/fake_mdu_service.dart';
 import 'package:Frontend/service/zimo/mdu_service.dart';
@@ -25,5 +26,5 @@ part 'mdu_service.g.dart';
 @riverpod
 MduService mduService(ref, String unencodedPath) =>
     const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
-        ? FakeMduService()
+        ? FakeMduService(fakeServicesProviderContainer)
         : WsMduService(ref.read(domainProvider), unencodedPath);
