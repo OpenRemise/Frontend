@@ -25,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeMduService implements MduService {
   final ProviderContainer ref;
+  final _controller = StreamController<Uint8List>();
 
   /// Up to 3 random IDs
   final _decoderIds = () {
@@ -32,7 +33,6 @@ class FakeMduService implements MduService {
     shuffledIds.shuffle();
     return shuffledIds.sublist(0, Random().nextInt(3) + 1);
   }();
-  final _controller = StreamController<Uint8List>();
 
   FakeMduService(this.ref) {
     ref.read(z21ServiceProvider)(LanXBcProgrammingMode());

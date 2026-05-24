@@ -22,7 +22,7 @@
 /// Fake service mode CVs
 ///
 /// A list of CVs for service mode for use with fake services.
-final List<int> fakeServiceCvs = _ms450;
+final List<int> fakeServiceCvs = List.from(_ms450);
 
 /// Fake loco CVs
 ///

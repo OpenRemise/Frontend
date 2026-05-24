@@ -17,8 +17,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:Frontend/constant/fake_cvs.dart';
+import 'package:Frontend/model/config.dart';
 import 'package:Frontend/model/turnout.dart';
 import 'package:Frontend/provider/locos.dart';
+import 'package:Frontend/provider/settings.dart';
 import 'package:Frontend/provider/turnouts.dart';
 import 'package:Frontend/service/fake_sys_service.dart';
 import 'package:Frontend/service/roco/z21_service.dart';
@@ -26,10 +28,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeZ21Service implements Z21Service {
-  final _controller = StreamController<Z21Command>();
   final ProviderContainer ref;
+  final _controller = StreamController<Z21Command>();
   late final Stream<Z21Command> _stream;
   LanXStatusChanged _status = LanXStatusChanged(centralState: 0x02);
+  Timer? _programmingModeTimer;
 
   FakeZ21Service(this.ref) {
     _stream = _controller.stream.asBroadcastStream();
@@ -48,8 +51,10 @@ class FakeZ21Service implements Z21Service {
   Stream<Z21Command> get stream => _stream;
 
   @override
-  Future close([int? closeCode, String? closeReason]) =>
-      _controller.sink.close();
+  Future close([int? closeCode, String? closeReason]) {
+    _programmingModeTimer?.cancel();
+    return _controller.sink.close();
+  }
 
   @override
   void call(Z21Command command) {
@@ -104,37 +109,15 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXCvRead(cvAddress: final cvAddress):
-        Future.delayed(
-          const Duration(seconds: 1),
-          () {
-            if (_controller.isClosed) return;
-            _controller.sink.add(
-              LanXCvResult(
-                cvAddress: cvAddress,
-                value: fakeServiceCvs[cvAddress],
-              ),
-            );
-          },
-        );
+        _lanXCvReadWrite(cvAddress, fakeServiceCvs[cvAddress]);
         break;
 
       case LanXDccWriteRegister():
         throw UnimplementedError();
 
       case LanXCvWrite(cvAddress: final cvAddress, value: final value):
-        Future.delayed(
-          const Duration(seconds: 1),
-          () {
-            if (_controller.isClosed) return;
-            fakeServiceCvs[cvAddress] = value;
-            _controller.sink.add(
-              LanXCvResult(
-                cvAddress: cvAddress,
-                value: fakeServiceCvs[cvAddress],
-              ),
-            );
-          },
-        );
+        fakeServiceCvs[cvAddress] = value;
+        _lanXCvReadWrite(cvAddress, value);
         break;
 
       case LanXMmWriteByte():
@@ -496,6 +479,7 @@ class FakeZ21Service implements Z21Service {
 
       case LanXBcProgrammingMode():
         _status = LanXStatusChanged(centralState: _status.centralState | 0x20);
+        state = State.DCCService;
         break;
 
       case LanXBcTrackShortCircuit():
@@ -592,6 +576,32 @@ class FakeZ21Service implements Z21Service {
       case ReplyToLanZLinkGetHwInfo():
         throw UnimplementedError();
     }
+  }
+
+  void _lanXCvReadWrite(int cvAddress, int value) {
+    Future.delayed(
+      const Duration(seconds: 1),
+      () {
+        if (_controller.isClosed) return;
+        _controller.sink.add(LanXCvResult(cvAddress: cvAddress, value: value));
+      },
+    );
+    _programmingModeTimer?.cancel();
+    _programmingModeTimer = Timer(
+      Duration(
+        seconds: ref.read(settingsProvider).value?.httpReceiveTimeout ??
+            Config().httpReceiveTimeout,
+      ),
+      () {
+        _status = LanXStatusChanged(centralState: _status.centralState & ~0x20);
+        if (_status.trackVoltageOff()) {
+          call(LanXBcTrackPowerOff());
+        } else {
+          call(LanXBcTrackPowerOn());
+        }
+      },
+    );
+    call(LanXBcProgrammingMode());
   }
 
   void _lanXGetLocoInfo(LanXLocoInfo locoInfo) {
