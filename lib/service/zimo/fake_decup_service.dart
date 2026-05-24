@@ -24,6 +24,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FakeDecupService implements DecupService {
   final ProviderContainer ref;
+  final _controller = StreamController<Uint8List>();
 
   /// Random ID
   final _decoderId = () {
@@ -31,7 +32,6 @@ class FakeDecupService implements DecupService {
     shuffledIds.shuffle();
     return shuffledIds.first;
   }();
-  final _controller = StreamController<Uint8List>();
 
   FakeDecupService(this.ref) {
     ref.read(z21ServiceProvider)(LanXBcProgrammingMode());
