@@ -13,27 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/ui/core/themes/small_screen_width.dart';
-import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
-import 'package:Frontend/domain/models/zimo/zpp.dart';
-import 'package:Frontend/domain/models/zimo/zsu.dart';
 import 'package:Frontend/data/repositories/available_firmware_version.dart';
-import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/data/repositories/internet_status.dart';
 import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/data/repositories/sys.dart';
+import 'package:Frontend/domain/models/zimo/zpp.dart';
+import 'package:Frontend/domain/models/zimo/zsu.dart';
+import 'package:Frontend/ui/core/themes/dark_mode.dart';
+import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
+import 'package:Frontend/ui/core/widgets/confirmation_dialog.dart';
+import 'package:Frontend/ui/core/widgets/download_dialog.dart';
+import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
+import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
+import 'package:Frontend/ui/update/widgets/ota_dialog.dart';
+import 'package:Frontend/ui/update/widgets/zimo/decup_dialog.dart';
+import 'package:Frontend/ui/update/widgets/zimo/mdu_dialog.dart';
+import 'package:Frontend/ui/update/widgets/zimo/sound_dialog.dart';
+import 'package:Frontend/ui/update/widgets/zimo/zusi_dialog.dart';
 import 'package:Frontend/utils/color_mappers/dark_mode_color_mapper.dart';
 import 'package:Frontend/utils/color_mappers/grayscale_color_mapper.dart';
 import 'package:Frontend/utils/latin1uri.dart';
-import 'package:Frontend/ui/core/widgets/confirmation.dart';
-import 'package:Frontend/ui/core/widgets/download.dart';
-import 'package:Frontend/ui/update/widgets/ota.dart';
-import 'package:Frontend/ui/update/widgets/zimo/decup.dart';
-import 'package:Frontend/ui/update/widgets/zimo/mdu.dart';
-import 'package:Frontend/ui/update/widgets/zimo/sound.dart';
-import 'package:Frontend/ui/update/widgets/zimo/zusi.dart';
-import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';

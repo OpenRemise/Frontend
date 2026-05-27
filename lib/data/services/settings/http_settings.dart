@@ -15,8 +15,8 @@
 
 import 'dart:convert';
 
-import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/data/services/settings/settings.dart';
+import 'package:Frontend/domain/models/config.dart';
 import 'package:http/http.dart' as http;
 
 class HttpSettingsService implements SettingsService {

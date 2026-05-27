@@ -21,15 +21,15 @@
 
 import 'dart:convert';
 
+import 'package:Frontend/data/repositories/roco/z21_cv.dart';
+import 'package:Frontend/data/services/http_client.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/domain/models/decoderdb/common_types.dart';
 import 'package:Frontend/domain/models/decoderdb/decoder_definition.dart';
 import 'package:Frontend/domain/models/decoderdb/decoder_detection.dart';
 import 'package:Frontend/domain/models/decoderdb/firmware_definition.dart';
 import 'package:Frontend/domain/models/decoderdb/repository.dart';
-import 'package:Frontend/data/services/http_client.dart';
-import 'package:Frontend/data/repositories/roco/z21_cv.dart';
-import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +53,7 @@ class _DecoderDetectionDialogState
   DecoderDefinitionFile? _decoder;
   FirmwareDefinitionFile? _firmware;
   String _status = '';
-  String _option = 'Cancel';
+  final String _option = 'Cancel';
   double? _progress;
 
   /// \todo document

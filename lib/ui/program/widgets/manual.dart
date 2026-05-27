@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
+import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/utils/validators/cv_number_validator.dart';
 import 'package:Frontend/utils/validators/cv_value_validator.dart';
 import 'package:flutter/material.dart';

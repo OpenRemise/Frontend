@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/data/services/settings/provider.dart';
 import 'package:Frontend/data/services/settings/settings.dart';
+import 'package:Frontend/domain/models/config.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings.g.dart';

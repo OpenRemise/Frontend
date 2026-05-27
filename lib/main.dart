@@ -19,32 +19,32 @@
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
-import 'package:Frontend/ui/core/themes/controller_size.dart';
 import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/config/prefs.dart';
-import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/data/models/connection_status.dart';
+import 'package:Frontend/data/repositories/connection_status.dart';
+import 'package:Frontend/data/repositories/locos.dart';
+import 'package:Frontend/data/repositories/roco/z21_short_circuit.dart';
+import 'package:Frontend/data/repositories/turnouts.dart';
+import 'package:Frontend/data/services/roco/provider.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/data/repositories/connection_status.dart';
-import 'package:Frontend/ui/throttle/view_models/controller_registry.dart';
+import 'package:Frontend/ui/core/themes/controller_size.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
-import 'package:Frontend/data/repositories/locos.dart';
-import 'package:Frontend/data/services/roco/provider.dart';
-import 'package:Frontend/data/repositories/roco/z21_short_circuit.dart';
+import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
-import 'package:Frontend/data/repositories/turnouts.dart';
+import 'package:Frontend/ui/core/widgets/short_circuit_dialog.dart';
 import 'package:Frontend/ui/decoders/widgets/decoders_screen.dart';
+import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
 import 'package:Frontend/ui/info/widgets/info_screen.dart';
 import 'package:Frontend/ui/program/widgets/program_screen.dart';
 import 'package:Frontend/ui/settings/widgets/settings_screen.dart';
+import 'package:Frontend/ui/throttle/view_models/controller_registry.dart';
+import 'package:Frontend/ui/throttle/widgets/controller.dart';
 import 'package:Frontend/ui/update/widgets/update_screen.dart';
 import 'package:Frontend/utils/color_mappers/dark_mode_color_mapper.dart';
 import 'package:Frontend/utils/reload.dart';
-import 'package:Frontend/ui/throttle/widgets/controller.dart';
-import 'package:Frontend/ui/core/widgets/short_circuit.dart';
-import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/foundation.dart';

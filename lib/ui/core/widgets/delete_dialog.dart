@@ -19,9 +19,9 @@
 /// \author Vincent Hamp
 /// \date   18/09/2025
 
+import 'package:Frontend/data/repositories/dcc.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/data/repositories/dcc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -23,9 +23,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:Frontend/config/ws_batch_size.dart';
+import 'package:Frontend/data/services/zimo/zusi/zusi.dart';
 import 'package:Frontend/domain/models/zimo/zpp.dart';
 import 'package:Frontend/ui/update/view_models/zimo/zusi_service.dart';
-import 'package:Frontend/data/services/zimo/zusi/zusi.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';

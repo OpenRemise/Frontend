@@ -15,11 +15,11 @@
 
 import 'dart:async';
 
-import 'package:Frontend/ui/core/themes/small_screen_width.dart';
-import 'package:Frontend/data/repositories/available_firmware_version.dart';
 import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/repositories/available_firmware_version.dart';
 import 'package:Frontend/data/repositories/internet_status.dart';
 import 'package:Frontend/data/repositories/sys.dart';
+import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';

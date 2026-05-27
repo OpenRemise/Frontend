@@ -15,12 +15,12 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/data/repositories/locos.dart';
+import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/data/repositories/locos.dart';
-import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

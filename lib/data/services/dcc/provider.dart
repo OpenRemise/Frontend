@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/config/domain.dart';
-import 'package:Frontend/data/services/http_client.dart';
+import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/data/services/dcc/dcc.dart';
 import 'package:Frontend/data/services/dcc/fake_dcc.dart';
 import 'package:Frontend/data/services/dcc/http_dcc.dart';
+import 'package:Frontend/data/services/http_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'provider.g.dart';

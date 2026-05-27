@@ -16,12 +16,12 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:Frontend/data/repositories/settings.dart';
+import 'package:Frontend/data/services/roco/provider.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/data/services/roco/provider.dart';
-import 'package:Frontend/data/repositories/settings.dart';
-import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_cv.g.dart';
@@ -36,8 +36,8 @@ class Z21Cv extends _$Z21Cv {
   late final Z21Service _z21;
   late final Decoder _decoder;
   (Z21Command, Completer<Z21Command>)? _active;
-  int _cv31 = 0;
-  int _cv32 = 1;
+  final int _cv31 = 0;
+  final int _cv32 = 1;
 
   /// \todo document
   @override

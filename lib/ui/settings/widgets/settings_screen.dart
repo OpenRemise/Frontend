@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/ui/core/themes/small_screen_width.dart';
-import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
-import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/repositories/sys.dart';
-import 'package:Frontend/utils/validators/ip_address_validator.dart';
-import 'package:Frontend/ui/core/widgets/confirmation.dart';
+import 'package:Frontend/domain/models/config.dart';
+import 'package:Frontend/ui/core/themes/small_screen_width.dart';
+import 'package:Frontend/ui/core/widgets/confirmation_dialog.dart';
 import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
-import 'package:Frontend/ui/settings/widgets/persistent_expansion_tile.dart';
+import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
+import 'package:Frontend/ui/settings/widgets/persistent_expansion_tile.dart';
+import 'package:Frontend/utils/validators/ip_address_validator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';

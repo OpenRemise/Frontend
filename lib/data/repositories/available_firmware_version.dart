@@ -15,8 +15,8 @@
 
 import 'dart:convert';
 
-import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/repositories/internet_status.dart';
+import 'package:Frontend/data/services/http_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'available_firmware_version.g.dart';

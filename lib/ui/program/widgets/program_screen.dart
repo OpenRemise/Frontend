@@ -13,19 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/ui/core/themes/icon_size.dart';
-import 'package:Frontend/ui/core/themes/small_screen_width.dart';
-import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
+import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/data/repositories/roco/z21_status.dart';
+import 'package:Frontend/ui/core/themes/icon_size.dart';
+import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
+import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
+import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
+import 'package:Frontend/ui/program/widgets/decoder_detection.dart';
+import 'package:Frontend/ui/program/widgets/manual.dart';
 import 'package:Frontend/utils/validators/loco_address_validator.dart';
 import 'package:Frontend/utils/validators/turnout_address_validator.dart';
-import 'package:Frontend/ui/program/widgets/decoder_detection.dart';
-import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/program/widgets/manual.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';

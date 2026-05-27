@@ -370,7 +370,7 @@ class ZsuCrc32Start extends MduCommand {
   ZsuCrc32Start(
       {required this.beginAddress,
       required this.endAddress,
-      required this.crc32});
+      required this.crc32,});
 
   @override
   Uint8List toUint8List() {

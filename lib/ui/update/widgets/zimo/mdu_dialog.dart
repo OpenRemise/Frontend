@@ -22,12 +22,12 @@
 import 'dart:math';
 
 import 'package:Frontend/config/ws_batch_size.dart';
+import 'package:Frontend/data/services/zimo/mdu/mdu.dart';
 import 'package:Frontend/domain/models/zimo/zpp.dart';
 import 'package:Frontend/domain/models/zimo/zsu.dart';
-import 'package:Frontend/ui/update/view_models/zimo/mdu_service.dart';
-import 'package:Frontend/data/services/zimo/mdu/mdu.dart';
-import 'package:Frontend/utils/crc32.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
+import 'package:Frontend/ui/update/view_models/zimo/mdu_service.dart';
+import 'package:Frontend/utils/crc32.dart';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';

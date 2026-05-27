@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/data/services/zimo/zusi/fake_zusi.dart';
 import 'package:Frontend/data/services/zimo/zusi/ws_zusi.dart';
 import 'package:Frontend/data/services/zimo/zusi/zusi.dart';

@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:Frontend/ui/throttle/widgets/key_codes.dart';
+import 'package:Frontend/data/repositories/roco/z21_cv.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/data/repositories/roco/z21_cv.dart';
-import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/ui/throttle/widgets/cv_editing_controller.dart';
+import 'package:Frontend/ui/throttle/widgets/key_codes.dart';
 import 'package:Frontend/ui/throttle/widgets/key_press_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

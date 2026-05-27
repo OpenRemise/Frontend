@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:typed_data';
 
 /// \todo document
 class Zpp {
