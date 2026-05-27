@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/services/zimo/mdu/fake_mdu.dart';
+import 'package:Frontend/data/services/zimo/mdu/mdu.dart';
+import 'package:Frontend/data/services/zimo/mdu/ws_mdu.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+part 'mdu_service.g.dart';
+
+/// \todo document
+@riverpod
+MduService mduService(ref, String unencodedPath) =>
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+        ? FakeMduService(fakeServicesProviderContainer)
+        : WsMduService(ref.read(domainProvider), unencodedPath);

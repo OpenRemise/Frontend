@@ -13,18 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+// ignore_for_file: invalid_annotation_target
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+import 'package:Frontend/domain/models/decoder.dart';
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'register.freezed.dart';
+
+@freezed
+abstract class Register with _$Register {
+  const factory Register({required Key key, required Decoder decoder}) =
+      _Register;
+}

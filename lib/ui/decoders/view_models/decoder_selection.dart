@@ -13,18 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'package:Frontend/config/prefs.dart';
+import 'package:Frontend/domain/models/loco.dart';
+import 'package:Frontend/domain/models/turnout.dart';
+import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+/// \todo document
+final decoderSelectionProvider = createPrefProvider<Set<Type>>(
+  prefs: (_) => prefs,
+  prefKey: 'decoderSelection',
+  defaultValue: {Loco, Turnout},
+);

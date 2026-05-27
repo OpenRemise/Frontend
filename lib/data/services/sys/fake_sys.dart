@@ -1,0 +1,83 @@
+// Copyright (C) 2025 Vincent Hamp
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// ignore_for_file: constant_identifier_names
+
+import 'dart:math';
+
+import 'package:Frontend/domain/models/info.dart';
+import 'package:Frontend/data/services/sys/sys.dart';
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+
+enum State {
+  // Flags (8 bits)
+  Suspended,
+  Suspending,
+  ShortCircuit,
+
+  // Outputs
+  DCCOperations,
+  DCCService,
+  DECUPZpp,
+  DECUPZsu,
+  MDUZpp,
+  MDUZsu,
+  ZUSI,
+
+  // USB protocols
+  ULF_DCC_EIN,
+  ULF_MDU_EIN,
+  ULF_SUSIV2,
+
+  // System
+  OTA,
+}
+
+State state = State.Suspended;
+
+class FakeSysService implements SysService {
+  @override
+  Future<Info> fetch() {
+    final now = DateTime.now();
+    return Future.delayed(
+      const Duration(milliseconds: 500),
+      () => Info(
+        state: state.toString().split('.')[1],
+        version: '0.7.0',
+        projectName: 'Frontend',
+        compileTime: DateFormat('HH:mm:ss').format(now),
+        compileDate: DateFormat('MMM dd yyyy').format(now),
+        idfVersion: '5.5.3',
+        revision: '0.1.2',
+        mdns: 'remise.local',
+        ip: '127.0.0.1',
+        mac: '80:80:80:80:80:80',
+        rssi: -70 + Random().nextInt(5),
+        supplyVoltage: 18000 + Random().nextInt(500),
+        vccVoltage: 18000 + Random().nextInt(500),
+        current: 0,
+        temperature: 40.0 + Random().nextDouble() * 2.0,
+        heap: 8100000 + Random().nextInt(384),
+        internalHeap: 32000 + Random().nextInt(384),
+      ),
+    );
+  }
+
+  @override
+  Future<void> restart() async {
+    debugPrint('restart');
+  }
+}

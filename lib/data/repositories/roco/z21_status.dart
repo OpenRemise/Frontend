@@ -13,18 +13,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'dart:async';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+import 'package:Frontend/data/services/roco/provider.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'z21_status.g.dart';
+
+/// \todo document
+@Riverpod(keepAlive: true)
+Stream<LanXStatusChanged> z21Status(ref) async* {
+  final z21 = ref.watch(z21ServiceProvider);
+
+  // Heartbeat
+  final timer =
+      Timer.periodic(const Duration(seconds: 1), (_) => z21(LanXGetStatus()));
+  ref.onDispose(timer.cancel);
+
+  await for (final status in z21.stream.where(
+    (command) => switch (command) { LanXStatusChanged() => true, _ => false },
+  )) {
+    yield status;
+  }
+}

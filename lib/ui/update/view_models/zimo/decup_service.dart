@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/services/zimo/decup/decup.dart';
+import 'package:Frontend/data/services/zimo/decup/fake_decup.dart';
+import 'package:Frontend/data/services/zimo/decup/ws_decup.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+part 'decup_service.g.dart';
+
+/// \todo document
+@riverpod
+DecupService decupService(ref, String unencodedPath) =>
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+        ? FakeDecupService(fakeServicesProviderContainer)
+        : WsDecupService(ref.read(domainProvider), unencodedPath);

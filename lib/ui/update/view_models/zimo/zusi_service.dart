@@ -13,18 +13,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/services/zimo/zusi/fake_zusi.dart';
+import 'package:Frontend/data/services/zimo/zusi/ws_zusi.dart';
+import 'package:Frontend/data/services/zimo/zusi/zusi.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+part 'zusi_service.g.dart';
+
+/// \todo document
+@riverpod
+ZusiService zusiService(ref) =>
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+        ? FakeZusiService(fakeServicesProviderContainer)
+        : WsZusiService(ref.read(domainProvider));

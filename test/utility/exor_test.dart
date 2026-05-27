@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:Frontend/utility/exor.dart';
+import 'package:Frontend/utils/exor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

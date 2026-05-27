@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:Frontend/utility/crc32.dart';
+import 'package:Frontend/utils/crc32.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

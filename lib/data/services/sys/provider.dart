@@ -13,18 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Models documentation
-///
-/// \file   model/doxygen.dart
-/// \author Vincent Hamp
-/// \date   09/11/2024
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/services/http_client.dart';
+import 'package:Frontend/data/services/sys/fake_sys.dart';
+import 'package:Frontend/data/services/sys/http_sys.dart';
+import 'package:Frontend/data/services/sys/sys.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-/// \page page_model Models
-/// \tableofcontents
-/// \todo document models
-///
-/// <div class="section_buttons">
-/// | Previous           | Next               |
-/// | :----------------- | -----------------: |
-/// | \ref page_provider | \ref page_constant |
-/// </div>
+part 'provider.g.dart';
+
+/// \todo document
+@Riverpod(keepAlive: true)
+SysService sysService(ref) =>
+    const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+        ? FakeSysService()
+        : HttpSysService(
+            ref.read(httpClientProvider),
+            ref.read(domainProvider),
+          );
