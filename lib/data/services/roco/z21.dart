@@ -13,12 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// ignore_for_file: constant_identifier_names
+// ignore_for_file: constant_identifier_names, unused_field
 
 import 'dart:typed_data';
 
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/data/services/roco/fake_z21.dart';
+import 'package:Frontend/data/services/roco/ws_z21.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/utils/exor.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
 int _bigEndianData2uint16(Uint8List data) {
@@ -1616,3 +1621,10 @@ abstract interface class Z21Service {
     return LanXUnknownCommand();
   }
 }
+
+/// \todo document
+final z21ServiceProvider = Provider<Z21Service>(
+  (ref) => const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+      ? FakeZ21Service(fakeServicesProviderContainer)
+      : WsZ21Service(ref.read(domainProvider)),
+);

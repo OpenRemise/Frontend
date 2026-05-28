@@ -26,7 +26,7 @@ import 'package:Frontend/data/repositories/connection_status.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/roco/z21_short_circuit.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
-import 'package:Frontend/data/services/roco/provider.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
 import 'package:Frontend/domain/models/turnout.dart';

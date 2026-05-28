@@ -13,13 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'http_client.g.dart';
 
 /// Singleton HTTP client
 ///
 /// \note This is a huge improvement on desktop.
-@Riverpod(keepAlive: true)
-Client httpClient(_) => Client();
+final httpClientProvider = Provider<Client>((_) => Client());

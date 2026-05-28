@@ -13,9 +13,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/services/http_client.dart';
+import 'package:Frontend/data/services/settings/fake_settings.dart';
+import 'package:Frontend/data/services/settings/http_settings.dart';
 import 'package:Frontend/domain/models/config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract interface class SettingsService {
   Future<Config> fetch();
   Future<void> update(Config setting);
 }
+
+final settingsServiceProvider = Provider<SettingsService>(
+  (ref) => const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+      ? FakeSettingsService()
+      : HttpSettingsService(
+          ref.read(httpClientProvider),
+          ref.read(domainProvider),
+        ),
+);
