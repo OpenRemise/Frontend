@@ -222,7 +222,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= locos.length) return null;
 
           final loco = locos.elementAt(index);
-          final active = ref.watch(controllerRegistryProvider).any(
+          final active = ref.watch(throttleRegistryProvider).any(
                 (c) =>
                     c.decoder.type == Loco && c.decoder.address == loco.address,
               );
@@ -257,10 +257,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               ),
               onTap: () => active
                   ? ref
-                      .read(controllerRegistryProvider.notifier)
+                      .read(throttleRegistryProvider.notifier)
                       .deleteItem<Loco>(loco.address)
                   : ref
-                      .read(controllerRegistryProvider.notifier)
+                      .read(throttleRegistryProvider.notifier)
                       .updateItem<Loco>(loco.address, loco.address),
             ),
           );
@@ -282,7 +282,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= turnouts.length) return null;
 
           final turnout = turnouts.elementAt(index);
-          final active = ref.watch(controllerRegistryProvider).any(
+          final active = ref.watch(throttleRegistryProvider).any(
                 (c) =>
                     c.decoder.type == Turnout &&
                     c.decoder.address == turnout.address,
@@ -322,10 +322,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               ),
               onTap: () => active
                   ? ref
-                      .read(controllerRegistryProvider.notifier)
+                      .read(throttleRegistryProvider.notifier)
                       .deleteItem<Turnout>(turnout.address)
                   : ref
-                      .read(controllerRegistryProvider.notifier)
+                      .read(throttleRegistryProvider.notifier)
                       .updateItem<Turnout>(turnout.address, turnout.address),
             ),
           );

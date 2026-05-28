@@ -303,7 +303,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
                   ),
                   IconButton(
                     onPressed: () => ref
-                        .read(controllerRegistryProvider.notifier)
+                        .read(throttleRegistryProvider.notifier)
                         .deleteItem<T>(widget.item.address),
                     tooltip: 'Close',
                     icon: const Icon(Icons.close),
@@ -517,7 +517,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
             (l) =>
                 l.address == loco.address ||
                 ref
-                    .watch(controllerRegistryProvider)
+                    .watch(throttleRegistryProvider)
                     .none((c) => c.decoder.address == l.address),
           ),
     );
@@ -532,7 +532,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
           onSelected: (selectedLoco) {
             if (selectedLoco != null && selectedLoco.address != loco.address) {
               ref
-                  .read(controllerRegistryProvider.notifier)
+                  .read(throttleRegistryProvider.notifier)
                   .updateItem<Loco>(loco.address, selectedLoco.address);
             }
           },
@@ -693,7 +693,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
                 t.type != 1 &&
                 (t.address == turnout.address ||
                     ref
-                        .watch(controllerRegistryProvider)
+                        .watch(throttleRegistryProvider)
                         .none((c) => c.decoder.address == t.address)),
           ),
     );
@@ -709,7 +709,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
             if (selectedTurnout != null &&
                 selectedTurnout.address != turnout.address) {
               ref
-                  .read(controllerRegistryProvider.notifier)
+                  .read(throttleRegistryProvider.notifier)
                   .updateItem<T>(turnout.address, selectedTurnout.address);
             }
           },

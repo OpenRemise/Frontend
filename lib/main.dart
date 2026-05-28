@@ -238,7 +238,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   Widget build(BuildContext context) {
     final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
-    final controllerRegistry = ref.watch(controllerRegistryProvider);
+    final controllerRegistry = ref.watch(throttleRegistryProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
     final connected =
         connectionStatus.asData?.value == ConnectionStatus.connected;
@@ -363,7 +363,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// \todo document
   Widget _buildDraggable<T>({required Register register}) {
     void moveToTop() {
-      ref.read(controllerRegistryProvider.notifier).updateItem<T>(
+      ref.read(throttleRegistryProvider.notifier).updateItem<T>(
             register.decoder.address!,
             register.decoder.address!,
           );
