@@ -31,10 +31,10 @@ import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
 import 'package:Frontend/domain/models/throttle_registry.dart';
 import 'package:Frontend/domain/models/turnout.dart';
-import 'package:Frontend/ui/core/themes/controller_size.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
+import 'package:Frontend/ui/core/themes/throttle_size.dart';
 import 'package:Frontend/ui/core/widgets/short_circuit_dialog.dart';
 import 'package:Frontend/ui/decoders/widgets/decoders_screen.dart';
 import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
@@ -59,7 +59,7 @@ void main() async {
 
   // Set minimum window size for Desktop
   if (!kIsWeb) {
-    await DesktopWindow.setMinWindowSize(controllerSize * 1.2);
+    await DesktopWindow.setMinWindowSize(throttleSize * 1.2);
   }
 
   // Shared preferences
@@ -382,8 +382,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
           borderRadius: BorderRadius.circular(12),
         ),
-        width: controllerSize.width,
-        height: controllerSize.height,
+        width: throttleSize.width,
+        height: throttleSize.height,
         child: _buildController(register: register),
       ),
     );

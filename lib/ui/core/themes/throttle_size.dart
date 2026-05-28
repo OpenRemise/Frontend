@@ -15,7 +15,7 @@
 
 /// Controller size
 ///
-/// \file   constant/controller_size.dart
+/// \file   constant/throttle_size.dart
 /// \author Vincent Hamp
 /// \date   27/04/2025
 
@@ -26,4 +26,4 @@ import 'package:flutter/widgets.dart';
 /// The \ref controllerSize "controller size" is the size of the controller
 /// widgets on larger screens. In `!kIsWeb` builds, this value is also used to
 /// set the minimum window size.
-const Size controllerSize = Size(400, 800);
+const Size throttleSize = Size(400, 800);
