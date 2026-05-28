@@ -15,7 +15,7 @@
 
 /// Dialog to add or edit loco or turnout
 ///
-/// \file   widget/dialog/add_edit.dart
+/// \file   ui/core/widgets/add_edit_dialog.dart
 /// \author Vincent Hamp
 /// \date   18/09/2025
 

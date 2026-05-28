@@ -15,7 +15,7 @@
 
 /// Small screen width
 ///
-/// \file   constant/small_screen_width.dart
+/// \file   ui/core/themes/small_screen_width.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

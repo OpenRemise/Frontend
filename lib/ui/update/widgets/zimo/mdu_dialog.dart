@@ -15,7 +15,7 @@
 
 /// Dialog to update or upload ZIMO MS, MN, FS and FN decoders
 ///
-/// \file   widget/dialog/zimo/mdu.dart
+/// \file   ui/update/widgets/zimo/mdu_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

@@ -15,7 +15,7 @@
 
 /// Loading GIF
 ///
-/// \file   widget/loading_gif.dart
+/// \file   ui/core/widgets/loading_gif.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

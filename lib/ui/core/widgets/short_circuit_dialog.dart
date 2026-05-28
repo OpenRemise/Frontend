@@ -15,7 +15,7 @@
 
 /// Short circuit popup dialog
 ///
-/// \file   widget/dialog/short_circuit.dart
+/// \file   ui/core/widgets/short_circuit_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

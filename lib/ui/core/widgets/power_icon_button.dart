@@ -15,7 +15,7 @@
 
 /// Power icon button
 ///
-/// \file   widget/power_icon_button.dart
+/// \file   ui/core/widgets/power_icon_button.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

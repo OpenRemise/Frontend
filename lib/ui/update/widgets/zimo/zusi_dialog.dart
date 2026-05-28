@@ -15,7 +15,7 @@
 
 /// Dialog to upload sound to ZIMO decoders
 ///
-/// \file   widget/dialog/zimo/zusi.dart
+/// \file   ui/update/widgets/zimo/zusi_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

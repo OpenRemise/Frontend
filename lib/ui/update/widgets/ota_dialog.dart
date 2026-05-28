@@ -15,7 +15,7 @@
 
 /// Dialog to update OpenRemise boards
 ///
-/// \file   widget/dialog/ota.dart
+/// \file   ui/update/widgets/ota_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

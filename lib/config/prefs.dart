@@ -15,7 +15,7 @@
 
 /// Shared preferences
 ///
-/// \file   prefs.dart
+/// \file   config/prefs.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

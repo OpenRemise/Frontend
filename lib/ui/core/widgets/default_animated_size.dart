@@ -15,7 +15,7 @@
 
 /// Default animated size
 ///
-/// \file   widget/default_animated_size.dart
+/// \file   ui/core/widgets/default_animated_size.dart
 /// \author Vincent Hamp
 /// \date   18/09/2025
 

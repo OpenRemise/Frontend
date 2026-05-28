@@ -15,7 +15,7 @@
 
 /// OpenRemise icons
 ///
-/// \file   constant/open_remise_icons.dart
+/// \file   ui/core/widgets/open_remise_icons.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

@@ -15,7 +15,7 @@
 
 /// PNG picture
 ///
-/// \file   widget/png_picture.dart
+/// \file   ui/core/widgets/png_picture.dart
 /// \author Vincent Hamp
 /// \date   27/04/2025
 

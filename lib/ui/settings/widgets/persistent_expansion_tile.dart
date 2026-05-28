@@ -15,7 +15,7 @@
 
 /// Persistent expansion tile
 ///
-/// \file   widget/persistent_expansion_tile.dart
+/// \file   ui/settings/widgets/persistent_expansion_tile.dart
 /// \author Franziska Walter
 /// \date   21/05/2025
 

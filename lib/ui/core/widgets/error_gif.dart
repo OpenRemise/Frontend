@@ -15,7 +15,7 @@
 
 /// Error GIF
 ///
-/// \file   widget/error_gif.dart
+/// \file   ui/core/widgets/error_gif.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

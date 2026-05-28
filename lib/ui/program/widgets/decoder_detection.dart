@@ -15,7 +15,7 @@
 
 ///
 ///
-/// \file   widget/dialog/decoderdb/decoder_detection.dart
+/// \file   ui/program/widgets/decoder_detection.dart
 /// \author Vincent Hamp
 /// \date   27/03/2026
 

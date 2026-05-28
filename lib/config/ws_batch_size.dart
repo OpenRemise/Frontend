@@ -15,7 +15,7 @@
 
 /// WebSocket batch size
 ///
-/// \file   constant/ws_batch_size.dart
+/// \file   config/ws_batch_size.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

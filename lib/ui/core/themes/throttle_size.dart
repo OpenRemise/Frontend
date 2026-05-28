@@ -15,7 +15,7 @@
 
 /// Controller size
 ///
-/// \file   constant/throttle_size.dart
+/// \file   ui/core/themes/throttle_size.dart
 /// \author Vincent Hamp
 /// \date   27/04/2025
 

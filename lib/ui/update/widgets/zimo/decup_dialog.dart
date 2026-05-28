@@ -15,7 +15,7 @@
 
 /// Dialog to update or upload ZIMO MX decoders
 ///
-/// \file   widget/dialog/zimo/decup.dart
+/// \file   ui/update/widgets/zimo/decup_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

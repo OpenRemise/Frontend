@@ -29,6 +29,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class FakeZ21Service implements Z21Service {
   final ProviderContainer ref;
   final _controller = StreamController<Z21Command>();
+  final List<int> _fakeServiceCvs = List.from(_ms450);
+  final Map<int, List<int>> _fakeLocoCvs = {
+    3: List.from(_ms450),
+    4: List.from(_ms481),
+    50: List.from(_mx645),
+    498: List.from(_sd16a),
+    740: List.from(_dh22b),
+  };
+  final Map<int, List<int>> _fakeAccessoryCvs = {
+    4: List.from(_mx820),
+    8: List.from(_mx820),
+    9: List.from(_mx820),
+    100: List.from(_mx820),
+    101: List.from(_mx820),
+    200: List.from(_mx820),
+    201: List.from(_mx820),
+    202: List.from(_mx820),
+  };
   late final Stream<Z21Command> _stream;
   LanXStatusChanged _status = LanXStatusChanged(centralState: 0x02);
   Timer? _programmingModeTimer;
@@ -108,14 +126,14 @@ class FakeZ21Service implements Z21Service {
         throw UnimplementedError();
 
       case LanXCvRead(cvAddress: final cvAddress):
-        _lanXCvReadWrite(cvAddress, fakeServiceCvs[cvAddress]);
+        _lanXCvReadWrite(cvAddress, _fakeServiceCvs[cvAddress]);
         break;
 
       case LanXDccWriteRegister():
         throw UnimplementedError();
 
       case LanXCvWrite(cvAddress: final cvAddress, value: final value):
-        fakeServiceCvs[cvAddress] = value;
+        _fakeServiceCvs[cvAddress] = value;
         _lanXCvReadWrite(cvAddress, value);
         break;
 
@@ -271,7 +289,7 @@ class FakeZ21Service implements Z21Service {
             .read(locosProvider)
             .firstWhereOrNull((l) => l.address == locoAddress);
         if (loco != null && loco.address != 0) {
-          fakeLocoCvs[locoAddress]?[cvAddress] = value;
+          _fakeLocoCvs[locoAddress]?[cvAddress] = value;
         }
         break;
 
@@ -288,10 +306,10 @@ class FakeZ21Service implements Z21Service {
         Future.delayed(Duration(milliseconds: loco != null ? 250 : 500), () {
           if (_controller.isClosed) return;
           _controller.sink.add(
-            loco != null && fakeLocoCvs[locoAddress] != null
+            loco != null && _fakeLocoCvs[locoAddress] != null
                 ? LanXCvResult(
                     cvAddress: cvAddress,
-                    value: fakeLocoCvs[locoAddress]![cvAddress],
+                    value: _fakeLocoCvs[locoAddress]![cvAddress],
                   )
                 : LanXCvNack(),
           );
@@ -307,7 +325,7 @@ class FakeZ21Service implements Z21Service {
             .read(turnoutsProvider)
             .firstWhereOrNull((t) => t.address == accyAddress);
         if (turnout != null && turnout.address != 0) {
-          fakeAccessoryCvs[accyAddress]?[cvAddress] = value;
+          _fakeAccessoryCvs[accyAddress]?[cvAddress] = value;
         }
         break;
 
@@ -324,10 +342,10 @@ class FakeZ21Service implements Z21Service {
         Future.delayed(Duration(milliseconds: turnout != null ? 250 : 500), () {
           if (_controller.isClosed) return;
           _controller.sink.add(
-            turnout != null && fakeAccessoryCvs[accyAddress] != null
+            turnout != null && _fakeAccessoryCvs[accyAddress] != null
                 ? LanXCvResult(
                     cvAddress: cvAddress,
-                    value: fakeAccessoryCvs[accyAddress]![cvAddress],
+                    value: _fakeAccessoryCvs[accyAddress]![cvAddress],
                   )
                 : LanXCvNack(),
           );
@@ -632,36 +650,6 @@ class FakeZ21Service implements Z21Service {
     );
   }
 }
-
-/// Fake service mode CVs
-///
-/// A list of CVs for service mode for use with fake services.
-final List<int> fakeServiceCvs = List.from(_ms450);
-
-/// Fake loco CVs
-///
-/// A list of CVs for locomotives for use with fake services.
-final Map<int, List<int>> fakeLocoCvs = {
-  3: _ms450,
-  4: _ms481,
-  50: _mx645,
-  498: _sd16a,
-  740: _dh22b,
-};
-
-/// Fake accessory CVs
-///
-/// A list of CVs for accessories for use with fake services.
-final Map<int, List<int>> fakeAccessoryCvs = {
-  4: _mx820,
-  8: _mx820,
-  9: _mx820,
-  100: _mx820,
-  101: _mx820,
-  200: _mx820,
-  201: _mx820,
-  202: _mx820,
-};
 
 const List<int> _ms450 = [
   3,

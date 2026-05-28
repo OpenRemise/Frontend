@@ -15,7 +15,7 @@
 
 /// Dialog to download file and show progress
 ///
-/// \file   widget/dialog/download.dart
+/// \file   ui/core/widgets/download_dialog.dart
 /// \author Vincent Hamp
 /// \date   25/02/2025
 

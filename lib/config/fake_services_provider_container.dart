@@ -15,7 +15,7 @@
 
 /// Fake services provider container
 ///
-/// \file   constant/fake_services_provider_container.dart
+/// \file   config/fake_services_provider_container.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

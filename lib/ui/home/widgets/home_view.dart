@@ -15,7 +15,7 @@
 
 /// Main
 ///
-/// \file   main.dart
+/// \file   ui/home/widgets/home_view.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

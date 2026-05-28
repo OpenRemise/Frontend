@@ -15,7 +15,7 @@
 
 /// Positioned draggable
 ///
-/// \file   widget/positioned_draggable.dart
+/// \file   ui/home/widgets/positioned_draggable.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

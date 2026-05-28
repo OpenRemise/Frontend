@@ -15,7 +15,7 @@
 
 /// Key codes
 ///
-/// \file   constant/key_codes.dart
+/// \file   ui/throttle/widgets/key_codes.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 

@@ -15,7 +15,7 @@
 
 /// Dialog to download ZPP project from ZIMO sound database
 ///
-/// \file   widget/dialog/zimo/sound.dart
+/// \file   ui/update/widgets/zimo/sound_dialog.dart
 /// \author Vincent Hamp
 /// \date   07/03/2025
 

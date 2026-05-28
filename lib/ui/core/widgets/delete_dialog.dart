@@ -15,7 +15,7 @@
 
 /// Dialog to delete loco or turnout
 ///
-/// \file   widget/dialog/delete.dart
+/// \file   ui/core/widgets/delete_dialog.dart
 /// \author Vincent Hamp
 /// \date   18/09/2025
 

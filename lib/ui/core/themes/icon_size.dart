@@ -15,7 +15,7 @@
 
 /// Icon size
 ///
-/// \file   constant/icon_size.dart
+/// \file   ui/core/themes/icon_size.dart
 /// \author Vincent Hamp
 /// \date   22/03/2026
 

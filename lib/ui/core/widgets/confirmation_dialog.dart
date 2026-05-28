@@ -15,7 +15,7 @@
 
 /// Dialog to cancel or confirm action
 ///
-/// \file   widget/dialog/confirmation.dart
+/// \file   ui/core/widgets/confirmation_dialog.dart
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
