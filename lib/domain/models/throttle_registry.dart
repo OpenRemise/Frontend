@@ -25,10 +25,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'controller_registry.g.dart';
+part 'throttle_registry.g.dart';
 
 @Riverpod(keepAlive: true)
-class ControllerRegistry extends _$ControllerRegistry {
+class ThrottleRegistry extends _$ThrottleRegistry {
   @override
   LinkedHashSet<Register> build() {
     // Listen for Loco changes

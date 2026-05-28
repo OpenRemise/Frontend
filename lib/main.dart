@@ -29,6 +29,7 @@ import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
+import 'package:Frontend/domain/models/throttle_registry.dart';
 import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/controller_size.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
@@ -40,8 +41,7 @@ import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
 import 'package:Frontend/ui/info/widgets/info_screen.dart';
 import 'package:Frontend/ui/program/widgets/program_screen.dart';
 import 'package:Frontend/ui/settings/widgets/settings_screen.dart';
-import 'package:Frontend/ui/throttle/view_models/controller_registry.dart';
-import 'package:Frontend/ui/throttle/widgets/controller.dart';
+import 'package:Frontend/ui/throttle/widgets/throttle.dart';
 import 'package:Frontend/ui/update/widgets/update_screen.dart';
 import 'package:Frontend/utils/color_mappers/dark_mode_color_mapper.dart';
 import 'package:Frontend/utils/reload.dart';
@@ -400,7 +400,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           final loco = ref.watch(locosProvider).firstWhere(
                 (l) => l.address == register.decoder.address,
               );
-          return Controller<Loco>(
+          return Throttle<Loco>(
             key: ValueKey(
               Object.hash(Loco, loco.address, loco.speedSteps),
             ),
@@ -411,7 +411,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           final turnout = ref
               .watch(turnoutsProvider)
               .firstWhere((t) => t.address == register.decoder.address);
-          return Controller<Turnout>(
+          return Throttle<Turnout>(
             key: ValueKey(
               Object.hash(
                 Turnout,

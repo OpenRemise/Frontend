@@ -22,6 +22,7 @@ import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/domain/models/loco.dart';
+import 'package:Frontend/domain/models/throttle_registry.dart';
 import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/widgets/add_edit_dialog.dart';
@@ -30,7 +31,6 @@ import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/png_picture.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/throttle/view_models/controller_registry.dart';
 import 'package:Frontend/ui/throttle/widgets/cv_terminal.dart';
 import 'package:Frontend/ui/throttle/widgets/key_codes.dart';
 import 'package:Frontend/ui/throttle/widgets/key_press_notifier.dart';
@@ -47,7 +47,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:stream_summary_builder/stream_summary_builder.dart';
 import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
-/// Controller
+/// Throttle
 ///
 /// The Controller class creates an input widget for controlling locomotives or
 /// accessories. Depending on the screen width, this widget is displayed either
@@ -55,18 +55,18 @@ import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 /// above all other screens. In the latter case, multiple controller instances
 /// can be open simultaneously. The class ControllerRegistry keeps track of open
 /// instances for us.
-class Controller<T> extends ConsumerStatefulWidget {
+class Throttle<T> extends ConsumerStatefulWidget {
   final dynamic item;
 
-  const Controller({super.key, required this.item})
+  const Throttle({super.key, required this.item})
       : assert(T == Loco || T == Turnout);
 
   @override
-  ConsumerState<Controller<T>> createState() => _ControllerState<T>();
+  ConsumerState<Throttle<T>> createState() => _ThrottleState<T>();
 }
 
 /// \todo document
-class _ControllerState<T> extends ConsumerState<Controller<T>> {
+class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
   Loco get loco => widget.item as Loco;
   Turnout get turnout => widget.item as Turnout;
 

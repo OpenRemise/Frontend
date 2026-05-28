@@ -17,6 +17,7 @@ import 'dart:collection';
 
 import 'package:Frontend/data/repositories/dcc.dart';
 import 'package:Frontend/domain/models/loco.dart';
+import 'package:Frontend/domain/models/throttle_registry.dart';
 import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/widgets/add_edit_dialog.dart';
@@ -29,7 +30,6 @@ import 'package:Frontend/ui/decoders/view_models/decoder_filter.dart';
 import 'package:Frontend/ui/decoders/view_models/decoder_selection.dart';
 import 'package:Frontend/ui/decoders/view_models/filtered_locos.dart';
 import 'package:Frontend/ui/decoders/view_models/filtered_turnouts.dart';
-import 'package:Frontend/ui/throttle/view_models/controller_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
