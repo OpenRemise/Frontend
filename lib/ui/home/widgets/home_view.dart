@@ -35,6 +35,7 @@ import 'package:Frontend/ui/core/themes/text_scaler.dart';
 import 'package:Frontend/ui/core/themes/throttle_size.dart';
 import 'package:Frontend/ui/core/widgets/short_circuit_dialog.dart';
 import 'package:Frontend/ui/decoders/widgets/decoders_screen.dart';
+import 'package:Frontend/ui/home/view_models/home_view_model.dart';
 import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
 import 'package:Frontend/ui/info/widgets/info_screen.dart';
 import 'package:Frontend/ui/program/widgets/program_screen.dart';
@@ -59,10 +60,6 @@ class HomeView extends ConsumerStatefulWidget {
 
 /// \todo document
 class _HomeViewState extends ConsumerState<HomeView> {
-  bool _smallWidth = true;
-  Key _layoutKey = UniqueKey();
-  int _index = 0;
-
   final List<NavigationDestination> _destinations = <NavigationDestination>[
     const NavigationDestination(
       icon: Icon(Icons.info_outline),
@@ -131,7 +128,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         final connected =
             connectionStatus.asData?.value == ConnectionStatus.connected;
 
-        if (ModalRoute.of(context)?.isCurrent == true && connected) {
+        if (connected) {
           showDialog(
             context: context,
             builder: (_) => const ShortCircuitDialog(),
@@ -150,11 +147,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final connectionStatus = ref.watch(connectionStatusProvider);
     final connected =
         connectionStatus.asData?.value == ConnectionStatus.connected;
-
-    if (smallWidth != _smallWidth) {
-      _smallWidth = smallWidth;
-      _layoutKey = UniqueKey();
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -197,8 +189,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         scrolledUnderElevation: 0,
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: _smallWidth
+        duration: const Duration(milliseconds: 500),
+        child: smallWidth
             ? _smallLayout(controllerRegistry)
             : _largeLayout(controllerRegistry),
       ),
@@ -207,20 +199,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   /// \todo document
   Widget _smallLayout(Set<Register> controllerRegistry) {
+    final index = ref.watch(homeViewProvider);
     final register = controllerRegistry.lastOrNull;
 
     return Column(
-      key: _layoutKey,
       children: [
         Expanded(
-          child: _index == 1 && register != null
-              ? _buildController(register: register)
-              : _pages[_index],
+          child: index == 1 && register != null
+              ? _buildController(register)
+              : _pages[index],
         ),
         NavigationBar(
-          selectedIndex: _index,
+          selectedIndex: index,
           destinations: _destinations,
-          onDestinationSelected: (index) => setState(() => _index = index),
+          onDestinationSelected: (index) =>
+              ref.read(homeViewProvider.notifier).state = index,
         ),
       ],
     );
@@ -228,8 +221,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   /// \todo document
   Widget _largeLayout(Set<Register> controllerRegistry) {
+    final index = ref.watch(homeViewProvider);
+
     return Stack(
-      key: _layoutKey,
       children: [
         Row(
           children: <Widget>[
@@ -243,23 +237,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                   )
                   .toList(),
-              selectedIndex: _index,
-              onDestinationSelected: (index) => setState(() => _index = index),
+              selectedIndex: index,
+              onDestinationSelected: (index) =>
+                  ref.read(homeViewProvider.notifier).state = index,
               labelType: NavigationRailLabelType.all,
             ),
             const VerticalDivider(thickness: 2),
             Expanded(
-              child: Center(child: _pages[_index]),
+              child: Center(child: _pages[index]),
             ),
           ],
         ),
         ...controllerRegistry.map(
           (register) => switch (register.decoder.type) {
             const (Loco) => () {
-                return _buildDraggable<Loco>(register: register);
+                return _buildDraggable<Loco>(register);
               }(),
             const (Turnout) => () {
-                return _buildDraggable<Turnout>(register: register);
+                return _buildDraggable<Turnout>(register);
               }(),
             _ => ErrorWidget(Exception('Invalid type'))
           },
@@ -269,7 +264,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   /// \todo document
-  Widget _buildDraggable<T>({required Register register}) {
+  Widget _buildDraggable<T>(Register register) {
     void moveToTop() {
       ref.read(throttleRegistryProvider.notifier).updateItem<T>(
             register.decoder.address!,
@@ -292,7 +287,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         ),
         width: throttleSize.width,
         height: throttleSize.height,
-        child: _buildController(register: register),
+        child: _buildController(register),
       ),
     );
   }
@@ -302,7 +297,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// Flutters rendering pipeline which relies on keys as unique identifiers to
   /// determine which widgets down the widget tree have changed and need to be
   /// rebuilt make MDI windows rather tedious.
-  Widget _buildController({required Register register}) {
+  Widget _buildController(Register register) {
     return switch (register.decoder.type) {
       const (Loco) => () {
           final loco = ref.watch(locosProvider).firstWhere(
