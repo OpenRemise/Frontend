@@ -442,3 +442,222 @@
 /// | :--------------------- | ---------------: |
 /// | \ref page_architecture | \ref page_screen |
 /// </div>
+
+/// \page page_utility Utilities
+/// \tableofcontents
+/// \todo document utilities
+///
+/// <div class="section_buttons">
+/// | Previous           |
+/// | :----------------- |
+/// | \ref page_constant |
+/// </div>
+
+/// \page page_model Models
+/// \tableofcontents
+/// \todo document models
+///
+/// <div class="section_buttons">
+/// | Previous           | Next               |
+/// | :----------------- | -----------------: |
+/// | \ref page_provider | \ref page_constant |
+/// </div>
+
+/// \page page_widget Widgets
+/// \tableofcontents
+/// Widgets are currently divided into three categories depending on their
+/// intended use.
+/// - General widgets are used wherever
+/// - Dialog widgets are displayed by the [showDialog](https://api.flutter.dev/flutter/material/showDialog.html)
+///   function
+/// - Controller widgets make up the complex locomotive and accessory
+///   controllers
+///
+/// \section section_widgets_general General Widgets
+/// General widgets can be used generally and have no predefined use cases. They
+/// are often just small wrappers over existing classes or helper widgets that,
+/// in turn, accept a child.
+///
+/// \subsection subsection_widgets_default_animated_size Default Animated Size
+/// \copydetails DefaultAnimateSize
+///
+/// \subsection subsection_widgets_error_gif Error GIF
+/// \copydetails ErrorGif
+///
+/// \subsection subsection_widgets_loading_gif Loading GIF
+/// \copydetails LoadingGif
+///
+/// \subsection subsection_widgets_persistent_expansion_tile Persistent Expansion Tile
+/// \copydetails PersistentExpansionTile
+///
+/// \subsection subsection_widgets_png_picture PNG Picture
+/// \copydetails PngPicture
+///
+/// \subsection subsection_widgets_positioned_draggable Positioned Draggable
+/// \copydetails PositionedDraggable
+///
+/// \subsection subsection_widgets_power_icon_button PowerIcon Button
+/// \copydetails PowerIconButton
+///
+/// \section section_widgets_dialog Dialog Widgets
+/// Dialog widgets are, as the name suggests, either [SimpleDialog](https://api.flutter.dev/flutter/material/SimpleDialog-class.html)
+/// or [AlertDialog](https://api.flutter.dev/flutter/material/AlertDialog-class.html)
+/// widgets. All dialogs must be launched using the [showDialog](https://api.flutter.dev/flutter/material/showDialog.html)
+/// function. A common use case for dialogs are various updates, such as
+/// \ref OtaDialog "OTA updates".
+///
+/// \subsection subsection_widgets_add_edit AddEdit
+/// \copydetails AddEditDialog
+///
+/// \subsection subsection_widgets_confirmation Confirmation
+/// \copydetails ConfirmationDialog
+///
+/// \subsection subsection_widgets_delete Delete
+/// \copydetails DeleteDialog
+///
+/// \subsection subsection_widgets_download Download
+/// \copydetails DownloadDialog
+///
+/// \subsection subsection_widgets_ota Ota
+/// \copydetails OtaDialog
+///
+/// \subsection subsection_widgets_short_circuit ShortCircuit
+/// \copydetails ShortCircuitDialog
+///
+/// \subsection subsection_widgets_zimo ZIMO
+///
+/// \subsubsection subsubsection_widgets_zimo_decup Decup
+/// \copydetails DecupDialog
+///
+/// \subsubsection subsubsection_widgets_zimo_mdu Mdu
+/// \copydetails MduDialog
+///
+/// \subsubsection subsubsection_widgets_zimo_sound Sound
+/// \copydetails SoundDialog
+///
+/// \subsubsection subsubsection_widgets_zimo_zusi Zusi
+/// \copydetails ZusiDialog
+///
+/// \section section_widgets_controller %Controller Widgets
+/// Controller widgets are a collection of widgets that make up the complex
+/// throttle or signal box.
+///
+/// \subsection subsection_widgets_controller Controller
+/// \copydetails Controller
+///
+/// \subsubsection subsubsection_widgets_cv_editing_controller CV Editing Controller
+/// \copydetails CvEditingController
+///
+/// \subsubsection subsubsection_widgets_cv_terminal CV Terminal
+/// \copydetails CvTerminal
+///
+/// \subsubsection subsubsection_widgets_key_press_notifier Key Press Notifier
+/// \copydetails KeyPressNotifier
+///
+/// \subsubsection subsubsection_widgets_keypad Keypad
+/// \copydetails Keypad
+///
+/// \subsubsection subsubsection_widgets_railcom RailCom
+/// \copydetails RailCom
+///
+/// <div class="section_buttons">
+/// | Previous         | Next              |
+/// | :--------------- | ----------------: |
+/// | \ref page_screen | \ref page_service |
+/// </div>
+
+/// \page page_provider Providers
+/// \tableofcontents
+/// \todo document providers
+///
+/// <div class="section_buttons">
+/// | Previous          | Next            |
+/// | :---------------- | --------------: |
+/// | \ref page_service | \ref page_model |
+/// </div>
+
+/// \page page_screen Screens
+/// \tableofcontents
+/// The entire app is divided into 5 screens, created in a responsive layout.
+/// Depending on the screen width, all screens can be accessed either via a
+/// [NavigationBar](https://api.flutter.dev/flutter/material/NavigationBar-class.html)
+/// or -[rail](https://api.flutter.dev/flutter/material/NavigationRail-class.html).
+/// The screen width at which switching between the two widgets takes place is
+/// set in the variable \ref smallScreenWidth, which in turn is set by the
+/// environment variable `OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH` during build.
+///
+/// \section section_screen_info Info
+/// \copydetails InfoScreen
+///
+/// \section section_screen_decoders Decoders
+/// \copydetails DecodersScreen
+///
+/// \section section_screen_program Program
+/// \copydetails ProgramScreen
+///
+/// \section section_screen_update Update
+/// \copydetails UpdateScreen
+///
+/// \section section_screen_settings Settings
+/// \copydetails SettingsScreen
+///
+/// <div class="section_buttons">
+/// | Previous                | Next             |
+/// | :---------------------- | ---------------: |
+/// | \ref page_api_reference | \ref page_widget |
+/// </div>
+
+/// \page page_constant Constants
+/// \tableofcontents
+/// The app uses a lot of constants which are listed here in no particular
+/// order.
+///
+/// \section section_constant_controller_size Controller Size
+/// \copydetails controllerSize
+///
+/// \section section_constant_fake_cvs Fake CVs
+/// \subsection subsection_constant_fake_service_cvs Fake Service CVs
+/// \copydetails fakeServiceCvs
+///
+/// \subsection subsection_constant_fake_loco_cvs Fake Loco CVs
+/// \copydetails fakeLocoCvs
+///
+/// \subsection subsection_constant_fake_accessory_cvs Fake Accessory CVs
+/// \copydetails fakeAccessoryCvs
+///
+/// \section section_constant_fake_services_provider_container Fake Services Provider Container
+/// \copydetails fakeServicesProviderContainer
+///
+/// \section section_constant_icon_size Icon Size
+/// \copydetails iconSize
+///
+/// \section section_constant_key_codes Key Codes
+/// \copydetails KeyCodes
+///
+/// \section section_constant_open_remise_icons OpenRemise Icons
+/// \copydetails OpenRemiseIcons
+///
+/// \section section_constant_small_screen_width Small Screen Width
+/// \copydetails smallScreenWidth
+///
+/// \section section_constant_turnout_map Turnout Map
+/// \copydetails turnoutMap
+///
+/// \section section_constant_ws_batch_size WebSocket Batch Size
+/// \copydetails wsBatchSize
+///
+/// <div class="section_buttons">
+/// | Previous        | Next              |
+/// | :-------------- | ----------------: |
+/// | \ref page_model | \ref page_utility |
+/// </div>
+
+/// \page page_service Services
+/// \tableofcontents
+/// \todo document services
+///
+/// <div class="section_buttons">
+/// | Previous         | Next               |
+/// | :--------------- | -----------------: |
+/// | \ref page_widget | \ref page_provider |
+/// </div>
