@@ -1,0 +1,43 @@
+// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2025 Franziska Walter
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import 'package:Frontend/data/models/connection_status.dart';
+import 'package:Frontend/data/repositories/settings.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
+import 'package:Frontend/domain/models/config.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'connection_status.g.dart';
+
+@Riverpod(keepAlive: true)
+Stream<ConnectionStatus> connectionStatus(ref) async* {
+  final timeout = ref.watch(
+    settingsProvider.select(
+      (config) =>
+          config.value?.httpReceiveTimeout ?? Config().httpReceiveTimeout,
+    ),
+  );
+
+  final z21 = ref.watch(z21ServiceProvider);
+
+  try {
+    await for (final _ in z21.stream.timeout(Duration(seconds: timeout))) {
+      yield ConnectionStatus.connected;
+    }
+  } catch (_) {}
+
+  yield ConnectionStatus.disconnected;
+}

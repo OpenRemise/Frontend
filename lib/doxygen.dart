@@ -312,111 +312,141 @@
 
 /// \page page_architecture Architecture
 /// \details \tableofcontents
-/// The entire software stack revolves around services. All communication
-/// happens over [HTTP](https://en.wikipedia.org/wiki/HTTP) or
-/// [WebSockets](https://en.wikipedia.org/wiki/WebSocket) because it is the only
-/// thing that browsers support. All services are packaged into
-/// developer-friendly objects via providers, which take care of asynchronous
-/// requests, possible caching and error handling. The display and manipulation
-/// of the data is then the responsibility of the screens, which in turn use
-/// recurring widgets.
+/// The entire software stack is divided into three layers. At the top sits the
+/// UI layer, which takes care of the graphical representation of the data for
+/// the user. In the middle is a domain layer that prepares the data for the UI
+/// and converts user input back into data. And underneath that the data layer
+/// handles IO, e.g. get or set data over services.
+///
+/// This architecture is also referred to as [Model-View-ViewModel architectural pattern](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel)
+/// (MVVM) and recommended by the official [Flutter guide to app architecture](https://docs.flutter.dev/app-architecture/guide).
+///
+/// A more detailed version of the upcoming diagram can be found at the
+/// [bottom of the page](#section_architecture_diagram)(\emoji :warning: not mobile friendly).
 ///
 /// \startuml "Architecture overview"
 /// !theme mono
 /// skinparam defaultFontName "Glacial Indifference"
 ///
-/// frame "Services" {
+/// frame "UI" as ui {
 /// }
 ///
-/// database "Providers" {
+/// frame "Domain" as domain {
 /// }
 ///
-/// frame "Screens" {
+/// frame "Data" as data {
 /// }
 ///
-/// frame "Widgets" {
-/// }
-///
-/// Services -r-> Providers
-/// Providers -d-> Screens
-/// Providers -d-> Widgets
-/// Screens -r-> Widgets
-///
-/// 'Links
-/// url of Services is [[page_architecture.html#section_architecture_services]]
-/// url of Providers is [[page_architecture.html#section_architecture_providers]]
-/// url of Screens is [[page_architecture.html#section_architecture_screens]]
-/// url of Widgets is [[page_architecture.html#section_architecture_widgets]]
+/// ui <-d-> domain
+/// domain <-d-> data
 /// \enduml
 ///
-/// \section section_architecture_services Services
-/// Services come in the two categories HTTP or WebSockets.
+/// \section section_architecture_ui UI
+/// The UI layer is responsible for representing data from the domain (or data)
+/// layer and interacting with the user. In MVVM language it's made up of two
+/// architectural components, views and view models. Views describe how to
+/// present data to the user, view models contain logic that converts data into
+/// UI state. Depending on the complexity of the state, simpler views might skip
+/// the additional indirection and display data directly.
 ///
-/// \subsection subsection_architecture_http HTTP
-/// HTTP is used where classic requests make sense and no bidirectional
-/// communication is necessary. This applies, for example, to the API for adding
-/// or deleting locomotives, changing device settings or querying the current
-/// system status. The following endpoints are defined for HTTP.
-/// - /dcc/locos/
-///   - GET
-///   - PUT
-///   - DELETE
-/// - /dcc/turnouts/
-///   - GET
-///   - PUT
-///   - DELETE
-/// - /dcc/
-///   - GET
-///   - POST
-/// - /settings/
-///   - GET
-///   - POST
-/// - /sys/
-///   - GET
-/// - /*
-///   - GET
+/// \section section_architecture_domain Domain
+/// The optional domain layer is intended for models that need to mediate
+/// between the UI and data layers. In these cases, the logic for converting
+/// between external data and UI state is too complex to be handled by the view
+/// model.
 ///
-/// \subsection subsection_architecture_ws WebSockets
-/// WebSockets are used where fast bidirectional data communication is
-/// necessary. This primarily affects all the different APIs for firmware and
-/// sound updates, e.g. [DECUP](https://github.com/ZIMO-Elektronik/DECUP) or
-/// [ZUSI](https://github.com/ZIMO-Elektronik/ZUSI), but also the
-/// [Z21](https://github.com/ZIMO-Elektronik/Z21) endpoint. The following
-/// endpoints are defined for WebSockets.
-/// - /ota/
-/// - /roco/z21/
-/// - /zimo/decup/zpp/
-/// - /zimo/decup/zsu/
-/// - /zimo/mdu/zpp/
-/// - /zimo/mdu/zsu/
-/// - /zimo/zusi/
+/// \section section_architecture_data Data
+/// The data layer handles data from external sources. Services are responsible
+/// for acquiring the data, repositories then manage it. Managing means handling
+/// things like caching, error handling, or retry logic. Examples of services
+/// include [HTTP](https://en.wikipedia.org/wiki/HTTP) requests or [WebSockets](https://en.wikipedia.org/wiki/WebSocket).
 ///
-/// \section section_architecture_providers Providers
-/// The frontend uses [Riverpod](https://riverpod.dev) providers as a state
-/// management solution. Different types of providers (e.g. `NotifierProvider`
-/// or `FutureProvider`) encapsulate the services and allow reacting to state
-/// changes through their reactive API. The created providers are injected into
-/// the user code by inheriting from special so-called `ConsumerWidgets`.
+/// \section section_architecture_project_structure Project structure
+/// There are two popular means of organizing code:
+/// - By feature - classes needed for each feature are grouped together
+/// - By type - types of classes are grouped together
 ///
-/// For a detailed description of each provider see \ref page_provider.
+/// The structure used here is a combination of the two. Domain and data layer
+/// objects (repositories and services) aren't tied to a single feature, while
+/// UI layer objects (views and view models) are.
 ///
-/// \section section_architecture_screens Screens
-/// Screens are... well, screens. A screen is essentially a display-filling
-/// widget. The only difference to a "smaller" widget is that there is only ever
-/// one instance of a screen and when you switch from one screen to another, the
-/// entire display usually changes. It is also helpful to distinguish screens
-/// from widgets in order to find a clear vocabulary. It is much easier to
-/// explain a list of tiles on the decoder screen to someone than a list of
-/// widgets on a widget (although that is essentially what it is).
+/// \htmlonly
+/// <details>
+///   <summary>lib/</summary>
+///   <ul>
+///     <details>
+///       <summary>config/</summary>
+///     </details>
+///     <details>
+///       <summary>data/</summary>
+///       <ul>
+///         <details>
+///           <summary>models/</summary>
+///         </details>
+///         <details>
+///           <summary>repositories/</summary>
+///         </details>
+///         <details>
+///           <summary>services/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>domain/</summary>
+///       <ul>
+///         <details>
+///           <summary>models/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>ui/</summary>
+///       <ul>
+///         <details>
+///           <summary>core/</summary>
+///         </details>
+///         <details>
+///           <summary>&lt;feature&gt;/</summary>
+///         </details>
+///       </ul>
+///     </details>
+///     <details>
+///       <summary>utils/</summary>
+///     </details>
+///   </ul>
+/// </details>
+/// \endhtmlonly
 ///
-/// For a detailed description of each screen see \ref page_screen.
+/// \section section_architecture_diagram Diagram
+/// \startuml "Architecture diagram"
+/// !theme mono
+/// skinparam defaultFontName "Glacial Indifference"
 ///
-/// \section section_architecture_widgets Widgets
-/// Widgets are user-defined GUI elements that combine Flutter’s own classes. A
-/// classic example of such a widget are the dialogs shown during firmware and
-/// sound updates or the locomotive controller.
+/// frame "UI layer" as ui {
+///   package "View" as ui_view {
+///   }
+///   package "View model" as ui_view_model {
+///   }
+///   ui_view -[hidden]right-> ui_view_model
+/// }
 ///
-/// For a detailed description of each widget see \ref page_widget.
+/// frame "Domain layer" as domain {
+///   package "Models" as domain_models {
+///   }
+/// }
+///
+/// frame "Data layer" as data {
+///   package "Repositories" as data_repositories {
+///   }
+///   package "Services" as data_services {
+///   }
+///   package "Models" as data_models {
+///   }
+/// }
+///
+/// ui <-d-> domain
+/// domain <-d-> data
+/// \enduml
 ///
 /// <div class="section_buttons">
 /// | Previous                | Next                    |
@@ -427,18 +457,15 @@
 /// \page page_api_reference API Reference
 /// The project layout follows a typical type-first structure.
 ///
-/// | Chapter                | Content                                                                                            |
-/// | ---------------------- | -------------------------------------------------------------------------------------------------- |
-/// | \subpage page_screen   | Responsive layout with selectable screens                                                          |
-/// | \subpage page_widget   | More complex widgets such as controllers or dialogs                                                |
-/// | \subpage page_service  | HTTP, WebSocket and fake services                                                                  |
-/// | \subpage page_provider | State management through [Riverpod](https://riverpod.dev/) providers                               |
-/// | \subpage page_model    | [freezed](https://pub.dev/packages/freezed) models for settings, file formats, HTTP requests, etc. |
-/// | \subpage page_constant | Constants used throughout the app                                                                  |
-/// | \subpage page_utility  | Checksums, validators, etc.                                                                        |
+/// | Chapter              | Content                                     |
+/// | -------------------- | ------------------------------------------- |
+/// | \subpage page_ui     | Responsive layout with selectable screens   |
+/// | \subpage page_domain | Models to convert between data and UI state |
+/// | \subpage page_data   | HTTP and WebSocket services                 |
+/// | \subpage page_utils  | Checksums, validators, etc.                 |
 ///
 /// <div class="section_buttons">
-/// | Previous               | Next             |
-/// | :--------------------- | ---------------: |
-/// | \ref page_architecture | \ref page_screen |
+/// | Previous               | Next         |
+/// | :--------------------- | -----------: |
+/// | \ref page_architecture | \ref page_ui |
 /// </div>
