@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Controller size
+/// Throttle size
 ///
 /// \file   ui/core/themes/throttle_size.dart
 /// \author Vincent Hamp
@@ -21,9 +21,9 @@
 
 import 'package:flutter/widgets.dart';
 
-/// Controller size
+/// Throttle size
 ///
-/// The \ref controllerSize "controller size" is the size of the controller
-/// widgets on larger screens. In `!kIsWeb` builds, this value is also used to
-/// set the minimum window size.
+/// The \ref throttleSize "throttle size" is the size of the throttle widgets on
+/// larger screens. In `!kIsWeb` builds, this value is also used to set the
+/// minimum window size.
 const Size throttleSize = Size(400, 800);

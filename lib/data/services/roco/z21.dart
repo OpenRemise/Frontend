@@ -15,14 +15,13 @@
 
 // ignore_for_file: constant_identifier_names, unused_field
 
-import 'dart:typed_data';
-
 import 'package:Frontend/config/domain.dart';
 import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/data/services/roco/fake_z21.dart';
 import 'package:Frontend/data/services/roco/ws_z21.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/utils/exor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document
@@ -1623,8 +1622,27 @@ abstract interface class Z21Service {
 }
 
 /// \todo document
-final z21ServiceProvider = Provider<Z21Service>(
-  (ref) => const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
-      ? FakeZ21Service(fakeServicesProviderContainer)
-      : WsZ21Service(ref.read(domainProvider)),
-);
+final Provider<Z21Service> z21ServiceProvider = Provider<Z21Service>((ref) {
+  final service =
+      const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
+          ? FakeZ21Service(fakeServicesProviderContainer)
+          : WsZ21Service(ref.read(domainProvider));
+
+  final subscription = service.stream.listen(
+    null,
+    onError: (e) {
+      debugPrint('Z21 stream onError $e');
+      ref.invalidate(z21ServiceProvider);
+    },
+    onDone: () {
+      debugPrint('Z21 stream onDone');
+      ref.invalidate(z21ServiceProvider);
+    },
+  );
+
+  ref.onDispose(() {
+    subscription.cancel();
+    service.close();
+  });
+  return service;
+});

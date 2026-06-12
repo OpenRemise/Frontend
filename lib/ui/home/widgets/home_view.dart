@@ -24,7 +24,6 @@ import 'package:Frontend/data/repositories/connection_status.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/roco/z21_short_circuit.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
-import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
 import 'package:Frontend/domain/models/throttle_registry.dart';
@@ -100,25 +99,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-
-    // Recover after socket was closed server side
-    ref.listenManual(
-      z21ServiceProvider,
-      (previous, next) {
-        next.stream.listen(
-          null,
-          onError: (e) {
-            debugPrint('Z21 stream onError $e');
-            ref.invalidate(z21ServiceProvider);
-          },
-          onDone: () {
-            debugPrint('Z21 stream onDone');
-            ref.invalidate(z21ServiceProvider);
-          },
-        );
-      },
-      fireImmediately: true,
-    );
 
     // Add listener for short circuit events
     ref.listenManual(

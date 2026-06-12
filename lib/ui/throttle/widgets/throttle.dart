@@ -49,11 +49,11 @@ import 'package:vertical_weight_slider/vertical_weight_slider.dart';
 
 /// Throttle
 ///
-/// The Controller class creates an input widget for controlling locomotives or
+/// The Throttle class creates an input widget for controlling locomotives or
 /// accessories. Depending on the screen width, this widget is displayed either
 /// full screen instead of the decoder screen or as a draggable MDI overlay
 /// above all other screens. In the latter case, multiple controller instances
-/// can be open simultaneously. The class ControllerRegistry keeps track of open
+/// can be open simultaneously. The class ThrottleRegistry keeps track of open
 /// instances for us.
 class Throttle<T> extends ConsumerStatefulWidget {
   final dynamic item;
