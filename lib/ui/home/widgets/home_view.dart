@@ -42,12 +42,11 @@ import 'package:Frontend/ui/settings/widgets/settings_screen.dart';
 import 'package:Frontend/ui/throttle/widgets/throttle.dart';
 import 'package:Frontend/ui/update/widgets/update_screen.dart';
 import 'package:Frontend/utils/color_mappers/dark_mode_color_mapper.dart';
-import 'package:Frontend/utils/reload.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:restart_app/restart_app.dart';
 
 /// \todo document
 class HomeView extends ConsumerStatefulWidget {
@@ -318,7 +317,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         message: 'Reload',
         waitDuration: const Duration(seconds: 1),
         child: GestureDetector(
-          onTap: kIsWeb ? reload : () => debugPrint('reload'),
+          onTap: () => Restart.restartApp(),
           child: SvgPicture.asset(
             assetName,
             colorMapper: DarkModeColorMapper(ref.watch(darkModeProvider)),

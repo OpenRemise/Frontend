@@ -21,6 +21,7 @@ import 'package:Frontend/data/services/sys/sys.dart';
 import 'package:Frontend/domain/models/info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:restart_app/restart_app.dart';
 
 enum State {
   // Flags (8 bits)
@@ -78,6 +79,6 @@ class FakeSysService implements SysService {
 
   @override
   Future<void> restart() async {
-    debugPrint('restart');
+    await Restart.restartApp();
   }
 }

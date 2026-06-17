@@ -19,15 +19,12 @@
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
-import 'dart:math';
-
-import 'package:Frontend/data/services/ota/ota.dart';
-import 'package:Frontend/ui/update/view_models/ota_service.dart';
-import 'package:Frontend/utils/reload.dart';
-import 'package:async/async.dart';
+import 'package:Frontend/ui/update/state.dart';
+import 'package:Frontend/ui/update/view_models/ota_view_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:restart_app/restart_app.dart';
 
 /// Dialog to update OpenRemise boards
 ///
@@ -44,137 +41,42 @@ class OtaDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _OtaDialogState extends ConsumerState<OtaDialog> {
-  static const int _chunkSize = 1024;
-  late final Uint8List _bin;
-  late final OtaService _ota;
-  late final StreamQueue<Uint8List> _events;
-  String _status = '';
-  String _option = 'Cancel';
-  double? _progress;
-
   /// \todo document
   @override
   void initState() {
     super.initState();
-    _bin = widget._bin;
-    _ota = ref.read(otaServiceProvider);
-    _events = StreamQueue(_ota.stream);
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _execute().catchError((_) {}),
+      (_) => ref.read(otaViewModelProvider.notifier).update(widget._bin),
     );
   }
 
   /// \todo document
   @override
-  void dispose() {
-    _events.cancel();
-    _ota.close();
-    super.dispose();
-  }
-
-  /// \todo document
-  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(otaViewModelProvider);
+
     return AlertDialog(
       title: const Text('OTA'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LinearProgressIndicator(value: _progress),
-          Text(_status),
+          LinearProgressIndicator(value: state.progress),
+          Text(state.message),
         ],
       ),
       actions: [
-        TextButton(
-          onPressed:
-              kIsWeb && _option == 'OK' ? reload : () => Navigator.pop(context),
-          child: Text(_option),
-        ),
+        state.status == UpdateStatus.Completed
+            ? TextButton(onPressed: Restart.restartApp, child: Text('OK'))
+            : TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
       ],
       shape: RoundedRectangleBorder(
         side: Divider.createBorderSide(context),
         borderRadius: BorderRadius.circular(12),
       ),
     );
-  }
-
-  /// \todo document
-  Future<void> _execute() async {
-    await _connect();
-
-    final msg = await _write();
-    if (!msg.contains(OtaService.ack)) return;
-
-    await _disconnect();
-  }
-
-  /// \todo document
-  Future<void> _connect() async {
-    _updateEphemeralState(status: 'Connecting');
-    await _ota.ready;
-  }
-
-  /// \todo document
-  Future<Uint8List> _write() async {
-    _updateEphemeralState(status: 'Writing');
-
-    int i = 0;
-    while (i < _bin.length) {
-      final start = i;
-      final end = start + _chunkSize;
-      final chunk = _bin.sublist(start, min(end, _bin.length));
-      _ota(Write(chunk: chunk));
-
-      final msg = await _events.next;
-      if (!msg.contains(OtaService.ack) || _ota.closeReason != null) {
-        _updateEphemeralState(
-          status: _ota.closeReason ?? 'Writing failed',
-          progress: 0,
-        );
-        return Uint8List.fromList([OtaService.nak]);
-      }
-
-      i += chunk.length;
-
-      // Update progress
-      _updateEphemeralState(
-        status: 'Writing ${i ~/ 1024} / ${_bin.length ~/ 1024} kB',
-        progress: i / _bin.length,
-      );
-    }
-
-    return Uint8List.fromList([OtaService.ack]);
-  }
-
-  /// \todo document
-  Future<void> _disconnect() async {
-    _updateEphemeralState(
-      status: 'Done (\u{26A0} page will reload)',
-      option: 'OK',
-    );
-    await _ota.close();
-  }
-
-  /// \todo document
-  Future<void> _updateEphemeralState({
-    String? status,
-    String? option,
-    double? progress,
-  }) async {
-    setState(
-      () {
-        if (status != null) _status = status;
-        if (option != null) _option = option;
-        if (progress != null) _progress = progress;
-      },
-    );
-  }
-
-  /// \todo document
-  @override
-  void setState(VoidCallback fn) {
-    if (!mounted) return;
-    super.setState(fn);
   }
 }
