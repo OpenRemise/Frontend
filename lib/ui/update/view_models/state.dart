@@ -15,7 +15,7 @@
 
 /// Update state
 ///
-/// \file   ui/update/state.dart
+/// \file   ui/update/view_models/state.dart
 /// \author Vincent Hamp
 /// \date   16/06/2026
 

@@ -19,7 +19,7 @@
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
-import 'package:Frontend/ui/update/state.dart';
+import 'package:Frontend/ui/update/view_models/state.dart';
 import 'package:Frontend/ui/update/view_models/ota_view_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,10 @@ class _OtaDialogState extends ConsumerState<OtaDialog> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(otaViewModelProvider.notifier).update(widget._bin),
+      (_) => ref
+          .read(otaViewModelProvider.notifier)
+          .update(widget._bin)
+          .catchError((_) {}),
     );
   }
 

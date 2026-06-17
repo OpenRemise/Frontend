@@ -23,7 +23,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:Frontend/data/services/ota/ota.dart';
-import 'package:Frontend/ui/update/state.dart';
+import 'package:Frontend/ui/update/view_models/exception.dart';
+import 'package:Frontend/ui/update/view_models/state.dart';
 import 'package:Frontend/ui/update/view_models/ota_service.dart';
 import 'package:async/async.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -53,11 +54,31 @@ class OtaViewModel extends _$OtaViewModel {
 
   /// \todo document
   Future<void> update(Uint8List bin) async {
+    try {
+      await _connect();
+      await _write(bin);
+      await _disconnect();
+      state = state.copyWith(status: UpdateStatus.Completed);
+    } on UpdateException catch (e) {
+      state = state.copyWith(
+        status: UpdateStatus.Failed,
+        message: e.message,
+        progress: 0,
+      );
+    }
+  }
+
+  /// \todo document
+  Future<void> _connect() async {
     state =
         state.copyWith(status: UpdateStatus.Connecting, message: 'Connecting');
     await _ota.ready;
+  }
 
+  /// \todo document
+  Future<void> _write(Uint8List bin) async {
     state = state.copyWith(status: UpdateStatus.Updating, message: 'Writing');
+
     int i = 0;
     while (i < bin.length) {
       final start = i;
@@ -66,13 +87,8 @@ class OtaViewModel extends _$OtaViewModel {
       _ota(Write(chunk: chunk));
 
       final msg = await _events.next;
-      if (!msg.contains(OtaService.ack) || _ota.closeReason != null) {
-        state = state.copyWith(
-          status: UpdateStatus.Failed,
-          message: _ota.closeReason ?? 'Writing failed',
-          progress: 0,
-        );
-        return;
+      if (_ota.closeReason != null || !msg.contains(OtaService.ack)) {
+        throw UpdateException(_ota.closeReason ?? 'Writing failed');
       }
 
       i += chunk.length;
@@ -81,7 +97,10 @@ class OtaViewModel extends _$OtaViewModel {
         progress: i / bin.length,
       );
     }
+  }
 
+  /// \todo document
+  Future<void> _disconnect() async {
     state = state.copyWith(
       status: UpdateStatus.Completed,
       message: 'Done (\u{26A0} page will reload)',
