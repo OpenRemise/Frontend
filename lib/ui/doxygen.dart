@@ -29,19 +29,19 @@
 /// set in the variable \ref smallScreenWidth, which in turn is set by the
 /// environment variable `OPENREMISE_FRONTEND_SMALL_SCREEN_WIDTH` during build.
 ///
-/// \section section_screen_info Info
+/// \section section_info Info
 /// \copydetails InfoScreen
 ///
-/// \section section_screen_decoders Decoders
+/// \section section_decoders Decoders
 /// \copydetails DecodersScreen
 ///
-/// \section section_screen_program Program
+/// \section section_program Program
 /// \copydetails ProgramScreen
 ///
-/// \section section_screen_update Update
+/// \section section_update Update
 /// \copydetails UpdateScreen
 ///
-/// \section section_screen_settings %Settings
+/// \section section_settings %Settings
 /// \copydetails SettingsScreen
 ///
 /// <div class="section_buttons">
