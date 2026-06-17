@@ -22,9 +22,9 @@ class WsDecupService implements DecupService {
   late final Stream<Uint8List> _stream;
   int preambleCount = 0;
 
-  WsDecupService(String domain, String unencodedPath) {
+  WsDecupService(String domain, String endpoint) {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://$domain/zimo/decup/$unencodedPath'),
+      Uri.parse('ws://$domain/zimo/decup/$endpoint'),
     );
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }

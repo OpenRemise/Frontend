@@ -67,7 +67,6 @@ class ZusiViewModel extends _$ZusiViewModel {
       await _cvs(zpp);
       await _exit();
       await _disconnect();
-      state = state.copyWith(status: UpdateStatus.Completed);
     } on UpdateException catch (e) {
       state = state.copyWith(
         status: UpdateStatus.Failed,
@@ -189,7 +188,7 @@ class ZusiViewModel extends _$ZusiViewModel {
 
   /// \todo document
   Future<void> _exit() async {
-    await _retryOnFailure(() => _zusi(Exit(cv8Reset: true)));
+    await _retryOnFailure(() => _zusi(Exit(cv8Reset: true, restart: true)));
   }
 
   /// \todo document

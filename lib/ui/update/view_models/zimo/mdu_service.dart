@@ -24,7 +24,7 @@ part 'mdu_service.g.dart';
 
 /// \todo document
 @riverpod
-MduService mduService(ref, String unencodedPath) =>
+MduService mduService(ref, String endpoint) =>
     const bool.fromEnvironment('OPENREMISE_FRONTEND_FAKE_SERVICES')
         ? FakeMduService(fakeServicesProviderContainer)
-        : WsMduService(ref.read(domainProvider), unencodedPath);
+        : WsMduService(ref.read(domainProvider), endpoint);

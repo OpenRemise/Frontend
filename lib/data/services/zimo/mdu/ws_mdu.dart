@@ -21,9 +21,9 @@ class WsMduService implements MduService {
   late final WebSocketChannel _channel;
   late final Stream<Uint8List> _stream;
 
-  WsMduService(String domain, String unencodedPath) {
+  WsMduService(String domain, String endpoint) {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://$domain/zimo/mdu/$unencodedPath'),
+      Uri.parse('ws://$domain/zimo/mdu/$endpoint'),
     );
     _stream = _channel.stream.asBroadcastStream().cast<Uint8List>();
   }

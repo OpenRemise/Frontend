@@ -58,7 +58,6 @@ class OtaViewModel extends _$OtaViewModel {
       await _connect();
       await _write(bin);
       await _disconnect();
-      state = state.copyWith(status: UpdateStatus.Completed);
     } on UpdateException catch (e) {
       state = state.copyWith(
         status: UpdateStatus.Failed,
