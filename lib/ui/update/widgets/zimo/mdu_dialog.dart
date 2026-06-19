@@ -352,21 +352,20 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   Future<Uint8List> _zsuSearch() async {
     _updateEphemeralState(status: 'Search decoders');
 
-    for (final entry in widget._zsu!.firmwares.entries) {
-      final decoderId = entry.key;
+    for (final firmware in widget._zsu!.firmwares) {
       await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
       final msg = await _retryOnFailure(
-        () => _mdu(Ping(serialNumber: 0, decoderId: decoderId)),
+        () => _mdu(Ping(serialNumber: 0, decoderId: firmware.id)),
         retries: 1,
       );
       if (msg[0] == MduService.nak && msg[1] == MduService.ack) {
         final exp = RegExp(r'\w{5,}-[0-9]');
-        final match = exp.firstMatch(entry.value.name);
+        final match = exp.firstMatch(firmware.name);
         if (match != null && match[0] != null) {
           final String name = match[0]!;
           _updateEphemeralState(
             decoder: MapEntry(
-              decoderId,
+              firmware.id,
               ListTile(
                 leading: const Icon(Icons.circle),
                 title: Text(name),
@@ -422,7 +421,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
     }
 
     // Salsa20 initialization vector
-    final ZsuFirmware zsuFirmware = widget._zsu!.firmwares[decoderId]!;
+    final ZsuFirmware zsuFirmware = widget._zsu!.firmwares[decoderId];
     msg = await _retryOnFailure(() => _mdu(ZsuSalsa20IV(iv: zsuFirmware.iv!)));
     if (msg.contains(MduService.ack)) return msg;
 

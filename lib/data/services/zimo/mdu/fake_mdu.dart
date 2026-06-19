@@ -146,6 +146,42 @@ class FakeMduService implements MduService {
             .add(Uint8List.fromList([MduService.nak, MduService.nak]));
         break;
 
+      case ZsuSalsa20IV():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
+
+      case ZsuErase():
+        Future.delayed(const Duration(milliseconds: 5), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
+
+      case ZsuUpdate(chunk: final chunk):
+        Future.delayed(Duration(milliseconds: 20 * chunk.length), () {
+          if (_controller.isClosed) return;
+          _controller.sink
+              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        });
+        break;
+
+      case ZsuCrc32Start():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
+
+      case ZsuCrc32Result():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
+
+      case ZsuCrc32ResultExit():
+        _controller.sink
+            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
+        break;
+
       case ZppValidQuery():
         _controller.sink
             .add(Uint8List.fromList([MduService.nak, MduService.nak]));
@@ -186,42 +222,6 @@ class FakeMduService implements MduService {
         break;
 
       case ZppExitReset():
-        _controller.sink
-            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        break;
-
-      case ZsuSalsa20IV():
-        _controller.sink
-            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        break;
-
-      case ZsuErase():
-        Future.delayed(const Duration(milliseconds: 5), () {
-          if (_controller.isClosed) return;
-          _controller.sink
-              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        });
-        break;
-
-      case ZsuUpdate(chunk: final chunk):
-        Future.delayed(Duration(milliseconds: 20 * chunk.length), () {
-          if (_controller.isClosed) return;
-          _controller.sink
-              .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        });
-        break;
-
-      case ZsuCrc32Start():
-        _controller.sink
-            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        break;
-
-      case ZsuCrc32Result():
-        _controller.sink
-            .add(Uint8List.fromList([MduService.nak, MduService.nak]));
-        break;
-
-      case ZsuCrc32ResultExit():
         _controller.sink
             .add(Uint8List.fromList([MduService.nak, MduService.nak]));
         break;

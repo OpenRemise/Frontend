@@ -640,7 +640,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
               context: context,
               builder: (_) => ConfirmationDialog(
                 title:
-                    'Update to ${zsu.firmwares.values.first.majorVersion}.${zsu.firmwares.values.first.minorVersion}',
+                    'Update to ${zsu.firmwares.first.majorVersion}.${zsu.firmwares.first.minorVersion}',
               ),
             ).then((value) {
               if (value != true) return;

@@ -108,6 +108,156 @@ class Busy extends MduCommand {
 }
 
 /// \todo document
+class ZsuSalsa20IV extends MduCommand {
+  final Uint8List iv;
+
+  ZsuSalsa20IV({required this.iv}) {
+    assert(iv.length == 8);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xF7,
+    ];
+    data.addAll(iv);
+    data.add(crc8(data));
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
+class ZsuErase extends MduCommand {
+  final int beginAddress;
+  final int endAddress;
+
+  ZsuErase({required this.beginAddress, required this.endAddress});
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xF5,
+      (beginAddress >> 24) & 0xFF,
+      (beginAddress >> 16) & 0xFF,
+      (beginAddress >> 8) & 0xFF,
+      (beginAddress >> 0) & 0xFF,
+      (endAddress >> 24) & 0xFF,
+      (endAddress >> 16) & 0xFF,
+      (endAddress >> 8) & 0xFF,
+      (endAddress >> 0) & 0xFF,
+    ];
+    data.add(crc8(data));
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
+class ZsuUpdate extends MduCommand {
+  final int address;
+  final Uint8List chunk;
+
+  ZsuUpdate({required this.address, required this.chunk}) {
+    assert(chunk.length == 64);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xF8,
+      (address >> 24) & 0xFF,
+      (address >> 16) & 0xFF,
+      (address >> 8) & 0xFF,
+      (address >> 0) & 0xFF,
+    ];
+    data.addAll(chunk);
+    final int crc = crc32(data);
+    data.addAll([
+      (crc >> 24) & 0xFF,
+      (crc >> 16) & 0xFF,
+      (crc >> 8) & 0xFF,
+      (crc >> 0) & 0xFF,
+    ]);
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
+class ZsuCrc32Start extends MduCommand {
+  final int beginAddress;
+  final int endAddress;
+  final int crc32;
+
+  ZsuCrc32Start({
+    required this.beginAddress,
+    required this.endAddress,
+    required this.crc32,
+  });
+
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xFB,
+      (beginAddress >> 24) & 0xFF,
+      (beginAddress >> 16) & 0xFF,
+      (beginAddress >> 8) & 0xFF,
+      (beginAddress >> 0) & 0xFF,
+      (endAddress >> 24) & 0xFF,
+      (endAddress >> 16) & 0xFF,
+      (endAddress >> 8) & 0xFF,
+      (endAddress >> 0) & 0xFF,
+      (crc32 >> 24) & 0xFF,
+      (crc32 >> 16) & 0xFF,
+      (crc32 >> 8) & 0xFF,
+      (crc32 >> 0) & 0xFF,
+    ];
+    data.add(crc8(data));
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
+class ZsuCrc32Result extends MduCommand {
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xFC,
+    ];
+    data.add(crc8(data));
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
+class ZsuCrc32ResultExit extends MduCommand {
+  @override
+  Uint8List toUint8List() {
+    List<int> data = [
+      0xFF, // Command
+      0xFF,
+      0xFF,
+      0xFD,
+    ];
+    data.add(crc8(data));
+    return Uint8List.fromList(data);
+  }
+}
+
+/// \todo document
 class ZppValidQuery extends MduCommand {
   final String id;
   final int flashSize;
@@ -272,156 +422,6 @@ class ZppExitReset extends MduCommand {
       0xFF,
       0xFF,
       0x0D,
-    ];
-    data.add(crc8(data));
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuSalsa20IV extends MduCommand {
-  final Uint8List iv;
-
-  ZsuSalsa20IV({required this.iv}) {
-    assert(iv.length == 8);
-  }
-
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xF7,
-    ];
-    data.addAll(iv);
-    data.add(crc8(data));
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuErase extends MduCommand {
-  final int beginAddress;
-  final int endAddress;
-
-  ZsuErase({required this.beginAddress, required this.endAddress});
-
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xF5,
-      (beginAddress >> 24) & 0xFF,
-      (beginAddress >> 16) & 0xFF,
-      (beginAddress >> 8) & 0xFF,
-      (beginAddress >> 0) & 0xFF,
-      (endAddress >> 24) & 0xFF,
-      (endAddress >> 16) & 0xFF,
-      (endAddress >> 8) & 0xFF,
-      (endAddress >> 0) & 0xFF,
-    ];
-    data.add(crc8(data));
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuUpdate extends MduCommand {
-  final int address;
-  final Uint8List chunk;
-
-  ZsuUpdate({required this.address, required this.chunk}) {
-    assert(chunk.length == 64);
-  }
-
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xF8,
-      (address >> 24) & 0xFF,
-      (address >> 16) & 0xFF,
-      (address >> 8) & 0xFF,
-      (address >> 0) & 0xFF,
-    ];
-    data.addAll(chunk);
-    final int crc = crc32(data);
-    data.addAll([
-      (crc >> 24) & 0xFF,
-      (crc >> 16) & 0xFF,
-      (crc >> 8) & 0xFF,
-      (crc >> 0) & 0xFF,
-    ]);
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuCrc32Start extends MduCommand {
-  final int beginAddress;
-  final int endAddress;
-  final int crc32;
-
-  ZsuCrc32Start({
-    required this.beginAddress,
-    required this.endAddress,
-    required this.crc32,
-  });
-
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xFB,
-      (beginAddress >> 24) & 0xFF,
-      (beginAddress >> 16) & 0xFF,
-      (beginAddress >> 8) & 0xFF,
-      (beginAddress >> 0) & 0xFF,
-      (endAddress >> 24) & 0xFF,
-      (endAddress >> 16) & 0xFF,
-      (endAddress >> 8) & 0xFF,
-      (endAddress >> 0) & 0xFF,
-      (crc32 >> 24) & 0xFF,
-      (crc32 >> 16) & 0xFF,
-      (crc32 >> 8) & 0xFF,
-      (crc32 >> 0) & 0xFF,
-    ];
-    data.add(crc8(data));
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuCrc32Result extends MduCommand {
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xFC,
-    ];
-    data.add(crc8(data));
-    return Uint8List.fromList(data);
-  }
-}
-
-/// \todo document
-class ZsuCrc32ResultExit extends MduCommand {
-  @override
-  Uint8List toUint8List() {
-    List<int> data = [
-      0xFF, // Command
-      0xFF,
-      0xFF,
-      0xFD,
     ];
     data.add(crc8(data));
     return Uint8List.fromList(data);

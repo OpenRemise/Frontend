@@ -19,8 +19,10 @@
 /// \author Vincent Hamp
 /// \date   17/06/2026
 
+import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:Frontend/config/ws_batch_size.dart';
 import 'package:Frontend/data/services/zimo/decup/decup.dart';
 import 'package:Frontend/domain/models/zimo/zpp.dart';
 import 'package:Frontend/domain/models/zimo/zsu.dart';
@@ -28,6 +30,7 @@ import 'package:Frontend/ui/update/view_models/exception.dart';
 import 'package:Frontend/ui/update/view_models/state.dart';
 import 'package:Frontend/ui/update/view_models/zimo/decup_service.dart';
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'decup_view_model.g.dart';
@@ -63,9 +66,16 @@ class DecupViewModel extends _$DecupViewModel {
       if (_endpoint.contains('zsu')) {
         final zsu = file as Zsu;
         await _zsuPreamble();
+        final firmware = await _zsuSearch(zsu);
+        await _zsuBlockCount(firmware);
+        await _zsuSecurityBytes();
+        await _zsuUpdate(firmware);
       } else {
         final zpp = file as Zpp;
         await _zppPreamble();
+        await _zppErase();
+        await _zppUpdate(zpp);
+        await _zppCvs(zpp);
       }
       await _disconnect();
     } on UpdateException catch (e) {
@@ -73,6 +83,10 @@ class DecupViewModel extends _$DecupViewModel {
         status: UpdateStatus.Failed,
         message: e.message,
         progress: 0,
+        devices: [
+          if (state.devices.isNotEmpty)
+            state.devices.first.copyWith(status: UpdateStatus.Failed),
+        ],
       );
     }
   }
@@ -93,16 +107,115 @@ class DecupViewModel extends _$DecupViewModel {
   }
 
   /// \todo document
-  Future<void> _zsuSearch() async {}
+  Future<ZsuFirmware> _zsuSearch(Zsu zsu) async {
+    state = state.copyWith(
+      status: UpdateStatus.Updating,
+      message: 'Search decoder',
+    );
+
+    for (final firmware in zsu.firmwares) {
+      _decup(ZsuDecoderId(byte: firmware.id));
+      final msg = await _events.next;
+      if (msg.contains(DecupService.ack)) {
+        state = state.copyWith(
+          devices: [
+            UpdateDeviceState(
+              status: UpdateStatus.Connecting,
+              name: firmware.name,
+              id: firmware.id,
+            ),
+          ],
+        );
+        return firmware;
+      }
+    }
+
+    throw UpdateException('No decoder found');
+  }
 
   /// \todo document
-  Future<void> _zsuBlockCount() async {}
+  Future<void> _zsuBlockCount(ZsuFirmware firmware) async {
+    final blockCount = (firmware.bin.length ~/ 256 + 8 - 1);
+    _decup(ZsuBlockCount(count: blockCount));
+    final msg = await _events.next;
+    if (_decup.closeReason != null || !msg.contains(DecupService.nak)) {
+      throw UpdateException(
+        _decup.closeReason ?? 'Block count not acknowledged',
+      );
+    }
+  }
 
   /// \todo document
-  Future<void> _zsuSecurityBytes() async {}
+  Future<void> _zsuSecurityBytes() async {
+    _decup(ZsuSecurityByte1());
+    final msg1 = await _events.next;
+    _decup(ZsuSecurityByte2());
+    final msg2 = await _events.next;
+    if (_decup.closeReason != null ||
+        !msg1.contains(DecupService.nak) ||
+        !msg2.contains(DecupService.nak)) {
+      throw UpdateException(
+        _decup.closeReason ?? 'Security byte not acknowledged',
+      );
+    }
+  }
 
   /// \todo document
-  Future<void> _zsuUpdate() async {}
+  Future<void> _zsuUpdate(ZsuFirmware firmware) async {
+    state = state.copyWith(
+      message: 'Writing',
+      devices: [state.devices.first.copyWith(status: UpdateStatus.Updating)],
+    );
+
+    final blockSize =
+        firmware.id == 200 || (firmware.id >= 202 && firmware.id <= 205)
+            ? 32
+            : 64;
+    final blocks = firmware.bin.slices(blockSize).toList();
+
+    int i = 0;
+    int failCount = 0;
+    while (i < blocks.length) {
+      // Number of blocks transmit at once
+      final n = min(wsBatchSize, blocks.length - i);
+      for (var j = 0; j < n; ++j) {
+        _decup(
+          ZsuBlocks(count: i + j, chunk: Uint8List.fromList(blocks[i + j])),
+        );
+      }
+
+      // Wait for all responses
+      for (final msg in await _events.take(n)) {
+        // Go either forward
+        if (msg.contains(DecupService.ack)) {
+          failCount = 0;
+          ++i;
+        }
+        // Or back (limited number of times)
+        else if (failCount < _retries) {
+          ++failCount;
+          i = max(i - 1, 0);
+          break;
+        }
+        // Or bail
+        else {
+          throw UpdateException('Writing failed');
+        }
+      }
+
+      // WebSocket closed on the server side
+      if (_decup.closeReason != null) {
+        throw UpdateException(_decup.closeReason!);
+      }
+
+      // Update progress
+      state = state.copyWith(
+        message:
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        progress: i / blocks.length,
+      );
+    }
+  }
 
   /// \todo document
   Future<void> _zppPreamble() async {
@@ -113,19 +226,96 @@ class DecupViewModel extends _$DecupViewModel {
   }
 
   /// \todo document
-  Future<void> _zppErase() async {}
+  Future<void> _zppErase() async {
+    state = state.copyWith(status: UpdateStatus.Updating, message: 'Erasing');
+    _decup(ZppErase());
+    final msg = await _events.next;
+    if (_decup.closeReason != null || !msg.contains(DecupService.nak)) {
+      throw UpdateException(_decup.closeReason ?? 'Erasing failed');
+    }
+  }
 
   /// \todo document
-  Future<void> _zppUpdate() async {}
+  Future<void> _zppUpdate(Zpp zpp) async {
+    state = state.copyWith(message: 'Writing');
+
+    const int blockSize = 256;
+    final blocks = zpp.flash.slices(blockSize).toList();
+
+    int i = 0;
+    int failCount = 0;
+    while (i < blocks.length) {
+      // Number of blocks transmit at once
+      final n = min(wsBatchSize, blocks.length - i);
+      for (var j = 0; j < n; ++j) {
+        _decup(
+          ZppBlocks(count: i + j, chunk: Uint8List.fromList(blocks[i + j])),
+        );
+      }
+
+      // Wait for all responses
+      for (final msg in await _events.take(n)) {
+        // Go either forward
+        if (msg.contains(DecupService.ack)) {
+          failCount = 0;
+          ++i;
+        }
+        // Or back (limited number of times)
+        else if (failCount < _retries) {
+          ++failCount;
+          i = max(i - 1, 0);
+          break;
+        }
+        // Or bail
+        else {
+          throw UpdateException('Writing failed');
+        }
+      }
+
+      // WebSocket closed on the server side
+      if (_decup.closeReason != null) {
+        throw UpdateException(_decup.closeReason!);
+      }
+
+      // Update progress
+      state = state.copyWith(
+        message:
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
+        progress: i / blocks.length,
+      );
+    }
+  }
 
   /// \todo document
-  Future<void> _zppCvs() async {}
+  Future<void> _zppCvs(Zpp zpp) async {
+    state = state.copyWith(message: 'Writing');
+
+    int i = 0;
+    for (final entry in zpp.cvs.entries) {
+      final msg = await _retryOnFailure(
+        () => _decup(ZppWriteCv(cvAddress: entry.key, value: entry.value)),
+      );
+      if (_decup.closeReason != null || !msg.contains(DecupService.ack)) {
+        throw UpdateException(_decup.closeReason ?? 'Writing CVs failed');
+      }
+
+      // Update progress
+      state = state.copyWith(
+        message: 'Writing ${++i} / ${zpp.cvs.length} CVs',
+        progress: i / zpp.cvs.length,
+      );
+    }
+  }
 
   /// \todo document
   Future<void> _disconnect() async {
     state = state.copyWith(
       status: UpdateStatus.Completed,
-      message: 'Done (\u{26A0} page will reload)',
+      message: 'Done',
+      devices: [
+        if (state.devices.isNotEmpty)
+          state.devices.first.copyWith(status: UpdateStatus.Completed),
+      ],
     );
     await _decup.close();
   }
