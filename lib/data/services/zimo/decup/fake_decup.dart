@@ -153,6 +153,46 @@ class FakeDecupService implements DecupService {
     if (_controller.isClosed) return;
 
     switch (command) {
+      case ZsuPreamble():
+        Future.delayed(
+          const Duration(milliseconds: 25),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([]));
+          },
+        );
+        break;
+
+      case ZsuDecoderId(byte: final byte):
+        _controller.sink.add(
+          Uint8List.fromList(
+            byte == _decoderId ? [DecupService.ack] : [],
+          ),
+        );
+        break;
+
+      case ZsuBlockCount():
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+        break;
+
+      case ZsuSecurityByte1():
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+        break;
+
+      case ZsuSecurityByte2():
+        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
+        break;
+
+      case ZsuBlocks(chunk: final chunk):
+        Future.delayed(
+          Duration(milliseconds: 50 * chunk.length),
+          () {
+            if (_controller.isClosed) return;
+            _controller.sink.add(Uint8List.fromList([DecupService.ack]));
+          },
+        );
+        break;
+
       case ZppPreamble():
         Future.delayed(
           const Duration(milliseconds: 25),
@@ -209,46 +249,6 @@ class FakeDecupService implements DecupService {
       case ZppBlocks(chunk: final chunk):
         Future.delayed(
           Duration(milliseconds: 10 * chunk.length),
-          () {
-            if (_controller.isClosed) return;
-            _controller.sink.add(Uint8List.fromList([DecupService.ack]));
-          },
-        );
-        break;
-
-      case ZsuPreamble():
-        Future.delayed(
-          const Duration(milliseconds: 25),
-          () {
-            if (_controller.isClosed) return;
-            _controller.sink.add(Uint8List.fromList([]));
-          },
-        );
-        break;
-
-      case ZsuDecoderId(byte: final byte):
-        _controller.sink.add(
-          Uint8List.fromList(
-            byte == _decoderId ? [DecupService.ack] : [],
-          ),
-        );
-        break;
-
-      case ZsuBlockCount():
-        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-        break;
-
-      case ZsuSecurityByte1():
-        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-        break;
-
-      case ZsuSecurityByte2():
-        _controller.sink.add(Uint8List.fromList([DecupService.nak]));
-        break;
-
-      case ZsuBlocks(chunk: final chunk):
-        Future.delayed(
-          Duration(milliseconds: 50 * chunk.length),
           () {
             if (_controller.isClosed) return;
             _controller.sink.add(Uint8List.fromList([DecupService.ack]));

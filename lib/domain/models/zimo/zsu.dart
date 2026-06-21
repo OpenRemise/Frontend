@@ -20,6 +20,7 @@ import 'package:fixnum/fixnum.dart';
 
 /// \todo document
 typedef ZsuFirmware = ({
+  int id,
   Uint8List bin,
   String name,
   String majorVersion,
@@ -32,7 +33,7 @@ typedef ZsuFirmware = ({
 /// \todo document
 class Zsu {
   final Uint8List _bytes;
-  final Map<int, ZsuFirmware> firmwares = {};
+  final List<ZsuFirmware> firmwares = [];
   late final int version;
 
   /// \todo document
@@ -65,18 +66,21 @@ class Zsu {
       final binStart = int.parse(row[1]) + 1; // Legacy bug
       final binLength = type >= 3 ? int.parse(row[2]) : int.parse(row[2]) - 2;
       final binEnd = binStart + binLength;
-      firmwares[id] = (
-        bin: _bytes.sublist(binStart, binEnd),
-        name: row[3],
-        majorVersion: row[4],
-        minorVersion: row[5],
-        type: type,
-        bootloader: type >= 3 ? int.parse(row[7]) : null,
-        iv: type >= 3
-            ? Uint8List.fromList(
-                Int64.parseInt(row[8]).toBytes().reversed.toList(),
-              )
-            : null,
+      firmwares.add(
+        (
+          id: id,
+          bin: _bytes.sublist(binStart, binEnd),
+          name: row[3],
+          majorVersion: row[4],
+          minorVersion: row[5],
+          type: type,
+          bootloader: type >= 3 ? int.parse(row[7]) : null,
+          iv: type >= 3
+              ? Uint8List.fromList(
+                  Int64.parseInt(row[8]).toBytes().reversed.toList(),
+                )
+              : null,
+        ),
       );
     }
   }

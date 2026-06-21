@@ -38,7 +38,6 @@ part 'zusi_view_model.g.dart';
 @Riverpod()
 class ZusiViewModel extends _$ZusiViewModel {
   static const int _retries = 10;
-  static const int _blockSize = 256;
   late final ZusiService _zusi;
   late final StreamQueue<Uint8List> _events;
 
@@ -67,7 +66,6 @@ class ZusiViewModel extends _$ZusiViewModel {
       await _cvs(zpp);
       await _exit();
       await _disconnect();
-      state = state.copyWith(status: UpdateStatus.Completed);
     } on UpdateException catch (e) {
       state = state.copyWith(
         status: UpdateStatus.Failed,
@@ -96,7 +94,7 @@ class ZusiViewModel extends _$ZusiViewModel {
   /// \todo document
   Future<void> _zppLcDcQuery(Zpp zpp) async {
     if (!zpp.coded) return;
-    state = state.copyWith(message: 'Check if load code is valid');
+    state = state.copyWith(message: 'Validating load code');
     final msg = await _retryOnFailure(
       () => _zusi(ZppLcDcQuery(developerCode: zpp.developerCode)),
     );
@@ -119,7 +117,10 @@ class ZusiViewModel extends _$ZusiViewModel {
   /// \todo document
   Future<void> _write(Zpp zpp) async {
     state = state.copyWith(message: 'Writing');
-    final blocks = zpp.flash.slices(_blockSize).toList();
+
+    const int blockSize = 256;
+    final blocks = zpp.flash.slices(blockSize).toList();
+
     int i = 0;
     int failCount = 0;
     while (i < blocks.length) {
@@ -128,7 +129,7 @@ class ZusiViewModel extends _$ZusiViewModel {
       for (var j = 0; j < n; ++j) {
         _zusi(
           ZppWrite(
-            address: (i + j) * _blockSize,
+            address: (i + j) * blockSize,
             chunk: Uint8List.fromList(blocks[i + j]),
           ),
         );
@@ -161,7 +162,7 @@ class ZusiViewModel extends _$ZusiViewModel {
       // Update progress
       state = state.copyWith(
         message:
-            'Writing ${i * _blockSize ~/ 1024} / ${blocks.length * _blockSize ~/ 1024} kB',
+            'Writing ${i * blockSize ~/ 1024} / ${blocks.length * blockSize ~/ 1024} kB',
         progress: i / blocks.length,
       );
     }
@@ -189,7 +190,7 @@ class ZusiViewModel extends _$ZusiViewModel {
 
   /// \todo document
   Future<void> _exit() async {
-    await _retryOnFailure(() => _zusi(Exit(cv8Reset: true)));
+    await _retryOnFailure(() => _zusi(Exit(cv8Reset: true, restart: true)));
   }
 
   /// \todo document

@@ -19,7 +19,6 @@ import 'dart:math';
 
 import 'package:Frontend/data/services/sys/sys.dart';
 import 'package:Frontend/domain/models/info.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:restart_app/restart_app.dart';
 
@@ -61,7 +60,7 @@ class FakeSysService implements SysService {
         projectName: 'Frontend',
         compileTime: DateFormat('HH:mm:ss').format(now),
         compileDate: DateFormat('MMM dd yyyy').format(now),
-        idfVersion: '5.5.3',
+        idfVersion: '5.5.4',
         revision: '0.1.2',
         mdns: 'remise.local',
         ip: '127.0.0.1',

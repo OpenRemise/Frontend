@@ -40,7 +40,8 @@ abstract class UpdateState with _$UpdateState {
 @freezed
 abstract class UpdateDeviceState with _$UpdateDeviceState {
   const factory UpdateDeviceState({
-    @Default('') String name,
     @Default(UpdateStatus.Idle) UpdateStatus status,
+    @Default('') String name,
+    @Default(0) int id,
   }) = _UpdateDeviceState;
 }

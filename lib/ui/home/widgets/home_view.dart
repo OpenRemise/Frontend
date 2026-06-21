@@ -141,7 +141,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               final scale = ref.read(textScalerProvider) + 0.2;
               ref
                   .read(textScalerProvider.notifier)
-                  .update(scale > 1.6 ? 1.0 : scale);
+                  .update(scale > 1.6 ? 0.8 : scale);
             },
             tooltip: 'Toggle font size',
             icon: const Icon(Icons.text_fields_outlined),

@@ -76,7 +76,10 @@ class App extends ConsumerWidget {
       home: const HomeView(),
       builder: (_, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(ref.watch(textScalerProvider)),
+          textScaler: TextScaler.linear(
+            MediaQuery.textScalerOf(context).scale(1.0) *
+                ref.watch(textScalerProvider),
+          ),
         ),
         child: child!,
       ),

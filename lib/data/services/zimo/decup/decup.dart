@@ -24,6 +24,84 @@ sealed class DecupCommand {
 }
 
 /// \todo document
+class ZsuPreamble extends DecupCommand {
+  static int preambleCount = 0;
+
+  @override
+  List<Uint8List> toUint8Lists() {
+    return [
+      Uint8List.fromList([(preambleCount++ % 2 == 0) ? 0xBF : 0xEF]),
+    ];
+  }
+}
+
+/// \todo document
+class ZsuDecoderId extends DecupCommand {
+  final int byte;
+
+  ZsuDecoderId({required this.byte});
+
+  @override
+  List<Uint8List> toUint8Lists() {
+    return [
+      Uint8List.fromList([byte]),
+    ];
+  }
+}
+
+/// \todo document
+class ZsuBlockCount extends DecupCommand {
+  final int count;
+
+  ZsuBlockCount({required this.count});
+
+  @override
+  List<Uint8List> toUint8Lists() {
+    return [
+      Uint8List.fromList([count]),
+    ];
+  }
+}
+
+/// \todo document
+class ZsuSecurityByte1 extends DecupCommand {
+  @override
+  List<Uint8List> toUint8Lists() {
+    return [
+      Uint8List.fromList([0x55]),
+    ];
+  }
+}
+
+/// \todo document
+class ZsuSecurityByte2 extends DecupCommand {
+  @override
+  List<Uint8List> toUint8Lists() {
+    return [
+      Uint8List.fromList([0xAA]),
+    ];
+  }
+}
+
+/// \todo document
+class ZsuBlocks extends DecupCommand {
+  final int count;
+  final Uint8List chunk;
+
+  ZsuBlocks({required this.count, required this.chunk}) {
+    assert(chunk.length == 32 || chunk.length == 64);
+  }
+
+  @override
+  List<Uint8List> toUint8Lists() {
+    List<int> data = [count];
+    data.addAll(chunk);
+    data.add(exor(data));
+    return [Uint8List.fromList(data)];
+  }
+}
+
+/// \todo document
 class ZppPreamble extends DecupCommand {
   static int preambleCount = 0;
 
@@ -128,84 +206,6 @@ class ZppBlocks extends DecupCommand {
     ];
     data.addAll(chunk);
     data.add(crc8(data.sublist(2), 0x55));
-    return [Uint8List.fromList(data)];
-  }
-}
-
-/// \todo document
-class ZsuPreamble extends DecupCommand {
-  static int preambleCount = 0;
-
-  @override
-  List<Uint8List> toUint8Lists() {
-    return [
-      Uint8List.fromList([(preambleCount++ % 2 == 0) ? 0xBF : 0xEF]),
-    ];
-  }
-}
-
-/// \todo document
-class ZsuDecoderId extends DecupCommand {
-  final int byte;
-
-  ZsuDecoderId({required this.byte});
-
-  @override
-  List<Uint8List> toUint8Lists() {
-    return [
-      Uint8List.fromList([byte]),
-    ];
-  }
-}
-
-/// \todo document
-class ZsuBlockCount extends DecupCommand {
-  final int count;
-
-  ZsuBlockCount({required this.count});
-
-  @override
-  List<Uint8List> toUint8Lists() {
-    return [
-      Uint8List.fromList([count]),
-    ];
-  }
-}
-
-/// \todo document
-class ZsuSecurityByte1 extends DecupCommand {
-  @override
-  List<Uint8List> toUint8Lists() {
-    return [
-      Uint8List.fromList([0x55]),
-    ];
-  }
-}
-
-/// \todo document
-class ZsuSecurityByte2 extends DecupCommand {
-  @override
-  List<Uint8List> toUint8Lists() {
-    return [
-      Uint8List.fromList([0xAA]),
-    ];
-  }
-}
-
-/// \todo document
-class ZsuBlocks extends DecupCommand {
-  final int count;
-  final Uint8List chunk;
-
-  ZsuBlocks({required this.count, required this.chunk}) {
-    assert(chunk.length == 32 || chunk.length == 64);
-  }
-
-  @override
-  List<Uint8List> toUint8Lists() {
-    List<int> data = [count];
-    data.addAll(chunk);
-    data.add(exor(data));
     return [Uint8List.fromList(data)];
   }
 }
