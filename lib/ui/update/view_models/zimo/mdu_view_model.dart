@@ -76,7 +76,7 @@ class MduViewModel extends _$MduViewModel {
           await _zsuCrc32Start(firmware);
           await _zsuCrc32Result(firmware);
         }
-        await _zsuExit(zsu);
+        await _zsuExit();
       } else {
         final zpp = file as Zpp;
         await _configTransferRate();
@@ -330,7 +330,7 @@ class MduViewModel extends _$MduViewModel {
   }
 
   /// \todo document
-  Future<void> _zsuExit(Zsu zsu) async {
+  Future<void> _zsuExit() async {
     // Don't leave any decoder in MDU
     await _retryOnFailure(() => _mdu(Ping(serialNumber: 0, decoderId: 0)));
     await _retryOnFailure(() => _mdu(ZsuCrc32ResultExit()));

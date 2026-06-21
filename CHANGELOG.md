@@ -3,6 +3,7 @@
 ## 0.8.0
 - Add VCC voltage and hardware revision to info screen ([#143](https://github.com/OpenRemise/Frontend/pull/143))
 - Blue power off icon indicates short circuit ([#143](https://github.com/OpenRemise/Frontend/pull/143))
+- Allow smaller text scaling (0.8) ([#158](https://github.com/OpenRemise/Frontend/issues/158))
 
 ## 0.7.1
 - Bugfix empty SSID is valid ([#133](https://github.com/OpenRemise/Frontend/issues/133))
