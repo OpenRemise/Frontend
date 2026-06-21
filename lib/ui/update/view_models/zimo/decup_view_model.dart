@@ -15,7 +15,7 @@
 
 /// DECUP view model
 ///
-/// \file   ui/update/zusi_view_model.dart
+/// \file   ui/update/decup_view_model.dart
 /// \author Vincent Hamp
 /// \date   17/06/2026
 
@@ -84,8 +84,7 @@ class DecupViewModel extends _$DecupViewModel {
         message: e.message,
         progress: 0,
         devices: [
-          if (state.devices.isNotEmpty)
-            state.devices.first.copyWith(status: UpdateStatus.Failed),
+          ...state.devices.map((d) => d.copyWith(status: UpdateStatus.Failed)),
         ],
       );
     }
@@ -108,10 +107,7 @@ class DecupViewModel extends _$DecupViewModel {
 
   /// \todo document
   Future<ZsuFirmware> _zsuSearch(Zsu zsu) async {
-    state = state.copyWith(
-      status: UpdateStatus.Updating,
-      message: 'Search decoder',
-    );
+    state = state.copyWith(status: UpdateStatus.Updating, message: 'Searching');
 
     for (final firmware in zsu.firmwares) {
       _decup(ZsuDecoderId(byte: firmware.id));
@@ -313,8 +309,7 @@ class DecupViewModel extends _$DecupViewModel {
       status: UpdateStatus.Completed,
       message: 'Done',
       devices: [
-        if (state.devices.isNotEmpty)
-          state.devices.first.copyWith(status: UpdateStatus.Completed),
+        ...state.devices.map((d) => d.copyWith(status: UpdateStatus.Completed)),
       ],
     );
     await _decup.close();
