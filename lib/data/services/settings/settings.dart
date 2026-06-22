@@ -14,10 +14,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/models/config.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/settings/fake_settings.dart';
 import 'package:Frontend/data/services/settings/http_settings.dart';
-import 'package:Frontend/domain/models/config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract interface class SettingsService {

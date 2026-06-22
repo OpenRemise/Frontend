@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:Frontend/domain/models/loco.dart';
+import 'package:Frontend/data/models/loco.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/domain/models/decoder.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/icon_size.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';

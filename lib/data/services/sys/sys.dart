@@ -14,10 +14,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/config/domain.dart';
+import 'package:Frontend/data/models/info.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/sys/fake_sys.dart';
 import 'package:Frontend/data/services/sys/http_sys.dart';
-import 'package:Frontend/domain/models/info.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract interface class SysService {

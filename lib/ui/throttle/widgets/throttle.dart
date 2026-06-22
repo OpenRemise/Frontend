@@ -16,14 +16,13 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:Frontend/data/models/config.dart';
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
-import 'package:Frontend/domain/models/config.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/throttle_registry.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/widgets/add_edit_dialog.dart';
 import 'package:Frontend/ui/core/widgets/delete_dialog.dart';
@@ -31,6 +30,7 @@ import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/png_picture.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
+import 'package:Frontend/ui/throttle/view_models/throttle_view_model.dart';
 import 'package:Frontend/ui/throttle/widgets/cv_terminal.dart';
 import 'package:Frontend/ui/throttle/widgets/key_codes.dart';
 import 'package:Frontend/ui/throttle/widgets/key_press_notifier.dart';
@@ -303,7 +303,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
                   ),
                   IconButton(
                     onPressed: () => ref
-                        .read(throttleRegistryProvider.notifier)
+                        .read(throttleViewModelProvider.notifier)
                         .deleteItem<T>(widget.item.address),
                     tooltip: 'Close',
                     icon: const Icon(Icons.close),
@@ -517,7 +517,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
             (l) =>
                 l.address == loco.address ||
                 ref
-                    .watch(throttleRegistryProvider)
+                    .watch(throttleViewModelProvider)
                     .none((c) => c.decoder.address == l.address),
           ),
     );
@@ -532,7 +532,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
           onSelected: (selectedLoco) {
             if (selectedLoco != null && selectedLoco.address != loco.address) {
               ref
-                  .read(throttleRegistryProvider.notifier)
+                  .read(throttleViewModelProvider.notifier)
                   .updateItem<Loco>(loco.address, selectedLoco.address);
             }
           },
@@ -693,7 +693,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
                 t.type != 1 &&
                 (t.address == turnout.address ||
                     ref
-                        .watch(throttleRegistryProvider)
+                        .watch(throttleViewModelProvider)
                         .none((c) => c.decoder.address == t.address)),
           ),
     );
@@ -709,7 +709,7 @@ class _ThrottleState<T> extends ConsumerState<Throttle<T>> {
             if (selectedTurnout != null &&
                 selectedTurnout.address != turnout.address) {
               ref
-                  .read(throttleRegistryProvider.notifier)
+                  .read(throttleViewModelProvider.notifier)
                   .updateItem<T>(turnout.address, selectedTurnout.address);
             }
           },

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:Frontend/domain/models/decoderdb/decoder_definition.dart';
-import 'package:Frontend/domain/models/decoderdb/decoder_detection.dart';
-import 'package:Frontend/domain/models/decoderdb/firmware_definition.dart';
-import 'package:Frontend/domain/models/decoderdb/manufacturers_list.dart';
-import 'package:Frontend/domain/models/decoderdb/repository.dart';
+import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
+import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
+import 'package:Frontend/data/models/decoderdb/firmware_definition.dart';
+import 'package:Frontend/data/models/decoderdb/manufacturers_list.dart';
+import 'package:Frontend/data/models/decoderdb/repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 

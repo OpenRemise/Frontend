@@ -16,9 +16,9 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/services/dcc/dcc.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:http/http.dart' as http;
 
 class HttpDccService implements DccService {

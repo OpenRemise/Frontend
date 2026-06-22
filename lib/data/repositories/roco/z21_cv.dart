@@ -16,11 +16,11 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:Frontend/data/models/config.dart';
+import 'package:Frontend/data/models/loco.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
-import 'package:Frontend/domain/models/config.dart';
 import 'package:Frontend/domain/models/decoder.dart';
-import 'package:Frontend/domain/models/loco.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_cv.g.dart';

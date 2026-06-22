@@ -15,8 +15,8 @@
 
 // ignore_for_file: invalid_annotation_target
 
-import 'package:Frontend/domain/models/decoderdb/common_types.dart';
-import 'package:Frontend/domain/models/decoderdb/json_helpers.dart';
+import 'package:Frontend/data/models/decoderdb/common_types.dart';
+import 'package:Frontend/data/models/decoderdb/json_helpers.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'decoder_definition.freezed.dart';

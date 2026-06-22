@@ -19,10 +19,10 @@
 /// \author Vincent Hamp
 /// \date   18/09/2025
 
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/dcc.dart';
 import 'package:Frontend/data/repositories/locos.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/themes/icon_size.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';

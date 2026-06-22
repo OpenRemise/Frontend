@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/config/prefs.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/turnout.dart';
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:shared_preferences_riverpod/shared_preferences_riverpod.dart';
 
 /// \todo document

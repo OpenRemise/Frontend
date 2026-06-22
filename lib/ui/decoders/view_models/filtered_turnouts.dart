@@ -15,8 +15,8 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/decoders/view_models/decoder_filter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

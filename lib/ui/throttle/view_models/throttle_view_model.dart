@@ -15,20 +15,20 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/domain/models/decoder.dart';
-import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'throttle_registry.g.dart';
+part 'throttle_view_model.g.dart';
 
 @Riverpod(keepAlive: true)
-class ThrottleRegistry extends _$ThrottleRegistry {
+class ThrottleViewModel extends _$ThrottleViewModel {
   @override
   LinkedHashSet<Register> build() {
     // Listen for Loco changes

@@ -17,11 +17,11 @@ import 'dart:collection';
 
 import 'package:Frontend/config/domain.dart';
 import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/services/dcc/fake_dcc.dart';
 import 'package:Frontend/data/services/dcc/http_dcc.dart';
 import 'package:Frontend/data/services/http_client.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// \todo document

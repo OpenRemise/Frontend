@@ -20,14 +20,13 @@
 /// \date   01/11/2024
 
 import 'package:Frontend/data/models/connection_status.dart';
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/connection_status.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/roco/z21_short_circuit.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
-import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/domain/models/register.dart';
-import 'package:Frontend/domain/models/throttle_registry.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
@@ -39,6 +38,7 @@ import 'package:Frontend/ui/home/widgets/positioned_draggable.dart';
 import 'package:Frontend/ui/info/widgets/screen.dart';
 import 'package:Frontend/ui/program/widgets/screen.dart';
 import 'package:Frontend/ui/settings/widgets/screen.dart';
+import 'package:Frontend/ui/throttle/view_models/throttle_view_model.dart';
 import 'package:Frontend/ui/throttle/widgets/throttle.dart';
 import 'package:Frontend/ui/update/widgets/screen.dart';
 import 'package:Frontend/utils/color_mappers/dark_mode_color_mapper.dart';
@@ -122,7 +122,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   Widget build(BuildContext context) {
     final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
-    final controllerRegistry = ref.watch(throttleRegistryProvider);
+    final controllerRegistry = ref.watch(throttleViewModelProvider);
     final connectionStatus = ref.watch(connectionStatusProvider);
     final connected =
         connectionStatus.asData?.value == ConnectionStatus.connected;
@@ -245,7 +245,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// \todo document
   Widget _buildDraggable<T>(Register register) {
     void moveToTop() {
-      ref.read(throttleRegistryProvider.notifier).updateItem<T>(
+      ref.read(throttleViewModelProvider.notifier).updateItem<T>(
             register.decoder.address!,
             register.decoder.address!,
           );

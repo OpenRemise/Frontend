@@ -15,7 +15,7 @@
 
 import 'dart:collection';
 
-import 'package:Frontend/domain/models/loco.dart';
+import 'package:Frontend/data/models/loco.dart';
 import 'package:collection/collection.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

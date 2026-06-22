@@ -17,8 +17,8 @@
 
 import 'dart:math';
 
+import 'package:Frontend/data/models/info.dart';
 import 'package:Frontend/data/services/sys/sys.dart';
-import 'package:Frontend/domain/models/info.dart';
 import 'package:intl/intl.dart';
 import 'package:restart_app/restart_app.dart';
 

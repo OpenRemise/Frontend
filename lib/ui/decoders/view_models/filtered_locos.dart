@@ -15,8 +15,8 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/data/models/loco.dart';
 import 'package:Frontend/data/repositories/locos.dart';
-import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/ui/decoders/view_models/decoder_filter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -19,7 +19,7 @@
 /// \author Vincent Hamp
 /// \date   01/11/2024
 
-import 'package:Frontend/domain/models/zimo/zpp.dart';
+import 'package:Frontend/data/models/zimo/zpp.dart';
 import 'package:Frontend/ui/update/view_models/state.dart';
 import 'package:Frontend/ui/update/view_models/zimo/zusi_view_model.dart';
 import 'package:flutter/material.dart';

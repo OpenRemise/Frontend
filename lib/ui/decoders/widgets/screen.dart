@@ -15,10 +15,9 @@
 
 import 'dart:collection';
 
+import 'package:Frontend/data/models/loco.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/dcc.dart';
-import 'package:Frontend/domain/models/loco.dart';
-import 'package:Frontend/domain/models/throttle_registry.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/widgets/add_edit_dialog.dart';
 import 'package:Frontend/ui/core/widgets/delete_dialog.dart';
@@ -30,6 +29,7 @@ import 'package:Frontend/ui/decoders/view_models/decoder_filter.dart';
 import 'package:Frontend/ui/decoders/view_models/decoder_selection.dart';
 import 'package:Frontend/ui/decoders/view_models/filtered_locos.dart';
 import 'package:Frontend/ui/decoders/view_models/filtered_turnouts.dart';
+import 'package:Frontend/ui/throttle/view_models/throttle_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -222,7 +222,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= locos.length) return null;
 
           final loco = locos.elementAt(index);
-          final active = ref.watch(throttleRegistryProvider).any(
+          final active = ref.watch(throttleViewModelProvider).any(
                 (c) =>
                     c.decoder.type == Loco && c.decoder.address == loco.address,
               );
@@ -257,10 +257,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               ),
               onTap: () => active
                   ? ref
-                      .read(throttleRegistryProvider.notifier)
+                      .read(throttleViewModelProvider.notifier)
                       .deleteItem<Loco>(loco.address)
                   : ref
-                      .read(throttleRegistryProvider.notifier)
+                      .read(throttleViewModelProvider.notifier)
                       .updateItem<Loco>(loco.address, loco.address),
             ),
           );
@@ -282,7 +282,7 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
           if (index >= turnouts.length) return null;
 
           final turnout = turnouts.elementAt(index);
-          final active = ref.watch(throttleRegistryProvider).any(
+          final active = ref.watch(throttleViewModelProvider).any(
                 (c) =>
                     c.decoder.type == Turnout &&
                     c.decoder.address == turnout.address,
@@ -322,10 +322,10 @@ class _DecodersScreenState extends ConsumerState<DecodersScreen> {
               ),
               onTap: () => active
                   ? ref
-                      .read(throttleRegistryProvider.notifier)
+                      .read(throttleViewModelProvider.notifier)
                       .deleteItem<Turnout>(turnout.address)
                   : ref
-                      .read(throttleRegistryProvider.notifier)
+                      .read(throttleViewModelProvider.notifier)
                       .updateItem<Turnout>(turnout.address, turnout.address),
             ),
           );

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:Frontend/domain/models/zimo/zpp.dart';
+import 'package:Frontend/data/models/zimo/zpp.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 

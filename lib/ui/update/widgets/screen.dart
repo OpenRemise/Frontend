@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/data/models/zimo/zpp.dart';
+import 'package:Frontend/data/models/zimo/zsu.dart';
 import 'package:Frontend/data/repositories/available_firmware_version.dart';
 import 'package:Frontend/data/repositories/internet_status.dart';
 import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/data/repositories/sys.dart';
-import 'package:Frontend/domain/models/zimo/zpp.dart';
-import 'package:Frontend/domain/models/zimo/zsu.dart';
 import 'package:Frontend/ui/core/themes/dark_mode.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';

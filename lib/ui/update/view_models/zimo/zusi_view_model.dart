@@ -23,8 +23,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:Frontend/config/ws_batch_size.dart';
+import 'package:Frontend/data/models/zimo/zpp.dart';
 import 'package:Frontend/data/services/zimo/zusi/zusi.dart';
-import 'package:Frontend/domain/models/zimo/zpp.dart';
 import 'package:Frontend/ui/update/view_models/exception.dart';
 import 'package:Frontend/ui/update/view_models/state.dart';
 import 'package:Frontend/ui/update/view_models/zimo/zusi_service.dart';

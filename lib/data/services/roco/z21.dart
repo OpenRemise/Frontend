@@ -17,9 +17,9 @@
 
 import 'package:Frontend/config/domain.dart';
 import 'package:Frontend/config/fake_services_provider_container.dart';
+import 'package:Frontend/data/models/loco.dart';
 import 'package:Frontend/data/services/roco/fake_z21.dart';
 import 'package:Frontend/data/services/roco/ws_z21.dart';
-import 'package:Frontend/domain/models/loco.dart';
 import 'package:Frontend/utils/exor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

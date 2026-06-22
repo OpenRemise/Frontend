@@ -16,13 +16,13 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:Frontend/data/models/config.dart';
+import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/locos.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/repositories/turnouts.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/data/services/sys/fake_sys.dart';
-import 'package:Frontend/domain/models/config.dart';
-import 'package:Frontend/domain/models/turnout.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
