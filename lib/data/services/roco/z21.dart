@@ -1633,11 +1633,11 @@ final Provider<Z21Service> z21ServiceProvider = Provider<Z21Service>((ref) {
     null,
     onError: (e) {
       debugPrint('Z21 stream onError $e');
-      ref.invalidate(z21ServiceProvider);
+      ref.invalidateSelf();
     },
     onDone: () {
       debugPrint('Z21 stream onDone');
-      ref.invalidate(z21ServiceProvider);
+      ref.invalidateSelf();
     },
   );
 
