@@ -28,6 +28,7 @@ typedef ZsuFirmware = ({
   int type,
   int? bootloader, // MS only
   Uint8List? iv, // MS only
+  String? patchVersion, // MS only
 });
 
 /// \todo document
@@ -74,12 +75,13 @@ class Zsu {
           majorVersion: row[4],
           minorVersion: row[5],
           type: type,
-          bootloader: type >= 3 ? int.parse(row[7]) : null,
-          iv: type >= 3
+          bootloader: row.length > 7 ? int.parse(row[7]) : null,
+          iv: row.length > 8
               ? Uint8List.fromList(
                   Int64.parseInt(row[8]).toBytes().reversed.toList(),
                 )
               : null,
+          patchVersion: row.elementAtOrNull(9),
         ),
       );
     }

@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('zsu', () {
-    test('MS', () {
+    test('MS-4.235.0.zsu', () {
       final Uint8List file = File('data/MS-4.235.0.zsu').readAsBytesSync();
       final zsu = Zsu(file);
       expect(zsu.firmwares.length, 44);
@@ -20,7 +20,13 @@ void main() {
       );
     });
 
-    test('MX', () {
+    test('MS-5.29.1.zsu', () {
+      final Uint8List file = File('data/MS-5.29.1.zsu').readAsBytesSync();
+      final zsu = Zsu(file);
+      expect(zsu.firmwares.first.patchVersion, '1');
+    });
+
+    test('DS230503.zsu', () {
       final Uint8List file = File('data/DS230503.zsu').readAsBytesSync();
       final zsu = Zsu(file);
       expect(zsu.firmwares.length, 92);
