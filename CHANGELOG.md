@@ -5,6 +5,7 @@
 - Blue power off icon indicates short circuit ([#143](https://github.com/OpenRemise/Frontend/pull/143))
 - Allow smaller text scaling (0.8) ([#158](https://github.com/OpenRemise/Frontend/issues/158))
 - Bugfix higher functions F31-F13 from `LAN_X_LOCO_INFO` incorrectly shifted ([#162](https://github.com/OpenRemise/Frontend/issues/162))
+- Bugfix `z21ServiceProvider` must use correct API for provider self invalidation ([#163](https://github.com/OpenRemise/Frontend/issues/163))
 
 ## 0.7.1
 - Bugfix empty SSID is valid ([#133](https://github.com/OpenRemise/Frontend/issues/133))
