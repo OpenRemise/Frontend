@@ -1287,12 +1287,10 @@ class LanXLocoInfo extends Z21Command {
         smartSearch = dataset[9] & (1 << 5) == (1 << 5),
         f31_0 =
             dataset.sublist(10, dataset.length - 1).asMap().entries.fold<int>(
-                      0,
-                      (v, e) => v | (e.value << (5 + e.key * 8)),
-                    ) | // F31-F5
-                ((dataset[9] & 0x0F) << 1) | // F4-F1
-                ((dataset[9] & (1 << 4)) >> 4) // F0
-  {
+                  ((dataset[9] & 0x0F) << 1) | // F4-F1
+                      ((dataset[9] & (1 << 4)) >> 4), // F0
+                  (v, e) => v | (e.value << (5 + e.key * 8)), // F31-F5
+                ) {
     assert(dataset.length >= 0x0F);
   }
 

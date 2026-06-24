@@ -23,7 +23,7 @@ import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/settings/widgets/persistent_expansion_tile.dart';
+import 'package:Frontend/ui/settings/widgets/tile.dart';
 import 'package:Frontend/utils/validators/ip_address_validator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -57,15 +57,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     'Byte only',
     'Bit and byte',
   ];
-
   final _formKey = GlobalKey<FormBuilderState>();
-  final ValueNotifier<bool> _expandAllNotifier = ValueNotifier<bool>(false);
-
-  @override
-  void dispose() {
-    _expandAllNotifier.dispose();
-    super.dispose();
-  }
+  final Map<String, ExpansionTileController> _expansionTileControllers = {
+    'Network': ExpansionTileController(),
+    'HTTP': ExpansionTileController(),
+    'Current': ExpansionTileController(),
+    'LED': ExpansionTileController(),
+    'DCC': ExpansionTileController(),
+    'Locos': ExpansionTileController(),
+    'Accessories': ExpansionTileController(),
+    'Extensions': ExpansionTileController(),
+  };
+  bool _isExpanded = false;
 
   /// \todo document
   @override
@@ -105,17 +108,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ],
               ),
               actions: [
-                ValueListenableBuilder<bool>(
-                  valueListenable: _expandAllNotifier,
-                  builder: (context, isExpanded, _) {
-                    return IconButton(
-                      onPressed: () => _expandAllNotifier.value = !isExpanded,
-                      tooltip: isExpanded ? 'Collapse all' : 'Expand all',
-                      icon: Icon(
-                        isExpanded ? Icons.unfold_less : Icons.unfold_more,
-                      ),
-                    );
+                IconButton(
+                  onPressed: () {
+                    for (final c in _expansionTileControllers.values) {
+                      _isExpanded ? c.collapse() : c.expand();
+                    }
+                    setState(() => _isExpanded = !_isExpanded);
                   },
+                  tooltip: _isExpanded ? 'Collapse all' : 'Expand all',
+                  icon: Icon(
+                    _isExpanded ? Icons.unfold_less : Icons.unfold_more,
+                  ),
                 ),
                 IconButton(
                   onPressed: () {
@@ -155,6 +158,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onPressed: () {
                     ref.read(settingsProvider.notifier).refresh();
                     _formKey.currentState?.reset();
+                    setState(() => _isExpanded = false);
                   },
                   tooltip: 'Refresh',
                   icon: const Icon(Icons.refresh),
@@ -178,10 +182,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   primary: false,
                   shrinkWrap: true,
                   children: [
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.wifi),
                       title: const Text('Network'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['Network'],
                       children: [
                         Tooltip(
                           message:
@@ -327,10 +331,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.http),
                       title: const Text('HTTP'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['HTTP'],
                       children: [
                         Tooltip(
                           message:
@@ -386,10 +390,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.power),
                       title: const Text('Current'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['Current'],
                       children: [
                         Tooltip(
                           message: 'Current limit in DCC operation mode',
@@ -459,10 +463,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.lightbulb),
                       title: const Text('LED'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['LED'],
                       children: [
                         Tooltip(
                           message: 'Duty cycle for bug LED (blue)',
@@ -498,10 +502,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(OpenRemiseIcons.square_wave),
                       title: const Text('DCC'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['DCC'],
                       children: [
                         Tooltip(
                           message: 'Number of preamble bits',
@@ -684,10 +688,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.train),
                       title: const Text('Locos'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['Locos'],
                       children: [
                         FormBuilderCheckboxGroup(
                           name: 'dcc_loco_flags',
@@ -736,10 +740,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(OpenRemiseIcons.accessory),
                       title: const Text('Accessories'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['Accessories'],
                       children: [
                         Tooltip(
                           message: 'Time an output remains switched on',
@@ -836,10 +840,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ],
                     ),
-                    PersistentExpansionTile(
+                    SettingsTile(
                       leading: const Icon(Icons.extension),
                       title: const Text('Extensions'),
-                      controller: _expandAllNotifier,
+                      controller: _expansionTileControllers['Extensions'],
                       children: [
                         FormBuilderCheckboxGroup(
                           name: 'ext_flags',
