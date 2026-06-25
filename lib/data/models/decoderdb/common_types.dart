@@ -78,21 +78,21 @@ abstract class DetectionCvGroup with _$DetectionCvGroup {
 
 /// Trigger within a condition, specifying when the condition applies
 @freezed
-abstract class ConditionArray with _$ConditionArray {
-  const factory ConditionArray({
+abstract class Condition with _$Condition {
+  const factory Condition({
     @JsonKey(name: 'value') required String value,
     @JsonKey(name: 'target') String? target,
-    @Default([]) @JsonKey(name: 'condition') List<Condition> conditions,
-  }) = _ConditionArray;
+    @Default([]) @JsonKey(name: 'condition') List<ConditionCv> conditions,
+  }) = _Condition;
 
-  factory ConditionArray.fromJson(Map<String, Object?> json) =>
-      _$ConditionArrayFromJson(json);
+  factory Condition.fromJson(Map<String, Object?> json) =>
+      _$ConditionFromJson(json);
 }
 
 /// Individual condition expression. Can be recursive for logical operations.
 @freezed
-abstract class Condition with _$Condition {
-  const factory Condition({
+abstract class ConditionCv with _$ConditionCv {
+  const factory ConditionCv({
     @JsonKey(name: 'type') required String type,
     @JsonKey(name: 'operation') String? operation,
     @JsonKey(name: 'cv') int? cv,
@@ -100,11 +100,11 @@ abstract class Condition with _$Condition {
     @JsonKey(name: 'selection') String? selection,
     @JsonKey(name: 'indexHigh') int? indexHigh,
     @JsonKey(name: 'indexLow') int? indexLow,
-    @Default([]) @JsonKey(name: 'condition') List<Condition> conditions,
-  }) = _Condition;
+    @Default([]) @JsonKey(name: 'condition') List<ConditionCv> conditions,
+  }) = _ConditionCv;
 
-  factory Condition.fromJson(Map<String, Object?> json) =>
-      _$ConditionFromJson(json);
+  factory ConditionCv.fromJson(Map<String, Object?> json) =>
+      _$ConditionCvFromJson(json);
 }
 
 /// Detection entry describing how to identify a decoder property
@@ -117,7 +117,7 @@ abstract class Detection with _$Detection {
     @Default([]) @JsonKey(name: 'cvGroup') List<DetectionCvGroup> cvGroups,
     @Default([])
     @JsonKey(name: 'conditions', readValue: readNestedAsList)
-    List<ConditionArray> conditions,
+    List<Condition> conditions,
   }) = _Detection;
 
   factory Detection.fromJson(Map<String, Object?> json) =>

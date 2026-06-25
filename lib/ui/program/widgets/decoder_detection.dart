@@ -161,7 +161,7 @@ class _DecoderDetectionDialogState
   }
 
   /// \todo document
-  bool _conditions(List<ConditionArray> conditions) {
+  bool _conditions(List<Condition> conditions) {
     for (final condition in conditions) {
       for (final condition in condition.conditions) {
         final cvs = ref.read(z21CvProvider(widget.decoder));
