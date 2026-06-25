@@ -161,14 +161,12 @@ class _DecoderDetectionDialogState
   }
 
   /// \todo document
-  bool _conditions(List<Condition> conditions) {
+  bool _conditions(List<ConditionArray> conditions) {
     for (final condition in conditions) {
-      for (final trigger in condition.triggers) {
-        for (final condition in trigger.conditions) {
-          final cvs = ref.read(z21CvProvider(widget.decoder));
-          final command = cvs[(condition.cv! - 1, 0, 1)] as LanXCvResult;
-          if (command.value != int.tryParse(condition.value!)) return false;
-        }
+      for (final condition in condition.conditions) {
+        final cvs = ref.read(z21CvProvider(widget.decoder));
+        final command = cvs[(condition.cv! - 1, 0, 1)] as LanXCvResult;
+        if (command.value != int.tryParse(condition.value!)) return false;
       }
     }
 

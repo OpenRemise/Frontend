@@ -313,7 +313,9 @@ abstract class CvDefinition with _$CvDefinition {
     @JsonKey(name: 'defaultValue') int? defaultValue,
     @JsonKey(name: 'mode') String? mode,
     @Default([]) @JsonKey(name: 'description') List<Description> description,
-    @Default([]) @JsonKey(name: 'conditions') List<Condition> conditions,
+    @Default([])
+    @JsonKey(name: 'conditions', readValue: readNestedAsList)
+    List<ConditionArray> conditions,
     @Default([])
     @JsonKey(name: 'valueCalculation')
     List<CvValueCalculation> valueCalculation,
@@ -345,7 +347,9 @@ abstract class CvGroupDefinition with _$CvGroupDefinition {
     @Default([]) @JsonKey(name: 'description') List<Description> description,
     @JsonKey(name: 'defaultValue') int? defaultValue,
     @JsonKey(name: 'possibleValues') String? possibleValues,
-    @Default([]) @JsonKey(name: 'conditions') List<Condition> conditions,
+    @Default([])
+    @JsonKey(name: 'conditions', readValue: readNestedAsList)
+    List<ConditionArray> conditions,
     @JsonKey(name: 'options') String? options,
     @JsonKey(name: 'pomWriteExclude') bool? pomWriteExclude,
     @JsonKey(name: 'stringEncoding') String? stringEncoding,
