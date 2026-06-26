@@ -250,7 +250,7 @@ class _DecoderDetectionDialogState
           f.decoderDefinition.decoder.typeIds
               ?.split(';')
               .contains(_values['decoderId']) ??
-          true,
+          false,
     );
     assert(filesWithId.length == 1);
     _decoder = filesWithId.first;
