@@ -30,6 +30,7 @@ import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
+import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +54,7 @@ class _DecoderDetectionDialogState
   DecoderDefinitionFile? _decoder;
   FirmwareDefinitionFile? _firmware;
   String _status = '';
-  final String _option = 'Cancel';
+  String _option = 'Cancel';
   double? _progress;
 
   /// \todo document
@@ -68,6 +69,16 @@ class _DecoderDetectionDialogState
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final manufacturerName =
+        _decoder?.decoderDefinition.decoder.manufacturerName;
+    final manufacturerUrl = _decoder?.decoderDefinition.decoder.manufacturerUrl;
+    final type = _decoder?.decoderDefinition.decoder.type;
+    final dimensions =
+        _decoder?.decoderDefinition.decoder.specifications?.dimensions;
+    final connectors =
+        _decoder?.decoderDefinition.decoder.specifications?.connectors;
+    final image = _decoder?.decoderDefinition.decoder.images.first.image;
+
     return AlertDialog(
       title: const Text('DecoderDB'),
       content: Column(
@@ -76,6 +87,34 @@ class _DecoderDetectionDialogState
         children: [
           LinearProgressIndicator(value: _progress),
           Text(_status),
+          DefaultAnimateSize(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_decoder != null)
+                  ListTile(
+                    title: Text(_decoder!.decoderDefinition.decoder.name),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (manufacturerName != null) Text(manufacturerName),
+                        if (manufacturerUrl != null) Text(manufacturerUrl),
+                        if (type != null)
+                          Text(type[0].toUpperCase() + type.substring(1)),
+                        if (dimensions != null)
+                          Text(
+                            '${dimensions.length}x${dimensions.width}x${dimensions.height}',
+                          ),
+                        if (connectors != null)
+                          Text('${connectors.connectorList}'),
+                        if (image != null)
+                          Image.network(image.first.src, fit: BoxFit.fitWidth),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
       actions: <Widget>[
@@ -114,9 +153,13 @@ class _DecoderDetectionDialogState
 
     await _downloadDecoderDefinition();
 
-    await _downloadFirmwareDefinition();
+    // await _downloadFirmwareDefinition();
 
-    debugPrint(_decoder?.decoderDefinition.decoder.name);
+    setState(() {
+      _status = '';
+      _option = 'OK';
+      _progress = 0;
+    });
   }
 
   /// \todo document
@@ -253,7 +296,7 @@ class _DecoderDetectionDialogState
           false,
     );
     assert(filesWithId.length == 1);
-    _decoder = filesWithId.first;
+    setState(() => _decoder = filesWithId.first);
   }
 
   /// \todo document
@@ -273,7 +316,7 @@ class _DecoderDetectionDialogState
       (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
           .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
     );
-    _firmware = filesWithName.first;
+    setState(() => _firmware = filesWithName.last);
   }
 
   /// \todo document
