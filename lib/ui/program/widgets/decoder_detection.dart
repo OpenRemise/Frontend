@@ -138,8 +138,8 @@ class _DecoderDetectionDialogState
   /// \todo document
   Future<void> _detections(List<Detection> detections) async {
     for (final detection in detections) {
-      // Only continue if condition is met
-      if (!_conditions(detection.conditions)) continue;
+      // Only continue if conditions are met
+      if (!await _conditions(detection.conditions)) continue;
 
       // Read either CVs...
       if (detection.cvs.isNotEmpty) {
@@ -155,34 +155,81 @@ class _DecoderDetectionDialogState
             await Future.wait(cvGroup.cvs.map((cv) => _read(cv.number)));
         assert(['int', 'long'].contains(cvGroup.type));
         _values[detection.type] =
-            cvs.reversed.fold(0, (value, cv) => value << 8 | cv).toString();
+            cvs.reversed.fold(0, (value, cv) => value << 8 | cv!).toString();
       }
     }
   }
 
   /// \todo document
-  bool _conditions(List<Condition> conditions) {
+  Future<bool> _conditions(List<Condition> conditions) async {
+    bool retval = conditions.isEmpty;
     for (final condition in conditions) {
-      for (final condition in condition.conditions) {
-        final cvs = ref.read(z21CvProvider(widget.decoder));
-        final command = cvs[(condition.cv! - 1, 0, 1)] as LanXCvResult;
-        if (command.value != int.tryParse(condition.value!)) return false;
+      final results = await Future.wait(condition.conditions.map(_conditionCv));
+      switch (condition.value) {
+        case 'notRelevant':
+          retval = true;
+          break;
+        case 'notInUse':
+          retval = true;
+          break;
+        case 'reset':
+          retval = true;
+          break;
+        case 'load':
+          retval = true;
+          break;
+        case 'valid':
+          retval |= results.every((e) => e);
+          break;
       }
     }
-
-    return true;
+    return retval;
   }
 
   /// \todo document
-  Future<int> _read(int number) async {
-    final result =
-        await ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
-    if (result is LanXCvResult) {
-      return result.value;
-    } else {
-      // not sure if that's a good idea
-      throw 'Reading CV$number failed';
+  Future<bool> _conditionCv(ConditionCv conditionCv) async {
+    // Leaf
+    if (conditionCv.conditions.isEmpty) {
+      assert(conditionCv.type == 'relational');
+
+      /// \todo add those
+      assert(conditionCv.indexHigh == null && conditionCv.indexLow == null);
+
+      final cv = await _read(conditionCv.cv!);
+
+      switch (conditionCv.operation) {
+        case 'equal':
+          return cv == int.parse(conditionCv.value!);
+        case 'unEqual':
+          return cv != int.parse(conditionCv.value!);
+        case 'greater':
+          return cv! > int.parse(conditionCv.value!);
+        case 'greaterEqual':
+          return cv! >= int.parse(conditionCv.value!);
+        case 'less':
+          return cv! < int.parse(conditionCv.value!);
+        case 'lessEqual':
+          return cv! <= int.parse(conditionCv.value!);
+        case 'valid':
+          return cv != null;
+        case 'inValid':
+          return cv == null;
+      }
     }
+    // Nested
+    else {
+      assert(conditionCv.type == 'logical');
+      final results =
+          await Future.wait(conditionCv.conditions.map(_conditionCv));
+      switch (conditionCv.operation) {
+        case 'and':
+          return results.every((e) => e);
+        case 'or':
+          return results.any((e) => e);
+      }
+    }
+
+    return false;
   }
 
   /// \todo document
@@ -227,6 +274,13 @@ class _DecoderDetectionDialogState
           .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
     );
     _firmware = filesWithName.first;
+  }
+
+  /// \todo document
+  Future<int?> _read(int number) async {
+    final result =
+        await ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
+    return result is LanXCvResult ? result.value : null;
   }
 
   /// \todo document

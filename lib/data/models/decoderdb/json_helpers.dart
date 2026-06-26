@@ -13,36 +13,54 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Normalizes a JSON value that may be a single object or a list into a list
+/// Reads [key] from [json] and normalizes it to a list
 ///
-/// XML-to-JSON conversions often collapse single-element arrays into plain
-/// objects. This helper ensures the value is always a list for consistent
-/// deserialization.
+/// Applies [_asList] to handle both single objects and arrays.
 Object? readAsList(Map json, String key) {
-  final value = json[key];
-  if (value == null) return <dynamic>[];
-  if (value is List) return value;
-  return <dynamic>[value];
+  return _asList(json[key]);
 }
 
-/// Returns the value only if it's a map, otherwise null
-///
-/// Some fields are either an object or an empty list in the JSON. This helper
-/// treats an empty list (or any non-map value) as null.
+/// Reads [key] from [json] only if the value is a map, otherwise returns null
 Object? readAsSingle(Map json, String key) {
   final value = json[key];
   if (value is Map) return value;
   return null;
 }
 
-/// Flattens a single-key wrapper object into a list
+/// Reads [key] from [json], applies [_unwrapMap], and normalizes to a list
 ///
-/// For JSON structures like `"protocols": { "protocol": [...] }`, this
-/// unwraps the single inner key and applies [readAsList] normalization.
+/// Flattens `{"key": [...]}` down to the inner list.
 Object? readNestedAsList(Map json, String key) {
   final outer = json[key];
   if (outer is Map && outer.length == 1) {
-    return readAsList(outer, outer.keys.first);
+    return _asList(outer[outer.keys.first]);
   }
   return <dynamic>[];
+}
+
+/// Unwraps a single-element array containing a single-key map into a list
+///
+/// Applies [_unwrapList], [_unwrapMap], and [_asList] in sequence to flatten
+/// structures like `[{"key": [...]}]` down to the inner list.
+Object? readWrappedAsList(Map json, String key) {
+  return _asList(_unwrapMap(_unwrapList(json[key])));
+}
+
+/// `null` → `[]`, `[...]` → `[...]`, `x` → `[x]`
+List<dynamic> _asList(Object? value) {
+  if (value == null) return <dynamic>[];
+  if (value is List) return value;
+  return <dynamic>[value];
+}
+
+/// `[x]` → `x`, otherwise identity
+Object? _unwrapList(Object? value) {
+  if (value is List && value.length == 1) return value.first;
+  return value;
+}
+
+/// `{"k": v}` → `v`, otherwise identity
+Object? _unwrapMap(Object? value) {
+  if (value is Map && value.length == 1) return value[value.keys.first];
+  return value;
 }

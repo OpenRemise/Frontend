@@ -116,7 +116,7 @@ abstract class Detection with _$Detection {
     @Default([]) @JsonKey(name: 'cv') List<DetectionCv> cvs,
     @Default([]) @JsonKey(name: 'cvGroup') List<DetectionCvGroup> cvGroups,
     @Default([])
-    @JsonKey(name: 'conditions', readValue: readNestedAsList)
+    @JsonKey(name: 'conditions', readValue: readWrappedAsList)
     List<Condition> conditions,
   }) = _Detection;
 
