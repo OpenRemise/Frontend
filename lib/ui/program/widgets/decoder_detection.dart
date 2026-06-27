@@ -77,7 +77,7 @@ class _DecoderDetectionDialogState
         _decoder?.decoderDefinition.decoder.specifications?.dimensions;
     final connectors =
         _decoder?.decoderDefinition.decoder.specifications?.connectors;
-    final image = _decoder?.decoderDefinition.decoder.images.first.image;
+    final image = _decoder?.decoderDefinition.decoder.images.firstOrNull?.image;
 
     return AlertDialog(
       title: const Text('DecoderDB'),
@@ -153,7 +153,7 @@ class _DecoderDetectionDialogState
 
     await _downloadDecoderDefinition();
 
-    // await _downloadFirmwareDefinition();
+    await _downloadFirmwareDefinition();
 
     setState(() {
       _status = '';
@@ -315,6 +315,9 @@ class _DecoderDetectionDialogState
     final filesWithName = files.where(
       (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
           .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
+    );
+    filesWithName.forEach(
+      (f) => debugPrint(f.decoderFirmwareDefinition.firmware.version),
     );
     setState(() => _firmware = filesWithName.last);
   }
