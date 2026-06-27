@@ -188,8 +188,9 @@ class _DecoderDetectionDialogState
       if (detection.cvs.isNotEmpty) {
         final cvs =
             await Future.wait(detection.cvs.map((cv) => _read(cv.number)));
-        // TODO correct displayFormat
-        _values[detection.type] = cvs.join('.');
+        _values[detection.type] = detection.displayFormat != null
+            ? parseDisplayFormat(detection.displayFormat!, cvs.cast<int>())
+            : cvs.join('.');
       }
 
       // ... or an entire group
@@ -197,8 +198,10 @@ class _DecoderDetectionDialogState
         final cvs =
             await Future.wait(cvGroup.cvs.map((cv) => _read(cv.number)));
         assert(['int', 'long'].contains(cvGroup.type));
-        _values[detection.type] =
-            cvs.reversed.fold(0, (value, cv) => value << 8 | cv!).toString();
+        final value = cvs.reversed.fold(0, (value, cv) => value << 8 | cv!);
+        _values[detection.type] = detection.displayFormat != null
+            ? parseDisplayFormat(detection.displayFormat!, [value])
+            : value.toString();
       }
     }
   }
@@ -335,4 +338,125 @@ class _DecoderDetectionDialogState
     if (!mounted) return;
     super.setState(fn);
   }
+}
+
+String parseDisplayFormat(String format, List<int> values) {
+  final out = StringBuffer();
+
+  int pos = 0;
+  while (pos < format.length) {
+    if (format[pos] != '{') {
+      out.write(format[pos++]);
+      continue;
+    }
+
+    final end = format.indexOf('}', pos);
+    if (end == -1) {
+      throw const FormatException('Missing }');
+    }
+
+    final parts = format.substring(pos + 1, end).split(':');
+
+    if (parts.isEmpty) {
+      throw const FormatException('Empty placeholder');
+    }
+
+    int value = values[int.parse(parts[0])];
+
+    if (parts.length == 1) {
+      out.write(value);
+      pos = end + 1;
+      continue;
+    }
+
+    bool written = false;
+
+    for (int i = 1; i < parts.length; i++) {
+      var f = parts[i];
+
+      if (f.startsWith('M0x')) {
+        final mask = int.parse(f.substring(3), radix: 16);
+
+        value &= mask;
+
+        int shift = 0;
+        int m = mask;
+        while (m != 0 && (m & 1) == 0) {
+          shift++;
+          m >>= 1;
+        }
+
+        value >>= shift;
+      } else if (f.startsWith('M0d')) {
+        final mask = f.substring(3);
+        final digits = value.toString();
+
+        final startDigit =
+            digits.length > mask.length ? digits.length - mask.length : 0;
+        final startMask =
+            mask.length > digits.length ? mask.length - digits.length : 0;
+
+        final b = StringBuffer();
+
+        for (int d = startDigit, m = startMask;
+            d < digits.length && m < mask.length;
+            d++, m++) {
+          if (mask[m] == '1') {
+            b.write(digits[d]);
+          }
+        }
+
+        value = b.isEmpty ? 0 : int.parse(b.toString());
+      } else if (f == 'X') {
+        out.write(value.toRadixString(16).toUpperCase());
+        written = true;
+      } else {
+        if (f.startsWith('F')) {
+          f = f.substring(1);
+        }
+
+        final digits = value.toString();
+        final result = List<String>.filled(f.length, '');
+
+        int digit = digits.length - 1;
+
+        for (int p = f.length - 1; p >= 0; p--) {
+          switch (f[p]) {
+            case '0':
+              if (digit >= 0) {
+                result[p] = digits[digit--];
+              } else {
+                result[p] = '0';
+              }
+              break;
+
+            case '#':
+              if (digit >= 0) {
+                result[p] = digits[digit--];
+              }
+              break;
+
+            default:
+              result[p] = f[p];
+          }
+        }
+
+        if (digit >= 0) {
+          out.write(digits.substring(0, digit + 1));
+        }
+
+        out.write(result.join());
+        written = true;
+      }
+    }
+
+    // Only masks were specified.
+    if (!written) {
+      out.write(value);
+    }
+
+    pos = end + 1;
+  }
+
+  return out.toString();
 }
