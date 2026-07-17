@@ -15,6 +15,7 @@
 
 // ignore_for_file: invalid_annotation_target
 
+import 'package:Frontend/data/models/decoderdb/json_helpers.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'common_types.freezed.dart';
@@ -75,34 +76,23 @@ abstract class DetectionCvGroup with _$DetectionCvGroup {
       _$DetectionCvGroupFromJson(json);
 }
 
-/// Condition group containing a list of triggers
+/// Trigger within a condition, specifying when the condition applies
 @freezed
 abstract class Condition with _$Condition {
   const factory Condition({
-    @Default([]) @JsonKey(name: 'trigger') List<ConditionTrigger> triggers,
+    @JsonKey(name: 'value') required String value,
+    @JsonKey(name: 'target') String? target,
+    @Default([]) @JsonKey(name: 'condition') List<ConditionCv> conditions,
   }) = _Condition;
 
   factory Condition.fromJson(Map<String, Object?> json) =>
       _$ConditionFromJson(json);
 }
 
-/// Trigger within a condition, specifying when the condition applies
-@freezed
-abstract class ConditionTrigger with _$ConditionTrigger {
-  const factory ConditionTrigger({
-    @JsonKey(name: 'value') required String value,
-    @JsonKey(name: 'target') String? target,
-    @Default([]) @JsonKey(name: 'condition') List<TriggerCondition> conditions,
-  }) = _ConditionTrigger;
-
-  factory ConditionTrigger.fromJson(Map<String, Object?> json) =>
-      _$ConditionTriggerFromJson(json);
-}
-
 /// Individual condition expression. Can be recursive for logical operations.
 @freezed
-abstract class TriggerCondition with _$TriggerCondition {
-  const factory TriggerCondition({
+abstract class ConditionCv with _$ConditionCv {
+  const factory ConditionCv({
     @JsonKey(name: 'type') required String type,
     @JsonKey(name: 'operation') String? operation,
     @JsonKey(name: 'cv') int? cv,
@@ -110,11 +100,11 @@ abstract class TriggerCondition with _$TriggerCondition {
     @JsonKey(name: 'selection') String? selection,
     @JsonKey(name: 'indexHigh') int? indexHigh,
     @JsonKey(name: 'indexLow') int? indexLow,
-    @Default([]) @JsonKey(name: 'condition') List<TriggerCondition> conditions,
-  }) = _TriggerCondition;
+    @Default([]) @JsonKey(name: 'condition') List<ConditionCv> conditions,
+  }) = _ConditionCv;
 
-  factory TriggerCondition.fromJson(Map<String, Object?> json) =>
-      _$TriggerConditionFromJson(json);
+  factory ConditionCv.fromJson(Map<String, Object?> json) =>
+      _$ConditionCvFromJson(json);
 }
 
 /// Detection entry describing how to identify a decoder property
@@ -125,7 +115,9 @@ abstract class Detection with _$Detection {
     @JsonKey(name: 'displayFormat') String? displayFormat,
     @Default([]) @JsonKey(name: 'cv') List<DetectionCv> cvs,
     @Default([]) @JsonKey(name: 'cvGroup') List<DetectionCvGroup> cvGroups,
-    @Default([]) @JsonKey(name: 'conditions') List<Condition> conditions,
+    @Default([])
+    @JsonKey(name: 'conditions', readValue: readWrappedAsList)
+    List<Condition> conditions,
   }) = _Detection;
 
   factory Detection.fromJson(Map<String, Object?> json) =>

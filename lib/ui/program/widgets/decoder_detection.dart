@@ -30,6 +30,8 @@ import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
+import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
+import 'package:Frontend/utils/parse_display_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +55,7 @@ class _DecoderDetectionDialogState
   DecoderDefinitionFile? _decoder;
   FirmwareDefinitionFile? _firmware;
   String _status = '';
-  final String _option = 'Cancel';
+  String _option = 'Cancel';
   double? _progress;
 
   /// \todo document
@@ -68,6 +70,16 @@ class _DecoderDetectionDialogState
   /// \todo document
   @override
   Widget build(BuildContext context) {
+    final manufacturerName =
+        _decoder?.decoderDefinition.decoder.manufacturerName;
+    final manufacturerUrl = _decoder?.decoderDefinition.decoder.manufacturerUrl;
+    final type = _decoder?.decoderDefinition.decoder.type;
+    final dimensions =
+        _decoder?.decoderDefinition.decoder.specifications?.dimensions;
+    final connectors =
+        _decoder?.decoderDefinition.decoder.specifications?.connectors;
+    final image = _decoder?.decoderDefinition.decoder.images.firstOrNull?.image;
+
     return AlertDialog(
       title: const Text('DecoderDB'),
       content: Column(
@@ -76,6 +88,34 @@ class _DecoderDetectionDialogState
         children: [
           LinearProgressIndicator(value: _progress),
           Text(_status),
+          DefaultAnimateSize(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_decoder != null)
+                  ListTile(
+                    title: Text(_decoder!.decoderDefinition.decoder.name),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (manufacturerName != null) Text(manufacturerName),
+                        if (manufacturerUrl != null) Text(manufacturerUrl),
+                        if (type != null)
+                          Text(type[0].toUpperCase() + type.substring(1)),
+                        if (dimensions != null)
+                          Text(
+                            '${dimensions.length}x${dimensions.width}x${dimensions.height}',
+                          ),
+                        if (connectors != null)
+                          Text('${connectors.connectorList}'),
+                        if (image != null)
+                          Image.network(image.first.src, fit: BoxFit.fitWidth),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
       actions: <Widget>[
@@ -116,7 +156,11 @@ class _DecoderDetectionDialogState
 
     await _downloadFirmwareDefinition();
 
-    debugPrint(_decoder?.decoderDefinition.decoder.name);
+    setState(() {
+      _status = '';
+      _option = 'OK';
+      _progress = 0;
+    });
   }
 
   /// \todo document
@@ -138,15 +182,16 @@ class _DecoderDetectionDialogState
   /// \todo document
   Future<void> _detections(List<Detection> detections) async {
     for (final detection in detections) {
-      // Only continue if condition is met
-      if (!_conditions(detection.conditions)) continue;
+      // Only continue if conditions are met
+      if (!await _conditions(detection.conditions)) continue;
 
       // Read either CVs...
       if (detection.cvs.isNotEmpty) {
         final cvs =
             await Future.wait(detection.cvs.map((cv) => _read(cv.number)));
-        // TODO correct displayFormat
-        _values[detection.type] = cvs.join('.');
+        _values[detection.type] = detection.displayFormat != null
+            ? parseDisplayFormat(detection.displayFormat!, cvs.cast<int>())
+            : cvs.join('.');
       }
 
       // ... or an entire group
@@ -154,37 +199,84 @@ class _DecoderDetectionDialogState
         final cvs =
             await Future.wait(cvGroup.cvs.map((cv) => _read(cv.number)));
         assert(['int', 'long'].contains(cvGroup.type));
-        _values[detection.type] =
-            cvs.reversed.fold(0, (value, cv) => value << 8 | cv).toString();
+        final value = cvs.reversed.fold(0, (value, cv) => value << 8 | cv!);
+        _values[detection.type] = detection.displayFormat != null
+            ? parseDisplayFormat(detection.displayFormat!, [value])
+            : value.toString();
       }
     }
   }
 
   /// \todo document
-  bool _conditions(List<Condition> conditions) {
+  Future<bool> _conditions(List<Condition> conditions) async {
+    bool retval = conditions.isEmpty;
     for (final condition in conditions) {
-      for (final trigger in condition.triggers) {
-        for (final condition in trigger.conditions) {
-          final cvs = ref.read(z21CvProvider(widget.decoder));
-          final command = cvs[(condition.cv! - 1, 0, 1)] as LanXCvResult;
-          if (command.value != int.tryParse(condition.value!)) return false;
-        }
+      final results = await Future.wait(condition.conditions.map(_conditionCv));
+      switch (condition.value) {
+        case 'notRelevant':
+          retval = true;
+          break;
+        case 'notInUse':
+          retval = true;
+          break;
+        case 'reset':
+          retval = true;
+          break;
+        case 'load':
+          retval = true;
+          break;
+        case 'valid':
+          retval |= results.every((e) => e);
+          break;
       }
     }
-
-    return true;
+    return retval;
   }
 
   /// \todo document
-  Future<int> _read(int number) async {
-    final result =
-        await ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
-    if (result is LanXCvResult) {
-      return result.value;
-    } else {
-      // not sure if that's a good idea
-      throw 'Reading CV$number failed';
+  Future<bool> _conditionCv(ConditionCv conditionCv) async {
+    // Leaf
+    if (conditionCv.conditions.isEmpty) {
+      assert(conditionCv.type == 'relational');
+
+      /// \todo add those
+      assert(conditionCv.indexHigh == null && conditionCv.indexLow == null);
+
+      final cv = await _read(conditionCv.cv!);
+
+      switch (conditionCv.operation) {
+        case 'equal':
+          return cv == int.parse(conditionCv.value!);
+        case 'unEqual':
+          return cv != int.parse(conditionCv.value!);
+        case 'greater':
+          return cv! > int.parse(conditionCv.value!);
+        case 'greaterEqual':
+          return cv! >= int.parse(conditionCv.value!);
+        case 'less':
+          return cv! < int.parse(conditionCv.value!);
+        case 'lessEqual':
+          return cv! <= int.parse(conditionCv.value!);
+        case 'valid':
+          return cv != null;
+        case 'inValid':
+          return cv == null;
+      }
     }
+    // Nested
+    else {
+      assert(conditionCv.type == 'logical');
+      final results =
+          await Future.wait(conditionCv.conditions.map(_conditionCv));
+      switch (conditionCv.operation) {
+        case 'and':
+          return results.every((e) => e);
+        case 'or':
+          return results.any((e) => e);
+      }
+    }
+
+    return false;
   }
 
   /// \todo document
@@ -205,10 +297,10 @@ class _DecoderDetectionDialogState
           f.decoderDefinition.decoder.typeIds
               ?.split(';')
               .contains(_values['decoderId']) ??
-          true,
+          false,
     );
     assert(filesWithId.length == 1);
-    _decoder = filesWithId.first;
+    setState(() => _decoder = filesWithId.first);
   }
 
   /// \todo document
@@ -228,7 +320,17 @@ class _DecoderDetectionDialogState
       (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
           .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
     );
-    _firmware = filesWithName.first;
+    filesWithName.forEach(
+      (f) => debugPrint(f.decoderFirmwareDefinition.firmware.version),
+    );
+    setState(() => _firmware = filesWithName.last);
+  }
+
+  /// \todo document
+  Future<int?> _read(int number) async {
+    final result =
+        await ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
+    return result is LanXCvResult ? result.value : null;
   }
 
   /// \todo document
