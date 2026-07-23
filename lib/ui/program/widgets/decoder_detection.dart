@@ -25,13 +25,13 @@ import 'package:Frontend/data/models/decoderdb/common_types.dart';
 import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
 import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
 import 'package:Frontend/data/models/decoderdb/firmware_definition.dart';
+import 'package:Frontend/data/models/decoderdb/parse_display_format.dart';
 import 'package:Frontend/data/models/decoderdb/repository.dart';
 import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
-import 'package:Frontend/utils/parse_display_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

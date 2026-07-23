@@ -65,6 +65,7 @@ dependencies:
   version: ^3.0.2
   vertical_weight_slider: ^2.6.0
   web_socket_channel: ^3.0.3
+  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:

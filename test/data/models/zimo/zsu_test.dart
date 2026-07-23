@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('zsu', () {
     test('MS-4.235.0.zsu', () {
-      final Uint8List file = File('data/MS-4.235.0.zsu').readAsBytesSync();
+      final Uint8List file =
+          File('test/data/models/zimo/MS-4.235.0.zsu').readAsBytesSync();
       final zsu = Zsu(file);
       expect(zsu.firmwares.length, 44);
       final fw = zsu.firmwares.firstWhere((fw) => fw.id == 0x06043200);
@@ -21,13 +22,15 @@ void main() {
     });
 
     test('MS-5.29.1.zsu', () {
-      final Uint8List file = File('data/MS-5.29.1.zsu').readAsBytesSync();
+      final Uint8List file =
+          File('test/data/models/zimo/MS-5.29.1.zsu').readAsBytesSync();
       final zsu = Zsu(file);
       expect(zsu.firmwares.first.patchVersion, '1');
     });
 
     test('DS230503.zsu', () {
-      final Uint8List file = File('data/DS230503.zsu').readAsBytesSync();
+      final Uint8List file =
+          File('test/data/models/zimo/DS230503.zsu').readAsBytesSync();
       final zsu = Zsu(file);
       expect(zsu.firmwares.length, 92);
       final fw = zsu.firmwares.firstWhere((fw) => fw.id == 0xDD);
