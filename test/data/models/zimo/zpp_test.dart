@@ -8,7 +8,7 @@ void main() {
   group('zpp', () {
     test('free', () {
       final Uint8List file =
-          File('data/Da_Di_Collection_ZIMO-mfx-16Bit_S02.zpp')
+          File('test/data/models/zimo/Da_Di_Collection_ZIMO-mfx-16Bit_S02.zpp')
               .readAsBytesSync();
       final zpp = Zpp(file);
       expect(zpp.id.length, 2);
@@ -21,9 +21,9 @@ void main() {
     });
 
     test('coded', () {
-      final Uint8List file =
-          File('data/Taurus_LeoSoundLab_Roco_8-Pol_MX_crypt.zpp')
-              .readAsBytesSync();
+      final Uint8List file = File(
+              'test/data/models/zimo/Taurus_LeoSoundLab_Roco_8-Pol_MX_crypt.zpp')
+          .readAsBytesSync();
       final zpp = Zpp(file);
       expect(zpp.id.length, 2);
       expect(zpp.id, 'SP');

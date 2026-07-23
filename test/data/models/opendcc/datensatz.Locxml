@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfClsDatensatz xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <clsDatensatz>
+    <Lokadresse>3</Lokadresse>
+    <SpeedSteps>126</SpeedSteps>
+    <Format>DCC</Format>
+    <Name>Vectr</Name>
+  </clsDatensatz>
+  <clsDatensatz>
+    <Lokadresse>4</Lokadresse>
+    <SpeedSteps>14</SpeedSteps>
+    <Format>DCC</Format>
+    <Name>Gem4</Name>
+  </clsDatensatz>
+  <clsDatensatz>
+    <Lokadresse>50</Lokadresse>
+    <SpeedSteps>14</SpeedSteps>
+    <Format>DCC</Format>
+    <Name>BR50</Name>
+  </clsDatensatz>
+  <clsDatensatz>
+    <Lokadresse>498</Lokadresse>
+    <SpeedSteps>14</SpeedSteps>
+    <Format>DCC</Format>
+    <Name>R498</Name>
+  </clsDatensatz>
+  <clsDatensatz>
+    <Lokadresse>740</Lokadresse>
+    <SpeedSteps>28</SpeedSteps>
+    <Format>DCC</Format>
+    <Name>Gr740</Name>
+  </clsDatensatz>
+</ArrayOfClsDatensatz>

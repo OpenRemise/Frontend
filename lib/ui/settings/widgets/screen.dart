@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:Frontend/data/models/config.dart';
+import 'package:Frontend/data/repositories/roco/z21_status.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/repositories/sys.dart';
 import 'package:Frontend/ui/core/themes/small_screen_width.dart';
@@ -75,6 +76,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final smallWidth = MediaQuery.of(context).size.width < smallScreenWidth;
+    final z21Status = ref.watch(z21StatusProvider);
+    final trackVoltageOff = z21Status.asData?.value.trackVoltageOff() == true;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -89,16 +92,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () => showDialog<bool>(
-                          context: context,
-                          builder: (_) =>
-                              const ConfirmationDialog(title: 'Restart'),
-                          barrierDismissible: false,
-                        ).then(
-                          (value) => value == true
-                              ? ref.read(sysProvider.notifier).restart()
-                              : null,
-                        ),
+                        onPressed: trackVoltageOff
+                            ? () => showDialog<bool>(
+                                  context: context,
+                                  builder: (_) => const ConfirmationDialog(
+                                      title: 'Restart'),
+                                  barrierDismissible: false,
+                                ).then(
+                                  (value) => value == true
+                                      ? ref.read(sysProvider.notifier).restart()
+                                      : null,
+                                )
+                            : null,
                         tooltip: 'Restart',
                         icon: const Icon(Icons.restart_alt),
                       ),
@@ -153,6 +158,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                   tooltip: 'Defaults',
                   icon: const Icon(Icons.settings_suggest),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  tooltip: 'Import/export',
+                  icon: const Icon(Icons.import_export),
                 ),
                 IconButton(
                   onPressed: () {

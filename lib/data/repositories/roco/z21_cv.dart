@@ -52,9 +52,7 @@ class Z21Cv extends _$Z21Cv {
           },
         )
         .listen(_onResponse);
-    ref.onDispose(() {
-      sub.cancel();
-    });
+    ref.onDispose(() => sub.cancel());
     _decoder = decoder;
     return {};
   }
