@@ -39,11 +39,6 @@ class Locos extends _$Locos {
   }
 
   /// \todo document
-  void updateLocos(SplayTreeSet<Loco> locos) {
-    state = locos;
-  }
-
-  /// \todo document
   void updateLoco(int address, Loco loco) {
     state = SplayTreeSet<Loco>.from(state)
       ..remove(state.firstWhereOrNull((l) => l.address == address))
@@ -51,13 +46,18 @@ class Locos extends _$Locos {
   }
 
   /// \todo document
-  void deleteLocos() {
-    state = SplayTreeSet<Loco>();
+  void updateLocos(SplayTreeSet<Loco> locos) {
+    state = locos;
   }
 
   /// \todo document
   void deleteLoco(int address) {
     state = SplayTreeSet<Loco>.from(state)
       ..remove(state.firstWhereOrNull((l) => l.address == address));
+  }
+
+  /// \todo document
+  void deleteLocos() {
+    state = SplayTreeSet<Loco>();
   }
 }

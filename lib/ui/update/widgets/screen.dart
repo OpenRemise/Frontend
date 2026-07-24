@@ -537,7 +537,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
   /// \todo document
   Future<void> _openRemiseFromWeb() async {
     final availableFirmwareVersion = ref.read(availableFirmwareVersionProvider);
-    showDialog<List<Uint8List>>(
+    final value = await showDialog<List<Uint8List>>(
       context: context,
       builder: (_) => DownloadDialog(
         [
@@ -547,191 +547,177 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
         ],
       ),
       barrierDismissible: false,
-    ).then((value) {
-      if (value == null) return;
-      final archive = ZipDecoder().decodeBytes(value.first);
-      final bin = archive.findFile('Firmware.bin');
-      if (bin == null) return;
-      showDialog<bool>(
-        context: context,
-        builder: (_) => ConfirmationDialog(
-          title: 'Update to ${availableFirmwareVersion.requireValue}',
-        ),
-      ).then((value) {
-        if (value != true) return;
-        showDialog(
-          context: context,
-          builder: (_) => OtaDialog.fromFile(bin.content),
-          barrierDismissible: false,
-        );
-      });
-    });
+    );
+    if (value == null) return;
+
+    final archive = ZipDecoder().decodeBytes(value.first);
+    final bin = archive.findFile('Firmware.bin');
+    if (bin == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => ConfirmationDialog(
+        title: 'Update to ${availableFirmwareVersion.requireValue}',
+      ),
+    );
+    if (confirmed != true) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => OtaDialog.fromFile(bin.content),
+      barrierDismissible: false,
+    );
   }
 
   /// \todo document
   Future<void> _openRemiseFromFile() async {
-    return FilePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
+      dialogTitle: 'Open',
       type: FileType.custom,
       allowedExtensions: ['bin', 'zip'],
       withData: true,
-    ).then((FilePickerResult? result) {
-      if (result?.files[0].extension == 'bin') {
-        showDialog(
-          context: context,
-          builder: (_) => OtaDialog.fromFile(result!.files.first.bytes!),
-          barrierDismissible: false,
-        );
-      } else if (result?.files[0].extension == 'zip') {
-        final archive = ZipDecoder().decodeBytes(result!.files.first.bytes!);
-        final bin = archive.findFile('Firmware.bin');
-        if (bin == null) return;
-        showDialog(
-          context: context,
-          builder: (_) => OtaDialog.fromFile(bin.content),
-          barrierDismissible: false,
-        );
-      } else {
-        return null;
-      }
-    });
+    );
+    if (result?.files[0].extension == 'bin') {
+      showDialog(
+        context: context,
+        builder: (_) => OtaDialog.fromFile(result!.files.first.bytes!),
+        barrierDismissible: false,
+      );
+    } else if (result?.files[0].extension == 'zip') {
+      final archive = ZipDecoder().decodeBytes(result!.files.first.bytes!);
+      final bin = archive.findFile('Firmware.bin');
+      if (bin == null) return;
+
+      showDialog(
+        context: context,
+        builder: (_) => OtaDialog.fromFile(bin.content),
+        barrierDismissible: false,
+      );
+    }
   }
 
   /// \todo document
   Future<void> _zimoFirmwareFromWeb() async {
     // No REST API, no fun :(
-    http
-        .get(
+    final response = await http.get(
       Uri.parse(
         _selected.elementAtOrNull(1) == 0
             ? 'https://www.zimo.at/web2010/support/MS-MN-Decoder-SW-Update.htm'
             : 'https://www.zimo.at/web2010/support/MX-Decoder-SW-Update.htm',
       ),
-    )
-        .then(
-      (response) {
-        final exp = RegExp(
-          _selected.elementAtOrNull(1) == 0
-              ? r'href=".+?id=MS_[0-9].[0-9].*"'
-              : r'href=".+?id=DS[0-9]+"',
-        );
-        final zips = exp.firstMatch(response.body);
-        return zips!.group(0)?.replaceAll('href=', '').replaceAll('"', '');
+    );
+    final exp = RegExp(
+      _selected.elementAtOrNull(1) == 0
+          ? r'href=".+?id=MS_[0-9].[0-9].*"'
+          : r'href=".+?id=DS[0-9]+"',
+    );
+    final zips = exp.firstMatch(response.body);
+    final url = zips!.group(0)?.replaceAll('href=', '').replaceAll('"', '');
+    if (url == null) return;
+
+    final uri = Uri.parse(url);
+    final value = await showDialog<List<Uint8List>>(
+      context: context,
+      builder: (_) => DownloadDialog(
+        [Uri.parse(url)],
+        fileNames: [uri.queryParameters['id']!],
+      ),
+      barrierDismissible: false,
+    );
+    if (value == null) return;
+
+    final archive = ZipDecoder().decodeBytes(value.first);
+    final archiveFile =
+        archive.files.firstWhereOrNull((f) => f.name.endsWith('.zsu'));
+    if (archiveFile == null) return;
+
+    final zsu = Zsu(archiveFile.content);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => ConfirmationDialog(
+        title:
+            'Update to ${zsu.firmwares.first.majorVersion}.${zsu.firmwares.first.minorVersion}${zsu.firmwares.first.patchVersion != null ? '.${zsu.firmwares.first.patchVersion}' : ''}',
+      ),
+    );
+    if (confirmed != true) return;
+
+    showDialog(
+      context: context,
+      builder: (_) => switch (_selected.elementAtOrNull(1)) {
+        0 => MduDialog.zsu(zsu),
+        1 => DecupDialog.zsu(zsu),
+        _ => throw UnimplementedError(),
       },
-    ).then(
-      (url) {
-        if (url == null) return;
-        final uri = Uri.parse(url);
-        showDialog<List<Uint8List>>(
-          context: context,
-          builder: (_) => DownloadDialog(
-            [Uri.parse(url)],
-            fileNames: [uri.queryParameters['id']!],
-          ),
-          barrierDismissible: false,
-        ).then(
-          (value) {
-            if (value == null) return;
-            final archive = ZipDecoder().decodeBytes(value.first);
-            final archiveFile =
-                archive.files.firstWhereOrNull((f) => f.name.endsWith('.zsu'));
-            if (archiveFile == null) return;
-            final zsu = Zsu(archiveFile.content);
-            showDialog<bool>(
-              context: context,
-              builder: (_) => ConfirmationDialog(
-                title:
-                    'Update to ${zsu.firmwares.first.majorVersion}.${zsu.firmwares.first.minorVersion}${zsu.firmwares.first.patchVersion != null ? '.${zsu.firmwares.first.patchVersion}' : ''}',
-              ),
-            ).then((value) {
-              if (value != true) return;
-              showDialog(
-                context: context,
-                builder: (_) => switch (_selected.elementAtOrNull(1)) {
-                  0 => MduDialog.zsu(zsu),
-                  1 => DecupDialog.zsu(zsu),
-                  _ => throw UnimplementedError(),
-                },
-                barrierDismissible: false,
-              );
-            });
-          },
-        );
-      },
+      barrierDismissible: false,
     );
   }
 
   /// \todo document
   Future<void> _zimoSoundFromWeb() async {
-    showDialog<String>(
+    final url = await showDialog<String>(
       context: context,
       builder: (_) => const SoundDialog(),
       barrierDismissible: true,
-    ).then(
-      (url) {
-        if (url == null) return;
-        showDialog<List<Uint8List>>(
-          context: context,
-          builder: (_) => DownloadDialog(
-            [latin1Uri(url)],
-            fileNames: [Uri.parse(url).queryParameters['f']!],
-          ),
-          barrierDismissible: false,
-        ).then(
-          (value) {
-            if (value == null) return;
-            final zpp = Zpp(value.first);
-            showDialog(
-              context: context,
-              builder: (_) => switch (_selected.elementAtOrNull(1)) {
-                2 => MduDialog.zpp(zpp),
-                3 => DecupDialog.zpp(zpp),
-                4 => ZusiDialog.zpp(zpp),
-                _ => throw UnimplementedError(),
-              },
-              barrierDismissible: false,
-            );
-          },
-        );
+    );
+    if (url == null) return;
+
+    final value = await showDialog<List<Uint8List>>(
+      context: context,
+      builder: (_) => DownloadDialog(
+        [latin1Uri(url)],
+        fileNames: [Uri.parse(url).queryParameters['f']!],
+      ),
+      barrierDismissible: false,
+    );
+    if (value == null) return;
+
+    final zpp = Zpp(value.first);
+    showDialog(
+      context: context,
+      builder: (_) => switch (_selected.elementAtOrNull(1)) {
+        2 => MduDialog.zpp(zpp),
+        3 => DecupDialog.zpp(zpp),
+        4 => ZusiDialog.zpp(zpp),
+        _ => throw UnimplementedError(),
       },
+      barrierDismissible: false,
     );
   }
 
   /// \todo document
   Future<void> _zimoFromFile() async {
-    return FilePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
+      dialogTitle: 'Open',
       type: FileType.custom,
       allowedExtensions: _selected.elementAt(1) >= 2 ? ['zpp'] : ['zsu'],
       withData: true,
-    ).then((FilePickerResult? result) {
-      if (result?.files[0].extension == 'zpp') {
-        final zpp = Zpp(result!.files.first.bytes!);
-        showDialog(
-          context: context,
-          builder: (_) => switch (_selected.elementAtOrNull(1)) {
-            2 => MduDialog.zpp(zpp),
-            3 => DecupDialog.zpp(zpp),
-            4 => ZusiDialog.zpp(zpp),
-            _ => throw UnimplementedError(),
-          },
-          barrierDismissible: false,
-        );
-      } else if (result?.files[0].extension == 'zsu') {
-        final zsu = Zsu(result!.files.first.bytes!);
+    );
+    if (result?.files[0].extension == 'zpp') {
+      final zpp = Zpp(result!.files.first.bytes!);
+      showDialog(
+        context: context,
+        builder: (_) => switch (_selected.elementAtOrNull(1)) {
+          2 => MduDialog.zpp(zpp),
+          3 => DecupDialog.zpp(zpp),
+          4 => ZusiDialog.zpp(zpp),
+          _ => throw UnimplementedError(),
+        },
+        barrierDismissible: false,
+      );
+    } else if (result?.files[0].extension == 'zsu') {
+      final zsu = Zsu(result!.files.first.bytes!);
 
-        /// \todo add check if MX or MS
-        /// zsu.firmwares.values.first.type == 3 -> MS
-        showDialog(
-          context: context,
-          builder: (_) => switch (_selected.elementAtOrNull(1)) {
-            0 => MduDialog.zsu(zsu),
-            1 => DecupDialog.zsu(zsu),
-            _ => throw UnimplementedError(),
-          },
-          barrierDismissible: false,
-        );
-      } else {
-        return null;
-      }
-    });
+      /// \todo add check if MX or MS
+      /// zsu.firmwares.values.first.type == 3 -> MS
+      showDialog(
+        context: context,
+        builder: (_) => switch (_selected.elementAtOrNull(1)) {
+          0 => MduDialog.zsu(zsu),
+          1 => DecupDialog.zsu(zsu),
+          _ => throw UnimplementedError(),
+        },
+        barrierDismissible: false,
+      );
+    }
   }
 }

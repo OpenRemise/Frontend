@@ -31,25 +31,19 @@ class HttpDccService implements DccService {
   Future<Loco> fetchLoco(int address) async {
     final uri = Uri.http(_domain, 'dcc/locos/$address');
     final response = await _client.get(uri);
-    if (response.statusCode == 200) {
-      return Loco.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to fetch loco');
-    }
+    if (response.statusCode != 200) throw Exception('Failed to fetch loco');
+    return Loco.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<SplayTreeSet<Loco>> fetchLocos() async {
     final uri = Uri.http(_domain, 'dcc/locos/');
     final response = await _client.get(uri);
-    if (response.statusCode == 200) {
-      final array = jsonDecode(response.body) as List<dynamic>;
-      return SplayTreeSet.of(
-        [for (final object in array) Loco.fromJson(object)],
-      );
-    } else {
-      throw Exception('Failed to fetch locos');
-    }
+    if (response.statusCode != 200) Exception('Failed to fetch locos');
+    final array = jsonDecode(response.body) as List<dynamic>;
+    return SplayTreeSet.of(
+      [for (final object in array) Loco.fromJson(object)],
+    );
   }
 
   @override
@@ -65,7 +59,13 @@ class HttpDccService implements DccService {
 
   @override
   Future<void> updateLocos(SplayTreeSet<Loco> locos) async {
-    throw UnimplementedError();
+    final uri = Uri.http(_domain, 'dcc/locos/');
+    final response = await _client.put(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([for (final loco in locos) loco.toJson()]),
+    );
+    if (response.statusCode != 200) throw Exception('Failed to update locos');
   }
 
   @override
@@ -86,25 +86,19 @@ class HttpDccService implements DccService {
   Future<Turnout> fetchTurnout(int address) async {
     final uri = Uri.http(_domain, 'dcc/turnouts/$address');
     final response = await _client.get(uri);
-    if (response.statusCode == 200) {
-      return Turnout.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to fetch turnout');
-    }
+    if (response.statusCode != 200) throw Exception('Failed to fetch turnout');
+    return Turnout.fromJson(jsonDecode(response.body));
   }
 
   @override
   Future<SplayTreeSet<Turnout>> fetchTurnouts() async {
     final uri = Uri.http(_domain, 'dcc/turnouts/');
     final response = await _client.get(uri);
-    if (response.statusCode == 200) {
-      final array = jsonDecode(response.body) as List<dynamic>;
-      return SplayTreeSet.of(
-        [for (final object in array) Turnout.fromJson(object)],
-      );
-    } else {
-      throw Exception('Failed to fetch turnouts');
-    }
+    if (response.statusCode != 200) throw Exception('Failed to fetch turnouts');
+    final array = jsonDecode(response.body) as List<dynamic>;
+    return SplayTreeSet.of(
+      [for (final object in array) Turnout.fromJson(object)],
+    );
   }
 
   @override
@@ -120,7 +114,15 @@ class HttpDccService implements DccService {
 
   @override
   Future<void> updateTurnouts(SplayTreeSet<Turnout> turnouts) async {
-    throw UnimplementedError();
+    final uri = Uri.http(_domain, 'dcc/turnouts/');
+    final response = await _client.put(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode([for (final turnout in turnouts) turnout.toJson()]),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update turnouts');
+    }
   }
 
   @override

@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:collection';
+
 import 'package:Frontend/data/models/loco.dart';
 import 'package:Frontend/data/models/turnout.dart';
 import 'package:Frontend/data/repositories/locos.dart';
@@ -34,20 +36,20 @@ class Dcc extends _$Dcc {
     await fetchTurnouts();
   }
 
+  Future<void> fetchLoco(int address) async {
+    // GET /locos/$address
+    state = await AsyncValue.guard(() async {
+      final loco = await _service.fetchLoco(address);
+      ref.read(locosProvider.notifier).updateLoco(address, loco);
+    });
+  }
+
   Future<void> fetchLocos() async {
     // GET /locos/
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final locos = await _service.fetchLocos();
       ref.read(locosProvider.notifier).updateLocos(locos);
-    });
-  }
-
-  Future<void> fetchLoco(int address) async {
-    // GET /locos/$address
-    state = await AsyncValue.guard(() async {
-      final loco = await _service.fetchLoco(address);
-      ref.read(locosProvider.notifier).updateLoco(address, loco);
     });
   }
 
@@ -59,12 +61,11 @@ class Dcc extends _$Dcc {
     });
   }
 
-  Future<void> deleteLocos() async {
-    // DELETE /locos/
-    state = const AsyncValue.loading();
+  Future<void> updateLocos(SplayTreeSet<Loco> locos) async {
+    // PUT /locos/
     state = await AsyncValue.guard(() async {
-      await _service.deleteLocos();
-      ref.read(locosProvider.notifier).deleteLocos();
+      await _service.updateLocos(locos);
+      ref.read(locosProvider.notifier).updateLocos(locos);
     });
   }
 
@@ -73,6 +74,15 @@ class Dcc extends _$Dcc {
     state = await AsyncValue.guard(() async {
       await _service.deleteLoco(address);
       ref.read(locosProvider.notifier).deleteLoco(address);
+    });
+  }
+
+  Future<void> deleteLocos() async {
+    // DELETE /locos/
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _service.deleteLocos();
+      ref.read(locosProvider.notifier).deleteLocos();
     });
   }
 
@@ -98,6 +108,14 @@ class Dcc extends _$Dcc {
     state = await AsyncValue.guard(() async {
       await _service.updateTurnout(address, turnout);
       ref.read(turnoutsProvider.notifier).updateTurnout(address, turnout);
+    });
+  }
+
+  Future<void> updateTurnouts(SplayTreeSet<Turnout> turnouts) async {
+    // PUT /turnouts/
+    state = await AsyncValue.guard(() async {
+      await _service.updateTurnouts(turnouts);
+      ref.read(turnoutsProvider.notifier).updateTurnouts(turnouts);
     });
   }
 

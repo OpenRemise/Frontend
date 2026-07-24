@@ -158,11 +158,6 @@ class Turnouts extends _$Turnouts {
   }
 
   /// \todo document
-  void updateTurnouts(SplayTreeSet<Turnout> turnouts) {
-    state = turnouts;
-  }
-
-  /// \todo document
   void updateTurnout(int address, Turnout turnout) {
     state = SplayTreeSet<Turnout>.from(state)
       ..remove(state.firstWhereOrNull((t) => t.address == address))
@@ -170,13 +165,18 @@ class Turnouts extends _$Turnouts {
   }
 
   /// \todo document
-  void deleteTurnouts() {
-    state = SplayTreeSet<Turnout>();
+  void updateTurnouts(SplayTreeSet<Turnout> turnouts) {
+    state = turnouts;
   }
 
   /// \todo document
   void deleteTurnout(int address) {
     state = SplayTreeSet<Turnout>.from(state)
       ..remove(state.firstWhereOrNull((t) => t.address == address));
+  }
+
+  /// \todo document
+  void deleteTurnouts() {
+    state = SplayTreeSet<Turnout>();
   }
 }

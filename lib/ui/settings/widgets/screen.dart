@@ -24,6 +24,7 @@ import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
+import 'package:Frontend/ui/settings/widgets/import_export_dialog.dart';
 import 'package:Frontend/ui/settings/widgets/tile.dart';
 import 'package:Frontend/utils/validators/ip_address_validator.dart';
 import 'package:flutter/foundation.dart';
@@ -93,16 +94,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     children: [
                       IconButton(
                         onPressed: trackVoltageOff
-                            ? () => showDialog<bool>(
+                            ? () async {
+                                final confirmed = await showDialog<bool>(
                                   context: context,
                                   builder: (_) => const ConfirmationDialog(
-                                      title: 'Restart'),
+                                    title: 'Restart',
+                                  ),
                                   barrierDismissible: false,
-                                ).then(
-                                  (value) => value == true
-                                      ? ref.read(sysProvider.notifier).restart()
-                                      : null,
-                                )
+                                );
+                                if (confirmed == true) {
+                                  ref.read(sysProvider.notifier).restart();
+                                }
+                              }
                             : null,
                         tooltip: 'Restart',
                         icon: const Icon(Icons.restart_alt),
@@ -160,7 +163,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: const Icon(Icons.settings_suggest),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: trackVoltageOff
+                      ? () => showDialog(
+                            context: context,
+                            builder: (_) => const ImportExportDialog(),
+                          )
+                      : null,
                   tooltip: 'Import/export',
                   icon: const Icon(Icons.import_export),
                 ),
