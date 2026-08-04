@@ -608,7 +608,7 @@ class _UpdateScreenState extends ConsumerState<UpdateScreen> {
     );
     final exp = RegExp(
       _selected.elementAtOrNull(1) == 0
-          ? r'href=".+?id=MS_[0-9].[0-9].*"'
+          ? r'href=".+?id=MS.*[0-9].[0-9].*"'
           : r'href=".+?id=DS[0-9]+"',
     );
     final zips = exp.firstMatch(response.body);
