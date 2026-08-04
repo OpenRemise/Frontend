@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.1
+- Add ᴡʟᴀɴMAUS export ([#178](https://github.com/OpenRemise/Frontend/issues/178))
+
 ## 0.8.0
 - Add VCC voltage and hardware revision to info screen ([#143](https://github.com/OpenRemise/Frontend/pull/143))
 - Blue power off icon indicates short circuit ([#143](https://github.com/OpenRemise/Frontend/pull/143))

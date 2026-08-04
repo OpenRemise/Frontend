@@ -352,6 +352,9 @@ class FakeZ21Service implements Z21Service {
         });
         break;
 
+      case LanXSetLocoEntry():
+        break;
+
       case LanXGetFirmwareVersion():
         throw UnimplementedError();
 

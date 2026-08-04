@@ -24,7 +24,8 @@ import 'package:Frontend/ui/core/widgets/error_gif.dart';
 import 'package:Frontend/ui/core/widgets/loading_gif.dart';
 import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/settings/widgets/import_export_dialog.dart';
+import 'package:Frontend/ui/settings/widgets/export_dialog.dart';
+import 'package:Frontend/ui/settings/widgets/import_dialog.dart';
 import 'package:Frontend/ui/settings/widgets/tile.dart';
 import 'package:Frontend/utils/validators/ip_address_validator.dart';
 import 'package:flutter/foundation.dart';
@@ -90,27 +91,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               leading: PowerIconButton(),
               title: Stack(
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: trackVoltageOff
-                            ? () async {
-                                final confirmed = await showDialog<bool>(
-                                  context: context,
-                                  builder: (_) => const ConfirmationDialog(
-                                    title: 'Restart',
-                                  ),
-                                  barrierDismissible: false,
-                                );
-                                if (confirmed == true) {
-                                  ref.read(sysProvider.notifier).restart();
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: MenuAnchor(
+                      menuChildren: <Widget>[
+                        MenuItemButton(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => const ImportDialog(),
+                          ),
+                          leadingIcon: const Icon(Icons.arrow_downward),
+                          child: const Text('Import'),
+                        ),
+                        MenuItemButton(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) => const ExportDialog(),
+                          ),
+                          leadingIcon: const Icon(Icons.arrow_upward),
+                          child: const Text('Export'),
+                        ),
+                        MenuItemButton(
+                          onPressed: trackVoltageOff
+                              ? () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (_) => const ConfirmationDialog(
+                                      title: 'Restart',
+                                    ),
+                                    barrierDismissible: false,
+                                  );
+                                  if (confirmed == true) {
+                                    ref.read(sysProvider.notifier).restart();
+                                  }
                                 }
-                              }
-                            : null,
-                        tooltip: 'Restart',
-                        icon: const Icon(Icons.restart_alt),
-                      ),
-                    ],
+                              : null,
+                          leadingIcon: const Icon(Icons.restart_alt),
+                          child: const Text('Restart'),
+                        ),
+                      ],
+                      builder: (_, MenuController controller, Widget? child) {
+                        return IconButton(
+                          onPressed: () {
+                            if (controller.isOpen) {
+                              controller.close();
+                            } else {
+                              controller.open();
+                            }
+                          },
+                          icon: const Icon(Icons.more_vert),
+                        );
+                      },
+                    ),
                   ),
                   if (!smallWidth) Center(child: Text('Settings')),
                 ],
@@ -161,16 +193,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                   tooltip: 'Defaults',
                   icon: const Icon(Icons.settings_suggest),
-                ),
-                IconButton(
-                  onPressed: trackVoltageOff
-                      ? () => showDialog(
-                            context: context,
-                            builder: (_) => const ImportExportDialog(),
-                          )
-                      : null,
-                  tooltip: 'Import/export',
-                  icon: const Icon(Icons.import_export),
                 ),
                 IconButton(
                   onPressed: () {
