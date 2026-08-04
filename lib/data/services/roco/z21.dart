@@ -15,6 +15,9 @@
 
 // ignore_for_file: constant_identifier_names, unused_field
 
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:Frontend/config/domain.dart';
 import 'package:Frontend/config/fake_services_provider_container.dart';
 import 'package:Frontend/data/models/loco.dart';
@@ -30,7 +33,7 @@ int _bigEndianData2uint16(Uint8List data) {
 }
 
 /// \todo document
-int _bigEndianData2int16(data) {
+int _bigEndianData2int16(Uint8List data) {
   return data[0] << 8 | data[1] << 0;
 }
 
@@ -198,6 +201,7 @@ class _Header {
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BYTE = 0x40;
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BIT = 0x40;
   static const int LAN_X_CV_POM_ACCESSORY_READ_BYTE = 0x40;
+  static const int LAN_X_SET_LOCO_ENTRY = 0x40;
   static const int LAN_X_GET_FIRMWARE_VERSION = 0x40;
   static const int LAN_SET_BROADCASTFLAGS = 0x50;
   static const int LAN_GET_BROADCASTFLAGS = 0x51;
@@ -248,6 +252,7 @@ class _Header {
   static const int LAN_X_CV_RESULT = 0x40;
   static const int LAN_X_BC_STOPPED = 0x40;
   static const int LAN_X_LOCO_INFO = 0x40;
+  static const int LAN_X_LOCO_ENTRY = 0x40;
   static const int Reply_to_LAN_X_GET_FIRMWARE_VERSION = 0x40;
   static const int Reply_to_LAN_GET_BROADCASTFLAGS = 0x51;
   static const int Reply_to_LAN_GET_LOCOMODE = 0x60;
@@ -310,6 +315,16 @@ class _XHeader {
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BYTE = 0xE6;
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BIT = 0xE6;
   static const int LAN_X_CV_POM_ACCESSORY_READ_BYTE = 0xE6;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_1 = 0xE6;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_2 = 0xE7;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_3 = 0xE8;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_4 = 0xE9;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_5 = 0xEA;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_6 = 0xEB;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_7 = 0xEC;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_8 = 0xED;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_9 = 0xEE;
+  static const int LAN_X_SET_LOCO_ENTRY_LEN_10 = 0xEF;
   static const int LAN_X_GET_FIRMWARE_VERSION = 0xF1;
 
   // Z21 to Client
@@ -328,6 +343,16 @@ class _XHeader {
   static const int LAN_X_CV_RESULT = 0x64;
   static const int LAN_X_BC_STOPPED = 0x81;
   static const int LAN_X_LOCO_INFO = 0xEF;
+  static const int LAN_X_LOCO_ENTRY_LEN_1 = 0xE6;
+  static const int LAN_X_LOCO_ENTRY_LEN_2 = 0xE7;
+  static const int LAN_X_LOCO_ENTRY_LEN_3 = 0xE8;
+  static const int LAN_X_LOCO_ENTRY_LEN_4 = 0xE9;
+  static const int LAN_X_LOCO_ENTRY_LEN_5 = 0xEA;
+  static const int LAN_X_LOCO_ENTRY_LEN_6 = 0xEB;
+  static const int LAN_X_LOCO_ENTRY_LEN_7 = 0xEC;
+  static const int LAN_X_LOCO_ENTRY_LEN_8 = 0xED;
+  static const int LAN_X_LOCO_ENTRY_LEN_9 = 0xEE;
+  static const int LAN_X_LOCO_ENTRY_LEN_10 = 0xEF;
   static const int Reply_to_LAN_X_GET_FIRMWARE_VERSION = 0xF3;
 
   const _XHeader._();
@@ -370,6 +395,7 @@ class _DB0 {
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BYTE = 0x31;
   static const int LAN_X_CV_POM_ACCESSORY_WRITE_BIT = 0x31;
   static const int LAN_X_CV_POM_ACCESSORY_READ_BYTE = 0x31;
+  static const int LAN_X_SET_LOCO_ENTRY = 0xF1;
   static const int LAN_X_GET_FIRMWARE_VERSION = 0x0A;
 
   // Z21 to Client
@@ -383,6 +409,7 @@ class _DB0 {
   static const int LAN_X_STATUS_CHANGED = 0x22;
   static const int Reply_to_LAN_X_GET_VERSION = 0x21;
   static const int LAN_X_CV_RESULT = 0x14;
+  static const int LAN_X_LOCO_ENTRY = 0xF1;
   static const int Reply_to_LAN_X_GET_FIRMWARE_VERSION = 0x0A;
 
   const _DB0._();
@@ -981,6 +1008,51 @@ class LanXCvPomAccessoryReadByte implements Z21Command {
   @override
   String toString() {
     return 'LanXCvPomAccessoryReadByte(accyAddress: $accyAddress, cvAddress: $cvAddress)';
+  }
+}
+
+/// \todo document
+class LanXSetLocoEntry implements Z21Command {
+  final int locoAddress;
+  final int index;
+  final int size;
+  final String name;
+
+  LanXSetLocoEntry({
+    required this.locoAddress,
+    required this.index,
+    required this.size,
+    required this.name,
+  }) {
+    assert(locoAddress <= 9999);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    const int maxStrlen = _XHeader.LAN_X_SET_LOCO_ENTRY_LEN_10 -
+        _XHeader.LAN_X_SET_LOCO_ENTRY_LEN_1 +
+        1;
+    final int strlen = min(name.length, maxStrlen);
+    List<int> data = [
+      0x0C + strlen - 1,
+      0x00,
+      _Header.LAN_X_LOCO_ENTRY,
+      0x00,
+      _XHeader.LAN_X_LOCO_ENTRY_LEN_1 + strlen - 1,
+      _DB0.LAN_X_LOCO_ENTRY,
+      _bigEndianLocoAddressMsb(locoAddress),
+      _bigEndianLocoAddressLsb(locoAddress),
+      index & 0xFF,
+      size & 0xFF,
+    ];
+    data.addAll(ascii.encode(name.substring(0, strlen)));
+    data.add(exor(data.sublist(4)));
+    return Uint8List.fromList(data);
+  }
+
+  @override
+  String toString() {
+    return 'LanXSetLocoEntry(locoAddress: $locoAddress, index: $index, size $size, name $name)';
   }
 }
 
