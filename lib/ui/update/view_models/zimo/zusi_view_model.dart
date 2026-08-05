@@ -205,7 +205,7 @@ class ZusiViewModel extends _$ZusiViewModel {
     int retries = _retries,
   }) async {
     var msg = Uint8List.fromList([ZusiService.nak]);
-    for (int i = 0; i < retries; i++) {
+    for (int i = 0; i < retries; ++i) {
       f();
       msg = await _events.next;
       if (msg.contains(ZusiService.ack)) return msg;

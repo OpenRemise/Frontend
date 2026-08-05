@@ -43,7 +43,7 @@ String parseDisplayFormat(String format, List<int> values) {
 
     String? text;
 
-    for (int i = 1; i < parts.length; i++) {
+    for (int i = 1; i < parts.length; ++i) {
       var formatter = parts[i];
 
       if (formatter.startsWith('M0x')) {
@@ -136,7 +136,7 @@ int _applyDecimalMask(int value, String mask) {
 
   final offset = mask.length - digits.length;
 
-  for (int i = 0; i < mask.length; i++) {
+  for (int i = 0; i < mask.length; ++i) {
     final digitIndex = i - offset;
 
     if (digitIndex >= 0 && digitIndex < digits.length && mask[i] == '1') {

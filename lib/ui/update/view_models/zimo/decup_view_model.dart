@@ -321,7 +321,7 @@ class DecupViewModel extends _$DecupViewModel {
     int retries = _retries,
   }) async {
     var msg = Uint8List.fromList([]);
-    for (int i = 0; i < retries; i++) {
+    for (int i = 0; i < retries; ++i) {
       f();
       msg = await _events.next;
       if (msg.contains(DecupService.ack)) return msg;

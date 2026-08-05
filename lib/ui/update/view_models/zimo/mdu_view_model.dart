@@ -474,7 +474,7 @@ class MduViewModel extends _$MduViewModel {
     int retries = _retries,
   }) async {
     var msg = Uint8List.fromList([MduService.ack, MduService.nak]);
-    for (int i = 0; i < retries; i++) {
+    for (int i = 0; i < retries; ++i) {
       f();
       msg = await _events.next;
       if (msg[0] == MduService.nak) return msg;
