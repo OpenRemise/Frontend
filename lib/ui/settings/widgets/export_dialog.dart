@@ -93,15 +93,17 @@ class ExportDialog extends ConsumerWidget {
   /// \todo document
   Future<void> _wlanmaus(Z21Service service, SplayTreeSet<Loco> locos) async {
     for (final (index, loco) in locos.indexed) {
-      service(
-        LanXSetLocoEntry(
-          locoAddress: loco.address,
-          index: index,
-          size: locos.length,
-          name: loco.name,
-        ),
-      );
-      await Future.delayed(const Duration(milliseconds: 100));
+      for (int i = 0; i < 2; ++i) {
+        service(
+          LanXSetLocoEntry(
+            locoAddress: loco.address,
+            index: index,
+            size: locos.length,
+            name: loco.name,
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
     }
   }
 }

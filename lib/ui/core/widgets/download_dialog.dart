@@ -67,7 +67,7 @@ class _DownloadDialogState extends ConsumerState<DownloadDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (int i = 0; i < widget._uris.length; i++) ...[
+          for (int i = 0; i < widget._uris.length; ++i) ...[
             Text(
               widget.fileNames?.asMap()[i] ?? widget._uris[i].pathSegments.last,
             ),
