@@ -19,17 +19,7 @@
 /// \author Vincent Hamp
 /// \date   27/03/2026
 
-import 'dart:convert';
-
-import 'package:Frontend/data/models/decoderdb/common_types.dart';
-import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
-import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
-import 'package:Frontend/data/models/decoderdb/firmware_definition.dart';
-import 'package:Frontend/data/models/decoderdb/repository.dart';
-import 'package:Frontend/data/models/decoderdb/utility.dart';
-import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
-import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:flutter/material.dart';
@@ -50,10 +40,6 @@ class DecoderDetectionDialog extends ConsumerStatefulWidget {
 class _DecoderDetectionDialogState
     extends ConsumerState<DecoderDetectionDialog> {
   final Map<String, String> _values = {};
-  late final Repository _repository;
-  late final DecoderDetectionFile _detection;
-  DecoderDefinitionFile? _decoder;
-  FirmwareDefinitionFile? _firmware;
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -70,16 +56,6 @@ class _DecoderDetectionDialogState
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final manufacturerName =
-        _decoder?.decoderDefinition.decoder.manufacturerName;
-    final manufacturerUrl = _decoder?.decoderDefinition.decoder.manufacturerUrl;
-    final type = _decoder?.decoderDefinition.decoder.type;
-    final dimensions =
-        _decoder?.decoderDefinition.decoder.specifications?.dimensions;
-    final connectors =
-        _decoder?.decoderDefinition.decoder.specifications?.connectors;
-    final image = _decoder?.decoderDefinition.decoder.images.firstOrNull?.image;
-
     return AlertDialog(
       title: const Text('DecoderDB'),
       content: Column(
@@ -91,29 +67,7 @@ class _DecoderDetectionDialogState
           DefaultAnimateSize(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_decoder != null)
-                  ListTile(
-                    title: Text(_decoder!.decoderDefinition.decoder.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (manufacturerName != null) Text(manufacturerName),
-                        if (manufacturerUrl != null) Text(manufacturerUrl),
-                        if (type != null)
-                          Text(type[0].toUpperCase() + type.substring(1)),
-                        if (dimensions != null)
-                          Text(
-                            '${dimensions.length}x${dimensions.width}x${dimensions.height}',
-                          ),
-                        if (connectors != null)
-                          Text('${connectors.connectorList}'),
-                        if (image != null)
-                          Image.network(image.first.src, fit: BoxFit.fitWidth),
-                      ],
-                    ),
-                  ),
-              ],
+              children: [],
             ),
           ),
         ],
@@ -137,200 +91,46 @@ class _DecoderDetectionDialogState
     await _downloadRepository();
     await _downloadDecoderDetection();
 
-    setState(() => _status = 'Detect defaults');
-    final DetectionProtocol dcc =
-        _detection.decoderDetection.protocols.firstWhere(
-      (protocol) => protocol.type == 'dcc',
-    );
-    await _detections(dcc.defaults.detections);
+    // setState(() => _status = 'Detect defaults');
+    // final DetectionProtocol dcc =
+    //     _detection.decoderDetection.protocols.firstWhere(
+    //   (protocol) => protocol.type == 'dcc',
+    // );
+    // await _detections(dcc.defaults.detections);
 
-    setState(() => _status = 'Detect manufacturer');
-    final manufacturer = dcc.manufacturers.firstWhere(
-      (manufacturer) =>
-          manufacturer.id == _values['manufacturerId'] &&
-          manufacturer.extendedId == _values['manufacturerExtendedId'],
-    );
-    await _detections(manufacturer.detections);
+    // setState(() => _status = 'Detect manufacturer');
+    // final manufacturer = dcc.manufacturers.firstWhere(
+    //   (manufacturer) =>
+    //       manufacturer.id == _values['manufacturerId'] &&
+    //       manufacturer.extendedId == _values['manufacturerExtendedId'],
+    // );
+    // await _detections(manufacturer.detections);
 
-    await _downloadDecoderDefinition();
+    // await _downloadDecoderDefinition();
 
-    await _downloadFirmwareDefinition();
+    // await _downloadFirmwareDefinition();
 
-    setState(() {
-      _status = '';
-      _option = 'OK';
-      _progress = 0;
-    });
+    // setState(() {
+    //   _status = '';
+    //   _option = 'OK';
+    //   _progress = 0;
+    // });
   }
 
   /// \todo document
   Future<void> _downloadRepository() async {
     final client = ref.read(httpClientProvider);
-    final response =
-        await client.get(Uri.parse('https://decoderdb.de/?listAllJson'));
-    _repository = Repository.fromJson(jsonDecode(response.body));
+    // final response =
+    //     await client.get(Uri.parse('https://decoderdb.de/?listAllJson'));
+    // _repository = Repository.fromJson(jsonDecode(response.body));
   }
 
   /// \todo document
   Future<void> _downloadDecoderDetection() async {
     final client = ref.read(httpClientProvider);
-    final response =
-        await client.get(Uri.parse(_repository.decoderDetections.link));
-    _detection = DecoderDetectionFile.fromJson(jsonDecode(response.body));
-  }
-
-  /// \todo document
-  Future<void> _detections(List<Detection> detections) async {
-    for (final detection in detections) {
-      // Only continue if conditions are met
-      if (!await _conditions(detection.conditions)) continue;
-
-      // Read either CVs...
-      if (detection.cvs.isNotEmpty) {
-        final cvs =
-            await Future.wait(detection.cvs.map((cv) => _read(cv.number)));
-        _values[detection.type] = detection.displayFormat != null
-            ? parseDisplayFormat(detection.displayFormat!, cvs.cast<int>())
-            : cvs.join('.');
-      }
-
-      // ... or an entire group
-      for (final cvGroup in detection.cvGroups) {
-        final cvs =
-            await Future.wait(cvGroup.cvs.map((cv) => _read(cv.number)));
-        assert(['int', 'long'].contains(cvGroup.type));
-        final value = cvs.reversed.fold(0, (value, cv) => value << 8 | cv!);
-        _values[detection.type] = detection.displayFormat != null
-            ? parseDisplayFormat(detection.displayFormat!, [value])
-            : value.toString();
-      }
-    }
-  }
-
-  /// \todo document
-  Future<bool> _conditions(List<Condition> conditions) async {
-    bool retval = conditions.isEmpty;
-    for (final condition in conditions) {
-      final results = await Future.wait(condition.conditions.map(_conditionCv));
-      switch (condition.value) {
-        case 'notRelevant':
-          retval = true;
-          break;
-        case 'notInUse':
-          retval = true;
-          break;
-        case 'reset':
-          retval = true;
-          break;
-        case 'load':
-          retval = true;
-          break;
-        case 'valid':
-          retval |= results.every((e) => e);
-          break;
-      }
-    }
-    return retval;
-  }
-
-  /// \todo document
-  Future<bool> _conditionCv(ConditionCv conditionCv) async {
-    // Leaf
-    if (conditionCv.conditions.isEmpty) {
-      assert(conditionCv.type == 'relational');
-
-      /// \todo add those
-      assert(conditionCv.indexHigh == null && conditionCv.indexLow == null);
-
-      final cv = await _read(conditionCv.cv!);
-
-      switch (conditionCv.operation) {
-        case 'equal':
-          return insideValueSpec(cv!, conditionCv.value!);
-        case 'unEqual':
-          return !insideValueSpec(cv!, conditionCv.value!);
-        case 'greater':
-          return cv! > int.parse(conditionCv.value!);
-        case 'greaterEqual':
-          return cv! >= int.parse(conditionCv.value!);
-        case 'less':
-          return cv! < int.parse(conditionCv.value!);
-        case 'lessEqual':
-          return cv! <= int.parse(conditionCv.value!);
-        case 'valid':
-          return cv != null;
-        case 'inValid':
-          return cv == null;
-      }
-    }
-    // Nested
-    else {
-      assert(conditionCv.type == 'logical');
-      final results =
-          await Future.wait(conditionCv.conditions.map(_conditionCv));
-      switch (conditionCv.operation) {
-        case 'and':
-          return results.every((e) => e);
-        case 'or':
-          return results.any((e) => e);
-      }
-    }
-
-    return false;
-  }
-
-  /// \todo document
-  Future<void> _downloadDecoderDefinition() async {
-    final client = ref.read(httpClientProvider);
-    final links = _repository.decoders.where(
-      (decoder) =>
-          decoder.manufacturerId.toString() == _values['manufacturerId'] &&
-          decoder.manufacturerExtendedId?.toString() ==
-              _values['manufacturerExtendedId'],
-    );
-    final responses =
-        await Future.wait(links.map((l) => client.get(Uri.parse(l.link))));
-    final files = responses
-        .map((r) => DecoderDefinitionFile.fromJson(jsonDecode(r.body)));
-    final filesWithId = files.where(
-      (f) =>
-          f.decoderDefinition.decoder.typeIds
-              ?.split(';')
-              .contains(_values['decoderId']) ??
-          false,
-    );
-    assert(filesWithId.length == 1);
-    setState(() => _decoder = filesWithId.first);
-  }
-
-  /// \todo document
-  Future<void> _downloadFirmwareDefinition() async {
-    final client = ref.read(httpClientProvider);
-    final links = _repository.firmwares.where(
-      (firmware) =>
-          firmware.manufacturerId.toString() == _values['manufacturerId'] &&
-          firmware.manufacturerExtendedId?.toString() ==
-              _values['manufacturerExtendedId'],
-    );
-    final responses =
-        await Future.wait(links.map((l) => client.get(Uri.parse(l.link))));
-    final files = responses
-        .map((r) => FirmwareDefinitionFile.fromJson(jsonDecode(r.body)));
-    final filesWithName = files.where(
-      (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
-          .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
-    );
-    filesWithName.forEach(
-      (f) => debugPrint(f.decoderFirmwareDefinition.firmware.version),
-    );
-    setState(() => _firmware = filesWithName.last);
-  }
-
-  /// \todo document
-  Future<int?> _read(int number) async {
-    final result =
-        await ref.read(z21CvProvider(widget.decoder).notifier).read(number - 1);
-    return result is LanXCvResult ? result.value : null;
+    // final response =
+    //     await client.get(Uri.parse(_repository.decoderDetections.link));
+    // _detection = DecoderDetectionFile.fromJson(jsonDecode(response.body));
   }
 
   /// \todo document
