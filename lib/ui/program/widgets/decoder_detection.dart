@@ -19,6 +19,11 @@
 /// \author Vincent Hamp
 /// \date   27/03/2026
 
+import 'dart:convert';
+
+import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
+import 'package:Frontend/data/models/decoderdb/repository.dart';
+import 'package:Frontend/data/models/decoderdb/types.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
@@ -40,6 +45,8 @@ class DecoderDetectionDialog extends ConsumerStatefulWidget {
 class _DecoderDetectionDialogState
     extends ConsumerState<DecoderDetectionDialog> {
   final Map<String, String> _values = {};
+  late final Repository _repository;
+  late final DecoderDetectionFile _detection;
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -91,12 +98,11 @@ class _DecoderDetectionDialogState
     await _downloadRepository();
     await _downloadDecoderDetection();
 
-    // setState(() => _status = 'Detect defaults');
-    // final DetectionProtocol dcc =
-    //     _detection.decoderDetection.protocols.firstWhere(
-    //   (protocol) => protocol.type == 'dcc',
-    // );
-    // await _detections(dcc.defaults.detections);
+    setState(() => _status = 'Detect defaults');
+    final DetectionProtocol dcc = _detection.protocols.firstWhere(
+      (protocol) => protocol.type == ProtocolType.dcc,
+    );
+    await _detections(dcc.defaults);
 
     // setState(() => _status = 'Detect manufacturer');
     // final manufacturer = dcc.manufacturers.firstWhere(
@@ -120,17 +126,21 @@ class _DecoderDetectionDialogState
   /// \todo document
   Future<void> _downloadRepository() async {
     final client = ref.read(httpClientProvider);
-    // final response =
-    //     await client.get(Uri.parse('https://decoderdb.de/?listAllJson'));
-    // _repository = Repository.fromJson(jsonDecode(response.body));
+    final response = await client
+        .get(Uri.parse('https://decoderdb.bidib.org/repository.json'));
+    _repository = Repository.fromJson(jsonDecode(response.body));
   }
 
   /// \todo document
   Future<void> _downloadDecoderDetection() async {
     final client = ref.read(httpClientProvider);
-    // final response =
-    //     await client.get(Uri.parse(_repository.decoderDetections.link));
-    // _detection = DecoderDetectionFile.fromJson(jsonDecode(response.body));
+    final response =
+        await client.get(Uri.parse(_repository.decoderDetections.link));
+    _detection = DecoderDetectionFile.fromJson(jsonDecode(response.body));
+  }
+
+  Future<void> _detections(List<Detection> detections) async {
+    for (final detection in detections) {}
   }
 
   /// \todo document

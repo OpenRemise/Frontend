@@ -1,7 +1,22 @@
+import 'dart:convert';
+
+import 'package:Frontend/data/models/decoderdb/repository.dart';
 import 'package:Frontend/data/models/decoderdb/utility.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
+  test('parse repository.json', () async {
+    final response = await http
+        .get(Uri.parse('https://decoderdb.bidib.org/repository.json'));
+    final json = jsonDecode(response.body);
+    final repo = Repository.fromJson(json);
+    expect(repo.version, isPositive);
+    expect(repo.decoders, isNotEmpty);
+    expect(repo.firmwares, isNotEmpty);
+    expect(repo.images, isNotEmpty);
+  });
+
   group('display_format', () {
     test('ESU', () {
       expect(parseDisplayFormat('{0}.{1}.{2}', [4, 14, 9207]), '4.14.9207');
