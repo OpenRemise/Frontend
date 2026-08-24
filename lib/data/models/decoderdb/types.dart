@@ -15,6 +15,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/*
+
 /// Digital command protocol a definition applies to
 ///
 /// Mirrors ProtocolTypeType of commonTypes.xsd. Note that the schema spells
@@ -149,3 +151,5 @@ enum TriggerValue {
   @JsonValue('load')
   load,
 }
+
+*/

@@ -28,7 +28,7 @@ part 'condition.g.dart';
 @freezed
 abstract class Trigger with _$Trigger {
   const factory Trigger({
-    @JsonKey(name: 'value') required TriggerValue value,
+    @JsonKey(name: 'value') required String value,
     @JsonKey(name: 'target') String? target,
     @Default([]) @JsonKey(name: 'conditions') List<Condition> conditions,
   }) = _Trigger;
@@ -45,8 +45,8 @@ abstract class Trigger with _$Trigger {
 @freezed
 abstract class Condition with _$Condition {
   const factory Condition({
-    @JsonKey(name: 'type') required ConditionType type,
-    @JsonKey(name: 'operation') required ConditionOperation operation,
+    @JsonKey(name: 'type') required String type,
+    @JsonKey(name: 'operation') required String operation,
     @JsonKey(name: 'cv') String? cv,
     @JsonKey(name: 'value') String? value,
     @JsonKey(name: 'selection') String? selection,

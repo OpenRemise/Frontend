@@ -47,7 +47,7 @@ abstract class DecoderDetectionFile with _$DecoderDetectionFile {
 @freezed
 abstract class DetectionProtocol with _$DetectionProtocol {
   const factory DetectionProtocol({
-    @JsonKey(name: 'type') required ProtocolType type,
+    @JsonKey(name: 'type') required String type,
     @Default([]) @JsonKey(name: 'default') List<Detection> defaults,
     @Default([])
     @JsonKey(name: 'manufacturer')
@@ -86,7 +86,7 @@ abstract class DetectionManufacturer with _$DetectionManufacturer {
 @freezed
 abstract class Detection with _$Detection {
   const factory Detection({
-    @JsonKey(name: 'type') required DetectionType type,
+    @JsonKey(name: 'type') required String type,
     @DetectionItemConverter()
     @Default([])
     @JsonKey(name: 'items')

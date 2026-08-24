@@ -22,9 +22,11 @@
 import 'dart:convert';
 
 import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
+import 'package:Frontend/data/models/decoderdb/detection_item.dart';
 import 'package:Frontend/data/models/decoderdb/repository.dart';
-import 'package:Frontend/data/models/decoderdb/types.dart';
+import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
+import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +48,7 @@ class _DecoderDetectionDialogState
     extends ConsumerState<DecoderDetectionDialog> {
   final Map<String, String> _values = {};
   late final Repository _repository;
-  late final DecoderDetectionFile _detection;
+  late final DecoderDetectionFile _decoderDetection;
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -99,10 +101,9 @@ class _DecoderDetectionDialogState
     await _downloadDecoderDetection();
 
     setState(() => _status = 'Detect defaults');
-    final DetectionProtocol dcc = _detection.protocols.firstWhere(
-      (protocol) => protocol.type == ProtocolType.dcc,
-    );
-    await _detections(dcc.defaults);
+    final DetectionProtocol dcc = _decoderDetection.protocols
+        .firstWhere((protocol) => protocol.type == 'dcc');
+    dcc.defaults.forEach(_detection);
 
     // setState(() => _status = 'Detect manufacturer');
     // final manufacturer = dcc.manufacturers.firstWhere(
@@ -136,11 +137,39 @@ class _DecoderDetectionDialogState
     final client = ref.read(httpClientProvider);
     final response =
         await client.get(Uri.parse(_repository.decoderDetections.link));
-    _detection = DecoderDetectionFile.fromJson(jsonDecode(response.body));
+    _decoderDetection =
+        DecoderDetectionFile.fromJson(jsonDecode(response.body));
   }
 
-  Future<void> _detections(List<Detection> detections) async {
-    for (final detection in detections) {}
+  /// \todo document
+  Future<void> _detection(Detection detection) async {
+    for (final item in detection.items) {
+      switch (item) {
+        case final ConditionsItem condition:
+          debugPrint('$condition');
+          break;
+        case final Cv cv:
+          final value = await _readCv(cv);
+          if (value != null) _values[detection.type] = value.toString();
+          break;
+        case final CvGroup cvGroup:
+          debugPrint('$cvGroup');
+          break;
+      }
+    }
+  }
+
+  /// \todo document
+  Future<int?> _readCv(Cv cv) async {
+    final z21Cv = ref.read(z21CvProvider(widget.decoder).notifier);
+    if ((cv.indexHigh != null &&
+            await z21Cv.indexHigh(cv.indexHigh!) is! LanXCvResult) ||
+        (cv.indexLow != null &&
+            await z21Cv.indexLow(cv.indexLow!) is! LanXCvResult)) {
+      return null;
+    }
+    final result = await z21Cv.read(cv.number - 1);
+    return result is LanXCvResult ? result.value : null;
   }
 
   /// \todo document
