@@ -48,8 +48,8 @@ abstract class Cv extends DetectionItem with _$Cv {
 
   const factory Cv({
     @JsonKey(name: 'number') required int number,
-    @JsonKey(name: 'type') required CvType type,
-    @JsonKey(name: 'mode') CvMode? mode,
+    @JsonKey(name: 'type') required String type,
+    @JsonKey(name: 'mode') String? mode,
     @JsonKey(name: 'indexHigh') int? indexHigh,
     @JsonKey(name: 'indexLow') int? indexLow,
   }) = _Cv;
@@ -68,8 +68,8 @@ abstract class CvGroup extends DetectionItem with _$CvGroup {
 
   const factory CvGroup({
     @JsonKey(name: 'id') required String id,
-    @JsonKey(name: 'type') required CvGroupType type,
-    @JsonKey(name: 'mode') CvMode? mode,
+    @JsonKey(name: 'type') required String type,
+    @JsonKey(name: 'mode') String? mode,
     @Default([]) @JsonKey(name: 'cvs') List<Cv> cvs,
   }) = _CvGroup;
 
