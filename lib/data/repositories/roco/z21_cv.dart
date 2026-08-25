@@ -31,7 +31,7 @@ part 'z21_cv.g.dart';
 class Z21Cv extends _$Z21Cv {
   late final Z21Service _z21;
   late final Decoder _decoder;
-  Completer<Z21Command>? _responseCompleter;
+  Completer<Z21Command>? _completer;
   final _mutex = Mutex();
   int _cv31 = 0;
   int _cv32 = 1;
@@ -57,16 +57,12 @@ class Z21Cv extends _$Z21Cv {
 
   /// \todo document
   Future<Z21Command> indexHigh(int cv31) {
-    final result = write(31 - 1, cv31);
-    if (result is LanXCvResult) _cv31 = cv31;
-    return result;
+    return write(31 - 1, cv31);
   }
 
   /// \todo document
   Future<Z21Command> indexLow(int cv32) {
-    final result = write(32 - 1, cv32);
-    if (result is LanXCvResult) _cv32 = cv32;
-    return result;
+    return write(32 - 1, cv32);
   }
 
   /// \todo document
@@ -105,14 +101,15 @@ class Z21Cv extends _$Z21Cv {
 
   /// \todo document
   Future<Z21Command> _execute(Z21Command cmd, int cvAddress) async {
+    Z21Command result;
     final completer = Completer<Z21Command>();
-    _responseCompleter = completer;
+    _completer = completer;
     state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): null};
     _z21(cmd);
 
     // POM write
     if (cmd is LanXCvPomWriteByte || cmd is LanXCvPomAccessoryWriteByte) {
-      final result =
+      result =
           LanXCvResult(cvAddress: cvAddress, value: (cmd as dynamic).value);
       state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): result};
       final progCount = ref.read(
@@ -123,7 +120,6 @@ class Z21Cv extends _$Z21Cv {
         ),
       );
       await Future.delayed(Duration(milliseconds: 20 * progCount));
-      return result;
     }
     // ... everything else
     else {
@@ -133,18 +129,27 @@ class Z21Cv extends _$Z21Cv {
               config.value?.httpReceiveTimeout ?? Config().httpReceiveTimeout,
         ),
       );
-      final response = await completer.future
+      result = await completer.future
           .timeout(Duration(seconds: timeout), onTimeout: () => LanXCvNack());
-      _responseCompleter = null;
-      state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): response};
-      return response;
+      _completer = null;
+      state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): result};
     }
+
+    if (result is LanXCvResult) {
+      if (cvAddress == 31 - 1) {
+        _cv31 = result.value;
+      } else if (cvAddress == 32 - 1) {
+        _cv32 = result.value;
+      }
+    }
+
+    return result;
   }
 
   /// \todo document
   void _onResponse(Z21Command command) {
-    if (_responseCompleter != null && !_responseCompleter!.isCompleted) {
-      _responseCompleter!.complete(command);
+    if (_completer != null && !_completer!.isCompleted) {
+      _completer!.complete(command);
     }
   }
 }
