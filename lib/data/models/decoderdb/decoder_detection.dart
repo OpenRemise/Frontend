@@ -17,7 +17,6 @@
 
 import 'package:Frontend/data/models/decoderdb/definition_version.dart';
 import 'package:Frontend/data/models/decoderdb/detection_item.dart';
-import 'package:Frontend/data/models/decoderdb/types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'decoder_detection.freezed.dart';
