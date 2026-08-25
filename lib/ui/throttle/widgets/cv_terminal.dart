@@ -45,7 +45,6 @@ class CvTerminal<T> extends ConsumerStatefulWidget {
 class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
   final CvEditingController _cvEditingController = CvEditingController();
   final ScrollController _scrollController = ScrollController();
-  late final List<ProviderSubscription> _subs;
 
   /// \todo document
   @override
@@ -53,7 +52,7 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
     super.initState();
 
     widget.keyPressNotifier.addListener(
-      () {
+      () async {
         //
         _cvEditingController
             .appendKeyCode(widget.keyPressNotifier.lastKeyCode!);
@@ -62,28 +61,17 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
         if (_cvEditingController.text.endsWith('!') &&
             (widget.keyPressNotifier.lastKeyCode! == KeyCodes.enter ||
                 widget.keyPressNotifier.lastKeyCode! == KeyCodes.enterLong)) {
-          _cvReadWrite(widget.keyPressNotifier.lastKeyCode!);
+          await _cvReadWrite(widget.keyPressNotifier.lastKeyCode!);
         }
 
         _scrollToMaxExtent();
       },
     );
-
-    _subs = [
-      ref.listenManual<CvMap>(z21CvProvider(Decoder(type: T)), _update),
-      ref.listenManual<CvMap>(
-        z21CvProvider(Decoder(type: T, address: widget.item.address)),
-        _update,
-      ),
-    ];
   }
 
   @override
   void dispose() {
     _cvEditingController.dispose();
-    for (final sub in _subs) {
-      sub.close();
-    }
     super.dispose();
   }
 
@@ -111,58 +99,14 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
   }
 
   /// \todo document
-  void _scrollToMaxExtent() {
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    }
-  }
-
-  /// \todo document
-  void _cvReadWrite(int keyCode) {
+  Future<void> _cvReadWrite(int keyCode) async {
     final cv = _cvEditingController.values();
     if (cv.number == null) return;
 
-    // Read
-    if (cv.value == null) {
-      // Service mode
-      if (keyCode == KeyCodes.enterLong) {
-        ref.read(z21CvProvider(Decoder(type: T)).notifier).read(cv.number! - 1);
-      }
-      // POM
-      else {
-        ref
-            .read(
-              z21CvProvider(Decoder(type: T, address: widget.item.address))
-                  .notifier,
-            )
-            .read(cv.number! - 1);
-      }
-    }
-    // Write
-    else {
-      // Service mode
-      if (keyCode == KeyCodes.enterLong) {
-        ref
-            .read(z21CvProvider(Decoder(type: T)).notifier)
-            .write(cv.number! - 1, cv.value!);
-      }
-      // POM
-      else {
-        ref
-            .read(
-              z21CvProvider(Decoder(type: T, address: widget.item.address))
-                  .notifier,
-            )
-            .write(cv.number! - 1, cv.value!);
-      }
-    }
-  }
+    final result =
+        await (cv.value == null ? _cvRead(keyCode, cv) : _cvWrite(keyCode, cv));
 
-  /// \todo document
-  void _update(_, CvMap next) {
-    final cv = _cvEditingController.values();
-    if (cv.number == null || !next.containsKey((cv.number! - 1, 0, 1))) return;
-    switch (next[(cv.number! - 1, 0, 1)]) {
+    switch (result) {
       case LanXCvNackSc():
       case LanXCvNack():
         _cvEditingController.error();
@@ -174,6 +118,48 @@ class CvTerminalState<T> extends ConsumerState<CvTerminal<T>> {
 
       default:
         break;
+    }
+  }
+
+  /// \todo document
+  Future<Z21Command> _cvRead(
+    int keyCode,
+    ({int? number, int? value}) cv,
+  ) {
+    return keyCode == KeyCodes.enterLong
+        ? ref
+            .read(z21CvProvider(Decoder(type: T)).notifier)
+            .read(cv.number! - 1)
+        : ref
+            .read(
+              z21CvProvider(Decoder(type: T, address: widget.item.address))
+                  .notifier,
+            )
+            .read(cv.number! - 1);
+  }
+
+  /// \todo document
+  Future<Z21Command> _cvWrite(
+    int keyCode,
+    ({int? number, int? value}) cv,
+  ) {
+    final cv = _cvEditingController.values();
+    return keyCode == KeyCodes.enterLong
+        ? ref
+            .read(z21CvProvider(Decoder(type: T)).notifier)
+            .write(cv.number! - 1, cv.value!)
+        : ref
+            .read(
+              z21CvProvider(Decoder(type: T, address: widget.item.address))
+                  .notifier,
+            )
+            .write(cv.number! - 1, cv.value!);
+  }
+
+  /// \todo document
+  void _scrollToMaxExtent() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     }
   }
 }

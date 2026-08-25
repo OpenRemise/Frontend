@@ -20,13 +20,11 @@ import 'package:Frontend/data/models/loco.dart';
 import 'package:Frontend/data/repositories/settings.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
+import 'package:Frontend/utils/paged_cv_address.dart';
 import 'package:mutex/mutex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'z21_cv.g.dart';
-
-typedef CvKey = (int, int, int);
-typedef CvMap = Map<CvKey, Z21Command?>;
 
 /// \todo document
 @Riverpod(keepAlive: true)
@@ -40,7 +38,7 @@ class Z21Cv extends _$Z21Cv {
 
   /// \todo document
   @override
-  CvMap build(Decoder decoder) {
+  Map<int, Z21Command?> build(Decoder decoder) {
     _z21 = ref.read(z21ServiceProvider);
     final sub = _z21.stream
         .where(
@@ -109,14 +107,14 @@ class Z21Cv extends _$Z21Cv {
   Future<Z21Command> _execute(Z21Command cmd, int cvAddress) async {
     final completer = Completer<Z21Command>();
     _responseCompleter = completer;
-    state = {...state, (cvAddress, _cv31, _cv32): null};
+    state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): null};
     _z21(cmd);
 
     // POM write
     if (cmd is LanXCvPomWriteByte || cmd is LanXCvPomAccessoryWriteByte) {
       final result =
           LanXCvResult(cvAddress: cvAddress, value: (cmd as dynamic).value);
-      state = {...state, (cvAddress, _cv31, _cv32): result};
+      state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): result};
       final progCount = ref.read(
         settingsProvider.select(
           (config) =>
@@ -138,7 +136,7 @@ class Z21Cv extends _$Z21Cv {
       final response = await completer.future
           .timeout(Duration(seconds: timeout), onTimeout: () => LanXCvNack());
       _responseCompleter = null;
-      state = {...state, (cvAddress, _cv31, _cv32): response};
+      state = {...state, pagedCvAddress(cvAddress, _cv31, _cv32): response};
       return response;
     }
   }
