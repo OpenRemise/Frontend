@@ -21,6 +21,7 @@
 
 import 'dart:convert';
 
+import 'package:Frontend/data/models/decoderdb/condition.dart';
 import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
 import 'package:Frontend/data/models/decoderdb/detection_item.dart';
 import 'package:Frontend/data/models/decoderdb/repository.dart';
@@ -103,7 +104,9 @@ class _DecoderDetectionDialogState
     setState(() => _status = 'Detect defaults');
     final DetectionProtocol dcc = _decoderDetection.protocols
         .firstWhere((protocol) => protocol.type == 'dcc');
-    dcc.defaults.forEach(_detection);
+    for (final detection in dcc.defaults) {
+      await _detection(detection);
+    }
 
     // setState(() => _status = 'Detect manufacturer');
     // final manufacturer = dcc.manufacturers.firstWhere(
@@ -147,8 +150,11 @@ class _DecoderDetectionDialogState
       switch (item) {
         case final ConditionsItem condition:
           debugPrint('$condition');
+          assert(condition.triggers.length == 1);
+          _trigger(condition.triggers.first);
           break;
         case final Cv cv:
+          debugPrint('$cv');
           final value = await _readCv(cv);
           if (value != null) _values[detection.type] = value.toString();
           break;
@@ -157,6 +163,59 @@ class _DecoderDetectionDialogState
           break;
       }
     }
+  }
+
+  /// \todo document
+  bool _trigger(Trigger trigger) {
+    assert(trigger.value == 'valid');
+    return trigger.conditions.fold(
+      false,
+      (result, condition) => result || _condition(condition),
+    );
+  }
+
+  /// \todo document
+  bool _condition(Condition condition) {
+    debugPrint('$condition');
+
+    // Leaf
+    if (condition.conditions.isEmpty) {
+      assert(condition.type == 'relational');
+
+      final deineMUTTER = ref.read(z21CvProvider(widget.decoder));
+
+      switch (condition.operation) {
+        case 'equal':
+          break;
+        case 'unEqual':
+          break;
+        case 'greater':
+          break;
+        case 'greaterEqual':
+          break;
+        case 'less':
+          break;
+        case 'lessEqual':
+          break;
+        case 'valid':
+          break;
+        case 'inValid':
+          break;
+      }
+    }
+    // Nested
+    else {
+      assert(condition.type == 'logical');
+      final results = condition.conditions.map(_condition);
+      switch (condition.operation) {
+        case 'and':
+          return results.every((e) => e);
+        case 'or':
+          return results.any((e) => e);
+      }
+    }
+
+    return false;
   }
 
   /// \todo document

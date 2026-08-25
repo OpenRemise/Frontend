@@ -16,7 +16,6 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:Frontend/data/models/decoderdb/condition.dart';
-import 'package:Frontend/data/models/decoderdb/types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'detection_item.freezed.dart';
@@ -35,6 +34,22 @@ sealed class DetectionItem {
       const DetectionItemConverter().fromJson(json);
 
   Map<String, Object?> toJson();
+}
+
+/// Gate that decides whether the surrounding detection applies at all
+///
+/// Mirrors ConditionsType of commonTypes.xsd. Only reached when a preceding
+/// detection already read the CVs the triggers refer to.
+@freezed
+abstract class ConditionsItem extends DetectionItem with _$ConditionsItem {
+  const ConditionsItem._();
+
+  const factory ConditionsItem({
+    @Default([]) @JsonKey(name: 'triggers') List<Trigger> triggers,
+  }) = _ConditionsItem;
+
+  factory ConditionsItem.fromJson(Map<String, Object?> json) =>
+      _$ConditionsItemFromJson(json);
 }
 
 /// Single CV to read during detection
@@ -75,22 +90,6 @@ abstract class CvGroup extends DetectionItem with _$CvGroup {
 
   factory CvGroup.fromJson(Map<String, Object?> json) =>
       _$CvGroupFromJson(json);
-}
-
-/// Gate that decides whether the surrounding detection applies at all
-///
-/// Mirrors ConditionsType of commonTypes.xsd. Only reached when a preceding
-/// detection already read the CVs the triggers refer to.
-@freezed
-abstract class ConditionsItem extends DetectionItem with _$ConditionsItem {
-  const ConditionsItem._();
-
-  const factory ConditionsItem({
-    @Default([]) @JsonKey(name: 'triggers') List<Trigger> triggers,
-  }) = _ConditionsItem;
-
-  factory ConditionsItem.fromJson(Map<String, Object?> json) =>
-      _$ConditionsItemFromJson(json);
 }
 
 /// Recovers the [DetectionItem] variant from the keys present in the map

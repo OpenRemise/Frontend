@@ -15,7 +15,6 @@
 
 // ignore_for_file: invalid_annotation_target
 
-import 'package:Frontend/data/models/decoderdb/types.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'condition.freezed.dart';
