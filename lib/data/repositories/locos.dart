@@ -35,6 +35,7 @@ class Locos extends _$Locos {
             Loco(address: 498, name: 'Reihe 498', speedSteps: 0),
             Loco(address: 740, name: 'Gruppo 740', speedSteps: 2),
             Loco(address: 1016, name: 'Reihe 1016'),
+            Loco(address: 2091, name: 'Reihe 2091'),
           ])
         : SplayTreeSet<Loco>();
   }
