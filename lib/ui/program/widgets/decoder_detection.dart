@@ -174,7 +174,7 @@ class _DecoderDetectionDialogState
           assert(['int', 'long'].contains(cvGroup.type));
           debugPrint('$cvGroup');
           final cvs = await Future.wait(cvGroup.cvs.map((cv) => _readCv(cv)));
-          final value = cvs.fold(0, (value, cv) => value << 8 | cv!);
+          final value = cvs.reversed.fold(0, (value, cv) => value << 8 | cv!);
           values.add(value);
           break;
       }
