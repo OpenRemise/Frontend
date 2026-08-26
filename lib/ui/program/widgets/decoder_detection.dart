@@ -25,11 +25,13 @@ import 'package:Frontend/data/models/decoderdb/condition.dart';
 import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
 import 'package:Frontend/data/models/decoderdb/detection_item.dart';
 import 'package:Frontend/data/models/decoderdb/repository.dart';
+import 'package:Frontend/data/models/decoderdb/utility.dart';
 import 'package:Frontend/data/repositories/roco/z21_cv.dart';
 import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
+import 'package:Frontend/utils/paged_cv_address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -108,12 +110,14 @@ class _DecoderDetectionDialogState
       await _detection(detection);
     }
 
-    // setState(() => _status = 'Detect manufacturer');
-    // final manufacturer = dcc.manufacturers.firstWhere(
-    //   (manufacturer) =>
-    //       manufacturer.id == _values['manufacturerId'] &&
-    //       manufacturer.extendedId == _values['manufacturerExtendedId'],
-    // );
+    setState(() => _status = 'Detect manufacturer');
+    final manufacturer = dcc.manufacturers.firstWhere(
+      (manufacturer) =>
+          manufacturer.id.toString() == _values['manufacturerId'] &&
+          (manufacturer.extendedId.toString() ==
+              (_values['manufacturerExtendedId'] ?? '0')),
+    );
+    debugPrint('$manufacturer');
     // await _detections(manufacturer.detections);
 
     // await _downloadDecoderDefinition();
@@ -149,9 +153,12 @@ class _DecoderDetectionDialogState
     for (final item in detection.items) {
       switch (item) {
         case final ConditionsItem condition:
-          debugPrint('$condition');
           assert(condition.triggers.length == 1);
-          _trigger(condition.triggers.first);
+          if (!_trigger(condition.triggers.first)) {
+            debugPrint('$condition -> FALSE');
+            return;
+          }
+          debugPrint('$condition -> TRUE');
           break;
         case final Cv cv:
           debugPrint('$cv');
@@ -181,26 +188,42 @@ class _DecoderDetectionDialogState
     // Leaf
     if (condition.conditions.isEmpty) {
       assert(condition.type == 'relational');
+      assert(condition.cv != null);
+      assert(condition.value != null);
 
-      final deineMUTTER = ref.read(z21CvProvider(widget.decoder));
+      final cvs = ref.read(z21CvProvider(widget.decoder));
+
+      final cvAddress = pagedCvAddress(
+        int.parse(condition.cv!) - 1,
+        condition.indexHigh,
+        condition.indexLow,
+      );
+
+      final result = cvs[cvAddress]!;
 
       switch (condition.operation) {
         case 'equal':
-          break;
+          return result is LanXCvResult &&
+              insideValueSpec(result.value, condition.value!);
         case 'unEqual':
-          break;
+          return result is LanXCvResult &&
+              !insideValueSpec(result.value, condition.value!);
         case 'greater':
-          break;
+          return result is LanXCvResult &&
+              result.value > int.parse(condition.value!);
         case 'greaterEqual':
-          break;
+          return result is LanXCvResult &&
+              result.value >= int.parse(condition.value!);
         case 'less':
-          break;
+          return result is LanXCvResult &&
+              result.value < int.parse(condition.value!);
         case 'lessEqual':
-          break;
+          return result is LanXCvResult &&
+              result.value <= int.parse(condition.value!);
         case 'valid':
-          break;
+          return result is LanXCvResult;
         case 'inValid':
-          break;
+          return result is! LanXCvResult;
       }
     }
     // Nested
