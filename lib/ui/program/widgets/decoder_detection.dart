@@ -31,7 +31,6 @@ import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
-import 'package:Frontend/utils/paged_cv_address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -160,7 +159,7 @@ class _DecoderDetectionDialogState
       switch (item) {
         case final ConditionsItem condition:
           assert(condition.triggers.length == 1);
-          if (!_trigger(condition.triggers.first)) {
+          if (!await _trigger(condition.triggers.first)) {
             debugPrint('$condition -> FALSE');
             return;
           }
@@ -187,16 +186,18 @@ class _DecoderDetectionDialogState
   }
 
   /// \todo document
-  bool _trigger(Trigger trigger) {
+  Future<bool> _trigger(Trigger trigger) async {
     assert(trigger.value == 'valid');
-    return trigger.conditions.fold(
-      false,
-      (result, condition) => result || _condition(condition),
-    );
+    for (final condition in trigger.conditions) {
+      if (await _condition(condition)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// \todo document
-  bool _condition(Condition condition) {
+  Future<bool> _condition(Condition condition) async {
     debugPrint('$condition');
 
     // Leaf
@@ -204,54 +205,45 @@ class _DecoderDetectionDialogState
       assert(condition.type == 'relational');
       assert(condition.cv != null);
 
-      final cvs = ref.read(z21CvProvider(widget.decoder));
-
-      final cvAddress = pagedCvAddress(
-        int.parse(condition.cv!) - 1,
-        condition.indexHigh,
-        condition.indexLow,
+      final value = await _readCv(
+        Cv(
+          number: int.parse(condition.cv!),
+          type: '',
+          indexHigh: condition.indexHigh,
+          indexLow: condition.indexLow,
+        ),
       );
-
-      final result = cvs[cvAddress]!;
 
       switch (condition.operation) {
         case 'equal':
-          return result is LanXCvResult &&
-              insideValueSpec(result.value, condition.value!);
+          return value != null && insideValueSpec(value, condition.value!);
         case 'unEqual':
-          return result is LanXCvResult &&
-              !insideValueSpec(result.value, condition.value!);
+          return value != null && !insideValueSpec(value, condition.value!);
         case 'greater':
-          return result is LanXCvResult &&
-              result.value > int.parse(condition.value!);
+          return value != null && value > int.parse(condition.value!);
         case 'greaterEqual':
-          return result is LanXCvResult &&
-              result.value >= int.parse(condition.value!);
+          return value != null && value >= int.parse(condition.value!);
         case 'less':
-          return result is LanXCvResult &&
-              result.value < int.parse(condition.value!);
+          return value != null && value < int.parse(condition.value!);
         case 'lessEqual':
-          return result is LanXCvResult &&
-              result.value <= int.parse(condition.value!);
+          return value != null && value <= int.parse(condition.value!);
         case 'valid':
-          return result is LanXCvResult;
+          return value != null;
         case 'inValid':
-          return result is! LanXCvResult;
+          return value == null;
       }
     }
     // Nested
     else {
       assert(condition.type == 'logical');
-      final results = condition.conditions.map(_condition);
-      switch (condition.operation) {
-        case 'and':
-          return results.every((e) => e);
-        case 'or':
-          return results.any((e) => e);
+      for (final nestedCondition in condition.conditions) {
+        final value = await _condition(nestedCondition);
+        if (condition.operation == 'and' && !value) return false;
+        if (condition.operation == 'or' && value) return true;
       }
     }
 
-    return false;
+    return true;
   }
 
   /// \todo document
