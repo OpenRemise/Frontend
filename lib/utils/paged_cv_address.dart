@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /// \todo document
-int pagedCvAddress(int cvAddress, int cv31, int cv32) {
-  return cvAddress >= 256 && cvAddress <= 511
+int pagedCvAddress(int cvAddress, int? cv31, int? cv32) {
+  return cvAddress >= 256 && cvAddress <= 511 && cv31 != null && cv32 != null
       ? (cvAddress % 256) + (((cv31 << 8) + cv32) << 8)
       : cvAddress;
 }
