@@ -111,14 +111,18 @@ class _DecoderDetectionDialogState
     }
 
     setState(() => _status = 'Detect manufacturer');
-    final manufacturer = dcc.manufacturers.firstWhere(
+    final DetectionManufacturer manufacturer = dcc.manufacturers.firstWhere(
       (manufacturer) =>
           manufacturer.id.toString() == _values['manufacturerId'] &&
           (manufacturer.extendedId.toString() ==
               (_values['manufacturerExtendedId'] ?? '0')),
     );
-    debugPrint('$manufacturer');
-    // await _detections(manufacturer.detections);
+    debugPrint(manufacturer.name);
+    for (final detection in manufacturer.detections) {
+      await _detection(detection);
+    }
+
+    debugPrint('$_values');
 
     // await _downloadDecoderDefinition();
 
@@ -150,6 +154,8 @@ class _DecoderDetectionDialogState
 
   /// \todo document
   Future<void> _detection(Detection detection) async {
+    List<int> values = [];
+
     for (final item in detection.items) {
       switch (item) {
         case final ConditionsItem condition:
@@ -163,13 +169,21 @@ class _DecoderDetectionDialogState
         case final Cv cv:
           debugPrint('$cv');
           final value = await _readCv(cv);
-          if (value != null) _values[detection.type] = value.toString();
+          if (value != null) values.add(value);
           break;
         case final CvGroup cvGroup:
+          assert(['int', 'long'].contains(cvGroup.type));
           debugPrint('$cvGroup');
+          final cvs = await Future.wait(cvGroup.cvs.map((cv) => _readCv(cv)));
+          final value = cvs.fold(0, (value, cv) => value << 8 | cv!);
+          values.add(value);
           break;
       }
     }
+
+    _values[detection.type] = detection.displayFormat != null
+        ? parseDisplayFormat(detection.displayFormat!, values)
+        : values.join('.');
   }
 
   /// \todo document
@@ -189,7 +203,6 @@ class _DecoderDetectionDialogState
     if (condition.conditions.isEmpty) {
       assert(condition.type == 'relational');
       assert(condition.cv != null);
-      assert(condition.value != null);
 
       final cvs = ref.read(z21CvProvider(widget.decoder));
 
