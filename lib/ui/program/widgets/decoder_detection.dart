@@ -22,6 +22,7 @@
 import 'dart:convert';
 
 import 'package:Frontend/data/models/decoderdb/condition.dart';
+import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
 import 'package:Frontend/data/models/decoderdb/decoder_detection.dart';
 import 'package:Frontend/data/models/decoderdb/detection_item.dart';
 import 'package:Frontend/data/models/decoderdb/repository.dart';
@@ -51,6 +52,7 @@ class _DecoderDetectionDialogState
   final Map<String, String> _values = {};
   late final Repository _repository;
   late final DecoderDetectionFile _decoderDetection;
+  late final DecoderDefinitionFile _decoderDefinition;
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -113,17 +115,16 @@ class _DecoderDetectionDialogState
     final DetectionManufacturer manufacturer = dcc.manufacturers.firstWhere(
       (manufacturer) =>
           manufacturer.id.toString() == _values['manufacturerId'] &&
-          (manufacturer.extendedId.toString() ==
-              (_values['manufacturerExtendedId'] ?? '0')),
+          manufacturer.extendedId.toString() ==
+              (_values['manufacturerExtendedId'] ?? '0'),
     );
-    debugPrint(manufacturer.name);
     for (final detection in manufacturer.detections) {
       await _detection(detection);
     }
 
-    debugPrint('$_values');
+    await _downloadDecoderDefinition();
 
-    // await _downloadDecoderDefinition();
+    debugPrint('$_decoderDefinition');
 
     // await _downloadFirmwareDefinition();
 
@@ -159,20 +160,14 @@ class _DecoderDetectionDialogState
       switch (item) {
         case final ConditionsItem condition:
           assert(condition.triggers.length == 1);
-          if (!await _trigger(condition.triggers.first)) {
-            debugPrint('$condition -> FALSE');
-            return;
-          }
-          debugPrint('$condition -> TRUE');
+          if (!await _trigger(condition.triggers.first)) return;
           break;
         case final Cv cv:
-          debugPrint('$cv');
           final value = await _readCv(cv);
           if (value != null) values.add(value);
           break;
         case final CvGroup cvGroup:
           assert(['int', 'long'].contains(cvGroup.type));
-          debugPrint('$cvGroup');
           final cvs = await Future.wait(cvGroup.cvs.map((cv) => _readCv(cv)));
           final value = cvs.reversed.fold(0, (value, cv) => value << 8 | cv!);
           values.add(value);
@@ -198,8 +193,6 @@ class _DecoderDetectionDialogState
 
   /// \todo document
   Future<bool> _condition(Condition condition) async {
-    debugPrint('$condition');
-
     // Leaf
     if (condition.conditions.isEmpty) {
       assert(condition.type == 'relational');
@@ -244,6 +237,49 @@ class _DecoderDetectionDialogState
     }
 
     return true;
+  }
+
+  /// \todo document
+  Future<void> _downloadDecoderDefinition() async {
+    final client = ref.read(httpClientProvider);
+    final links = _repository.decoders.where(
+      (decoder) =>
+          decoder.manufacturerId.toString() == _values['manufacturerId'] &&
+          decoder.manufacturerExtendedId.toString() ==
+              (_values['manufacturerExtendedId'] ?? '0'),
+    );
+    final responses =
+        await Future.wait(links.map((l) => client.get(Uri.parse(l.link))));
+    final files = responses
+        .map((r) => DecoderDefinitionFile.fromJson(jsonDecode(r.body)));
+    final filesWithId = files.where(
+      (f) =>
+          f.decoder.typeIds?.split(';').contains(_values['decoderId']) ?? false,
+    );
+    _decoderDefinition = filesWithId.first;
+  }
+
+  /// \todo document
+  Future<void> _downloadFirmwareDefinition() async {
+    final client = ref.read(httpClientProvider);
+    final links = _repository.firmwares.where(
+      (firmware) =>
+          firmware.manufacturerId.toString() == _values['manufacturerId'] &&
+          firmware.manufacturerExtendedId.toString() ==
+              (_values['manufacturerExtendedId'] ?? '0'),
+    );
+    final responses =
+        await Future.wait(links.map((l) => client.get(Uri.parse(l.link))));
+    // final files = responses
+    //     .map((r) => FirmwareDefinitionFile.fromJson(jsonDecode(r.body)));
+    // final filesWithName = files.where(
+    //   (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
+    //       .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
+    // );
+    // filesWithName.forEach(
+    //   (f) => debugPrint(f.decoderFirmwareDefinition.firmware.version),
+    // );
+    // setState(() => _firmware = filesWithName.last);
   }
 
   /// \todo document
