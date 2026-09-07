@@ -32,6 +32,7 @@ import 'package:Frontend/data/services/http_client.dart';
 import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
+import 'package:Frontend/ui/core/widgets/fill_available_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,7 +53,7 @@ class _DecoderDetectionDialogState
   final Map<String, String> _values = {};
   late final Repository _repository;
   late final DecoderDetectionFile _decoderDetection;
-  late final DecoderDefinitionFile _decoderDefinition;
+  DecoderDefinitionFile? _decoderDefinition;
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
@@ -80,7 +81,15 @@ class _DecoderDetectionDialogState
           DefaultAnimateSize(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [],
+              children: [
+                if (_decoderDefinition != null)
+                  FillAvailableWidth(
+                    child: Image.network(
+                      'https://decoderdb.bidib.org/decoder/145/images/MS450-1.jpg',
+                      // fit: BoxFit.contain,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -256,7 +265,7 @@ class _DecoderDetectionDialogState
       (f) =>
           f.decoder.typeIds?.split(';').contains(_values['decoderId']) ?? false,
     );
-    _decoderDefinition = filesWithId.first;
+    setState(() => _decoderDefinition = filesWithId.first);
   }
 
   /// \todo document
