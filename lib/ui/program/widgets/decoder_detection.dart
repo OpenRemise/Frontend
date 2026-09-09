@@ -76,20 +76,33 @@ class _DecoderDetectionDialogState
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LinearProgressIndicator(value: _progress),
-          Text(_status),
           DefaultAnimateSize(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_decoderDefinition != null)
-                  FillAvailableWidth(
-                    child: Image.network(
-                      'https://decoderdb.bidib.org/decoder/145/images/MS450-1.jpg',
-                      // fit: BoxFit.contain,
-                    ),
-                  ),
-              ],
+              children: (_decoderDefinition == null)
+                  ? [LinearProgressIndicator(value: _progress), Text(_status)]
+                  : [
+                      Text(_decoderDefinition!.decoder.name),
+                      Text(_decoderDefinition!.decoder.type),
+                      /*
+                      loco
+                      loco-sound
+                      function
+                      function-sound
+                      car
+                      car-sound
+                      susi
+                      susi-sound
+                      standardAccessory
+                      extendedAccessory
+                      */
+                      FillAvailableWidth(
+                        child: Image.network(
+                          'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.png',
+                          // fit: BoxFit.contain,
+                        ),
+                      ),
+                    ],
             ),
           ),
         ],
@@ -134,14 +147,6 @@ class _DecoderDetectionDialogState
     await _downloadDecoderDefinition();
 
     debugPrint('$_decoderDefinition');
-
-    // await _downloadFirmwareDefinition();
-
-    // setState(() {
-    //   _status = '';
-    //   _option = 'OK';
-    //   _progress = 0;
-    // });
   }
 
   /// \todo document
@@ -266,29 +271,6 @@ class _DecoderDetectionDialogState
           f.decoder.typeIds?.split(';').contains(_values['decoderId']) ?? false,
     );
     setState(() => _decoderDefinition = filesWithId.first);
-  }
-
-  /// \todo document
-  Future<void> _downloadFirmwareDefinition() async {
-    final client = ref.read(httpClientProvider);
-    final links = _repository.firmwares.where(
-      (firmware) =>
-          firmware.manufacturerId.toString() == _values['manufacturerId'] &&
-          firmware.manufacturerExtendedId.toString() ==
-              (_values['manufacturerExtendedId'] ?? '0'),
-    );
-    final responses =
-        await Future.wait(links.map((l) => client.get(Uri.parse(l.link))));
-    // final files = responses
-    //     .map((r) => FirmwareDefinitionFile.fromJson(jsonDecode(r.body)));
-    // final filesWithName = files.where(
-    //   (f) => f.decoderFirmwareDefinition.firmware.decoders!.decoder
-    //       .any((d) => d.name == _decoder!.decoderDefinition.decoder.name),
-    // );
-    // filesWithName.forEach(
-    //   (f) => debugPrint(f.decoderFirmwareDefinition.firmware.version),
-    // );
-    // setState(() => _firmware = filesWithName.last);
   }
 
   /// \todo document
