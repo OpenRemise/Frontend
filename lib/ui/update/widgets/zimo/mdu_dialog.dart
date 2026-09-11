@@ -68,33 +68,28 @@ class _MduDialogState extends ConsumerState<MduDialog> {
 
     return AlertDialog(
       title: const Text('MDU'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LinearProgressIndicator(value: state.progress),
-          Text(state.message),
-          DefaultAnimateSize(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final device in state.devices)
-                  ListTile(
-                    leading: Icon(
-                      switch (device.status) {
-                        UpdateStatus.Idle => Icons.circle,
-                        UpdateStatus.Connecting => Icons.pending,
-                        UpdateStatus.Updating => Icons.download_for_offline,
-                        UpdateStatus.Completed => Icons.check_circle,
-                        UpdateStatus.Failed => Icons.error,
-                      },
-                    ),
-                    title: Text(device.name),
-                  ),
-              ],
-            ),
-          ),
-        ],
+      content: DefaultAnimateSize(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LinearProgressIndicator(value: state.progress),
+            Text(state.message),
+            for (final device in state.devices)
+              ListTile(
+                leading: Icon(
+                  switch (device.status) {
+                    UpdateStatus.Idle => Icons.circle,
+                    UpdateStatus.Connecting => Icons.pending,
+                    UpdateStatus.Updating => Icons.download_for_offline,
+                    UpdateStatus.Completed => Icons.check_circle,
+                    UpdateStatus.Failed => Icons.error,
+                  },
+                ),
+                title: Text(device.name),
+              ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
