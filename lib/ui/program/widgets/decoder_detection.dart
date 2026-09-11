@@ -72,19 +72,22 @@ class _DecoderDetectionDialogState
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('DecoderDB'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DefaultAnimateSize(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: (_decoderDefinition == null)
-                  ? [LinearProgressIndicator(value: _progress), Text(_status)]
-                  : [
-                      Text(_decoderDefinition!.decoder.name),
-                      Text(_decoderDefinition!.decoder.type),
-                      /*
+      content: DefaultAnimateSize(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _decoderDefinition == null
+              ? [LinearProgressIndicator(value: _progress), Text(_status)]
+              : [
+                  Table(
+                    children: [
+                      TableRow(children: [Text('A'), Text('B')]),
+                      TableRow(children: [Text('A'), Text('B')]),
+                    ],
+                  ),
+                  Text(_decoderDefinition!.decoder.name),
+                  Text(_decoderDefinition!.decoder.type),
+                  /*
                       loco
                       loco-sound
                       function
@@ -96,16 +99,14 @@ class _DecoderDetectionDialogState
                       standardAccessory
                       extendedAccessory
                       */
-                      FillAvailableWidth(
-                        child: Image.network(
-                          'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.png',
-                          // fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-            ),
-          ),
-        ],
+                  FillAvailableWidth(
+                    child: Image.network(
+                      'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
+                      // fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+        ),
       ),
       actions: <Widget>[
         TextButton(
