@@ -13,36 +13,45 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// Fill available width
+/// Ignore intrinsics
 ///
-/// \file   ui/core/widgets/fill_available_width.dart
+/// \file   ui/core/widgets/ignore_intrinsics.dart
 /// \author Vincent Hamp
 /// \date   07/09/2026
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// Stretches its child to the offered width while reporting no intrinsic width
+/// Hides its child from intrinsic queries and stretches it to the offered width
 ///
 /// Useful inside widgets which size themselves by intrinsic width, such as
 /// [AlertDialog](https://api.flutter.dev/flutter/material/AlertDialog-class.html).
 /// Children like images would otherwise widen their parent to their own pixel
-/// width.
-class FillAvailableWidth extends SingleChildRenderObjectWidget {
-  const FillAvailableWidth({super.key, required Widget super.child});
+/// width, and lazy children like viewports would even throw.
+class IgnoreIntrinsics extends SingleChildRenderObjectWidget {
+  const IgnoreIntrinsics({super.key, required Widget super.child});
 
   @override
-  RenderFillAvailableWidth createRenderObject(BuildContext context) =>
-      RenderFillAvailableWidth();
+  RenderIgnoreIntrinsics createRenderObject(BuildContext context) =>
+      RenderIgnoreIntrinsics();
 }
 
-/// Render object of [FillAvailableWidth]
-class RenderFillAvailableWidth extends RenderProxyBox {
+/// Render object of [IgnoreIntrinsics]
+///
+/// Reports zero for all intrinsic dimensions and never forwards intrinsic
+/// queries to the child.
+class RenderIgnoreIntrinsics extends RenderProxyBox {
   @override
   double computeMinIntrinsicWidth(double height) => 0;
 
   @override
   double computeMaxIntrinsicWidth(double height) => 0;
+
+  @override
+  double computeMinIntrinsicHeight(double width) => 0;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => 0;
 
   @override
   Size computeDryLayout(BoxConstraints constraints) =>

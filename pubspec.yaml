@@ -33,6 +33,7 @@ dependencies:
 
   archive: ^4.0.7
   async: ^2.11.0
+  carousel_slider_plus: ^7.1.2
   collection: ^1.19.0
   csv: ^6.0.0
   desktop_window: ^0.4.2
