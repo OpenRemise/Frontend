@@ -22,7 +22,7 @@ import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
 import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/program/widgets/decoder_detection.dart';
+import 'package:Frontend/ui/program/widgets/decoder_detection_dialog.dart';
 import 'package:Frontend/ui/program/widgets/manual.dart';
 import 'package:Frontend/utils/validators/loco_address_validator.dart';
 import 'package:Frontend/utils/validators/turnout_address_validator.dart';

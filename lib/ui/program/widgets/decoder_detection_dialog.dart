@@ -84,60 +84,8 @@ class _DecoderDetectionDialogState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _decoderDefinition == null
-              ? [LinearProgressIndicator(value: _progress), Text(_status)]
-              : [
-                  Table(
-                    children: [
-                      TableRow(
-                        children: [
-                          Text('Name'),
-                          Text(_decoderDefinition!.decoder.name),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Text('Type'),
-                          Text(_decoderDefinition!.decoder.type),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  /*
-                      loco
-                      loco-sound
-                      function
-                      function-sound
-                      car
-                      car-sound
-                      susi
-                      susi-sound
-                      standardAccessory
-                      extendedAccessory
-                      */
-                  IgnoreIntrinsics(
-                    child: Image.network(
-                      'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
-                      // fit: BoxFit.contain,
-                    ),
-                  ),
-                  IgnoreIntrinsics(
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Swiper(
-                        itemBuilder: (context, index) {
-                          return Image.network(
-                            'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
-                          );
-                        },
-                        itemCount: 3,
-                        autoplay: true,
-                        pagination: const SwiperPagination(),
-                        control: const SwiperControl(),
-                      ),
-                    ),
-                  ),
-                ],
+              ? progressStatusWidgets()
+              : decoderDataWidgets(),
         ),
       ),
       actions: <Widget>[
@@ -317,6 +265,63 @@ class _DecoderDetectionDialogState
     }
     final result = await z21Cv.read(cv.number - 1);
     return result is LanXCvResult ? result.value : null;
+  }
+
+  /// \todo document
+  List<Widget> progressStatusWidgets() {
+    return [LinearProgressIndicator(value: _progress), Text(_status)];
+  }
+
+  /// \todo document
+  List<Widget> decoderDataWidgets() {
+    return [
+      Table(
+        children: [
+          TableRow(
+            children: [
+              Text('Name'),
+              Text(_decoderDefinition!.decoder.name),
+            ],
+          ),
+          TableRow(
+            children: [
+              Text('Type'),
+              Text(_decoderDefinition!.decoder.type),
+            ],
+          ),
+        ],
+      ),
+      /*
+      loco
+      loco-sound
+      function
+      function-sound
+      car
+      car-sound
+      susi
+      susi-sound
+      standardAccessory
+      extendedAccessory
+      */
+      IgnoreIntrinsics(
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Swiper(
+            itemBuilder: (context, index) {
+              return Image.network(
+                'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
+              );
+            },
+            itemCount: 3,
+            control: SwiperControl(
+              color: Theme.of(context).colorScheme.onSurface,
+              disableColor: Theme.of(context).disabledColor,
+            ),
+            loop: false,
+          ),
+        ),
+      ),
+    ];
   }
 
   /// \todo document
