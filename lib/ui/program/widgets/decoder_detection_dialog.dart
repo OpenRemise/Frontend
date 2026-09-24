@@ -29,12 +29,6 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final List<String> imgList = [
-  'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
-  'https://decoderdb.bidib.org/decoder/145/images/MS450P22_top.webp',
-  'https://decoderdb.bidib.org/decoder/145/images/MS450P22_bottom.webp',
-];
-
 ///
 class DecoderDetectionDialog extends ConsumerStatefulWidget {
   final Decoder decoder;
@@ -104,22 +98,29 @@ class _DecoderDetectionDialogState
 
   /// \todo document
   List<Widget> decoderDataWidgets(DecoderDetectionState state) {
-    final String name = state.decoderDefinition!.decoder.name;
-    final String type = state.decoderDefinition!.decoder.type;
-    final DecoderDimensions? dimensions =
-        state.decoderDefinition!.decoder.specifications.dimensions;
-
     String formatDouble(double value) =>
         value.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
 
-    final electrical =
-        state.decoderDefinition!.decoder.specifications.electrical;
+    final DecoderDefinition decoder = state.decoderDefinition!.decoder;
+    final String name = decoder.name;
+    final String type = decoder.type;
+    final DecoderDimensions? dimensions = decoder.specifications.dimensions;
+    final electrical = decoder.specifications.electrical;
     final maxTotalCurrent = formatDouble(electrical.maxTotalCurrent);
     final maxMotorCurrent = formatDouble(electrical.maxMotorCurrent);
     final maxVoltage = formatDouble(electrical.maxVoltage);
-
-    final DecoderConnectors connectors =
-        state.decoderDefinition!.decoder.specifications.connectors;
+    final DecoderConnectors connectors = decoder.specifications.connectors;
+    final manufacturerId = decoder.manufacturerExtendedId == 0
+        ? decoder.manufacturerId
+        : decoder.manufacturerExtendedId;
+    final List<DecoderImage> decoderImages = decoder.images;
+    final images = decoderImages
+        .map(
+          (e) => Image.network(
+            'https://decoderdb.bidib.org/decoder/$manufacturerId/images/${e.name}',
+          ),
+        )
+        .toList();
 
     return [
       Table(
@@ -153,24 +154,21 @@ class _DecoderDetectionDialogState
           ),
         ],
       ),
-      IgnoreIntrinsics(
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Swiper(
-            itemBuilder: (context, index) {
-              return Image.network(
-                'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
-              );
-            },
-            itemCount: 3,
-            control: SwiperControl(
-              color: Theme.of(context).colorScheme.onSurface,
-              disableColor: Theme.of(context).disabledColor,
+      if (images.isNotEmpty)
+        IgnoreIntrinsics(
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Swiper(
+              itemBuilder: (context, index) => images[index],
+              itemCount: images.length,
+              control: SwiperControl(
+                color: Theme.of(context).colorScheme.onSurface,
+                disableColor: Theme.of(context).disabledColor,
+              ),
+              loop: false,
             ),
-            loop: false,
           ),
         ),
-      ),
     ];
   }
 }
