@@ -33,7 +33,7 @@ import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:Frontend/ui/core/widgets/ignore_intrinsics.dart';
-import 'package:carousel_slider_plus/carousel_slider_plus.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,7 +64,6 @@ class _DecoderDetectionDialogState
   String _status = '';
   String _option = 'Cancel';
   double? _progress;
-  final CarouselSliderController _controller = CarouselSliderController();
 
   /// \todo document
   @override
@@ -123,10 +122,19 @@ class _DecoderDetectionDialogState
                     ),
                   ),
                   IgnoreIntrinsics(
-                    child: CarouselSlider(
-                      items:
-                          imgList.map((item) => Image.network(item)).toList(),
-                      controller: _controller,
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Swiper(
+                        itemBuilder: (context, index) {
+                          return Image.network(
+                            'https://decoderdb.bidib.org/decoder/145/images/MS450P22_persp.webp',
+                          );
+                        },
+                        itemCount: 3,
+                        autoplay: true,
+                        pagination: const SwiperPagination(),
+                        control: const SwiperControl(),
+                      ),
                     ),
                   ),
                 ],
