@@ -33,6 +33,7 @@ import 'package:Frontend/data/services/roco/z21.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:Frontend/ui/core/widgets/ignore_intrinsics.dart';
+import 'package:Frontend/ui/program/view_models/decoder_detection_view_model.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,8 +71,16 @@ class _DecoderDetectionDialogState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _execute().catchError((e) => setState(() => _status = '$e')),
+      (_) => ref
+          .read(
+            decoderDetectionViewModelProvider(widget.decoder).notifier,
+          )
+          .detect()
+          .catchError((_) {}),
     );
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (_) => _execute().catchError((e) => setState(() => _status = '$e')),
+    // );
   }
 
   /// \todo document
@@ -110,9 +119,7 @@ class _DecoderDetectionDialogState
     setState(() => _status = 'Detect defaults');
     final DetectionProtocol dcc = _decoderDetection.protocols
         .firstWhere((protocol) => protocol.type == 'dcc');
-    for (final detection in dcc.defaults) {
-      await _detection(detection);
-    }
+    await detections(dcc.defaults);
 
     setState(() => _status = 'Detect manufacturer');
     final DetectionManufacturer manufacturer = dcc.manufacturers.firstWhere(
@@ -121,9 +128,7 @@ class _DecoderDetectionDialogState
           manufacturer.extendedId.toString() ==
               (_values['manufacturerExtendedId'] ?? '0'),
     );
-    for (final detection in manufacturer.detections) {
-      await _detection(detection);
-    }
+    await detections(manufacturer.detections);
 
     await _downloadDecoderDefinition();
 
@@ -145,6 +150,13 @@ class _DecoderDetectionDialogState
         await client.get(Uri.parse(_repository.decoderDetections.link));
     _decoderDetection =
         DecoderDetectionFile.fromJson(jsonDecode(response.body));
+  }
+
+  /// \todo document
+  Future<void> detections(List<Detection> detections) async {
+    for (final detection in detections) {
+      await _detection(detection);
+    }
   }
 
   /// \todo document

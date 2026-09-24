@@ -26,14 +26,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'decoder_detection_state.freezed.dart';
 
-enum DecoderDetectionStatus { Idle, Detecting, Completed, Failed }
+enum DecoderDetectionStatus { Idle, Downloading, Detecting, Completed, Failed }
 
 @freezed
 abstract class DecoderDetectionState with _$DecoderDetectionState {
   const factory DecoderDetectionState({
     @Default(DecoderDetectionStatus.Idle) DecoderDetectionStatus status,
     @Default('') String message,
-    double? progress,
     DecoderDefinitionFile? decoderDefinition,
   }) = _DecoderDetectionState;
 }

@@ -45,16 +45,15 @@ class MduDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _MduDialogState extends ConsumerState<MduDialog> {
+  late final String _endpoint = widget._zpp != null ? 'zpp/' : 'zsu/';
+
   /// \todo document
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ref
-          .read(
-            mduViewModelProvider(widget._zpp != null ? 'zpp/' : 'zsu/')
-                .notifier,
-          )
+          .read(mduViewModelProvider(_endpoint).notifier)
           .update(widget._zpp ?? widget._zsu)
           .catchError((_) {}),
     );
@@ -63,8 +62,7 @@ class _MduDialogState extends ConsumerState<MduDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final state =
-        ref.watch(mduViewModelProvider(widget._zpp != null ? 'zpp/' : 'zsu/'));
+    final state = ref.watch(mduViewModelProvider(_endpoint));
 
     return AlertDialog(
       title: const Text('MDU'),
