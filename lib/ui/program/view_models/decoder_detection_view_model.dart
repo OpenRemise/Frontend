@@ -55,39 +55,29 @@ class DecoderDetectionViewModel extends _$DecoderDetectionViewModel {
   /// \todo document
   Future<void> detect() async {
     try {
-      await _downloadRepository();
-      await _downloadDecoderDetection();
-      await _defaultDetections();
-      await _manufacturerDetections();
+      await _downloads();
+      await _detections();
       await _downloadDecoderDefinition();
     } on ProgramException catch (e) {
       state = state.copyWith(
         status: DecoderDetectionStatus.Failed,
         message: e.message,
+        progress: 0,
       );
     }
   }
 
   /// \todo document
-  Future<void> _downloadRepository() async {
+  Future<void> _downloads() async {
     state = state.copyWith(
       status: DecoderDetectionStatus.Downloading,
-      message: 'Downloading repository.json',
+      message: 'Downloading',
     );
     final client = ref.read(httpClientProvider);
-    final response = await client
-        .get(Uri.parse('https://decoderdb.bidib.org/repository.son'));
+    var response = await client
+        .get(Uri.parse('https://decoderdb.bidib.org/repository.json'));
     _repository = Repository.fromJson(jsonDecode(response.body));
-  }
-
-  /// \todo document
-  Future<void> _downloadDecoderDetection() async {
-    state = state.copyWith(
-      message: 'Downloading DecoderDetection.json',
-    );
-    final client = ref.read(httpClientProvider);
-    final response =
-        await client.get(Uri.parse(_repository.decoderDetections.link));
+    response = await client.get(Uri.parse(_repository.decoderDetections.link));
     _decoderDetection =
         DecoderDetectionFile.fromJson(jsonDecode(response.body));
   }
@@ -96,7 +86,7 @@ class DecoderDetectionViewModel extends _$DecoderDetectionViewModel {
   Future<void> _downloadDecoderDefinition() async {
     state = state.copyWith(
       status: DecoderDetectionStatus.Completed,
-      message: 'Downloading decoder definition',
+      message: 'Downloading',
     );
     final client = ref.read(httpClientProvider);
     final links = _repository.decoders.where(
@@ -117,33 +107,23 @@ class DecoderDetectionViewModel extends _$DecoderDetectionViewModel {
   }
 
   /// \todo document
-  Future<void> _defaultDetections() async {
+  Future<void> _detections() async {
     state = state.copyWith(
       status: DecoderDetectionStatus.Detecting,
-      message: 'Default detections',
+      message: 'Detections',
     );
     final DetectionProtocol dcc = _decoderDetection.protocols
         .firstWhere((protocol) => protocol.type == 'dcc');
-    await _detections(dcc.defaults);
-  }
-
-  /// \todo document
-  Future<void> _manufacturerDetections() async {
-    state = state.copyWith(message: 'Manufacturer detections');
-    final DetectionProtocol dcc = _decoderDetection.protocols
-        .firstWhere((protocol) => protocol.type == 'dcc');
+    for (final detection in dcc.defaults) {
+      await _detection(detection);
+    }
     final DetectionManufacturer manufacturer = dcc.manufacturers.firstWhere(
       (manufacturer) =>
           manufacturer.id.toString() == _values['manufacturerId'] &&
           manufacturer.extendedId.toString() ==
               (_values['manufacturerExtendedId'] ?? '0'),
     );
-    await _detections(manufacturer.detections);
-  }
-
-  /// \todo document
-  Future<void> _detections(List<Detection> detections) async {
-    for (final detection in detections) {
+    for (final detection in manufacturer.detections) {
       await _detection(detection);
     }
   }

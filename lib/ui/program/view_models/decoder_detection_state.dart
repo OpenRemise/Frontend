@@ -33,6 +33,7 @@ abstract class DecoderDetectionState with _$DecoderDetectionState {
   const factory DecoderDetectionState({
     @Default(DecoderDetectionStatus.Idle) DecoderDetectionStatus status,
     @Default('') String message,
+    double? progress,
     DecoderDefinitionFile? decoderDefinition,
   }) = _DecoderDetectionState;
 }
