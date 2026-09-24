@@ -19,6 +19,7 @@
 /// \author Vincent Hamp
 /// \date   27/03/2026
 
+import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
 import 'package:Frontend/domain/models/decoder.dart';
 import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
 import 'package:Frontend/ui/core/widgets/ignore_intrinsics.dart';
@@ -103,35 +104,55 @@ class _DecoderDetectionDialogState
 
   /// \todo document
   List<Widget> decoderDataWidgets(DecoderDetectionState state) {
+    final String name = state.decoderDefinition!.decoder.name;
+    final String type = state.decoderDefinition!.decoder.type;
+    final DecoderDimensions? dimensions =
+        state.decoderDefinition!.decoder.specifications.dimensions;
+
+    String formatDouble(double value) =>
+        value.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
+
+    final electrical =
+        state.decoderDefinition!.decoder.specifications.electrical;
+    final maxTotalCurrent = formatDouble(electrical.maxTotalCurrent);
+    final maxMotorCurrent = formatDouble(electrical.maxMotorCurrent);
+    final maxVoltage = formatDouble(electrical.maxVoltage);
+
+    final DecoderConnectors connectors =
+        state.decoderDefinition!.decoder.specifications.connectors;
+
     return [
       Table(
         children: [
+          TableRow(children: [Text('Name'), Text(name)]),
+          TableRow(children: [Text('Type'), Text(type)]),
+          if (dimensions != null)
+            TableRow(
+              children: [
+                Text('Dimensions'),
+                Text(
+                  '${formatDouble(dimensions.length)} x '
+                  '${formatDouble(dimensions.width)} x '
+                  '${formatDouble(dimensions.height)}',
+                ),
+              ],
+            ),
+          TableRow(children: [Text('Total cur.'), Text('${maxTotalCurrent}A')]),
+          TableRow(children: [Text('Motor cur.'), Text('${maxMotorCurrent}A')]),
+          TableRow(children: [Text('Voltage'), Text('${maxVoltage}V')]),
           TableRow(
             children: [
-              Text('Name'),
-              Text(state.decoderDefinition!.decoder.name),
-            ],
-          ),
-          TableRow(
-            children: [
-              Text('Type'),
-              Text(state.decoderDefinition!.decoder.type),
+              Text('Connectors'),
+              Text(
+                connectors.list
+                    .split(';')
+                    .map((s) => s.replaceAll('+Cable', ''))
+                    .join('\n'),
+              ),
             ],
           ),
         ],
       ),
-      /*
-      loco
-      loco-sound
-      function
-      function-sound
-      car
-      car-sound
-      susi
-      susi-sound
-      standardAccessory
-      extendedAccessory
-      */
       IgnoreIntrinsics(
         child: AspectRatio(
           aspectRatio: 16 / 9,
@@ -151,12 +172,5 @@ class _DecoderDetectionDialogState
         ),
       ),
     ];
-  }
-
-  /// \todo document
-  @override
-  void setState(VoidCallback fn) {
-    if (!mounted) return;
-    super.setState(fn);
   }
 }
