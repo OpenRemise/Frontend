@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Vincent Hamp
+// Copyright (C) 2026 Vincent Hamp
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,9 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-/// \todo document
-int pagedCvAddress(int cvAddress, int? cv31, int? cv32) {
-  return cvAddress >= 256 && cvAddress <= 511 && cv31 != null && cv32 != null
-      ? (cvAddress % 256) + (((cv31 << 8) + cv32) << 8)
-      : cvAddress;
+/// Program exception
+///
+/// \file   ui/program/view_models/exception.dart
+/// \author Vincent Hamp
+/// \date   24/09/2026
+
+class ProgramException implements Exception {
+  final String message;
+
+  const ProgramException([this.message = '']);
 }

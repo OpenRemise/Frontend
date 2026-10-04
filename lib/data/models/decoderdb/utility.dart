@@ -13,6 +13,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
+
+List<DecoderImage> filterDuplicateImages(List<DecoderImage> images) {
+  final result = <String, DecoderImage>{};
+
+  int priority(String? source) {
+    final extension = source?.split('.').last.toLowerCase();
+
+    return switch (extension) {
+      'webp' => 3,
+      'png' => 2,
+      'jpg' || 'jpeg' => 1,
+      _ => 0,
+    };
+  }
+
+  String key(String source) {
+    final lastDot = source.lastIndexOf('.');
+    return lastDot == -1 ? source : source.substring(0, lastDot);
+  }
+
+  for (final image in images) {
+    final source = image.source;
+
+    // No source -> can't determine duplicates.
+    if (source == null) {
+      result[image.name] = image;
+      continue;
+    }
+
+    final imageKey = key(source);
+    final existing = result[imageKey];
+
+    if (existing == null || priority(source) > priority(existing.source)) {
+      result[imageKey] = image;
+    }
+  }
+
+  return result.values.toList();
+}
+
 bool insideValueSpec(int cv, String valuesString) {
   return valuesString.split(';').any((part) {
     final bounds = part.trim().split('-');

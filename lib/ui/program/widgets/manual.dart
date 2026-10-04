@@ -153,7 +153,7 @@ class _ManualState extends ConsumerState<Manual> {
         break;
 
       case LanXCvResult(cvAddress: final cvAddress, value: final value):
-        if (number - 1 == cvAddress) {
+        if (number == cvAddress + 1) {
           _formKey.currentState?.patchValue({'CV value': value.toString()});
           setState(() => _iconData = Icons.check_circle);
         }

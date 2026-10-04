@@ -22,7 +22,7 @@ import 'package:Frontend/ui/core/themes/small_screen_width.dart';
 import 'package:Frontend/ui/core/themes/text_scaler.dart';
 import 'package:Frontend/ui/core/widgets/open_remise_icons.dart';
 import 'package:Frontend/ui/core/widgets/power_icon_button.dart';
-import 'package:Frontend/ui/program/widgets/decoder_detection.dart';
+import 'package:Frontend/ui/program/widgets/decoder_detection_dialog.dart';
 import 'package:Frontend/ui/program/widgets/manual.dart';
 import 'package:Frontend/utils/validators/loco_address_validator.dart';
 import 'package:Frontend/utils/validators/turnout_address_validator.dart';
@@ -201,30 +201,28 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
                             }),
                           ),
                         ),
-                        if (kDebugMode)
-                          Card.outlined(
-                            child: ListTile(
-                              leading: SizedBox(
-                                width: iconSize.width,
-                                height: iconSize.height,
-                                child: SvgPicture.asset(
-                                  'data/images/logos/decoder_db.svg',
-                                ),
+                        Card.outlined(
+                          child: ListTile(
+                            leading: SizedBox(
+                              width: iconSize.width,
+                              height: iconSize.height,
+                              child: SvgPicture.asset(
+                                'data/images/logos/decoder_db.svg',
                               ),
-                              title: const Text('DecoderDB'),
-                              onTap: () => showDialog<List<Widget>>(
-                                context: context,
-                                builder: (_) => DecoderDetectionDialog(
-                                  key: ValueKey(decoder),
-                                  decoder: decoder,
-                                ),
-                                barrierDismissible: false,
-                              ).then((value) {
-                                if (value == null) return;
-                                debugPrint('DecoderDB done!');
-                              }),
                             ),
+                            title: const Text('DecoderDB'),
+                            onTap: () => showDialog<List<Widget>>(
+                              context: context,
+                              builder: (_) => DecoderDetectionDialog(
+                                key: ValueKey(decoder),
+                                decoder: decoder,
+                              ),
+                              barrierDismissible: false,
+                            ).then((value) {
+                              debugPrint('DecoderDB done!');
+                            }),
                           ),
+                        ),
                       ],
                     ),
                   ),
