@@ -45,16 +45,15 @@ class DecupDialog extends ConsumerStatefulWidget {
 
 /// \todo document
 class _DecupDialogState extends ConsumerState<DecupDialog> {
+  late final String _endpoint = widget._zpp != null ? 'zpp/' : 'zsu/';
+
   /// \todo document
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ref
-          .read(
-            decupViewModelProvider(widget._zpp != null ? 'zpp/' : 'zsu/')
-                .notifier,
-          )
+          .read(decupViewModelProvider(_endpoint).notifier)
           .update(widget._zpp ?? widget._zsu)
           .catchError((_) {}),
     );
@@ -63,38 +62,32 @@ class _DecupDialogState extends ConsumerState<DecupDialog> {
   /// \todo document
   @override
   Widget build(BuildContext context) {
-    final state = ref
-        .watch(decupViewModelProvider(widget._zpp != null ? 'zpp/' : 'zsu/'));
+    final state = ref.watch(decupViewModelProvider(_endpoint));
 
     return AlertDialog(
       title: const Text('DECUP'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LinearProgressIndicator(value: state.progress),
-          Text(state.message),
-          DefaultAnimateSize(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final device in state.devices)
-                  ListTile(
-                    leading: Icon(
-                      switch (device.status) {
-                        UpdateStatus.Idle => Icons.circle,
-                        UpdateStatus.Connecting => Icons.pending,
-                        UpdateStatus.Updating => Icons.download_for_offline,
-                        UpdateStatus.Completed => Icons.check_circle,
-                        UpdateStatus.Failed => Icons.error,
-                      },
-                    ),
-                    title: Text(device.name),
-                  ),
-              ],
-            ),
-          ),
-        ],
+      content: DefaultAnimateSize(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            LinearProgressIndicator(value: state.progress),
+            Text(state.message),
+            for (final device in state.devices)
+              ListTile(
+                leading: Icon(
+                  switch (device.status) {
+                    UpdateStatus.Idle => Icons.circle,
+                    UpdateStatus.Connecting => Icons.pending,
+                    UpdateStatus.Updating => Icons.download_for_offline,
+                    UpdateStatus.Completed => Icons.check_circle,
+                    UpdateStatus.Failed => Icons.error,
+                  },
+                ),
+                title: Text(device.name),
+              ),
+          ],
+        ),
       ),
       actions: [
         TextButton(

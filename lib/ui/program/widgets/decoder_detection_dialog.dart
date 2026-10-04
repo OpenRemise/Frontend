@@ -1,0 +1,176 @@
+// Copyright (C) 2026 Vincent Hamp
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+/// Dialog to detect decoder using DecoderDB
+///
+/// \file   ui/program/widgets/decoder_detection_dialog.dart
+/// \author Vincent Hamp
+/// \date   27/03/2026
+
+import 'package:Frontend/data/models/decoderdb/decoder_definition.dart';
+import 'package:Frontend/data/models/decoderdb/utility.dart';
+import 'package:Frontend/domain/models/decoder.dart';
+import 'package:Frontend/ui/core/widgets/default_animated_size.dart';
+import 'package:Frontend/ui/core/widgets/ignore_intrinsics.dart';
+import 'package:Frontend/ui/program/view_models/decoder_detection_state.dart';
+import 'package:Frontend/ui/program/view_models/decoder_detection_view_model.dart';
+import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+///
+class DecoderDetectionDialog extends ConsumerStatefulWidget {
+  final Decoder decoder;
+
+  const DecoderDetectionDialog({super.key, required this.decoder});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _DecoderDetectionDialogState();
+}
+
+/// \todo document
+class _DecoderDetectionDialogState
+    extends ConsumerState<DecoderDetectionDialog> {
+  /// \todo document
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ref
+          .read(
+            decoderDetectionViewModelProvider(widget.decoder).notifier,
+          )
+          .detect()
+          .catchError((_) {}),
+    );
+  }
+
+  /// \todo document
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(decoderDetectionViewModelProvider(widget.decoder));
+
+    return AlertDialog(
+      title: const Text('DecoderDB'),
+      content: DefaultAnimateSize(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: state.decoderDefinition == null
+              ? progressStatusWidgets(state)
+              : decoderDataWidgets(state),
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            state.status == DecoderDetectionStatus.Completed ? 'OK' : 'Cancel',
+          ),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+        side: Divider.createBorderSide(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+
+  /// \todo document
+  List<Widget> progressStatusWidgets(DecoderDetectionState state) {
+    return [
+      LinearProgressIndicator(value: state.progress),
+      Text(state.message),
+    ];
+  }
+
+  /// \todo document
+  List<Widget> decoderDataWidgets(DecoderDetectionState state) {
+    String formatDouble(double value) =>
+        value.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
+
+    final DecoderDefinition decoder = state.decoderDefinition!.decoder;
+    final String name = decoder.name;
+    final String type = decoder.type;
+    final DecoderDimensions? dimensions = decoder.specifications.dimensions;
+    final electrical = decoder.specifications.electrical;
+    final maxTotalCurrent = formatDouble(electrical.maxTotalCurrent);
+    final maxMotorCurrent = formatDouble(electrical.maxMotorCurrent);
+    final maxVoltage = formatDouble(electrical.maxVoltage);
+    final DecoderConnectors connectors = decoder.specifications.connectors;
+    final manufacturerId = decoder.manufacturerExtendedId == 0
+        ? decoder.manufacturerId
+        : decoder.manufacturerExtendedId;
+    final List<DecoderImage> decoderImages =
+        filterDuplicateImages(decoder.images);
+    final images = decoderImages
+        .map(
+          (e) => Image.network(
+            'https://decoderdb.bidib.org/decoder/$manufacturerId/images/${e.name}',
+          ),
+        )
+        .toList();
+
+    return [
+      Table(
+        children: [
+          TableRow(children: [Text('Name'), Text(name)]),
+          TableRow(children: [Text('Type'), Text(type)]),
+          if (dimensions != null)
+            TableRow(
+              children: [
+                Text('Dimensions'),
+                Text(
+                  '${formatDouble(dimensions.length)} x '
+                  '${formatDouble(dimensions.width)} x '
+                  '${formatDouble(dimensions.height)}',
+                ),
+              ],
+            ),
+          TableRow(children: [Text('Total cur.'), Text('${maxTotalCurrent}A')]),
+          TableRow(children: [Text('Motor cur.'), Text('${maxMotorCurrent}A')]),
+          TableRow(children: [Text('Voltage'), Text('${maxVoltage}V')]),
+          TableRow(
+            children: [
+              Text('Connectors'),
+              Text(
+                connectors.list
+                    .split(';')
+                    .map((s) => s.replaceAll('+Cable', ''))
+                    .join('\n'),
+              ),
+            ],
+          ),
+        ],
+      ),
+      if (images.isNotEmpty)
+        IgnoreIntrinsics(
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Swiper(
+              itemBuilder: (context, index) => images[index],
+              itemCount: images.length,
+              control: SwiperControl(
+                color: Theme.of(context).colorScheme.onSurface,
+                disableColor: Theme.of(context).disabledColor,
+              ),
+              loop: false,
+            ),
+          ),
+        ),
+    ];
+  }
+}

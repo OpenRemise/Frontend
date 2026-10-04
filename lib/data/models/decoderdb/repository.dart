@@ -20,96 +20,130 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'repository.freezed.dart';
 part 'repository.g.dart';
 
-/// Top-level repository index
+/// Index of the entire DecoderDB repository
+///
+/// This is the entry point of the database. It is downloaded from
+/// https://decoderdb.bidib.org/repository.json and lists every decoder,
+/// firmware and image file together with the metadata required to fetch and
+/// verify them.
 @freezed
 abstract class Repository with _$Repository {
   const factory Repository({
     @JsonKey(name: 'version') required int version,
-    @JsonKey(name: 'manufacturers') required RepositoryFileRef manufacturers,
+    @JsonKey(name: 'manufacturers') required ManufacturersFile manufacturers,
     @JsonKey(name: 'decoderDetections')
-    required RepositoryFileRef decoderDetections,
-    @Default([])
-    @JsonKey(name: 'decoder')
-    List<RepositoryDecoderEntry> decoders,
-    @Default([])
-    @JsonKey(name: 'firmware')
-    List<RepositoryFirmwareEntry> firmwares,
-    @Default([]) @JsonKey(name: 'image') List<RepositoryMediaEntry> images,
-    @Default([]) @JsonKey(name: 'manual') List<RepositoryMediaEntry> manuals,
+    required DecoderDetectionsFile decoderDetections,
+    @Default([]) @JsonKey(name: 'decoder') List<DecoderFile> decoders,
+    @Default([]) @JsonKey(name: 'firmware') List<FirmwareFile> firmwares,
+    @Default([]) @JsonKey(name: 'image') List<ImageFile> images,
   }) = _Repository;
 
   factory Repository.fromJson(Map<String, Object?> json) =>
       _$RepositoryFromJson(json);
 }
 
-/// Reference to a downloadable file in the repository
+/// Reference to the Manufacturers.json file
 @freezed
-abstract class RepositoryFileRef with _$RepositoryFileRef {
-  const factory RepositoryFileRef({
+abstract class ManufacturersFile with _$ManufacturersFile {
+  const factory ManufacturersFile({
+    @JsonKey(name: 'nmraListDate') DateTime? nmraListDate,
     @JsonKey(name: 'filename') required String filename,
     @JsonKey(name: 'link') required String link,
-    @JsonKey(name: 'nmraListDate') String? nmraListDate,
-    @JsonKey(name: 'lastUpdate') required String lastUpdate,
-    @JsonKey(name: 'fileSize') required String fileSize,
+    @JsonKey(name: 'lastUpdate') required DateTime lastUpdate,
     @JsonKey(name: 'sha1') required String sha1,
-  }) = _RepositoryFileRef;
+    @JsonKey(name: 'fileSize') required int fileSize,
+  }) = _ManufacturersFile;
 
-  factory RepositoryFileRef.fromJson(Map<String, Object?> json) =>
-      _$RepositoryFileRefFromJson(json);
+  factory ManufacturersFile.fromJson(Map<String, Object?> json) =>
+      _$ManufacturersFileFromJson(json);
 }
 
-/// Decoder entry in the repository index
+/// Reference to the DecoderDetection.json file
 @freezed
-abstract class RepositoryDecoderEntry with _$RepositoryDecoderEntry {
-  const factory RepositoryDecoderEntry({
+abstract class DecoderDetectionsFile with _$DecoderDetectionsFile {
+  const factory DecoderDetectionsFile({
     @JsonKey(name: 'filename') required String filename,
     @JsonKey(name: 'link') required String link,
-    @JsonKey(name: 'name') required String name,
+    @JsonKey(name: 'lastUpdate') required DateTime lastUpdate,
+    @JsonKey(name: 'sha1') required String sha1,
+    @JsonKey(name: 'fileSize') required int fileSize,
+  }) = _DecoderDetectionsFile;
+
+  factory DecoderDetectionsFile.fromJson(Map<String, Object?> json) =>
+      _$DecoderDetectionsFileFromJson(json);
+}
+
+/// Reference to a single decoder definition file
+@freezed
+abstract class DecoderFile with _$DecoderFile {
+  const factory DecoderFile({
     @JsonKey(name: 'manufacturerId') required int manufacturerId,
-    @JsonKey(name: 'manufacturerExtendedId') int? manufacturerExtendedId,
-    @JsonKey(name: 'lastUpdate') required String lastUpdate,
-    @JsonKey(name: 'created') String? created,
-    @JsonKey(name: 'fileSize') required String fileSize,
-    @JsonKey(name: 'sha1') required String sha1,
-  }) = _RepositoryDecoderEntry;
-
-  factory RepositoryDecoderEntry.fromJson(Map<String, Object?> json) =>
-      _$RepositoryDecoderEntryFromJson(json);
-}
-
-/// Firmware entry in the repository index
-@freezed
-abstract class RepositoryFirmwareEntry with _$RepositoryFirmwareEntry {
-  const factory RepositoryFirmwareEntry({
+    @Default(0)
+    @JsonKey(name: 'manufacturerExtendedId')
+    int manufacturerExtendedId,
+    @JsonKey(name: 'name') required String name,
+    @JsonKey(name: 'created') DateTime? created,
     @JsonKey(name: 'filename') required String filename,
     @JsonKey(name: 'link') required String link,
+    @JsonKey(name: 'lastUpdate') required DateTime lastUpdate,
+    @JsonKey(name: 'sha1') required String sha1,
+    @JsonKey(name: 'fileSize') required int fileSize,
+  }) = _DecoderFile;
+
+  factory DecoderFile.fromJson(Map<String, Object?> json) =>
+      _$DecoderFileFromJson(json);
+}
+
+/// Reference to a single firmware definition file
+@freezed
+abstract class FirmwareFile with _$FirmwareFile {
+  const factory FirmwareFile({
+    @JsonKey(name: 'manufacturerId') required int manufacturerId,
+    @Default(0)
+    @JsonKey(name: 'manufacturerExtendedId')
+    int manufacturerExtendedId,
     @JsonKey(name: 'version') required String version,
     @JsonKey(name: 'versionExtension') String? versionExtension,
-    @JsonKey(name: 'manufacturerId') required int manufacturerId,
-    @JsonKey(name: 'manufacturerExtendedId') int? manufacturerExtendedId,
-    @JsonKey(name: 'lastUpdate') required String lastUpdate,
-    @JsonKey(name: 'created') String? created,
-    @JsonKey(name: 'fileSize') required String fileSize,
-    @JsonKey(name: 'sha1') required String sha1,
-  }) = _RepositoryFirmwareEntry;
-
-  factory RepositoryFirmwareEntry.fromJson(Map<String, Object?> json) =>
-      _$RepositoryFirmwareEntryFromJson(json);
-}
-
-/// Image or manual entry in the repository index
-@freezed
-abstract class RepositoryMediaEntry with _$RepositoryMediaEntry {
-  const factory RepositoryMediaEntry({
+    @JsonKey(name: 'created') DateTime? created,
+    @Default([]) @JsonKey(name: 'decoder') List<FirmwareDecoderRef> decoders,
     @JsonKey(name: 'filename') required String filename,
     @JsonKey(name: 'link') required String link,
-    @JsonKey(name: 'manufacturerId') required int manufacturerId,
-    @JsonKey(name: 'manufacturerExtendedId') int? manufacturerExtendedId,
-    @JsonKey(name: 'lastUpdate') required String lastUpdate,
-    @JsonKey(name: 'fileSize') required String fileSize,
+    @JsonKey(name: 'lastUpdate') required DateTime lastUpdate,
     @JsonKey(name: 'sha1') required String sha1,
-  }) = _RepositoryMediaEntry;
+    @JsonKey(name: 'fileSize') required int fileSize,
+  }) = _FirmwareFile;
 
-  factory RepositoryMediaEntry.fromJson(Map<String, Object?> json) =>
-      _$RepositoryMediaEntryFromJson(json);
+  factory FirmwareFile.fromJson(Map<String, Object?> json) =>
+      _$FirmwareFileFromJson(json);
+}
+
+/// Name of a decoder a firmware is compatible with
+@freezed
+abstract class FirmwareDecoderRef with _$FirmwareDecoderRef {
+  const factory FirmwareDecoderRef({
+    @JsonKey(name: 'name') required String name,
+  }) = _FirmwareDecoderRef;
+
+  factory FirmwareDecoderRef.fromJson(Map<String, Object?> json) =>
+      _$FirmwareDecoderRefFromJson(json);
+}
+
+/// Reference to a single decoder image file
+@freezed
+abstract class ImageFile with _$ImageFile {
+  const factory ImageFile({
+    @JsonKey(name: 'manufacturerId') required int manufacturerId,
+    @Default(0)
+    @JsonKey(name: 'manufacturerExtendedId')
+    int manufacturerExtendedId,
+    @JsonKey(name: 'name') required String name,
+    @JsonKey(name: 'filename') required String filename,
+    @JsonKey(name: 'link') required String link,
+    @JsonKey(name: 'lastUpdate') required DateTime lastUpdate,
+    @JsonKey(name: 'sha1') required String sha1,
+    @JsonKey(name: 'fileSize') required int fileSize,
+  }) = _ImageFile;
+
+  factory ImageFile.fromJson(Map<String, Object?> json) =>
+      _$ImageFileFromJson(json);
 }
