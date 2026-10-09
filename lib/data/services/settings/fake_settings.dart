@@ -18,6 +18,8 @@ import 'package:Frontend/data/services/settings/settings.dart';
 
 class FakeSettingsService implements SettingsService {
   Config _config = Config(
+    accessPointSsid: 'OpenRemise',
+    accessPointPassword: '************',
     stationMdns: 'remise',
     stationSsid: 'FakeSSID',
     stationPassword: '************',
@@ -38,6 +40,11 @@ class FakeSettingsService implements SettingsService {
     return Future.delayed(
       const Duration(milliseconds: 500),
       () => _config = Config(
+        accessPointSsid: config.accessPointSsid ?? _config.accessPointSsid,
+        accessPointPassword: List.filled(
+          (config.accessPointPassword ?? _config.accessPointPassword)!.length,
+          '*',
+        ).join(),
         stationMdns: config.stationMdns ?? _config.stationMdns,
         stationSsid: config.stationSsid ?? _config.stationSsid,
         stationPassword: List.filled(

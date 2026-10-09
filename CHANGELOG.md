@@ -2,6 +2,7 @@
 
 ## 0.9.0
 - Add detection part of DecoderDB support ([#168](https://github.com/OpenRemise/Frontend/issues/168))
+- Add access point options ([#184](https://github.com/OpenRemise/Frontend/issues/184))
 
 ## 0.8.1
 - Add ᴡʟᴀɴMAUS export ([#178](https://github.com/OpenRemise/Frontend/issues/178))
