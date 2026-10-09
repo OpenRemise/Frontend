@@ -24,7 +24,11 @@ part 'config.g.dart';
 @freezed
 abstract class Config with _$Config {
   const factory Config({
-    @JsonKey(name: 'sta_mdns') String? stationMdns,
+    @JsonKey(name: 'ap_ssid') String? accessPointSsid,
+    @JsonKey(name: 'ap_pass') String? accessPointPassword,
+    @JsonKey(name: 'ap_ip') String? accessPointIp,
+    @JsonKey(name: 'ap_netmask') String? accessPointNetmask,
+    @JsonKey(name: 'ap_gateway') String? accessPointGateway,
     @JsonKey(name: 'sta_ssid') String? stationSsid,
     @JsonKey(name: 'sta_pass') String? stationPassword,
     @JsonKey(name: 'sta_alt_ssid') String? stationAlternativeSsid,
@@ -32,6 +36,7 @@ abstract class Config with _$Config {
     @JsonKey(name: 'sta_ip') String? stationIp,
     @JsonKey(name: 'sta_netmask') String? stationNetmask,
     @JsonKey(name: 'sta_gateway') String? stationGateway,
+    @JsonKey(name: 'mdns') String? mdns,
     @Default(5) @JsonKey(name: 'http_rx_timeout') int httpReceiveTimeout,
     @Default(5) @JsonKey(name: 'http_tx_timeout') int httpTransmitTimeout,
     @Default(true) @JsonKey(name: 'http_exit_msg') bool httpExitMessage,
