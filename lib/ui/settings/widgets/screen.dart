@@ -62,7 +62,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   ];
   final _formKey = GlobalKey<FormBuilderState>();
   final Map<String, ExpansionTileController> _expansionTileControllers = {
-    'Network': ExpansionTileController(),
+    'Access point': ExpansionTileController(),
+    'Station': ExpansionTileController(),
     'HTTP': ExpansionTileController(),
     'Current': ExpansionTileController(),
     'LED': ExpansionTileController(),
@@ -223,9 +224,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   shrinkWrap: true,
                   children: [
                     SettingsTile(
-                      leading: const Icon(Icons.wifi),
-                      title: const Text('Network'),
-                      controller: _expansionTileControllers['Network'],
+                      leading: const Icon(Icons.cell_tower),
+                      title: const Text('Access point'),
+                      controller: _expansionTileControllers['Access point'],
+                      children: [
+                        Tooltip(
+                          message: 'Name of the access point to open',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_ssid',
+                            validator: (String? value) {
+                              if (value == null) {
+                                return 'Please enter a SSID';
+                              } else if (value.length > 32) {
+                                return 'SSID too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.accessPointSsid,
+                            decoration: const InputDecoration(
+                              labelText: 'SSID',
+                            ),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Password of the access point to open',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_pass',
+                            validator: (String? value) {
+                              if (value == null) {
+                                return 'Please enter a password';
+                              } else if (value.length > 64) {
+                                return 'Password too long';
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.accessPointPassword,
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SettingsTile(
+                      leading: const Icon(Icons.router),
+                      title: const Text('Station'),
+                      controller: _expansionTileControllers['Station'],
                       children: [
                         Tooltip(
                           message:
@@ -249,7 +298,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message: 'Name of the network to connect to',
+                          message: 'Name of the station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_ssid',
@@ -270,7 +319,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message: 'Password of the network to connect to',
+                          message: 'Password of the station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_pass',
@@ -291,7 +340,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         Tooltip(
                           message:
-                              'Name of the alternative network to connect to',
+                              'Name of the alternative station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_alt_ssid',
@@ -313,7 +362,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         Tooltip(
                           message:
-                              'Password of the alternative network to connect to',
+                              'Password of the alternative station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_alt_pass',
@@ -345,8 +394,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message:
-                              'IP address of the access point to connect to',
+                          message: 'Range of IP addresses in the network',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_netmask',
@@ -358,7 +406,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message: 'Range of IP addresses in the network',
+                          message:
+                              'IP address of the access point to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_gateway',
@@ -929,12 +978,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onPressed: () {
                               if (_formKey.currentState?.saveAndValidate() ??
                                   false) {
-                                // Remove sta_pass if it only contains *
-                                var map = Map.of(_formKey.currentState!.value);
-                                final String staPass = map['sta_pass']!;
-                                if (staPass.isNotEmpty &&
-                                    staPass == '*' * staPass.length) {
-                                  map.remove('sta_pass');
+                                // Remove passwords that only contain *
+                                final map = Map<String, dynamic>.of(
+                                  _formKey.currentState!.value,
+                                );
+                                for (final key in [
+                                  'ap_pass',
+                                  'sta_pass',
+                                  'sta_alt_pass',
+                                ]) {
+                                  final pass = map[key] as String?;
+                                  if (pass != null &&
+                                      pass.isNotEmpty &&
+                                      pass.split('').every((c) => c == '*')) {
+                                    map.remove(key);
+                                  }
                                 }
                                 ref
                                     .read(settingsProvider.notifier)

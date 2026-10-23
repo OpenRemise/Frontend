@@ -24,6 +24,8 @@ part 'config.g.dart';
 @freezed
 abstract class Config with _$Config {
   const factory Config({
+    @JsonKey(name: 'ap_ssid') String? accessPointSsid,
+    @JsonKey(name: 'ap_pass') String? accessPointPassword,
     @JsonKey(name: 'sta_mdns') String? stationMdns,
     @JsonKey(name: 'sta_ssid') String? stationSsid,
     @JsonKey(name: 'sta_pass') String? stationPassword,
