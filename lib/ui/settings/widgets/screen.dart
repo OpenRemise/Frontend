@@ -28,6 +28,8 @@ import 'package:Frontend/ui/settings/widgets/export_dialog.dart';
 import 'package:Frontend/ui/settings/widgets/import_dialog.dart';
 import 'package:Frontend/ui/settings/widgets/tile.dart';
 import 'package:Frontend/utils/validators/ip_address_validator.dart';
+import 'package:Frontend/utils/validators/password_validator.dart';
+import 'package:Frontend/utils/validators/ssid_validator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -62,7 +64,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   ];
   final _formKey = GlobalKey<FormBuilderState>();
   final Map<String, ExpansionTileController> _expansionTileControllers = {
-    'Network': ExpansionTileController(),
+    'Access point': ExpansionTileController(),
+    'Station': ExpansionTileController(),
+    'DNS': ExpansionTileController(),
     'HTTP': ExpansionTileController(),
     'Current': ExpansionTileController(),
     'LED': ExpansionTileController(),
@@ -223,45 +227,84 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   shrinkWrap: true,
                   children: [
                     SettingsTile(
-                      leading: const Icon(Icons.wifi),
-                      title: const Text('Network'),
-                      controller: _expansionTileControllers['Network'],
+                      leading: const Icon(Icons.cell_tower),
+                      title: const Text('Access point'),
+                      controller: _expansionTileControllers['Access point'],
                       children: [
                         Tooltip(
-                          message:
-                              'mDNS hostname under which the device appears (e.g. my-remise.local)',
+                          message: 'Name of the access point to open',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
-                            name: 'sta_mdns',
-                            validator: (String? value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a mDNS';
-                              } else if (!value.endsWith('remise')) {
-                                return "mDNS must end with 'remise'";
-                              } else {
-                                return null;
-                              }
-                            },
-                            initialValue: data.stationMdns,
-                            decoration:
-                                const InputDecoration(labelText: 'mDNS'),
+                            name: 'ap_ssid',
+                            validator: ssidValidator,
+                            initialValue: data.accessPointSsid,
+                            decoration: const InputDecoration(
+                              labelText: 'SSID',
+                            ),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
                         Tooltip(
-                          message: 'Name of the network to connect to',
+                          message: 'Password of the access point to open',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_pass',
+                            validator: passwordValidator,
+                            initialValue: data.accessPointPassword,
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'IP address',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_ip',
+                            validator: ipAddressValidator,
+                            initialValue: data.accessPointIp,
+                            decoration: const InputDecoration(labelText: 'IP'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Range of IP addresses in the network',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_netmask',
+                            validator: ipAddressValidator,
+                            initialValue: data.accessPointNetmask,
+                            decoration:
+                                const InputDecoration(labelText: 'Netmask'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                        Tooltip(
+                          message:
+                              'IP address of the access point to connect to',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'ap_gateway',
+                            validator: ipAddressValidator,
+                            initialValue: data.accessPointGateway,
+                            decoration:
+                                const InputDecoration(labelText: 'Gateway'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SettingsTile(
+                      leading: const Icon(Icons.router),
+                      title: const Text('Station'),
+                      controller: _expansionTileControllers['Station'],
+                      children: [
+                        Tooltip(
+                          message: 'Name of the station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_ssid',
-                            validator: (String? value) {
-                              if (value == null) {
-                                return 'Please enter a SSID';
-                              } else if (value.length > 32) {
-                                return 'SSID too long';
-                              } else {
-                                return null;
-                              }
-                            },
+                            validator: ssidValidator,
                             initialValue: data.stationSsid,
                             decoration: const InputDecoration(
                               labelText: 'SSID',
@@ -270,19 +313,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message: 'Password of the network to connect to',
+                          message: 'Password of the station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_pass',
-                            validator: (String? value) {
-                              if (value == null) {
-                                return 'Please enter a password';
-                              } else if (value.length > 64) {
-                                return 'Password too long';
-                              } else {
-                                return null;
-                              }
-                            },
+                            validator: passwordValidator,
                             initialValue: data.stationPassword,
                             decoration:
                                 const InputDecoration(labelText: 'Password'),
@@ -291,7 +326,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         Tooltip(
                           message:
-                              'Name of the alternative network to connect to',
+                              'Name of the alternative station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_alt_ssid',
@@ -313,19 +348,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                         Tooltip(
                           message:
-                              'Password of the alternative network to connect to',
+                              'Password of the alternative station to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_alt_pass',
-                            validator: (String? value) {
-                              if (value == null || value.isEmpty) {
-                                return null;
-                              } else if (value.length > 64) {
-                                return 'Password too long';
-                              } else {
-                                return null;
-                              }
-                            },
+                            validator: passwordValidator,
                             initialValue: data.stationAlternativePassword,
                             decoration: const InputDecoration(
                               labelText: 'Alternative password',
@@ -345,8 +372,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message:
-                              'IP address of the access point to connect to',
+                          message: 'Range of IP addresses in the network',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_netmask',
@@ -358,7 +384,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         Tooltip(
-                          message: 'Range of IP addresses in the network',
+                          message:
+                              'IP address of the access point to connect to',
                           waitDuration: const Duration(seconds: 1),
                           child: FormBuilderTextField(
                             name: 'sta_gateway',
@@ -366,6 +393,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             initialValue: data.stationGateway,
                             decoration:
                                 const InputDecoration(labelText: 'Gateway'),
+                            autovalidateMode: AutovalidateMode.always,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SettingsTile(
+                      leading: const Icon(Icons.dns),
+                      title: const Text('mDNS'),
+                      controller: _expansionTileControllers['mDNS'],
+                      children: [
+                        Tooltip(
+                          message:
+                              'mDNS hostname under which the device appears (e.g. my-remise.local)',
+                          waitDuration: const Duration(seconds: 1),
+                          child: FormBuilderTextField(
+                            name: 'mdns',
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a mDNS';
+                              } else if (!value.endsWith('remise')) {
+                                return "mDNS must end with 'remise'";
+                              } else {
+                                return null;
+                              }
+                            },
+                            initialValue: data.mdns,
+                            decoration:
+                                const InputDecoration(labelText: 'mDNS'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
                         ),
@@ -929,12 +984,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             onPressed: () {
                               if (_formKey.currentState?.saveAndValidate() ??
                                   false) {
-                                // Remove sta_pass if it only contains *
-                                var map = Map.of(_formKey.currentState!.value);
-                                final String staPass = map['sta_pass']!;
-                                if (staPass.isNotEmpty &&
-                                    staPass == '*' * staPass.length) {
-                                  map.remove('sta_pass');
+                                // Remove passwords that only contain *
+                                final map = Map<String, dynamic>.of(
+                                  _formKey.currentState!.value,
+                                );
+                                for (final key in [
+                                  'ap_pass',
+                                  'sta_pass',
+                                  'sta_alt_pass',
+                                ]) {
+                                  final pass = map[key] as String?;
+                                  if (pass != null &&
+                                      pass.isNotEmpty &&
+                                      pass.split('').every((c) => c == '*')) {
+                                    map.remove(key);
+                                  }
                                 }
                                 ref
                                     .read(settingsProvider.notifier)

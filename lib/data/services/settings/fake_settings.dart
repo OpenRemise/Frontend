@@ -18,7 +18,11 @@ import 'package:Frontend/data/services/settings/settings.dart';
 
 class FakeSettingsService implements SettingsService {
   Config _config = Config(
-    stationMdns: 'remise',
+    accessPointSsid: 'OpenRemise',
+    accessPointPassword: '************',
+    accessPointIp: '',
+    accessPointNetmask: '',
+    accessPointGateway: '',
     stationSsid: 'FakeSSID',
     stationPassword: '************',
     stationAlternativeSsid: '',
@@ -26,6 +30,7 @@ class FakeSettingsService implements SettingsService {
     stationIp: '',
     stationNetmask: '',
     stationGateway: '',
+    mdns: 'remise',
   );
 
   @override
@@ -38,7 +43,16 @@ class FakeSettingsService implements SettingsService {
     return Future.delayed(
       const Duration(milliseconds: 500),
       () => _config = Config(
-        stationMdns: config.stationMdns ?? _config.stationMdns,
+        accessPointSsid: config.accessPointSsid ?? _config.accessPointSsid,
+        accessPointPassword: List.filled(
+          (config.accessPointPassword ?? _config.accessPointPassword)!.length,
+          '*',
+        ).join(),
+        accessPointIp: config.accessPointIp ?? _config.accessPointIp,
+        accessPointNetmask:
+            config.accessPointNetmask ?? _config.accessPointNetmask,
+        accessPointGateway:
+            config.accessPointGateway ?? _config.accessPointGateway,
         stationSsid: config.stationSsid ?? _config.stationSsid,
         stationPassword: List.filled(
           (config.stationPassword ?? _config.stationPassword)!.length,
@@ -55,6 +69,7 @@ class FakeSettingsService implements SettingsService {
         stationIp: config.stationIp ?? _config.stationIp,
         stationNetmask: config.stationNetmask ?? _config.stationNetmask,
         stationGateway: config.stationGateway ?? _config.stationGateway,
+        mdns: config.mdns ?? _config.mdns,
         httpReceiveTimeout: config.httpReceiveTimeout,
         httpTransmitTimeout: config.httpTransmitTimeout,
         httpExitMessage: config.httpExitMessage,
