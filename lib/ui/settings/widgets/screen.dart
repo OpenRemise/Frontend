@@ -400,8 +400,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     SettingsTile(
                       leading: const Icon(Icons.dns),
-                      title: const Text('mDNS'),
-                      controller: _expansionTileControllers['mDNS'],
+                      title: const Text('DNS'),
+                      controller: _expansionTileControllers['DNS'],
                       children: [
                         Tooltip(
                           message:
@@ -423,6 +423,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 const InputDecoration(labelText: 'mDNS'),
                             autovalidateMode: AutovalidateMode.always,
                           ),
+                        ),
+                        FormBuilderCheckboxGroup(
+                          name: 'dns_redirection',
+                          initialValue: [data.dnsRedirection],
+                          options: const [
+                            FormBuilderFieldOption(
+                              value: true,
+                              child: Tooltip(
+                                message:
+                                    'Redirect all DNS queries to the access point IP address (triggers captive portal)',
+                                waitDuration: Duration(seconds: 1),
+                                child: Text('Redirection'),
+                              ),
+                            ),
+                          ],
+                          valueTransformer: (value) => value?.contains(true),
                         ),
                       ],
                     ),

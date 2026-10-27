@@ -70,6 +70,7 @@ class FakeSettingsService implements SettingsService {
         stationNetmask: config.stationNetmask ?? _config.stationNetmask,
         stationGateway: config.stationGateway ?? _config.stationGateway,
         mdns: config.mdns ?? _config.mdns,
+        dnsRedirection: config.dnsRedirection,
         httpReceiveTimeout: config.httpReceiveTimeout,
         httpTransmitTimeout: config.httpTransmitTimeout,
         httpExitMessage: config.httpExitMessage,
